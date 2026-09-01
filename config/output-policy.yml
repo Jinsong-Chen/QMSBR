@@ -1,0 +1,108 @@
+schema_version: 1
+release:
+  module_ids:
+    - part1-ch01
+    - part1-ch02
+    - part1-ch03
+    - part1-ch04
+  note_module_ids:
+    - part1-ch01
+  supplement_ids: []
+site_sources:
+  render:
+    - index.qmd
+    - library/index.qmd
+    - for-instructors.qmd
+    - about/index.qmd
+    - updates.qmd
+  assets:
+    - assets/favicon.svg
+    - assets/social-preview.png
+required_outputs:
+  - .nojekyll
+  - CITATION.cff
+  - LICENSE
+  - LICENSES/CC-BY-4.0.txt
+  - LICENSES/CC-BY-SA-3.0.txt
+  - LICENSES/CC0-1.0.txt
+  - LICENSES/MIT.txt
+  - NOTICE
+  - SHA256SUMS-preview.txt
+  - about/index.html
+  - assets/favicon.svg
+  - assets/social-preview.png
+  - chapters/chapter_01.html
+  - chapters/chapter_01.pdf
+  - chapters/chapter_02.html
+  - chapters/chapter_02.pdf
+  - chapters/chapter_03.html
+  - chapters/chapter_03.pdf
+  - chapters/chapter_04.html
+  - chapters/chapter_04.pdf
+  - for-instructors.html
+  - index.html
+  - lectures/lecture_01.pdf
+  - library/index.html
+  - release.json
+  - search.json
+  - updates.html
+generated_chapter_assets:
+  - chapters/chapter_01_files/figure-html/fig-framework-1.png
+  - chapters/chapter_01_files/figure-html/fig-three-perspectives-1.png
+  - chapters/chapter_01_files/figure-html/fig-workflow-1.png
+  - chapters/chapter_02_files/figure-html/fig-absence-grade-1.png
+  - chapters/chapter_02_files/figure-html/fig-binomial-model-1.png
+  - chapters/chapter_02_files/figure-html/fig-clt-sampling-means-1.png
+  - chapters/chapter_02_files/figure-html/fig-final-grade-distribution-1.png
+  - chapters/chapter_02_files/figure-html/fig-grade-by-study-time-1.png
+  - chapters/chapter_02_files/figure-html/fig-lln-1.png
+  - chapters/chapter_02_files/figure-html/fig-normal-symmetry-1.png
+  - chapters/chapter_02_files/figure-html/fig-same-mean-different-shape-1.png
+  - chapters/chapter_02_files/figure-html/fig-support-pass-1.png
+  - chapters/chapter_02_files/figure-html/fig-zero-correlation-dependence-1.png
+  - chapters/chapter_03_files/figure-html/fig-confidence-coverage-1.png
+  - chapters/chapter_03_files/figure-html/fig-program-bootstrap-1.png
+  - chapters/chapter_03_files/figure-html/fig-program-comparison-1.png
+  - chapters/chapter_03_files/figure-html/fig-sampling-means-1.png
+  - chapters/chapter_03_files/figure-html/fig-t-reference-1.png
+  - chapters/chapter_04_files/figure-html/fig-reading-distributions-1.png
+  - chapters/chapter_04_files/figure-html/fig-score-distributions-1.png
+  - chapters/chapter_04_files/figure-html/fig-two-way-interaction-1.png
+generated_runtime_files:
+  - site_libs/bootstrap/bootstrap-e9e44edca4b01ef481a44d1a821c0118.min.css
+  - site_libs/bootstrap/bootstrap-icons.css
+  - site_libs/bootstrap/bootstrap-icons.woff
+  - site_libs/bootstrap/bootstrap.min.js
+  - site_libs/clipboard/clipboard.min.js
+  - site_libs/quarto-html/anchor.min.js
+  - site_libs/quarto-html/popper.min.js
+  - site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css
+  - site_libs/quarto-html/quarto.js
+  - site_libs/quarto-html/tabsets/tabsets.js
+  - site_libs/quarto-html/tippy.css
+  - site_libs/quarto-html/tippy.umd.min.js
+  - site_libs/quarto-nav/headroom.min.js
+  - site_libs/quarto-nav/quarto-nav.js
+  - site_libs/quarto-search/autocomplete.umd.js
+  - site_libs/quarto-search/fuse.min.js
+  - site_libs/quarto-search/quarto-search.js
+forbidden_output_roots:
+  - archive
+  - exercises
+  - instructor
+  - labs
+  - planning
+  - renv
+  - supplement
+forbidden_output_extensions:
+  - .bib
+  - .csl
+  - .csv
+  - .docx
+  - .qmd
+  - .r
+  - .rds
+  - .rprofile
+  - .sps
+  - .tex
+  - .zip

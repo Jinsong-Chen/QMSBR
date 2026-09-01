@@ -1,0 +1,107 @@
+---
+title: "About QMSBR"
+subtitle: "A common architecture for learning quantitative research"
+description: "The purpose, argument framework, authorship, citation, licensing, and accessibility commitments of QMSBR."
+---
+
+QMSBR—*Quantitative Methods for Social and Behavioral Research*—is a modular
+collection of chapters designed to support more than one quantitative-methods
+course. Reproducible computing resources may join later releases after separate
+review. The collection is maintained as one canonical library so a correction
+can improve every course route that uses it.
+
+## The framework {#the-framework}
+
+The **Argument-Based Framework for Quantitative Research** organizes the work
+needed to answer a quantitative question in empirical research. The quantitative
+question sits at the centre and is the organizing unit. An optional, preferably
+prespecified hypothesis is a candidate answer; the final answer is a bounded
+substantive claim whose strength and scope reflect the evidence, design,
+assumptions, uncertainty, context, and reservations.
+
+The framework distinguishes two linked four-part arguments:
+
+| Statistical argument | Governing question |
+|---|---|
+| **STAT-E · Empirical evidence** | What data and data-production information were recorded for which units? |
+| **STAT-J · Statistical justification** | Why can those records and the planned or fitted procedure address the estimand or predictive target, under which conditions? |
+| **STAT-I · Statistical inference** | What estimand, estimate, uncertainty, checking, sensitivity, multiplicity, and analytic status connect the evidence to a claim? |
+| **STAT-C · Bounded statistical claim** | What qualified statement is justified, with which statistical reservations? |
+
+Within each argument, Evidence and Justification jointly support Inference,
+which supports a bounded Claim. Across the two arguments, each substantive
+component develops its statistical counterpart: SUB-E situates STAT-E, SUB-J
+augments and evaluates STAT-J, SUB-I interprets STAT-I, and STAT-C bounds and
+calibrates SUB-C.
+
+| Substantive argument | Governing question |
+|---|---|
+| **SUB-E · Contextualized empirical evidence** | What do the cases, variables, and design information in STAT-E represent in their substantive population, setting, and period? |
+| **SUB-J · Substantive justification** | Why does this contextualized evidence bear on the substantive question, claim type, and scope? |
+| **SUB-I · Substantive inference and interpretation** | What does the result mean in substantive units and context, how important is it, and what alternatives remain? |
+| **SUB-C · Bounded substantive claim (bounded answer)** | What final bounded answer is justified, including reservations and limits on causal or population generalization? |
+
+The same framework has three coordinated perspectives: **Argument** asks what
+must logically justify the answer; **Workflow** asks how the argument is built
+and revised across eight iterative proposal and implementation stages; and
+**Evaluation** uses seven named lenses---Question alignment, Evidence integrity,
+Justification adequacy, Inferential adequacy, Transition fidelity, Claim
+calibration, and Cross-question coherence. Multiple questions may share evidence
+and support, but each requires a distinct traceable argument and answer outcome.
+
+The framework is **Toulmin-informed**: it retains the need for evidence, a
+justified inferential bridge, qualified claims, and explicit reservations without
+treating the eight components as one-to-one replacements for Toulmin's six roles.
+LeMire (2010) provides a related statistical precedent focused on
+null-hypothesis testing. Chapter 1's Section 6, **How the Regression-Based
+Approach Develops and Instantiates the Framework**, explains how regression
+develops the available targets, comparisons, models, checks, and interpretive
+obligations, and how a particular regression analysis instantiates all eight
+components. Its Chapters 2--14 map is a subordinate guide to that development.
+
+## Scope
+
+Part One focuses mainly on observable variables, foundational statistical
+reasoning, R, and regression. Factor analysis and latent-variable modelling are
+reserved for Part Two; multilevel and longitudinal models are reserved for Part
+Three. Study design is addressed wherever it controls interpretation, but
+regression alone never creates a causal claim.
+
+## Author
+
+**Jinsong Chen**  
+Faculty of Education, The University of Hong Kong  
+[jinsong.chen@live.com](mailto:jinsong.chen@live.com)
+
+This is an independently maintained educational resource. The affiliation
+identifies the author; QMSBR is not presented as an official HKU website, and
+no HKU logo or institutional endorsement is implied.
+
+## Citation {#citation}
+
+Please cite the release you used. Repository metadata are provided in
+[CITATION.cff](../CITATION.cff); a suggested collection-level citation is:
+
+> Chen, J. (2026). *QMSBR: Quantitative Methods for Social and Behavioral
+> Research* (Version 2026.1).
+
+Also cite the original datasets, software, and studies used by an analysis.
+
+## Licences {#licences}
+
+Original narrative text, documentation, and figures are licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Original code is
+licensed under the [MIT License](../LICENSES/MIT.txt). Release 2026.1 distributes
+no standalone dataset. If QMSBR synthetic data are separately published in a
+later release, they will normally be dedicated under
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Third-party
+materials retain their own terms. The complete current scope map is in
+[LICENSE](../LICENSE) and [NOTICE](../NOTICE).
+
+## Accessibility
+
+HTML is the preferred reading format: it provides responsive layout, headings,
+search, link text, and selectable code. Downloadable PDFs are retained for
+printing and annotation and are checked for reading order, document language,
+bookmarks, metadata, and visual integrity. Accessibility problems can be
+reported through the repository issue tracker or by email.

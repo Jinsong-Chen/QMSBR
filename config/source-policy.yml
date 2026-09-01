@@ -1,0 +1,50 @@
+schema_version: 1
+repository_role: public-publication-mechanics
+# The public repository is mechanics-only. Every tracked path is named here;
+# adding a page, tool, workflow, or asset requires a deliberate policy update.
+allowed_files:
+  - .gitattributes
+  - .gitignore
+  - CITATION.cff
+  - LICENSE
+  - LICENSES/CC-BY-4.0.txt
+  - LICENSES/CC-BY-SA-3.0.txt
+  - LICENSES/CC0-1.0.txt
+  - LICENSES/MIT.txt
+  - NOTICE
+  - README.md
+  - config/output-policy.yml
+  - config/quarto-base.yml
+  - config/source-policy.yml
+  - requirements-release.txt
+  - src/about/index.qmd
+  - src/assets/favicon.svg
+  - src/assets/social-preview.png
+  - src/for-instructors.qmd
+  - src/index.qmd
+  - src/library/index.qmd
+  - src/styles.scss
+  - src/updates.qmd
+  - tests/test_publication_workflow.py
+  - tools/manage.py
+forbidden_extensions:
+  - .bib
+  - .csl
+  - .csv
+  - .doc
+  - .docx
+  - .dta
+  - .ipynb
+  - .odt
+  - .pdf
+  - .por
+  - .ppt
+  - .pptx
+  - .rds
+  - .sas
+  - .sas7bdat
+  - .sav
+  - .sps
+  - .xls
+  - .xlsx
+  - .zip

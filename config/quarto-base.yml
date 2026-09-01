@@ -1,0 +1,54 @@
+# Human-maintained site settings. `python tools/manage.py build` adds the exact
+# release render targets and resources inside a disposable Quarto project.
+project:
+  type: website
+  execute-dir: project
+
+website:
+  title: QMSBR
+  description: "Modular chapters for rigorous quantitative reasoning in social and behavioral research."
+  favicon: assets/favicon.svg
+  page-navigation: true
+  back-to-top-navigation: true
+  open-graph: true
+  twitter-card: true
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    background: "#0d2b3e"
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Library
+        href: library/index.qmd
+      - text: For instructors
+        href: for-instructors.qmd
+      - text: About
+        href: about/index.qmd
+      - text: Updates
+        href: updates.qmd
+  page-footer:
+    border: true
+    left: "© 2026 Jinsong Chen · Text licensed CC BY 4.0 unless otherwise noted."
+    right:
+      - text: Citation
+        href: about/index.qmd#citation
+      - text: Licences
+        href: about/index.qmd#licences
+      - text: Contact
+        href: mailto:jinsong.chen@live.com
+
+format:
+  html:
+    theme: [cosmo, styles.scss]
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    anchor-sections: true
+    format-links: false
+    embed-resources: false
+    link-external-icon: true
+
+lang: en
