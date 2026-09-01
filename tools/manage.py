@@ -1280,7 +1280,10 @@ def validate_output(
         verify_work_descendant_directory(site, "rendered site output")
     policy = model["output"]
     discovered = enumerate_ordinary_files(site, "rendered site output")
-    files = sorted((path.relative_to(site).as_posix() for path in discovered), key=str.casefold)
+    files = sorted(
+        (path.relative_to(site).as_posix() for path in discovered),
+        key=lambda path: path.encode("utf-8"),
+    )
     folded = [path.casefold() for path in files]
     if len(folded) != len(set(folded)):
         raise PublicationError("Rendered output has case-colliding paths")
