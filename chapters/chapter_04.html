@@ -1,0 +1,2762 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>Categorical Association and Analysis of Variance – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-e9e44edca4b01ef481a44d1a821c0118.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Categorical Association and Analysis of Variance – QMSBR">
+<meta property="og:description" content="Modular chapters for rigorous quantitative reasoning in social and behavioral research.">
+<meta property="og:image" content="https://jinsong-chen.github.io/QMSBR/chapters/chapter_04_files/figure-html/fig-score-distributions-1.png">
+<meta property="og:site_name" content="QMSBR">
+<meta property="og:image:alt" content="Violin plots with overlaid boxplots and jittered individual points of final scores for the Standard, Practice, and Retrieval programs. All three distributions overlap heavily across a roughly 48-to-97-point range, with medians of about 71.9, 75.6, and 76.2 points respectively.">
+<meta property="og:image:height" content="844">
+<meta property="og:image:width" content="1344">
+<meta name="twitter:title" content="Categorical Association and Analysis of Variance – QMSBR">
+<meta name="twitter:description" content="Modular chapters for rigorous quantitative reasoning in social and behavioral research.">
+<meta name="twitter:image" content="https://jinsong-chen.github.io/QMSBR/chapters/chapter_04_files/figure-html/fig-score-distributions-1.png">
+<meta name="twitter:image:alt" content="Violin plots with overlaid boxplots and jittered individual points of final scores for the Standard, Practice, and Retrieval programs. All three distributions overlap heavily across a roughly 48-to-97-point range, with medians of about 71.9, 75.6, and 76.2 points respectively.">
+<meta name="twitter:image-height" content="844">
+<meta name="twitter:image-width" content="1344">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../library/index.html"> 
+<span class="menu-text">Library</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../for-instructors.html"> 
+<span class="menu-text">For instructors</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about/index.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../updates.html"> 
+<span class="menu-text">Updates</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Categorical Association and Analysis of Variance</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#opening-problem" id="toc-opening-problem">Opening Problem</a>
+  <ul>
+  <li><a href="#keep-the-reasoning-from-question-to-claim-visible" id="toc-keep-the-reasoning-from-question-to-claim-visible">Keep the reasoning from question to claim visible</a></li>
+  </ul></li>
+  <li><a href="#categorical-association-tables-measures-and-inference" id="toc-categorical-association-tables-measures-and-inference">Categorical Association: Tables, Measures, and Inference</a>
+  <ul>
+  <li><a href="#counts-need-denominators" id="toc-counts-need-denominators">Counts need denominators</a></li>
+  <li><a href="#difference-ratio-and-odds-ratio" id="toc-difference-ratio-and-odds-ratio">Difference, ratio, and odds ratio</a></li>
+  <li><a href="#three-kinds-of-target-declared-before-any-test" id="toc-three-kinds-of-target-declared-before-any-test">Three kinds of target, declared before any test</a></li>
+  <li><a href="#independence-expected-counts-and-the-chi-square-statistic" id="toc-independence-expected-counts-and-the-chi-square-statistic">Independence, expected counts, and the chi-square statistic</a></li>
+  <li><a href="#strength-and-pattern-are-separate-from-evidence" id="toc-strength-and-pattern-are-separate-from-evidence">Strength and pattern are separate from evidence</a></li>
+  <li><a href="#estimation-and-testing-use-related-but-distinct-standard-errors" id="toc-estimation-and-testing-use-related-but-distinct-standard-errors">Estimation and testing use related but distinct standard errors</a></li>
+  <li><a href="#three-groups-and-a-binary-outcome" id="toc-three-groups-and-a-binary-outcome">Three groups and a binary outcome</a></li>
+  <li><a href="#sparse-tables-and-exact-inference" id="toc-sparse-tables-and-exact-inference">Sparse tables and exact inference</a></li>
+  </ul></li>
+  <li><a href="#group-means-distributions-and-estimands" id="toc-group-means-distributions-and-estimands">Group Means: Distributions and Estimands</a>
+  <ul>
+  <li><a href="#observational-groups-require-restrained-language" id="toc-observational-groups-require-restrained-language">Observational groups require restrained language</a></li>
+  </ul></li>
+  <li><a href="#one-way-anova-the-group-mean-model-and-the-f-statistic" id="toc-one-way-anova-the-group-mean-model-and-the-f-statistic">One-Way ANOVA: The Group-Mean Model and the F Statistic</a>
+  <ul>
+  <li><a href="#partitioning-variation" id="toc-partitioning-variation">Partitioning variation</a></li>
+  <li><a href="#verify-the-sum-of-squares-identity" id="toc-verify-the-sum-of-squares-identity">Verify the sum-of-squares identity</a></li>
+  </ul></li>
+  <li><a href="#robustness-effect-size-and-specific-comparisons" id="toc-robustness-effect-size-and-specific-comparisons">Robustness, Effect Size, and Specific Comparisons</a>
+  <ul>
+  <li><a href="#assumptions-are-questions-about-the-data-generating-process" id="toc-assumptions-are-questions-about-the-data-generating-process">Assumptions are questions about the data-generating process</a></li>
+  <li><a href="#welchs-anova" id="toc-welchs-anova">Welch’s ANOVA</a></li>
+  <li><a href="#effect-size-how-much-sample-variation-is-represented" id="toc-effect-size-how-much-sample-variation-is-represented">Effect size: how much sample variation is represented?</a></li>
+  <li><a href="#planned-contrasts" id="toc-planned-contrasts">Planned contrasts</a></li>
+  <li><a href="#exploratory-pairwise-comparisons-and-multiplicity" id="toc-exploratory-pairwise-comparisons-and-multiplicity">Exploratory pairwise comparisons and multiplicity</a></li>
+  </ul></li>
+  <li><a href="#a-real-randomized-comparison-reading-comprehension-instruction" id="toc-a-real-randomized-comparison-reading-comprehension-instruction">A Real Randomized Comparison: Reading Comprehension Instruction</a>
+  <ul>
+  <li><a href="#provenance-first" id="toc-provenance-first">Provenance first</a></li>
+  <li><a href="#link-the-research-question-to-the-model-estimand" id="toc-link-the-research-question-to-the-model-estimand">Link the research question to the model estimand</a></li>
+  <li><a href="#estimation-sensitivity-and-the-specific-comparison" id="toc-estimation-sensitivity-and-the-specific-comparison">Estimation, sensitivity, and the specific comparison</a></li>
+  <li><a href="#a-bounded-result-before-substantive-interpretation" id="toc-a-bounded-result-before-substantive-interpretation">A bounded result before substantive interpretation</a></li>
+  </ul></li>
+  <li><a href="#anova-as-additive-regression" id="toc-anova-as-additive-regression">ANOVA as Additive Regression</a></li>
+  <li><a href="#two-way-anova-and-factorial-designs" id="toc-two-way-anova-and-factorial-designs">Two-Way ANOVA and Factorial Designs</a>
+  <ul>
+  <li><a href="#cell-mean-and-effects-models" id="toc-cell-mean-and-effects-models">Cell-mean and effects models</a></li>
+  <li><a href="#three-explicit-nested-model-tests" id="toc-three-explicit-nested-model-tests">Three explicit nested-model tests</a></li>
+  <li><a href="#blocking-and-the-declared-error-model" id="toc-blocking-and-the-declared-error-model">Blocking and the declared error model</a></li>
+  <li><a href="#the-design-determines-the-claim" id="toc-the-design-determines-the-claim">The design determines the claim</a></li>
+  <li><a href="#regression-bridge" id="toc-regression-bridge">Regression bridge</a></li>
+  </ul></li>
+  <li><a href="#applying-the-framework-through-three-perspectives" id="toc-applying-the-framework-through-three-perspectives">Applying the Framework Through Three Perspectives</a>
+  <ul>
+  <li><a href="#argument-perspective" id="toc-argument-perspective">Argument perspective</a></li>
+  <li><a href="#workflow-perspective" id="toc-workflow-perspective">Workflow perspective</a></li>
+  <li><a href="#evaluation-perspective" id="toc-evaluation-perspective">Evaluation perspective</a></li>
+  </ul></li>
+  <li><a href="#reading-bridge" id="toc-reading-bridge">Reading Bridge</a></li>
+  <li><a href="#references" id="toc-references">References</a></li>
+  <li><a href="#exercises" id="toc-exercises">Exercises</a>
+  <ul>
+  <li><a href="#categorical-comparison" id="toc-categorical-comparison">Categorical comparison</a></li>
+  <li><a href="#chi-square-evidence-and-pattern" id="toc-chi-square-evidence-and-pattern">Chi-square evidence and pattern</a></li>
+  <li><a href="#anova-contrast-and-multiplicity" id="toc-anova-contrast-and-multiplicity">ANOVA, contrast, and multiplicity</a></li>
+  <li><a href="#anova-as-regression-and-a-factorial-bridge" id="toc-anova-as-regression-and-a-factorial-bridge">ANOVA as regression and a factorial bridge</a></li>
+  <li><a href="#evaluate-a-real-experiment" id="toc-evaluate-a-real-experiment">Evaluate a real experiment</a></li>
+  </ul></li>
+  </ul>
+</nav>
+<div style="page-break-after: always;"></div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Chapter box">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Chapter box
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Sustained research question:</strong> Among fourth-grade students represented by comparable repetitions of this randomized study in the same school setting, how would mean error-detection score compare under a policy assigning equal proportions to DRTA and think-aloud instruction versus assigning everyone to DRA?</p>
+<p><strong>Candidate answer and status:</strong> The source study planned this instructional contrast. The chapter’s analysis is a secondary, unadjusted reanalysis of one of three quantitative outcomes, so its inferential family and limitations must remain explicit.</p>
+<p><strong>Focal components — statistical argument:</strong> <strong>STAT-E empirical evidence</strong> records the observations and how they were produced; <strong>STAT-J statistical justification</strong> states why the design, assumptions, and procedure bear on the declared target; <strong>STAT-I statistical inference</strong> supplies the estimand, estimate, uncertainty, checking, and analytic status; and <strong>STAT-C bounded statistical claim</strong> retains the magnitude, uncertainty, conditions, and reservations.</p>
+<p><strong>Focal components — substantive argument:</strong> <strong>SUB-E contextualized empirical evidence</strong> identifies whom, what, where, and when the observations represent; <strong>SUB-J substantive justification</strong> augments and evaluates the statistical support using literature, theory, measurement, and design relevance; <strong>SUB-I substantive inference and interpretation</strong> gives the statistical result meaning in context; and <strong>SUB-C bounded substantive claim</strong> answers the research question without exceeding the statistical boundary.</p>
+<p><strong>Main evidence:</strong> Categorical and quantitative group comparisons in a public observational sample, one- and two-factor analyses in a documented simulation, randomized-within-school study, and one real randomized instructional experiment.</p>
+<p><strong>Mechanism to explain:</strong> ANOVA partitions observed variation into fitted group-pattern and residual components; their mean-square ratio is evaluated against an <span class="math inline">\(F\)</span> reference model.</p>
+<p><strong>Boundary:</strong> An omnibus result does not identify which comparison matters, measure practical importance, or turn observed groups into randomized factors. The unit, analytic sample, cell support, and assignment process bound every claim.</p>
+</div>
+</div>
+<section id="opening-problem" class="level2">
+<h2 class="anchored" data-anchor-id="opening-problem">Opening Problem</h2>
+<p>Two common quantitative research questions do not initially look like regression questions:</p>
+<ol type="1">
+<li>Is a categorical outcome distributed differently across groups?</li>
+<li>Do the population means of a quantitative outcome differ across groups?</li>
+</ol>
+<p>For the first question, researchers usually begin with a two-way table. For the second, they often begin with ANOVA. Both methods are comparison frameworks. Their validity depends first on the unit, measurement, sampling or assignment mechanism, missingness, and target population - not on which menu command produces a p-value.</p>
+<p>This chapter uses three evidence sources. The first is a synthetic study of 360 fictional students. Consent is selective, program assignment is randomized within school among consenters, and completion is affected by post-assignment variables. The data-generating process is known, so we can see exactly why random assignment and an analyzed complete-case sample are different design facts. The second is a curated subset of a real observational dataset from two Portuguese secondary schools. Its associations describe the recorded students; they are not automatically causal. The third is the Baumann randomized reading experiment, which supplies the sustained substantive question and makes the consequences of incomplete post-assignment outcomes visible.</p>
+<p>The real example is drawn from the Student Performance dataset in the University of California, Irvine (UCI) Machine Learning Repository, a public archive of research datasets <span class="citation" data-cites="cortez2008data">(<a href="#ref-cortez2008data" role="doc-biblioref">Cortez, 2008</a>)</span>.</p>
+<p>The <code>Baumann</code> example is accessed directly from <code>carData</code>.</p>
+<p>The chapter ends with an important bridge: ANOVA and regression are two representations of the same linear-model framework. One-way ANOVA uses group indicators; two-way ANOVA adds a second factor and, when required by the question and design, a factor-by-factor interaction <span class="citation" data-cites="maxwell2018">(<a href="#ref-maxwell2018" role="doc-biblioref">Maxwell et al., 2018</a>)</span>.</p>
+<section id="keep-the-reasoning-from-question-to-claim-visible" class="level3">
+<h3 class="anchored" data-anchor-id="keep-the-reasoning-from-question-to-claim-visible">Keep the reasoning from question to claim visible</h3>
+<p>A defensible analysis keeps both arguments connected. Within the statistical argument, STAT-E and STAT-J support STAT-I, which supports STAT-C. Within the substantive argument, SUB-E and SUB-J support SUB-I, which supports SUB-C. Across the arguments, each substantive component has a distinct relation to its statistical counterpart:</p>
+<div id="tbl-ch04-framework-callback" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[22,78]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-framework-callback-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Four role-specific transitions between the statistical and substantive arguments.
+</figcaption>
+<div aria-describedby="tbl-ch04-framework-callback-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 78%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Shared role</th>
+<th style="text-align: left;">Statistical-to-substantive transition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Evidence</td>
+<td style="text-align: left;">SUB-E <strong>situates</strong> STAT-E in population, setting, time, and substantive meaning.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Justification</td>
+<td style="text-align: left;">SUB-J <strong>augments and evaluates</strong> STAT-J using literature, theory, measurement, and design relevance.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Inference</td>
+<td style="text-align: left;">SUB-I <strong>interprets</strong> STAT-I in substantive units and context.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Claim</td>
+<td style="text-align: left;">STAT-C <strong>bounds and calibrates</strong> SUB-C so that uncertainty and reservations remain visible.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The <strong>Argument perspective</strong> asks what must logically justify the answer. The <strong>Workflow perspective</strong> asks how that reasoning is constructed and revised in eight operationally iterative stages. The <strong>Evaluation perspective</strong> uses seven named lenses to assess and calibrate it. These perspectives are many-to-many: no stage or lens belongs to only one component. The Baumann reading experiment later in the chapter demonstrates all three; shorter checkpoints elsewhere serve only as local reading aids.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="The ANOVA mechanism and its research role">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The ANOVA mechanism and its research role
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Several group means require one coherent comparison before individual pairs are interpreted. ANOVA partitions observed variation into fitted between-group and residual within-group components and compares their mean squares. The <span class="math inline">\(F\)</span> ratio evaluates an omnibus mean pattern under a declared model; a specific contrast, outcome-scale uncertainty, design argument, and bounded substantive interpretation are still required.</p>
+</div>
+</div>
+<p>In the synthetic study, for example, 360 students were invited, 271 consented, and only 216 both consented and completed the post-program assessment. Program was randomized among consenters, but restricting analysis to completers conditions on a post-assignment event. The resulting complete-case contrast is therefore not identical to the intention-to-treat contrast among everyone randomized.</p>
+<p>The first task in any table or ANOVA analysis is thus to state which participants entered the analysis and why.</p>
+</section>
+</section>
+<section id="categorical-association-tables-measures-and-inference" class="level2">
+<h2 class="anchored" data-anchor-id="categorical-association-tables-measures-and-inference">Categorical Association: Tables, Measures, and Inference</h2>
+<p>A two-way table cross-classifies the same observational units by two categorical variables <span class="citation" data-cites="agresti2018">(<a href="#ref-agresti2018" role="doc-biblioref">Agresti, 2018</a>)</span>. The table can answer a research question only after we declare the four ingredients in <a href="#tbl-categorical-declarations" class="quarto-xref">Table&nbsp;2</a>:</p>
+<div id="tbl-categorical-declarations" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[30,70]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-categorical-declarations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Four declarations required before interpreting a two-way table.
+</figcaption>
+<div aria-describedby="tbl-categorical-declarations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Ingredient</th>
+<th style="text-align: left;">Example in the UCI data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Unit</td>
+<td style="text-align: left;">One recorded student</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group or explanatory variable</td>
+<td style="text-align: left;">Intention to pursue higher education: <code>yes</code> or <code>no</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Event or response</td>
+<td style="text-align: left;">Passing: final grade at least 10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Denominator</td>
+<td style="text-align: left;">Students within each higher-education-intention group</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The group label <em>explanatory</em> describes the direction of the comparison. It does not establish that the variable causes the response.</p>
+<section id="counts-need-denominators" class="level3">
+<h3 class="anchored" data-anchor-id="counts-need-denominators">Counts need denominators</h3>
+<div class="cell" data-layout-align="center">
+<div id="tbl-uci-two-way" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-uci-two-way-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Higher-education intention by pass status among the recorded UCI students: counts, with the within-row passing proportion.
+</figcaption>
+<div aria-describedby="tbl-uci-two-way-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Intention</th>
+<th style="text-align: right;">Did not pass</th>
+<th style="text-align: right;">Passed</th>
+<th style="text-align: right;">Row total</th>
+<th style="text-align: right;">Passing proportion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">no</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.350</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">yes</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">258</td>
+<td style="text-align: right;">375</td>
+<td style="text-align: right;">0.688</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In <a href="#tbl-uci-two-way" class="quarto-xref">Table&nbsp;3</a> there are more passing students in the <code>yes</code> group, but that group is also much larger. The within-row passing proportions are the relevant comparisons:</p>
+<p><span class="math display">\[
+\widehat p_{\text{yes}}=258/375=0.688,
+\qquad
+\widehat p_{\text{no}}=7/20=0.350.
+\]</span></p>
+<p>The column percentages would answer another question: among students who passed or did not pass, what fraction intended higher education? Neither set of percentages is universally correct. The research question selects the denominator.</p>
+</section>
+<section id="difference-ratio-and-odds-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="difference-ratio-and-odds-ratio">Difference, ratio, and odds ratio</h3>
+<p>For two groups and a binary event, three common descriptive measures are</p>
+<p><span class="math display">\[
+\widehat{RD}=\widehat p_1-\widehat p_0,
+\qquad
+\widehat{RR}=\frac{\widehat p_1}{\widehat p_0},
+\qquad
+\widehat{OR}=\frac{\widehat p_1/(1-\widehat p_1)}
+{\widehat p_0/(1-\widehat p_0)}.
+\]</span></p>
+<p>Using <code>yes</code> as group 1, <code>no</code> as group 0, and passing as the event gives a proportion difference of 0.338, a proportion ratio of 1.97, and an odds ratio of 4.10, collected in <a href="#tbl-association-measures" class="quarto-xref">Table&nbsp;4</a>. These are different scales, not competing estimates of the same number.</p>
+<ul>
+<li>The difference says the observed passing proportion is 33.8 percentage points higher.</li>
+<li>The ratio says it is about 1.97 times as large.</li>
+<li>The odds ratio says the observed odds are about 4.10 times as large.</li>
+</ul>
+<p>Because the event is common, the odds ratio is noticeably farther from 1 than the proportion ratio. Describing an odds ratio as a risk or probability ratio would overstate the comparison. Reversing the event or reference group also changes the sign or reciprocal, so a report must name both explicitly.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-association-measures" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-association-measures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Three descriptive association measures for passing, comparing students who intend higher education (group 1) with those who do not (group 0).
+</figcaption>
+<div aria-describedby="tbl-association-measures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Measure</th>
+<th style="text-align: right;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Proportion difference</td>
+<td style="text-align: right;">0.338</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Proportion ratio</td>
+<td style="text-align: right;">1.97</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Odds ratio</td>
+<td style="text-align: right;">4.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="three-kinds-of-target-declared-before-any-test" class="level3">
+<h3 class="anchored" data-anchor-id="three-kinds-of-target-declared-before-any-test">Three kinds of target, declared before any test</h3>
+<p>The three measures above are <strong>realized descriptive quantities</strong> computed from the observed table, so they are known exactly. Expected counts derived from the observed margins and Pearson’s <span class="math inline">\(X^2\)</span> can likewise be calculated as table summaries. A stochastic target and reference model are required only when that <span class="math inline">\(X^2\)</span> is given a repeated-sampling interpretation or a p-value, or when an interval is attached to a population/process quantity. Three target types are used in this chapter, and a report must say which one it means.</p>
+<div id="tbl-ch04-targets" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[26,50,24]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-targets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Three targets a group comparison can have. Only the second and third carry inferential uncertainty.
+</figcaption>
+<div aria-describedby="tbl-ch04-targets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 50%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Target</th>
+<th style="text-align: left;">What it is</th>
+<th style="text-align: left;">Uncertainty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Realized descriptive quantity</td>
+<td style="text-align: left;">A summary of the records actually in hand, such as <span class="math inline">\(\widehat p_{\text{yes}}-\widehat p_{\text{no}}\)</span></td>
+<td style="text-align: left;">None: it is known exactly</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Model or superpopulation estimand</td>
+<td style="text-align: left;">A parameter of a stochastic record-generating process for which the observed participants are treated as one realization</td>
+<td style="text-align: left;">From the assumed process, under stated conditions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Randomization estimand</td>
+<td style="text-align: left;">A contrast defined by an assignment mechanism that the investigators controlled</td>
+<td style="text-align: left;">From the assignment distribution</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>For the UCI analysis this chapter declares a <strong>model or superpopulation estimand</strong>:</p>
+<p><span class="math display">\[
+\Delta_{\text{UCI}}=\pi_{\text{yes}}-\pi_{\text{no}},
+\qquad
+\pi_g=P_{\mathcal{S}}(\text{pass}\mid\text{intention}=g),
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal{S}\)</span> is a hypothetical record-generating process. Naming that process is what makes the interval and the test meaningful, so the conditions are stated in full:</p>
+<ul>
+<li><strong>Stochastic repetition imagined.</strong> One more academic year of mathematics students at these two Portuguese secondary schools, enrolled, taught, questioned, and graded under the same procedures, would produce another cohort of the same kind. <span class="math inline">\(\pi_g\)</span> is the passing probability for that process, not a proportion in any enumerated real population.</li>
+<li><strong>Participant independence.</strong> Each student’s recorded intention and grade are treated as one independent draw. Students share classrooms, teachers, and schools, so this is an assumption imposed by the analysis, not a documented property of the source.</li>
+<li><strong>Missingness and selection.</strong> The curated dataset contains no missing values on the two analyzed variables, but it already reflects enrollment, survey participation, and the curation described in the source documentation <span class="citation" data-cites="cortez2008data">(<a href="#ref-cortez2008data" role="doc-biblioref">Cortez, 2008</a>)</span>. <span class="math inline">\(\mathcal{S}\)</span> includes that selection; students outside those processes are outside the target.</li>
+<li><strong>Process stability.</strong> Intention, teaching, and the pass threshold of 10 are assumed to mean the same thing across both schools and across the imagined repetition.</li>
+<li><strong>Prespecification.</strong> The intention-by-pass comparison was chosen for this chapter after the dataset was curated. It is therefore <strong>exploratory</strong>: the p-value is model-based evidence under the working process, not confirmatory control of a prespecified decision rule.</li>
+</ul>
+<p><span class="math inline">\(\Delta_{\text{UCI}}\)</span> is the target of the chi-square test and the interval below, and it must remain the target of the bounded statistical claim. If a reader is unwilling to grant that process, the honest report stops at the realized descriptive quantities.</p>
+</section>
+<section id="independence-expected-counts-and-the-chi-square-statistic" class="level3">
+<h3 class="anchored" data-anchor-id="independence-expected-counts-and-the-chi-square-statistic">Independence, expected counts, and the chi-square statistic</h3>
+<p>The null hypothesis for Pearson’s chi-square test of independence states that, in the population represented by the design, the distribution of one categorical variable is the same across levels of the other <span class="citation" data-cites="agresti2018 moore2014">(<a href="#ref-agresti2018" role="doc-biblioref">Agresti, 2018</a>; <a href="#ref-moore2014" role="doc-biblioref">Moore et al., 2014</a>)</span>. Here that population is the record-generating process <span class="math inline">\(\mathcal{S}\)</span> just declared, and the omnibus null is <span class="math inline">\(\Delta_{\text{UCI}}=0\)</span>. For row <span class="math inline">\(r\)</span> and column <span class="math inline">\(c\)</span>, the expected count under independence is</p>
+<p><span class="math display">\[
+E_{rc}=\frac{(\text{row }r\text{ total})(\text{column }c\text{ total})}{n}.
+\]</span></p>
+<p>The Pearson statistic aggregates standardized discrepancies between observed and expected counts:</p>
+<p><span class="math display">\[
+X^2=\sum_r\sum_c\frac{(O_{rc}-E_{rc})^2}{E_{rc}},
+\qquad df=(R-1)(C-1).
+\]</span></p>
+<p>A large statistic means that the table is far from the independence pattern relative to its expected sampling variation. It does not identify a cause or say which cells matter most.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-chi-square-uci" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-chi-square-uci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Expected counts under independence and standardized residuals for the higher-education-intention table.
+</figcaption>
+<div aria-describedby="tbl-chi-square-uci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Intention</th>
+<th style="text-align: left;">Pass status</th>
+<th style="text-align: right;">Observed</th>
+<th style="text-align: right;">Expected</th>
+<th style="text-align: right;">Standardized residual</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">6.58</td>
+<td style="text-align: right;">3.13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">13.42</td>
+<td style="text-align: right;">-3.13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">123.42</td>
+<td style="text-align: right;">-3.13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: right;">258</td>
+<td style="text-align: right;">251.58</td>
+<td style="text-align: right;">3.13</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div id="tbl-chi-square-uci-test" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-chi-square-uci-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Omnibus independence result for the higher-education-intention table.
+</figcaption>
+<div aria-describedby="tbl-chi-square-uci-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pearson chi-square</td>
+<td style="text-align: right;">9.82</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">df</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">p</td>
+<td style="text-align: right;">.002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cramer’s V</td>
+<td style="text-align: right;">0.158</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-chi-square-uci-test" class="quarto-xref">Table&nbsp;7</a> reports the omnibus result: <span class="math inline">\(\chi^2=9.82\)</span>, <span class="math inline">\(df=1\)</span>, and <span class="math inline">\(p = .002\)</span> using the uncorrected Pearson reference distribution. The data are inconsistent with <span class="math inline">\(\Delta_{\text{UCI}}=0\)</span> under the declared record-generating process. The standardized residuals in <a href="#tbl-chi-square-uci" class="quarto-xref">Table&nbsp;6</a> show the direction: the <code>yes</code>-and-pass and <code>no</code>-and-not-pass cells exceed their expected counts. This remains an observational association. Intention, prior achievement, opportunity, and many other features may be entangled.</p>
+</section>
+<section id="strength-and-pattern-are-separate-from-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="strength-and-pattern-are-separate-from-evidence">Strength and pattern are separate from evidence</h3>
+<p>For an <span class="math inline">\(R\times C\)</span> table, Cramer’s <span class="math inline">\(V\)</span> rescales the Pearson statistic by the sample size and the smaller table dimension <span class="citation" data-cites="cramer1946">(<a href="#ref-cramer1946" role="doc-biblioref">Cramér, 1946</a>)</span>:</p>
+<p><span class="math display">\[
+V=\sqrt{\frac{X^2}{n\min(R-1,C-1)}}.
+\]</span></p>
+<p>It is zero when observed counts match the independence pattern and approaches one in some strongly associated tables. The value here is about 0.158. No universal small/medium/large label can supply substantive meaning. Report it with conditional percentages and cell diagnostics so readers can see the pattern that produced the omnibus value.</p>
+</section>
+<section id="estimation-and-testing-use-related-but-distinct-standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="estimation-and-testing-use-related-but-distinct-standard-errors">Estimation and testing use related but distinct standard errors</h3>
+<p>The omnibus chi-square test asks whether the whole table follows an independence model. The declared estimand <span class="math inline">\(\Delta_{\text{UCI}}\)</span> is on the proportion-difference scale, so an interval on that scale is also useful. A large-sample unpooled standard error (SE, the estimated standard deviation of an estimator across repeated samples) for the estimated difference is</p>
+<p><span class="math display">\[
+SE(\widehat p_1-\widehat p_0)=
+\sqrt{\frac{\widehat p_1(1-\widehat p_1)}{n_1}+
+\frac{\widehat p_0(1-\widehat p_0)}{n_0}}.
+\]</span></p>
+<p>The unpooled formula estimates uncertainty around two potentially different population proportions. By contrast, a score test of equality pools the proportions under its null restriction. That distinction is easy to lose when software reports only one p-value.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-proportion-difference-interval" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-proportion-difference-interval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Large-sample estimate, standard error, and 95% confidence interval for the passing-proportion difference (higher-education intention yes minus no).
+</figcaption>
+<div aria-describedby="tbl-proportion-difference-interval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: right;">Lower</th>
+<th style="text-align: right;">Upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.338</td>
+<td style="text-align: right;">0.109</td>
+<td style="text-align: right;">0.124</td>
+<td style="text-align: right;">0.552</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-proportion-difference-interval" class="quarto-xref">Table&nbsp;8</a> gives an illustrative large-sample Wald 95% confidence interval (CI, the set of values compatible with the data under the stated model), which runs from 0.12 to 0.55. It describes values of <span class="math inline">\(\Delta_{\text{UCI}}\)</span> compatible with this large-sample model. It does not describe the realized difference of 0.338, which is known exactly. The <code>no</code> group contains only 20 students, so this Wald interval should not be the sole basis of a formal claim; a score-based interval or another small-sample-appropriate analysis should be prespecified as the primary procedure or reported as a sensitivity analysis <span class="citation" data-cites="wilson1927">(<a href="#ref-wilson1927" role="doc-biblioref">Wilson, 1927</a>)</span>. No interval resolves the observational design or the narrow two-school source population.</p>
+</section>
+<section id="three-groups-and-a-binary-outcome" class="level3">
+<h3 class="anchored" data-anchor-id="three-groups-and-a-binary-outcome">Three groups and a binary outcome</h3>
+<div class="cell" data-layout-align="center">
+<div id="tbl-program-pass" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-program-pass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Program by pass status among the synthetic-study completers, with within-program passing proportions.
+</figcaption>
+<div aria-describedby="tbl-program-pass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Program</th>
+<th style="text-align: right;">Did not pass</th>
+<th style="text-align: right;">Passed</th>
+<th style="text-align: right;">Row total</th>
+<th style="text-align: right;">Passing proportion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Standard</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">0.577</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">0.675</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">0.794</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In <a href="#tbl-program-pass" class="quarto-xref">Table&nbsp;9</a> the passing proportions were 0.577, 0.675, and 0.794 for Standard, Practice, and Retrieval respectively.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-program-pass-test" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-program-pass-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Omnibus independence result for the program-by-pass table.
+</figcaption>
+<div aria-describedby="tbl-program-pass-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pearson chi-square</td>
+<td style="text-align: right;">7.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">df</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">p</td>
+<td style="text-align: right;">.023</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cramer’s V</td>
+<td style="text-align: right;">0.187</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The omnibus chi-square result in <a href="#tbl-program-pass-test" class="quarto-xref">Table&nbsp;10</a> is <span class="math inline">\(\chi^2(2)=7.51\)</span>, <span class="math inline">\(p = .023\)</span>. Its target is again a model estimand, not the realized table: the passing probabilities of the complete-case record-generating process defined in the next section. It says those modeled probabilities are not all equal; it does not say that all three pairwise proportions differ. The <strong>randomization estimand</strong> available in this study is different again — the contrast among <em>everyone randomized</em>, which the assignment mechanism itself defines — and this complete-case table does not estimate it, because program was randomized before some students failed to complete the outcome. A causal statement about the complete-case association would require an argument that conditioning on completion did not break the randomized comparison.</p>
+</section>
+<section id="sparse-tables-and-exact-inference" class="level3">
+<h3 class="anchored" data-anchor-id="sparse-tables-and-exact-inference">Sparse tables and exact inference</h3>
+<p>The chi-square reference distribution is an approximation. It becomes unreliable when expected counts are too small or observations are not independent. A common diagnostic is whether expected counts are mostly at least five, but that is a screening convention rather than a law. Examine the full table, sample size, design, and analysis purpose.</p>
+<p>For a small <span class="math inline">\(2\times2\)</span> table, Fisher’s exact test calculates a conditional reference distribution given the margins <span class="citation" data-cites="fisher1935 agresti2018">(<a href="#ref-agresti2018" role="doc-biblioref">Agresti, 2018</a>; <a href="#ref-fisher1935" role="doc-biblioref">Fisher, 1935</a>)</span>. In <a href="#tbl-fisher-example" class="quarto-xref">Table&nbsp;11</a>, the two smaller expected counts are only 4, so the usual approximation deserves caution.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-fisher-example" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-fisher-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: An artificial sparse table: observed counts with the expected counts under independence in parentheses.
+</figcaption>
+<div aria-describedby="tbl-fisher-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: right;">Event</th>
+<th style="text-align: right;">No event</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">1 (4.00)</td>
+<td style="text-align: right;">9 (6.00)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">7 (4.00)</td>
+<td style="text-align: right;">3 (6.00)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Fisher’s two-sided p-value for this table is about .020. “Exact” refers to the conditional probability calculation. It does not mean that the sample represents a population exactly, that observations are independent, or that the variables were measured without error.</p>
+</section>
+</section>
+<section id="group-means-distributions-and-estimands" class="level2">
+<h2 class="anchored" data-anchor-id="group-means-distributions-and-estimands">Group Means: Distributions and Estimands</h2>
+<p>When the response is quantitative, the quantity of interest often changes from group proportions to group means. The three targets of <a href="#tbl-ch04-targets" class="quarto-xref">Table&nbsp;5</a> apply unchanged, and the synthetic study makes all three visible at once.</p>
+<p>The <strong>realized descriptive quantities</strong> are the 216 completers’ group means. They are known exactly and need no interval. The <strong>randomization estimand</strong> is the program contrast among <em>all</em> 271 randomized consenters, which the within-school assignment mechanism supports as a causal assignment target; no analysis in this chapter estimates it, because the outcome is missing for 55 of them. What the ANOVA below does target is a <strong>model or superpopulation estimand</strong> for the analyzed complete cases. Writing <span class="math inline">\(C=1\)</span> for consent and <span class="math inline">\(R=1\)</span> for a recorded final score, let <span class="math inline">\(Y_{ij}\)</span> be the response for unit <span class="math inline">\(i\)</span> in group <span class="math inline">\(j\)</span> and define</p>
+<p><span class="math display">\[
+\mu_j=E_{\mathcal{P}}(Y\mid G=j,\;C=1,\;R=1).
+\]</span></p>
+<p>The conditioning set is part of the symbol, not a footnote to it: <span class="math inline">\(\mu_j\)</span> is the mean of the arm-specific <strong>observed-completer</strong> distribution, and the imagined repetition <span class="math inline">\(\mathcal{P}\)</span> is another run of the same six-school invitation, consent, within-school assignment, implementation, and follow-up process. Participant independence, a stable process, finite group variances, and the variance model are further conditions. Because completion is a post-assignment event, <span class="math inline">\(\mu_R-\mu_S\)</span> is <strong>not</strong> the randomization estimand and must not be relabeled as one.</p>
+<p>A one-way comparison asks whether these means are equal, but a good analysis begins with the distributions.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-score-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Violin plots with overlaid boxplots and jittered individual points of final scores for the Standard, Practice, and Retrieval programs. All three distributions overlap heavily across a roughly 48-to-97-point range, with medians of about 71.9, 75.6, and 76.2 points respectively." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-score-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_04_files/figure-html/fig-score-distributions-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Violin plots with overlaid boxplots and jittered individual points of final scores for the Standard, Practice, and Retrieval programs. All three distributions overlap heavily across a roughly 48-to-97-point range, with medians of about 71.9, 75.6, and 76.2 points respectively." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-score-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Final-score distributions among synthetic-study completers. Points preserve the individual observations; boxplots and violins summarize different features.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The groups in <a href="#fig-score-distributions" class="quarto-xref">Figure&nbsp;1</a> overlap heavily. The plot also shows possible skewness, unusual values, and whether mean differences are substantively large relative to within-group variation. A bar chart of means alone would hide all of this.</p>
+<p>The numerical summary in <a href="#tbl-group-summary" class="quarto-xref">Table&nbsp;12</a> reports a center and two measures of spread for each program: the standard deviation (SD, the typical distance between an observation and its group mean) and the interquartile range (IQR, the width of the middle half of the distribution, from the 25th to the 75th percentile). Reporting both keeps a skewed group from being described by one number.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-group-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-group-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: Final-score summaries by program among the synthetic-study completers.
+</figcaption>
+<div aria-describedby="tbl-group-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Program</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD</th>
+<th style="text-align: right;">Median</th>
+<th style="text-align: right;">IQR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Standard</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">72.74</td>
+<td style="text-align: right;">8.85</td>
+<td style="text-align: right;">71.90</td>
+<td style="text-align: right;">12.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">74.90</td>
+<td style="text-align: right;">8.98</td>
+<td style="text-align: right;">75.60</td>
+<td style="text-align: right;">13.60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">76.21</td>
+<td style="text-align: right;">8.38</td>
+<td style="text-align: right;">76.20</td>
+<td style="text-align: right;">9.53</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Its observed means are 72.74, 74.90, and 76.21. As realized descriptive quantities they are exact; as estimates they estimate the three <span class="math inline">\(\mu_j=E_{\mathcal{P}}(Y\mid G=j,C=1,R=1)\)</span> just defined. Whether those comparisons generalize, and whether they can be interpreted causally, depends on how units entered the groups and the analysis.</p>
+<section id="observational-groups-require-restrained-language" class="level3">
+<h3 class="anchored" data-anchor-id="observational-groups-require-restrained-language">Observational groups require restrained language</h3>
+<p>In the UCI data, study-time category was reported rather than assigned. As <a href="#tbl-uci-study-summary" class="quarto-xref">Table&nbsp;13</a> shows, the mean final grades range from about 10.05 to 11.40, but the groups differ in many other ways. The analysis can describe an association between reported study time and final grade. It cannot isolate the effect of changing study time without a stronger design and identification assumptions.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-uci-study-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-uci-study-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13: Final grade by reported weekly study time in the observational UCI data.
+</figcaption>
+<div aria-describedby="tbl-uci-study-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Study time</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">&lt;2 h</td>
+<td style="text-align: right;">105</td>
+<td style="text-align: right;">10.05</td>
+<td style="text-align: right;">4.96</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2-5 h</td>
+<td style="text-align: right;">198</td>
+<td style="text-align: right;">10.17</td>
+<td style="text-align: right;">4.22</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5-10 h</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">11.40</td>
+<td style="text-align: right;">4.64</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">&gt;10 h</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">11.26</td>
+<td style="text-align: right;">5.28</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="one-way-anova-the-group-mean-model-and-the-f-statistic" class="level2">
+<h2 class="anchored" data-anchor-id="one-way-anova-the-group-mean-model-and-the-f-statistic">One-Way ANOVA: The Group-Mean Model and the F Statistic</h2>
+<p>One-way ANOVA splits the total observed variation into a part fitted by the group means and a residual part, and compares the two. The procedure and its <span class="math inline">\(F\)</span> reference distribution originate in Fisher’s experimental-design work <span class="citation" data-cites="fisher1935">(<a href="#ref-fisher1935" role="doc-biblioref">Fisher, 1935</a>)</span> and are developed in modern form by <span class="citation" data-cites="maxwell2018">Maxwell et al. (<a href="#ref-maxwell2018" role="doc-biblioref">2018</a>)</span> and <span class="citation" data-cites="moore2014">Moore et al. (<a href="#ref-moore2014" role="doc-biblioref">2014</a>)</span>. The one-way ANOVA model can be written</p>
+<p><span class="math display">\[
+Y_{ij}=\mu_j+\varepsilon_{ij},
+\qquad E(\varepsilon_{ij}\mid G=j)=0.
+\]</span></p>
+<p>The omnibus null hypothesis is</p>
+<p><span class="math display">\[
+H_0:\mu_1=\mu_2=\cdots=\mu_J.
+\]</span></p>
+<p>The alternative is that at least one population mean differs. It does not say that every pair differs, nor does it name a particular pair.</p>
+<section id="partitioning-variation" class="level3">
+<h3 class="anchored" data-anchor-id="partitioning-variation">Partitioning variation</h3>
+<p>Let <span class="math inline">\(\bar Y\)</span> be the grand mean, <span class="math inline">\(\bar Y_j\)</span> the mean in group <span class="math inline">\(j\)</span>, and <span class="math inline">\(\widehat Y_{ij}=\bar Y_j\)</span>. Then</p>
+<p><span class="math display">\[
+\underbrace{\sum_{j}\sum_i(Y_{ij}-\bar Y)^2}_{SS_{\text{total}}}
+=
+\underbrace{\sum_j n_j(\bar Y_j-\bar Y)^2}_{SS_{\text{between}}}
++
+\underbrace{\sum_j\sum_i(Y_{ij}-\bar Y_j)^2}_{SS_{\text{within}}}.
+\]</span></p>
+<p>This identity separates variation represented by group-mean differences from variation among units around their group means. The labels <em>between</em> and <em>within</em> refer to this decomposition; they do not prove a causal mechanism.</p>
+<p>For <span class="math inline">\(J\)</span> groups and <span class="math inline">\(n\)</span> observations,</p>
+<p><span class="math display">\[
+MS_{\text{between}}=\frac{SS_{\text{between}}}{J-1},
+\qquad
+MS_{\text{within}}=\frac{SS_{\text{within}}}{n-J},
+\qquad
+F=\frac{MS_{\text{between}}}{MS_{\text{within}}}.
+\]</span></p>
+<p>If all population means are equal and the model conditions are adequate, both mean squares estimate the common error variance. An <span class="math inline">\(F\)</span> much larger than one is evidence against the equal-means model.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-anova-table" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-anova-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;14: Classical one-way ANOVA table for final score by program among completers.
+</figcaption>
+<div aria-describedby="tbl-anova-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Source</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">Sum Sq</th>
+<th style="text-align: right;">Mean Sq</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Program (between)</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">428.1</td>
+<td style="text-align: right;">214.07</td>
+<td style="text-align: right;">2.79</td>
+<td style="text-align: right;">.063</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual (within)</td>
+<td style="text-align: right;">213</td>
+<td style="text-align: right;">16317.4</td>
+<td style="text-align: right;">76.61</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The classical result in <a href="#tbl-anova-table" class="quarto-xref">Table&nbsp;14</a> is <span class="math inline">\(F(2,213)=2.79\)</span>, <span class="math inline">\(p = .063\)</span>. At a prespecified <span class="math inline">\(\alpha=.05\)</span>, this result does not reject the omnibus equal-means hypothesis. It does not establish that the means are equal; the data remain compatible with a range of nonzero differences.</p>
+</section>
+<section id="verify-the-sum-of-squares-identity" class="level3">
+<h3 class="anchored" data-anchor-id="verify-the-sum-of-squares-identity">Verify the sum-of-squares identity</h3>
+<div class="cell" data-layout-align="center">
+<div id="tbl-ss-identity" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ss-identity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;15: The one-way sum-of-squares partition, computed directly from the deviations.
+</figcaption>
+<div aria-describedby="tbl-ss-identity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">SS total</td>
+<td style="text-align: right;">16745.5662</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SS between</td>
+<td style="text-align: right;">428.1495</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SS within</td>
+<td style="text-align: right;">16317.4168</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total minus the two parts</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The zero in the final row of <a href="#tbl-ss-identity" class="quarto-xref">Table&nbsp;15</a> is an algebra check, not an inferential result.</p>
+</section>
+</section>
+<section id="robustness-effect-size-and-specific-comparisons" class="level2">
+<h2 class="anchored" data-anchor-id="robustness-effect-size-and-specific-comparisons">Robustness, Effect Size, and Specific Comparisons</h2>
+<p>Classical one-way ANOVA uses a model with independent errors, correctly specified group means, and a common within-group variance. Normality concerns the conditional error distribution, not whether every raw group histogram is perfectly bell-shaped. Moderate nonnormality is often less serious than dependence, severe outliers, or a design that does not support the target.</p>
+<section id="assumptions-are-questions-about-the-data-generating-process" class="level3">
+<h3 class="anchored" data-anchor-id="assumptions-are-questions-about-the-data-generating-process">Assumptions are questions about the data-generating process</h3>
+<div id="tbl-anova-conditions" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[32,68]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-anova-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16: ANOVA conditions translated into research audits.
+</figcaption>
+<div aria-describedby="tbl-anova-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 68%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Research audit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Independent units or modeled dependence</td>
+<td style="text-align: left;">Could one student’s outcome inform another’s because of clustering, pairing, or repeated measurement?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Appropriate group-mean structure</td>
+<td style="text-align: left;">Is one mean per group a useful summary, or do important gradients remain?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Comparable variance model</td>
+<td style="text-align: left;">Do spreads differ enough that a common residual variance is implausible?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Stable measurement</td>
+<td style="text-align: left;">Is the outcome measured comparably across groups?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Design supports scope</td>
+<td style="text-align: left;">Were groups assigned, sampled, or merely observed? Who is missing?</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The audits in <a href="#tbl-anova-conditions" class="quarto-xref">Table&nbsp;16</a> are the questions that matter. No residual plot can diagnose random assignment, representativeness, or measurement validity. Conversely, a statistically detectable variance difference does not by itself invalidate an analysis. Use plots, design knowledge, and a sensitivity analysis.</p>
+</section>
+<section id="welchs-anova" class="level3">
+<h3 class="anchored" data-anchor-id="welchs-anova">Welch’s ANOVA</h3>
+<p>Welch’s one-way test allows unequal group variances and adjusts the reference degrees of freedom <span class="citation" data-cites="welch1947">(<a href="#ref-welch1947" role="doc-biblioref">Welch, 1947</a>)</span>. It is often a useful default sensitivity analysis when group sizes or spreads differ.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-welch-anova" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-welch-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;17: Classical pooled-variance and Welch unequal-variance tests of the same equal-means null.
+</figcaption>
+<div aria-describedby="tbl-welch-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Numerator df</th>
+<th style="text-align: right;">Denominator df</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Classical pooled variance</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">213.00</td>
+<td style="text-align: right;">2.79</td>
+<td style="text-align: right;">.063</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Welch unequal variance</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">141.59</td>
+<td style="text-align: right;">2.84</td>
+<td style="text-align: right;">.062</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>For the synthetic completers, <a href="#tbl-welch-anova" class="quarto-xref">Table&nbsp;17</a> reports Welch’s result as <span class="math inline">\(F(2,141.59)=2.84\)</span>, <span class="math inline">\(p = .062\)</span>, close to the classical ANOVA result. Agreement is reassuring about this particular variance-model choice; it does not validate all other assumptions.</p>
+</section>
+<section id="effect-size-how-much-sample-variation-is-represented" class="level3">
+<h3 class="anchored" data-anchor-id="effect-size-how-much-sample-variation-is-represented">Effect size: how much sample variation is represented?</h3>
+<p>The sample eta-squared <span class="citation" data-cites="cohen1988 lakens2013">(<a href="#ref-cohen1988" role="doc-biblioref">Cohen, 1988</a>; <a href="#ref-lakens2013" role="doc-biblioref">Lakens, 2013</a>)</span> is</p>
+<p><span class="math display">\[
+\eta^2=\frac{SS_{\text{between}}}{SS_{\text{total}}}.
+\]</span></p>
+<p>It is the fraction of observed outcome variation represented by the fitted group means. Because it tends to be optimistic in finite samples, an approximately bias-adjusted alternative is</p>
+<p><span class="math display">\[
+\omega^2=
+\frac{SS_{\text{between}}-(J-1)MS_{\text{within}}}
+{SS_{\text{total}}+MS_{\text{within}}},
+\]</span></p>
+<p>usually bounded below at zero when reported descriptively.</p>
+<p>Here <span class="math inline">\(\eta^2=.026\)</span> and <span class="math inline">\(\omega^2=.016\)</span>. The fitted groups represent about 2.6% of observed score variation, and the bias-adjusted estimate is about 1.6%. These values do not say that program <em>caused</em> that fraction of variation.</p>
+<p>No interval is attached to either quantity here, and that is a declared reporting decision rather than an oversight. Both are reported as <strong>realized descriptive summaries of this analyzed sample</strong>, on a scale with no outcome units; an interval for them would require a further target of its own (a superpopulation variance ratio) and a noncentral <span class="math inline">\(F\)</span> or bootstrap construction whose conditions are stronger than anything else in this chapter. This chapter therefore makes the <strong>contrast intervals the principal uncertainty display</strong>: the planned-contrast interval below and the Tukey-Kramer family carry the uncertainty, in score points, and <span class="math inline">\(\eta^2\)</span> and <span class="math inline">\(\omega^2\)</span> are reported beside them as unitless descriptions. A report that wants an interval on the variance-ratio scale should say so, name the target, and state the construction.</p>
+</section>
+<section id="planned-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="planned-contrasts">Planned contrasts</h3>
+<p>An omnibus test asks whether all means are equal. A contrast asks a more specific question:</p>
+<p><span class="math display">\[
+L=\sum_{j=1}^{J}w_j\mu_j,
+\qquad \sum_{j=1}^{J}w_j=0.
+\]</span></p>
+<p>Suppose the substantive question, declared before examining outcomes, is whether Retrieval differs from the average of Standard and Practice. With the order Standard, Practice, Retrieval, the weights are <span class="math inline">\((-1/2,-1/2,1)\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-planned-contrast" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-planned-contrast-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18: Planned contrast comparing Retrieval with the average of Standard and Practice, using the pooled ANOVA variance.
+</figcaption>
+<div aria-describedby="tbl-planned-contrast-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">t</th>
+<th style="text-align: right;">p</th>
+<th style="text-align: right;">Lower</th>
+<th style="text-align: right;">Upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2.39</td>
+<td style="text-align: right;">1.28</td>
+<td style="text-align: right;">213</td>
+<td style="text-align: right;">1.86</td>
+<td style="text-align: right;">.064</td>
+<td style="text-align: right;">-0.14</td>
+<td style="text-align: right;">4.91</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-planned-contrast" class="quarto-xref">Table&nbsp;18</a> estimates that contrast as 2.39 points with a 95% confidence interval from about -0.14 to 4.91. The interval communicates both the direction favored by the sample and the remaining uncertainty. A planned contrast is not automatically more powerful; its advantage is that it matches a prespecified scientific question and avoids searching a large family for a favorable result.</p>
+</section>
+<section id="exploratory-pairwise-comparisons-and-multiplicity" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-pairwise-comparisons-and-multiplicity">Exploratory pairwise comparisons and multiplicity</h3>
+<p>With three groups there are three pairwise comparisons; with <span class="math inline">\(J\)</span> groups there are <span class="math inline">\(J(J-1)/2\)</span>. Examining many unadjusted 95% intervals increases the chance that at least one excludes zero even when all population means are equal. Tukey’s studentized-range procedure controls the familywise error rate for the family of all pairwise mean comparisons <span class="citation" data-cites="tukey1953">(<a href="#ref-tukey1953" role="doc-biblioref">Tukey, 1953</a>)</span>, and the Tukey-Kramer extension accommodates unequal group sizes <span class="citation" data-cites="kramer1956">(<a href="#ref-kramer1956" role="doc-biblioref">Kramer, 1956</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-tukey-comparisons" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tukey-comparisons-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;19: Tukey-Kramer 95% familywise intervals for all three pairwise program comparisons.
+</figcaption>
+<div aria-describedby="tbl-tukey-comparisons-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Comparison</th>
+<th style="text-align: right;">Difference</th>
+<th style="text-align: right;">Lower</th>
+<th style="text-align: right;">Upper</th>
+<th style="text-align: right;">Adjusted p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Practice-Standard</td>
+<td style="text-align: right;">2.16</td>
+<td style="text-align: right;">-1.24</td>
+<td style="text-align: right;">5.56</td>
+<td style="text-align: right;">0.292</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Retrieval-Standard</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;">-0.04</td>
+<td style="text-align: right;">6.97</td>
+<td style="text-align: right;">0.053</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval-Practice</td>
+<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">-2.13</td>
+<td style="text-align: right;">4.74</td>
+<td style="text-align: right;">0.643</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In <a href="#tbl-tukey-comparisons" class="quarto-xref">Table&nbsp;19</a> the Retrieval-Standard estimate is 3.47 points, but its Tukey 95% familywise interval extends slightly below zero (-0.04 to 6.97). This is compatible with the nonsignificant omnibus result. A coefficient-specific unadjusted p-value from a regression output can differ because it answers one comparison without familywise adjustment.</p>
+<section id="name-the-inferential-family-before-making-a-compatibility-statement" class="level4">
+<h4 class="anchored" data-anchor-id="name-the-inferential-family-before-making-a-compatibility-statement">Name the inferential family before making a compatibility statement</h4>
+<p>An omnibus joint restriction, one contrast interval, and a family of pairwise intervals do not use the same compatibility language. The omnibus test asks whether the joint equal-means restriction is inconsistent with the data; the two interval procedures ask whether zero remains among compatible contrast values. <a href="#tbl-ch04-zero-families" class="quarto-xref">Table&nbsp;20</a> keeps those statements separate.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-ch04-zero-families" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-zero-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;20: Three inferential families and their calibrated claims. The omnibus row concerns a joint restriction; the interval rows concern zero.
+</figcaption>
+<div aria-describedby="tbl-ch04-zero-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 39%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Family</th>
+<th style="text-align: left;">Question</th>
+<th style="text-align: left;">Calibrated statement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Omnibus equal-means reference</td>
+<td style="text-align: left;">Are all three modeled means equal?</td>
+<td style="text-align: left;">Joint equality not rejected: p = .063</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Prespecified Retrieval contrast</td>
+<td style="text-align: left;">Does Retrieval differ from the average of the other two?</td>
+<td style="text-align: left;">Zero included: 95% CI [-0.14, 4.91]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tukey-Kramer all-pairs family</td>
+<td style="text-align: left;">Does any one pair differ, with familywise control?</td>
+<td style="text-align: left;">Zero included in all three; largest lower limit -0.04</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Here the omnibus test does not reject the joint equal-means restriction, the prespecified contrast interval includes zero, and all three Tukey-Kramer intervals include zero. Had only the prespecified contrast excluded zero, the correct report would say exactly that while also reporting that the omnibus joint restriction was not rejected and the familywise pairwise intervals all included zero. That combination is coherent rather than contradictory.</p>
+</section>
+</section>
+</section>
+<section id="a-real-randomized-comparison-reading-comprehension-instruction" class="level2">
+<h2 class="anchored" data-anchor-id="a-real-randomized-comparison-reading-comprehension-instruction">A Real Randomized Comparison: Reading Comprehension Instruction</h2>
+<p>The sustained substantive research question is:</p>
+<blockquote class="blockquote">
+<p>Among fourth-grade students represented by comparable repetitions of this randomized study in the same school setting, how would mean error-detection score compare under a policy assigning equal weight to DRTA and think-aloud instruction versus assigning DRA?</p>
+</blockquote>
+<p>The synthetic study supplies transparent arithmetic, and the UCI example shows an observational association. This real experiment shows what random assignment adds, while keeping attrition, model uncertainty, multiplicity, and substantive interpretation visible.</p>
+<section id="provenance-first" class="level3">
+<h3 class="anchored" data-anchor-id="provenance-first">Provenance first</h3>
+<p>The <code>Baumann</code> dataset distributed with the <code>carData</code> package <span class="citation" data-cites="carData2022 fox2019">(<a href="#ref-carData2022" role="doc-biblioref">Fox et al., 2022</a>; <a href="#ref-fox2019" role="doc-biblioref">Fox &amp; Weisberg, 2019</a>)</span> contains the 66 available complete outcome records from an experiment reported by Baumann, Seifert-Kessell, and Jones. The public original report <span class="citation" data-cites="baumann1992">(<a href="#ref-baumann1992" role="doc-biblioref">Baumann et al., 1992</a>)</span> documents <strong>68 randomized fourth-grade children</strong>: 23 assigned to think-aloud instruction (<code>Strat</code> in the package), 23 to directed reading-thinking activity (<code>DRTA</code>), and 22 to directed reading activity (<code>Basal</code>). One child in the think-aloud arm and one in the DRTA arm lacked a complete outcome because of illness or transfer. The package dataset therefore contains observed outcomes for 66 students, 22 per group. It records two pretests and three post-tests. This reanalysis uses <code>post.test.1</code>, the error-detection score (0–16), because its package group means and standard deviations reproduce the article’s observed-score summaries. The package’s <code>post.test.3</code> variable does not reproduce the article’s raw modified-cloze summaries and even contains a value outside the article’s stated 0–56 range, so it is not treated here as a verified raw outcome.</p>
+<p>The original report supplies more context than the package help, but important limits remain. It does not supply a probability sample or a transport target, and an error-detection score point has no broadly interpretable benchmark. The authors prespecified two orthogonal treatment contrasts for each of three quantitative outcomes, including the equal-weighted innovative-versus-Basal contrast used below. This chapter nevertheless reports only <code>post.test.1</code>, uses an unadjusted one-way analysis rather than the article’s pretest-adjusted analysis, and does not adjust across the three outcomes. Treat the result as a transparent secondary reanalysis of one planned contrast, not as a fresh confirmatory replication.</p>
+</section>
+<section id="link-the-research-question-to-the-model-estimand" class="level3">
+<h3 class="anchored" data-anchor-id="link-the-research-question-to-the-model-estimand">Link the research question to the model estimand</h3>
+<p>Let <span class="math inline">\(\mathcal S\)</span> denote comparable repetitions of the same school setting, assignment process, instructional conditions, outcome, and follow-up. For assigned group <span class="math inline">\(g\)</span>, define <span class="math inline">\(\mu_{g,\mathcal S}=E(Y\mid G=g,\mathcal S)\)</span>. The statistical estimand aligned with the research question is</p>
+<p><span class="math display">\[
+L_{\mathcal S}=\tfrac12\mu_{\mathrm{DRTA},\mathcal S}
++\tfrac12\mu_{\mathrm{Strat},\mathcal S}
+-\mu_{\mathrm{DRA},\mathcal S}.
+\]</span></p>
+<p>This is a model-superpopulation assignment contrast for comparable repetitions, not a transport claim about other schools. Random assignment supports an effect-of-assignment interpretation when the conditions are well defined, students do not affect one another’s outcomes, and the observed outcomes represent each assigned arm. Here one outcome is missing from each innovative arm. Identification of <span class="math inline">\(L_{\mathcal S}\)</span> therefore requires the untestable within-arm mean-exchangeability condition: within each affected arm, the mean outcome for students with a missing score equals the mean for students with an observed score in <span class="math inline">\(\mathcal S\)</span>.</p>
+<p>The numerical analysis is written directly as the indicator regression promised by the chapter. Let <span class="math inline">\(R_i=1\)</span> indicate that the error-detection outcome was observed. With DRA (<code>Basal</code>) as the reference group, the observed-outcome model is</p>
+<p><span class="math display">\[
+E(Y_i\mid G_i,R_i=1)=\beta_0+\beta_1 I(G_i=\mathrm{DRTA})+
+\beta_2 I(G_i=\mathrm{Strat}).
+\]</span></p>
+<p>Its observed-outcome contrast is</p>
+<p><span class="math display">\[
+L_{\mathrm{obs}}=\tfrac12\beta_1+\tfrac12\beta_2.
+\]</span></p>
+<p>Within-arm mean-exchangeability links the two estimands: <span class="math inline">\(L_{\mathrm{obs}}=L_{\mathcal S}\)</span>. Conditional on the observed group indicators, independent Gaussian errors with one common within-group variance make the pooled <span class="math inline">\(t\)</span> and <span class="math inline">\(F\)</span> references exact for the observed-outcome group-mean model; under that missingness condition, the interval targets <span class="math inline">\(L_{\mathcal S}\)</span>. This is <strong>model-based uncertainty</strong>, not a finite-sample randomization interval for the particular 68 assignees. Welch’s test is an approximate sensitivity analysis that relaxes only the equal-variance condition; neither procedure repairs attrition or establishes an effect of instruction actually received. The latter interpretation additionally requires individual adherence and implementation evidence.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-reading-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-reading-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21: Error-detection scores by instructional group among the 66 students with observed outcomes from the Baumann randomized experiment.
+</figcaption>
+<div aria-describedby="tbl-reading-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Basal</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">6.68</td>
+<td style="text-align: right;">2.77</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DRTA</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">9.77</td>
+<td style="text-align: right;">2.72</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Strat</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">7.77</td>
+<td style="text-align: right;">3.93</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-reading-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Boxplots with jittered individual error-detection scores for the Basal, DRTA, and Strat groups, 22 observed outcomes each. Scores range from 1 to 15. The Basal group is centred lowest, Strat next, and DRTA highest, with overlap among all three." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reading-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_04_files/figure-html/fig-reading-distributions-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Boxplots with jittered individual error-detection scores for the Basal, DRTA, and Strat groups, 22 observed outcomes each. Scores range from 1 to 15. The Basal group is centred lowest, Strat next, and DRTA highest, with overlap among all three." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reading-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Error-detection score distributions by instructional group among students with observed outcomes. Boxplots summarize each group; points preserve the individual observations.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimation-sensitivity-and-the-specific-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="estimation-sensitivity-and-the-specific-comparison">Estimation, sensitivity, and the specific comparison</h3>
+<div class="cell" data-layout-align="center">
+<div id="tbl-reading-anova" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-reading-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;22: One-way ANOVA, Welch sensitivity analysis, and the planned equal-allocation contrast for the reading experiment.
+</figcaption>
+<div aria-describedby="tbl-reading-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Classical F</td>
+<td style="text-align: right;">F(2, 63) = 5.32</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Classical p</td>
+<td style="text-align: right;">.007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Welch F</td>
+<td style="text-align: right;">F(2, 41.13) = 6.99</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Welch p</td>
+<td style="text-align: right;">.002</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Eta-squared</td>
+<td style="text-align: right;">.144</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Omega-squared</td>
+<td style="text-align: right;">.116</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Planned contrast (points)</td>
+<td style="text-align: right;">2.09</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Contrast 95% CI</td>
+<td style="text-align: right;">[0.43, 3.75]</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The omnibus comparison in <a href="#tbl-reading-anova" class="quarto-xref">Table&nbsp;22</a> rejects the joint equal-means restriction at <span class="math inline">\(\alpha=.05\)</span>, <span class="math inline">\(F(2,63)=5.32\)</span>, <span class="math inline">\(p = .007\)</span>, and Welch’s unequal-variance analysis agrees, <span class="math inline">\(p = .002\)</span>. The planned contrast comparing an equal allocation across the two innovative assignments with the traditional assignment, weights <span class="math inline">\((-1,\tfrac12,\tfrac12)\)</span>, is 2.09 points with a 95% confidence interval from 0.43 to 3.75, which excludes zero.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-reading-tukey" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-reading-tukey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;23: Tukey-Kramer 95% familywise intervals for the three pairwise instructional comparisons.
+</figcaption>
+<div aria-describedby="tbl-reading-tukey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Comparison</th>
+<th style="text-align: right;">Difference</th>
+<th style="text-align: right;">Lower</th>
+<th style="text-align: right;">Upper</th>
+<th style="text-align: right;">Adjusted p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DRTA-Basal</td>
+<td style="text-align: right;">3.09</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">5.40</td>
+<td style="text-align: right;">0.006</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Strat-Basal</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">-1.22</td>
+<td style="text-align: right;">3.40</td>
+<td style="text-align: right;">0.497</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Strat-DRTA</td>
+<td style="text-align: right;">-2.00</td>
+<td style="text-align: right;">-4.31</td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: right;">0.102</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Naming the families again: the omnibus test <strong>rejects the joint equal-means restriction</strong> at <span class="math inline">\(\alpha=.05\)</span>; the planned equal-allocation contrast interval <strong>excludes zero</strong>; and in the Tukey-Kramer family only DRTA-Basal excludes zero (0.78 to 5.40), while Strat-Basal and Strat-DRTA do not. A report that said only “the groups differed” would hide exactly that structure.</p>
+</section>
+<section id="a-bounded-result-before-substantive-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="a-bounded-result-before-substantive-interpretation">A bounded result before substantive interpretation</h3>
+<p>Among the 66 students with observed outcomes, the pooled omnibus test rejects the joint equal-means restriction at the declared level, and the planned innovative-mixture-minus-DRA contrast is 2.09 points with model-based 95% CI [0.43, 3.75]. In the Tukey-Kramer family, only DRTA minus DRA excludes zero.</p>
+<p>The model interval directly describes <span class="math inline">\(L_{\mathrm{obs}}\)</span> and describes <span class="math inline">\(L_{\mathcal S}\)</span> only under within-arm mean-exchangeability. It is a secondary, unadjusted analysis of one of three quantitative outcomes. It does not supply a finite-sample randomization interval for the particular 68 assignees, erase the two missing outcomes, establish either innovative method’s separate effect, or support transport beyond comparable repetitions of this setting. The complete application of the Argument, Workflow, and Evaluation perspectives appears after the regression bridge.</p>
+</section>
+</section>
+<section id="anova-as-additive-regression" class="level2">
+<h2 class="anchored" data-anchor-id="anova-as-additive-regression">ANOVA as Additive Regression</h2>
+<p>Let Standard be the reference group and define two indicators:</p>
+<p><span class="math display">\[
+D_{Pi}=I(G_i=\text{Practice}),
+\qquad
+D_{Ri}=I(G_i=\text{Retrieval}).
+\]</span></p>
+<p>The additive regression is</p>
+<p><span class="math display">\[
+Y_i=\beta_0+\beta_P D_{Pi}+\beta_R D_{Ri}+\varepsilon_i.
+\]</span></p>
+<p>Its fitted means are</p>
+<div id="tbl-anova-indicators" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,26,50]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-anova-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;24: Indicator coding recovers the three fitted group means.
+</figcaption>
+<div aria-describedby="tbl-anova-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 26%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: center;">Indicators</th>
+<th style="text-align: left;">Fitted mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Standard</td>
+<td style="text-align: center;"><span class="math inline">\(D_P=0,D_R=0\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\beta_0\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: center;"><span class="math inline">\(D_P=1,D_R=0\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\beta_0+\beta_P\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval</td>
+<td style="text-align: center;"><span class="math inline">\(D_P=0,D_R=1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\beta_0+\beta_R\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><a href="#tbl-anova-indicators" class="quarto-xref">Table&nbsp;24</a> shows the consequence: <span class="math inline">\(\beta_P=\mu_P-\mu_S\)</span> and <span class="math inline">\(\beta_R=\mu_R-\mu_S\)</span>. Changing the reference group changes the coefficients but not the fitted group means, residuals, or omnibus comparison.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-anova-regression" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-anova-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;25: Indicator-regression coefficients for final score on program, with Standard as the reference group.
+</figcaption>
+<div aria-describedby="tbl-anova-regression-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: right;">t</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercept (Standard mean)</td>
+<td style="text-align: right;">72.74</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">70.03</td>
+<td style="text-align: right;">&lt; .001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice - Standard</td>
+<td style="text-align: right;">2.16</td>
+<td style="text-align: right;">1.44</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">.135</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval - Standard</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">2.33</td>
+<td style="text-align: right;">.021</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In <a href="#tbl-anova-regression" class="quarto-xref">Table&nbsp;25</a> the intercept 72.74 is the Standard mean. The Practice coefficient 2.16 and Retrieval coefficient 3.47 are differences from Standard. The omnibus hypothesis is a joint block test,</p>
+<p><span class="math display">\[
+H_0:\beta_P=\beta_R=0,
+\]</span></p>
+<p>not two unrelated coefficient tests.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-equivalence-check" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-equivalence-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;26: Observed group means and regression-fitted means, with the two omnibus F statistics.
+</figcaption>
+<div aria-describedby="tbl-equivalence-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Program</th>
+<th style="text-align: right;">Observed mean</th>
+<th style="text-align: right;">Regression fitted mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Standard</td>
+<td style="text-align: right;">72.7423</td>
+<td style="text-align: right;">72.7423</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: right;">74.9039</td>
+<td style="text-align: right;">74.9039</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval</td>
+<td style="text-align: right;">76.2088</td>
+<td style="text-align: right;">76.2088</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The ANOVA <span class="math inline">\(F\)</span> is 2.7944 and the regression <span class="math inline">\(F\)</span> is 2.7944. The fitted means in <a href="#tbl-equivalence-check" class="quarto-xref">Table&nbsp;26</a> and the two <span class="math inline">\(F\)</span> statistics match exactly because the two procedures fit the same model. This is the bridge to later regression chapters: a factor with <span class="math inline">\(J\)</span> levels contributes <span class="math inline">\(J-1\)</span> columns to the design matrix, and its omnibus contribution is tested jointly.</p>
+</section>
+<section id="two-way-anova-and-factorial-designs" class="level2">
+<h2 class="anchored" data-anchor-id="two-way-anova-and-factorial-designs">Two-Way ANOVA and Factorial Designs</h2>
+<p>Chapter 1 introduced factorial designs as a design idea: <strong>crossing</strong> the levels of two factors so that every planned combination forms a <strong>cell</strong>, then asking about each factor’s <strong>main effect</strong> and about their <strong>interaction</strong>. Two-way ANOVA is the quantitative counterpart of those design terms. It estimates the cell means, summarizes each factor’s marginal contribution, and tests whether one factor’s comparison changes across levels of the other <span class="citation" data-cites="fisher1935 maxwell2018">(<a href="#ref-fisher1935" role="doc-biblioref">Fisher, 1935</a>; <a href="#ref-maxwell2018" role="doc-biblioref">Maxwell et al., 2018</a>)</span>.</p>
+<p>The synthetic study already has a crossed structure. Program was randomized <em>within</em> each of 6 schools, so school and program are crossed: every school contains all 3 programs. In Chapter 1 language, program is the randomized treatment factor and school is a blocking factor, and the 18 cells are the school-by-program combinations among the 216 completers.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-two-way-cells" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-two-way-cells-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;27: School-by-program cell means of final score, with cell sizes in parentheses, among the completers.
+</figcaption>
+<div aria-describedby="tbl-two-way-cells-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">School</th>
+<th style="text-align: right;">Standard</th>
+<th style="text-align: right;">Practice</th>
+<th style="text-align: right;">Retrieval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">School_A</td>
+<td style="text-align: right;">65.45 (11)</td>
+<td style="text-align: right;">72.33 (11)</td>
+<td style="text-align: right;">70.52 (9)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_B</td>
+<td style="text-align: right;">73.53 (12)</td>
+<td style="text-align: right;">72.14 (15)</td>
+<td style="text-align: right;">73.64 (14)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">School_C</td>
+<td style="text-align: right;">72.64 (11)</td>
+<td style="text-align: right;">71.68 (12)</td>
+<td style="text-align: right;">74.61 (11)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_D</td>
+<td style="text-align: right;">74.42 (13)</td>
+<td style="text-align: right;">77.16 (14)</td>
+<td style="text-align: right;">79.65 (8)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">School_E</td>
+<td style="text-align: right;">71.70 (12)</td>
+<td style="text-align: right;">77.38 (12)</td>
+<td style="text-align: right;">79.14 (12)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_F</td>
+<td style="text-align: right;">77.96 (12)</td>
+<td style="text-align: right;">78.54 (13)</td>
+<td style="text-align: right;">79.21 (14)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>In <a href="#tbl-two-way-cells" class="quarto-xref">Table&nbsp;27</a> the cell sizes range from 8 to 15, so the design is crossed but unbalanced. Every cell is occupied, which is what allows all three questions to be asked.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-two-way-interaction" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Line plot with the six schools A to F on the horizontal axis and cell mean final score on the vertical axis, one line per program. All three profiles trend upward across the schools within a band of about 65 to 80 points. Retrieval is highest in Schools B through F, but in School A Practice is highest at about 72 while Standard is lowest at about 65. The Standard and Practice lines cross between Schools A and B and again between Schools C and D, and the Practice and Retrieval lines cross between Schools A and B; from School B to School C the ordering stays Practice below Standard below Retrieval and no lines cross." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-two-way-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_04_files/figure-html/fig-two-way-interaction-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Line plot with the six schools A to F on the horizontal axis and cell mean final score on the vertical axis, one line per program. All three profiles trend upward across the schools within a band of about 65 to 80 points. Retrieval is highest in Schools B through F, but in School A Practice is highest at about 72 while Standard is lowest at about 65. The Standard and Practice lines cross between Schools A and B and again between Schools C and D, and the Practice and Retrieval lines cross between Schools A and B; from School B to School C the ordering stays Practice below Standard below Retrieval and no lines cross." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-two-way-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Cell means of final score by school and program. Roughly parallel profiles indicate little evidence that the program comparison changes across schools.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="cell-mean-and-effects-models" class="level3">
+<h3 class="anchored" data-anchor-id="cell-mean-and-effects-models">Cell-mean and effects models</h3>
+<p>The cell-mean model is</p>
+<p><span class="math display">\[Y_{ijk}=\mu_{ij}+\varepsilon_{ijk},\]</span></p>
+<p>where <span class="math inline">\(i\)</span> indexes school, <span class="math inline">\(j\)</span> indexes program, and <span class="math inline">\(k\)</span> indexes students within a cell. An equivalent effects model is</p>
+<p><span class="math display">\[Y_{ijk}=\mu+\alpha_i+\beta_j+(\alpha\beta)_{ij}+\varepsilon_{ijk}.\]</span></p>
+<p>This effects notation is shorthand: the coefficients require an identifying scheme, such as reference-cell coding or explicit sum-to-zero constraints. The fitted cell means and the nested-model tests below do not depend on which full-rank coding is chosen.</p>
+<p>Two-way ANOVA can represent factor A, factor B, their interaction, and residual variation, but the tests must be attached to explicit model comparisons. The interaction hypothesis has the direct cell-mean meaning</p>
+<p><span class="math display">\[H_{0AB}:\text{all differences of differences are zero}.\]</span></p>
+<p>If an additive model is substantively defensible, its factor tests ask whether all coefficients for one factor are zero after representing the other factor. In an unbalanced design, a generic phrase such as “no main effect” is incomplete until the model hierarchy and averaging rule are stated. The next section therefore reports three explicit nested-model tests rather than relying on a generic ANOVA row label.</p>
+</section>
+<section id="three-explicit-nested-model-tests" class="level3">
+<h3 class="anchored" data-anchor-id="three-explicit-nested-model-tests">Three explicit nested-model tests</h3>
+<p>Because the cells are unbalanced, <a href="#tbl-two-way-anova" class="quarto-xref">Table&nbsp;28</a> avoids an order-dependent sequential table. Each row identifies a smaller and larger model, and its <span class="math inline">\(F\)</span> ratio uses the residual mean square and denominator degrees of freedom from that larger model <span class="citation" data-cites="maxwell2018 kutner2005">(<a href="#ref-kutner2005" role="doc-biblioref">Kutner et al., 2005</a>; <a href="#ref-maxwell2018" role="doc-biblioref">Maxwell et al., 2018</a>)</span>:</p>
+<ul>
+<li><strong>interaction:</strong> compare the additive school-plus-program model with the full school-by-program model;</li>
+<li><strong>program within an additive model:</strong> compare the school-only model with the school-plus-program model; and</li>
+<li><strong>school within an additive model:</strong> compare the program-only model with the school-plus-program model.</li>
+</ul>
+<p>The interaction test is therefore about differences of differences. The other two tests are conditional on the additive model: they are not claims that the interaction is exactly zero, and they should not be interpreted if substantively important heterogeneity remains. Under each larger model, independent Gaussian errors with a common variance make the corresponding nested-model <span class="math inline">\(F\)</span> reference exact conditional on the observed factor indicators.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-two-way-anova" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-two-way-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;28: Explicit nested-model tests for final score by school and program among students with observed outcomes. Each F ratio uses the residual error from its stated larger model.
+</figcaption>
+<div aria-describedby="tbl-two-way-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 40%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Question</th>
+<th style="text-align: left;">Smaller -&gt; larger model</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">School within the additive model</td>
+<td style="text-align: left;">program only -&gt; school + program</td>
+<td style="text-align: right;">5, 208</td>
+<td style="text-align: right;">5.44</td>
+<td style="text-align: right;">&lt; .001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Program within the additive model</td>
+<td style="text-align: left;">school only -&gt; school + program</td>
+<td style="text-align: right;">2, 208</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">.052</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">School x Program interaction</td>
+<td style="text-align: left;">school + program -&gt; school * program</td>
+<td style="text-align: right;">10, 198</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">.787</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The interaction row is the first to read. Its result, <span class="math inline">\(F(10,198)=0.63\)</span>, <span class="math inline">\(p = .787\)</span>, gives no evidence that the program comparison differs across schools, which matches the near-parallel profiles in <a href="#fig-two-way-interaction" class="quarto-xref">Figure&nbsp;3</a>. A nonsignificant interaction is not proof of exact additivity; with 198 residual degrees of freedom spread over 18 cells, only fairly large differences of differences would be detected.</p>
+<p>Because this is the synthetic study, the known data-generating process can be consulted directly. The score generator adds an additive program effect and an additive school shift and contains no school-by-program term, so near-parallel profiles and a small interaction <span class="math inline">\(F\)</span> ratio are expected here, not discovered from the p-value. In real data, a nonsignificant interaction does <strong>not</strong> support an additive model. Treating additivity as a working simplification should also consider the estimated interaction pattern and its uncertainty, substantive expectations, prespecification, and sensitivity of the claims.</p>
+<p>For this simulation, the documented generator provides external support for using the additive model as a working simplification. Within that model, the school block test is <span class="math inline">\(F(5,208)=5.44\)</span>, <span class="math inline">\(p &lt; .001\)</span>, and the program test is <span class="math inline">\(F(2,208)=3.00\)</span>, <span class="math inline">\(p = .052\)</span>. In real research, the decision to adopt an additive model needs design, theory, graphical evidence, and sensitivity—not only a nonsignificant interaction test.</p>
+<div class="cell" data-layout-align="center">
+<div id="tbl-two-way-margins" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-two-way-margins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;29: Program marginal means weighted two ways among the completers.
+</figcaption>
+<div aria-describedby="tbl-two-way-margins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Program</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Observed mean</th>
+<th style="text-align: right;">Equal-cell mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Standard</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">72.74</td>
+<td style="text-align: right;">72.62</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">74.90</td>
+<td style="text-align: right;">74.87</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Retrieval</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">76.21</td>
+<td style="text-align: right;">76.13</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div id="tbl-two-way-school-margins" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-two-way-school-margins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;30: School marginal means for the same completers.
+</figcaption>
+<div aria-describedby="tbl-two-way-school-margins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">School</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Observed mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">School_A</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">69.36</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_B</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">73.06</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">School_C</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">72.94</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_D</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">76.71</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">School_E</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">76.07</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">School_F</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">78.60</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The two margins answer different questions and are therefore reported separately: <a href="#tbl-two-way-margins" class="quarto-xref">Table&nbsp;29</a> averages over schools, and <a href="#tbl-two-way-school-margins" class="quarto-xref">Table&nbsp;30</a> averages over programs. The two program mean columns differ only slightly here because the cells are close to balanced, but the distinction matters: the observed mean weights schools by how many completers each contributed, while the equal-cell mean weights the six schools equally. A report must say which one it used.</p>
+</section>
+<section id="blocking-and-the-declared-error-model" class="level3">
+<h3 class="anchored" data-anchor-id="blocking-and-the-declared-error-model">Blocking and the declared error model</h3>
+<p>Because program was randomized within school, representing school is aligned with the design and can improve precision when school is prognostic. The additive school-plus-program model reduces the residual mean square from 76.61 to 69.37 in this sample. That improvement is not guaranteed, and it does not change the assignment-policy target.</p>
+<p>In unbalanced data, different defensible model comparisons can use different error models and therefore yield slightly different <span class="math inline">\(F\)</span> values. Choose the comparison from the design and target before examining which p-value is smaller. Here the interaction test uses the full cell-means model as its larger model, whereas the school and program tests use the additive model as their larger model. Later regression chapters develop model comparison more fully.</p>
+</section>
+<section id="the-design-determines-the-claim" class="level3">
+<h3 class="anchored" data-anchor-id="the-design-determines-the-claim">The design determines the claim</h3>
+<p>This section returns directly to Chapter 1. In a true factorial experiment, both treatment factors are assigned according to the design, so causal contrasts can be defined for each factor and their interaction. In the randomized block structure above, only program is assigned; school is a design variable, not a second intervention, so the school “main effect” describes how schools differ, not what assigning a school would do. If both factors are merely observed, the same model describes conditional means but does not create causal effects <span class="citation" data-cites="shadish2002 maxwell2018">(<a href="#ref-maxwell2018" role="doc-biblioref">Maxwell et al., 2018</a>; <a href="#ref-shadish2002" role="doc-biblioref">Shadish et al., 2002</a>)</span>.</p>
+<p>Independence must be argued from the assignment and sampling process, not read from the ANOVA table; randomization within school does not by itself remove shared-school dependence or interference. Approximate Normality and common within-cell variance concern the errors conditional on the cells. In unbalanced data, report every cell size: main effects can depend on how marginal means are weighted, and empty cells can make some effects inseparable.</p>
+<p>If an interaction is substantively important, report cell means and simple comparisons before interpreting main effects. A main effect averages over the other factor and can conceal meaningful heterogeneity.</p>
+</section>
+<section id="regression-bridge" class="level3">
+<h3 class="anchored" data-anchor-id="regression-bridge">Regression bridge</h3>
+<p>Two-way ANOVA is a regression with indicator variables for the factors and their joint combinations. The interaction contribution is a joint block test, not a justification for interpreting one convenient coefficient in isolation. Chapter 9 develops the product-term regression representation and extends the same logic to continuous-by-categorical and continuous-by-continuous interactions.</p>
+</section>
+</section>
+<section id="applying-the-framework-through-three-perspectives" class="level2">
+<h2 class="anchored" data-anchor-id="applying-the-framework-through-three-perspectives">Applying the Framework Through Three Perspectives</h2>
+<p>The Baumann question now returns as one sustained application. The statistical argument answers an intermediate question through an observed-outcome indicator-model contrast while keeping the all-assignee assignment question visible. The substantive argument interprets that answer as evidence about reading instruction while preserving every statistical boundary.</p>
+<section id="argument-perspective" class="level3">
+<h3 class="anchored" data-anchor-id="argument-perspective">Argument perspective</h3>
+<div id="tbl-ch04-reading-arguments" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[13,87]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-reading-arguments-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;31: The two linked arguments for the sustained reading-instruction question.
+</figcaption>
+<div aria-describedby="tbl-ch04-reading-arguments-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 87%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Code</th>
+<th style="text-align: left;">Concise application to the reading experiment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>STAT-E</strong></td>
+<td style="text-align: left;">Assignment records for 68 children (23 think-aloud, 23 DRTA, 22 DRA); 66 observed 0–16 error-detection scores; two missing outcomes; two pretests, three outcomes, and delivery assessments.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>STAT-J</strong></td>
+<td style="text-align: left;">The target process <span class="math inline">\(\mathcal S\)</span> fixes the same setting, assignment, instruction, outcome, and follow-up. Random assignment supports an assignment contrast under consistency and no interference; within-arm mean-exchangeability links <span class="math inline">\(L_{\mathrm{obs}}\)</span> to <span class="math inline">\(L_{\mathcal S}\)</span>. The pooled interval additionally assumes independent Gaussian errors with one common within-group variance.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>STAT-I</strong></td>
+<td style="text-align: left;">Planned estimand <span class="math inline">\(L_{\mathcal S}\)</span>, estimated through <span class="math inline">\(L_{\mathrm{obs}}=\tfrac12\beta_1+\tfrac12\beta_2\)</span>; estimate 2.09 points and model 95% CI [0.43, 3.75]. The analysis is secondary, unadjusted, and selects one of three outcomes; omnibus, Welch, Tukey, and effect-size results answer ancillary questions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>STAT-C</strong></td>
+<td style="text-align: left;">Conditional on the stated stochastic, independence, common-variance, missingness, consistency, and no-interference assumptions, <span class="math inline">\(L_{\mathcal S}\)</span> is estimated as +2.09 points (model 95% CI [0.43, 3.75]). The interval is not a finite-sample randomization interval; the analysis is secondary and unadjusted, one of three outcomes was selected, and no broader transport target is defined.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SUB-E</strong></td>
+<td style="text-align: left;">68 fourth-graders were assigned in one rural Midwestern school; 66 error-detection outcomes were observed and two were missing; the conditions were DRA, DRTA, and think-aloud instruction.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SUB-J</strong></td>
+<td style="text-align: left;">Comprehension-monitoring theory motivates the conditions; random assignment and the planned contrast support the comparison; delivery fidelity was high. Missingness, individual adherence, an educational-importance threshold, and relevance beyond comparable repetitions remain unresolved.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SUB-I</strong></td>
+<td style="text-align: left;">The estimated 2.09-point advantage is 13.1% of the 0–16 range; the model interval [0.43, 3.75] spans 2.7% to 23.5% of that range. It favors the planned mixture, but no educational-importance benchmark was justified and it does not establish each innovative method separately.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SUB-C</strong></td>
+<td style="text-align: left;">In comparable repetitions of this randomized study setting, assignment to an equal DRTA/think-aloud mixture is estimated to raise mean error-detection score by 2.09 points relative to DRA (model 95% CI [0.43, 3.75]), conditional on the assumptions retained in STAT-C. The analysis is secondary and unadjusted, does not establish either method separately or instruction received, and does not support broader population transport.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The corresponding transitions are logically parallel but perform different work:</p>
+<div id="tbl-ch04-reading-transitions" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[18,82]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-reading-transitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;32: Statistical-to-substantive transition and traceability for the reading experiment.
+</figcaption>
+<div aria-describedby="tbl-ch04-reading-transitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 82%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Shared role</th>
+<th style="text-align: left;">Statistical-to-substantive transition in this example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Evidence</td>
+<td style="text-align: left;">SUB-E situates STAT-E by identifying the students, instructional conditions, setting, and meaning of the score.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Justification</td>
+<td style="text-align: left;">SUB-J augments and evaluates STAT-J with comprehension-monitoring theory, operational definitions, and delivery evidence.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Inference</td>
+<td style="text-align: left;">SUB-I interprets STAT-I on the 0–16 scale and separates the planned mixture from claims about either method alone.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Claim</td>
+<td style="text-align: left;">STAT-C bounds and calibrates SUB-C by retaining missingness, model-based uncertainty, secondary status, multiplicity, and the comparable-process boundary.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="workflow-perspective" class="level3">
+<h3 class="anchored" data-anchor-id="workflow-perspective">Workflow perspective</h3>
+<p>Stages 1–4 form the proposal phase; Stages 5–8 form the implementation phase. The stages are operationally iterative rather than a one-pass recipe.</p>
+<div id="tbl-ch04-reading-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[38,62]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-reading-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;33: The eight workflow stages applied to the reading experiment.
+</figcaption>
+<div aria-describedby="tbl-ch04-reading-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Stage</th>
+<th style="text-align: left;">Application to the sustained question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>1. Conduct the literature review</strong></td>
+<td style="text-align: left;">Motivate comprehension monitoring and the three instructional conditions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>2. Frame the research question and candidate answer</strong></td>
+<td style="text-align: left;">Compare the equal innovative mixture with DRA; retain the source study’s planned contrast while making no fresh prospective hypothesis for this secondary reanalysis.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>3. Plan design, measurement, and method of inference</strong></td>
+<td style="text-align: left;">Specify <span class="math inline">\(\mathcal S\)</span>, assignment, outcome, contrast, model conditions, implementation evidence, and missingness handling.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>4. Align and synthesize across questions: proposal phase</strong></td>
+<td style="text-align: left;">Align two treatment questions, three outcomes, two contrasts, and multiplicity.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>5. Conduct the study and collect or acquire data and contextual information</strong></td>
+<td style="text-align: left;">Assign 68 children, document delivery, and obtain 66 outcomes plus two incompleteness reasons.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>6. Conduct statistical estimation, checking, and analysis</strong></td>
+<td style="text-align: left;">Estimate the focal contrast and model interval; keep omnibus, Welch, Tukey, and effect-size results as ancillary families.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>7. Contextualize, justify, and interpret substantively</strong></td>
+<td style="text-align: left;">Interpret scale magnitude using theory, fidelity, attrition, and setting.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>8. Synthesize across questions: implementation phase</strong></td>
+<td style="text-align: left;">Answer this question; keep the second contrast, other outcomes, and transport separate.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="evaluation-perspective" class="level3">
+<h3 class="anchored" data-anchor-id="evaluation-perspective">Evaluation perspective</h3>
+<p>The seven lenses form a reasoned profile, not a score:</p>
+<div id="tbl-ch04-reading-evaluation" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[27,73]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch04-reading-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;34: Seven-lens evaluation of the reading-instruction argument.
+</figcaption>
+<div aria-describedby="tbl-ch04-reading-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 73%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lens</th>
+<th style="text-align: left;">Focused evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Question alignment</strong></td>
+<td style="text-align: left;">The planned mixture contrast matches the sustained question; the omnibus and Tukey family answer additional, distinct questions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Evidence integrity</strong></td>
+<td style="text-align: left;">Assignment counts, two incomplete outcomes, score meaning, and fidelity records are visible; individual adherence is not observed.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Justification adequacy</strong></td>
+<td style="text-align: left;">Randomization supports the assignment comparison, while process stability, missingness, consistency, no interference, and the stochastic error model remain explicit conditions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Inferential adequacy</strong></td>
+<td style="text-align: left;">The estimands, pooled exactness conditions, Welch sensitivity, effect sizes, interval, multiplicity family, and secondary status are explicit.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Transition fidelity</strong></td>
+<td style="text-align: left;">Each SUB component adds context or meaning without dropping the magnitude, uncertainty, assumptions, or selected-outcome status of its STAT counterpart.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Claim calibration</strong></td>
+<td style="text-align: left;">SUB-C answers for comparable repetitions, retains every condition and analytic limitation, and does not claim both methods worked separately or transport to other populations.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Cross-question coherence</strong></td>
+<td style="text-align: left;">This answer is one part of the source study’s two treatment questions and three outcomes; those linked questions require their own arguments and a study-level synthesis.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The framework changes what counts as a complete report. A p-value is not the endpoint: the question-specific estimate, uncertainty, design support, substantive meaning, and reservations must remain traceable from STAT-E to SUB-C.</p>
+</section>
+</section>
+<section id="reading-bridge" class="level2">
+<h2 class="anchored" data-anchor-id="reading-bridge">Reading Bridge</h2>
+<p>These publicly available readings extend particular parts of the chapter; they are not required to understand the chapter itself.</p>
+<ul>
+<li><a href="https://openintrostat.github.io/ims/explore-categorical.html">Introduction to Modern Statistics, Chapter 4: Exploring categorical data</a> - tables, conditional proportions, and categorical displays.</li>
+<li><a href="https://openintrostat.github.io/ims/inference-two-props.html">Introduction to Modern Statistics, Chapter 17: Comparing two proportions</a> - uncertainty for a prespecified two-group event comparison.</li>
+<li><a href="https://openintrostat.github.io/ims/inference-tables.html">Introduction to Modern Statistics, Chapter 18: Inference for two-way tables</a> - expected counts, randomization logic, and the chi-square reference model.</li>
+<li><a href="https://openintrostat.github.io/ims/inference-many-means.html">Introduction to Modern Statistics, Chapter 22: Comparing many means</a> - the omnibus ANOVA question, reference distribution, and multiplicity.</li>
+<li><a href="https://www.itl.nist.gov/div898/handbook/prc/section4/prc438.htm">NIST/SEMATECH: Models and calculations for two-way ANOVA</a> - factorial cells, main effects, interaction, and the two-way ANOVA decomposition.</li>
+<li><a href="https://archive.ics.uci.edu/dataset/320/student+performance">UCI Student Performance dataset page</a> - source documentation, variable meanings, DOI, and access to <code>student_performance.csv</code>.</li>
+<li><a href="https://cran.r-project.org/package=carData"><code>carData</code> package page</a> - package information and the <code>Baumann</code> documentation for the randomized reading-comprehension experiment analyzed in this chapter.</li>
+<li><a href="https://eric.ed.gov/?id=EJ447036">ERIC record for Baumann, Seifert-Kessell, and Jones’s original experiment</a> <span class="citation" data-cites="baumann1992">(<a href="#ref-baumann1992" role="doc-biblioref">Baumann et al., 1992</a>)</span> - a stable, public abstract and bibliographic record; the formal reference below cites the original report used for design and analysis details.</li>
+</ul>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-agresti2018" class="csl-entry" role="listitem">
+Agresti, A. (2018). <em>Statistical methods for the social sciences</em> (5th ed.). Pearson.
+</div>
+<div id="ref-baumann1992" class="csl-entry" role="listitem">
+Baumann, J. F., Seifert-Kessell, N., &amp; Jones, L. A. (1992). Effect of think-aloud instruction on elementary students’ comprehension monitoring abilities. <em>Journal of Reading Behavior</em>, <em>24</em>(2), 143–172. <a href="https://doi.org/10.1080/10862969209547770">https://doi.org/10.1080/10862969209547770</a>
+</div>
+<div id="ref-cohen1988" class="csl-entry" role="listitem">
+Cohen, J. (1988). <em>Statistical power analysis for the behavioral sciences</em> (2nd ed.). Lawrence Erlbaum Associates.
+</div>
+<div id="ref-cortez2008data" class="csl-entry" role="listitem">
+Cortez, P. (2008). <em>Student performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5TG7T">https://doi.org/10.24432/C5TG7T</a>
+</div>
+<div id="ref-cramer1946" class="csl-entry" role="listitem">
+Cramér, H. (1946). <em>Mathematical methods of statistics</em>. Princeton University Press.
+</div>
+<div id="ref-fisher1935" class="csl-entry" role="listitem">
+Fisher, R. A. (1935). <em>The design of experiments</em>. <span>Oliver and Boyd</span>.
+</div>
+<div id="ref-fox2019" class="csl-entry" role="listitem">
+Fox, J., &amp; Weisberg, S. (2019). <em>An <span>R</span> companion to applied regression</em> (3rd ed.). SAGE Publications. <a href="https://www.john-fox.ca/Companion/index.html">https://www.john-fox.ca/Companion/index.html</a>
+</div>
+<div id="ref-carData2022" class="csl-entry" role="listitem">
+Fox, J., Weisberg, S., &amp; Price, B. (2022). <em><span class="nocase">carData</span>: Companion to applied regression data sets</em> (Versions 3.0-5). <span>Comprehensive R Archive Network</span>. <a href="https://doi.org/10.32614/CRAN.package.carData">https://doi.org/10.32614/CRAN.package.carData</a>
+</div>
+<div id="ref-kramer1956" class="csl-entry" role="listitem">
+Kramer, C. Y. (1956). Extension of multiple range tests to group means with unequal numbers of replications. <em>Biometrics</em>, <em>12</em>(3), 307–310. <a href="https://doi.org/10.2307/3001469">https://doi.org/10.2307/3001469</a>
+</div>
+<div id="ref-kutner2005" class="csl-entry" role="listitem">
+Kutner, M. H., Nachtsheim, C. J., Neter, J., &amp; Li, W. (2005). <em>Applied linear statistical models</em> (5th ed.). McGraw-Hill/Irwin.
+</div>
+<div id="ref-lakens2013" class="csl-entry" role="listitem">
+Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science: A practical primer for t-tests and <span>ANOVAs</span>. <em>Frontiers in Psychology</em>, <em>4</em>, 863. <a href="https://doi.org/10.3389/fpsyg.2013.00863">https://doi.org/10.3389/fpsyg.2013.00863</a>
+</div>
+<div id="ref-maxwell2018" class="csl-entry" role="listitem">
+Maxwell, S. E., Delaney, H. D., &amp; Kelley, K. (2018). <em>Designing experiments and analyzing data: A model comparison perspective</em> (3rd ed.). Routledge.
+</div>
+<div id="ref-moore2014" class="csl-entry" role="listitem">
+Moore, D. S., McCabe, G. P., &amp; Craig, B. A. (2014). <em>Introduction to the practice of statistics</em> (8th ed.). W. H. Freeman.
+</div>
+<div id="ref-shadish2002" class="csl-entry" role="listitem">
+Shadish, W. R., Cook, T. D., &amp; Campbell, D. T. (2002). <em>Experimental and quasi-experimental designs for generalized causal inference</em>. Houghton Mifflin.
+</div>
+<div id="ref-tukey1953" class="csl-entry" role="listitem">
+Tukey, J. W. (1953). <em>The problem of multiple comparisons</em> [Unpublished manuscript]. <span>Princeton University</span>.
+</div>
+<div id="ref-welch1947" class="csl-entry" role="listitem">
+Welch, B. L. (1947). The generalization of <span>“<span>Student</span>’s”</span> problem when several different population variances are involved. <em>Biometrika</em>, <em>34</em>(1–2), 28–35. <a href="https://doi.org/10.1093/biomet/34.1-2.28">https://doi.org/10.1093/biomet/34.1-2.28</a>
+</div>
+<div id="ref-wilson1927" class="csl-entry" role="listitem">
+Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference. <em>Journal of the American Statistical Association</em>, <em>22</em>(158), 209–212. <a href="https://doi.org/10.1080/01621459.1927.10502953">https://doi.org/10.1080/01621459.1927.10502953</a>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<p>The exercises contain no answers. Keep each response focused on the research question, the relevant statistical target, and the strongest defensible claim.</p>
+<section id="categorical-comparison" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="categorical-comparison">Categorical comparison</h3>
+<p>A survey records 84 completions and 36 noncompletions online, and 63 completions and 17 noncompletions in person. Calculate the within-format completion proportions, the Online-minus-In-person proportion difference, and the odds ratio. State which quantity most directly answers how completion differed by format and give one design limitation on interpretation.</p>
+</section>
+<section id="chi-square-evidence-and-pattern" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="chi-square-evidence-and-pattern">Chi-square evidence and pattern</h3>
+<p>For the same <span class="math inline">\(2\times2\)</span> table, calculate expected counts, Pearson’s <span class="math inline">\(X^2\)</span>, and degrees of freedom. Identify the cells contributing most to the statistic. Write one bounded statistical claim that distinguishes evidence against independence from association strength and causation.</p>
+</section>
+<section id="anova-contrast-and-multiplicity" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="anova-contrast-and-multiplicity">ANOVA, contrast, and multiplicity</h3>
+<p>Three independent groups have <span class="math inline">\(n=(8,10,12)\)</span>, means <span class="math inline">\((21,25,24)\)</span>, and within-group sums of squares <span class="math inline">\((56,81,99)\)</span>. Calculate the ANOVA table and state the omnibus null. Then define one scientifically meaningful contrast. Explain why its interval and an all-pairs Tukey family answer different questions.</p>
+</section>
+<section id="anova-as-regression-and-a-factorial-bridge" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="anova-as-regression-and-a-factorial-bridge">ANOVA as regression and a factorial bridge</h3>
+<p>For a three-group comparison, use two indicators and a reference group to write the fitted means and joint null in regression notation. Add a second categorical factor conceptually and explain, without calculation, why cell means, interaction, marginal weighting, and the assignment design must be examined before interpreting either main effect.</p>
+</section>
+<section id="evaluate-a-real-experiment" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="evaluate-a-real-experiment">Evaluate a real experiment</h3>
+<p>Using the Baumann question in this chapter, write one sentence for each of STAT-E, STAT-J, STAT-I, STAT-C, SUB-E, SUB-J, SUB-I, and SUB-C. Then identify one workflow stage at which the two missing outcomes should have changed the analysis plan and use <strong>Claim calibration</strong> to improve one sentence that overstates the evidence.</p>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · Text licensed CC BY 4.0 unless otherwise noted.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about/index.html#citation">
+<p>Citation</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about/index.html#licences">
+<p>Licences</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="mailto:jinsong.chen@live.com">
+<p>Contact</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
