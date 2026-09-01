@@ -45,8 +45,8 @@ jobs:
           WEBSITE_SHA: ${{ github.sha }}
           WEBSITE_REF: ${{ github.ref }}
         run: |
-          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+$') {
-            throw "Release ID must match YYYY.N"
+          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+(?:\.[0-9]+)?$') {
+            throw "Release ID must match YYYY.N or YYYY.N.P"
           }
           if ($env:MATERIALS_SHA -notmatch '^[0-9a-f]{40}$') {
             throw "Materials commit must be a full lowercase SHA-1"
@@ -92,10 +92,10 @@ jobs:
             throw "Materials checkout does not match the approved commit"
           }
 
-      - name: Set up Python 3.13
+      - name: Set up Python 3.13.5
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.13.5"
           cache: pip
           cache-dependency-path: website/requirements-release.txt
 
@@ -149,8 +149,8 @@ jobs:
         env:
           RELEASE_ID: ${{ inputs.release_id }}
         run: |
-          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+$') {
-            throw "Release ID must match YYYY.N"
+          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+(?:\.[0-9]+)?$') {
+            throw "Release ID must match YYYY.N or YYYY.N.P"
           }
           $release = $env:RELEASE_ID
           $site = Join-Path $PWD "website/.qmsbr/site"
@@ -225,6 +225,7 @@ jobs:
           Website commit: ${WEBSITE_SHA}
           EOF
           expected_names="$(find release-assets -maxdepth 1 -type f -printf '%f\n' | sort)"
+          expected_title="QMSBR ${RELEASE_ID}"
           if tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null)"; then
             test "$tag_sha" = "$WEBSITE_SHA"
           else
@@ -233,30 +234,38 @@ jobs:
               -f sha="$WEBSITE_SHA" >/dev/null
           fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha)" = "$WEBSITE_SHA"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
-            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"
-            remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
-            unexpected="$(comm -13 <(printf '%s\n' "$expected_names") <(printf '%s\n' "$remote_names"))"
-            test -z "$unexpected"
-            while IFS= read -r name; do
-              test -n "$name" || continue
-              if printf '%s\n' "$remote_names" | grep -Fqx "$name"; then
-                comparison="$(mktemp -d)"
-                gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$comparison"
-                cmp -s "release-assets/$name" "$comparison/$name"
-              else
-                gh release upload "$tag" "release-assets/$name" --repo "$GITHUB_REPOSITORY"
-              fi
-            done <<< "$expected_names"
-          else
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release create "$tag" release-assets/* \
               --repo "$GITHUB_REPOSITORY" \
               --target "$WEBSITE_SHA" \
-              --title "QMSBR ${RELEASE_ID}" \
+              --title "$expected_title" \
               --notes-file release-notes.md \
               --verify-tag \
               --draft
+          fi
+          is_draft="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)"
+          test "$is_draft" = true || test "$is_draft" = false
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease --jq .isPrerelease)" = false
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json name --jq .name)" = "$expected_title"
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"
+          remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
+          unexpected="$(comm -13 <(printf '%s\n' "$expected_names") <(printf '%s\n' "$remote_names"))"
+          test -z "$unexpected"
+          while IFS= read -r name; do
+            test -n "$name" || continue
+            if printf '%s\n' "$remote_names" | grep -Fqx "$name"; then
+              comparison="$(mktemp -d)"
+              gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$comparison"
+              cmp -s "release-assets/$name" "$comparison/$name"
+            else
+              test "$is_draft" = true
+              gh release upload "$tag" "release-assets/$name" --repo "$GITHUB_REPOSITORY"
+            fi
+          done <<< "$expected_names"
+          remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
+          test "$remote_names" = "$expected_names"
+          if test "$is_draft" = false; then
+            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isImmutable --jq .isImmutable)" = true
           fi
 
   deploy:
@@ -306,7 +315,14 @@ jobs:
           Website commit: ${WEBSITE_SHA}
           EOF
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha)" = "$WEBSITE_SHA"
-          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          expected_title="QMSBR ${RELEASE_ID}"
+          is_draft="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)"
+          test "$is_draft" = true || test "$is_draft" = false
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease --jq .isPrerelease)" = false
+          if test "$is_draft" = false; then
+            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isImmutable --jq .isImmutable)" = true
+          fi
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json name --jq .name)" = "$expected_title"
           test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"
           expected_names="$(find release-assets -maxdepth 1 -type f -printf '%f\n' | sort)"
           remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
@@ -317,4 +333,11 @@ jobs:
             gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$comparison"
             cmp -s "release-assets/$name" "$comparison/$name"
           done <<< "$expected_names"
-          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          if test "$is_draft" = true; then
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          fi
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = false
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease --jq .isPrerelease)" = false
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isImmutable --jq .isImmutable)" = true
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json name --jq .name)" = "$expected_title"
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"

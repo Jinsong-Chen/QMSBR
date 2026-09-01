@@ -388,8 +388,13 @@ def load_model(materials_root: Path) -> dict[str, Any]:
     release = require_mapping(approvals.get("release"), "approvals release")
     release_id = str(release.get("id", ""))
     epoch = release.get("source_date_epoch")
-    if not re.fullmatch(r"[0-9]{4}\.[0-9]+", release_id) or not isinstance(epoch, int):
-        raise PublicationError("release.id must be YYYY.N and source_date_epoch must be an integer")
+    if (
+        not re.fullmatch(r"[0-9]{4}\.[0-9]+(?:\.[0-9]+)?", release_id)
+        or not isinstance(epoch, int)
+    ):
+        raise PublicationError(
+            "release.id must be YYYY.N or YYYY.N.P and source_date_epoch must be an integer"
+        )
 
     approved_contexts = approved_hash_mapping(
         approvals.get("approved_render_contexts"), "approved_render_contexts",
@@ -947,7 +952,9 @@ def release_specification(model: dict[str, Any], release_id: str | None) -> dict
             "checksum_name": f"SHA256SUMS-{identifier}.txt",
             "built_at_utc": None,
         }
-    if release_id != model["release_id"] or not re.fullmatch(r"[0-9]{4}\.[0-9]+", release_id):
+    if release_id != model["release_id"] or not re.fullmatch(
+        r"[0-9]{4}\.[0-9]+(?:\.[0-9]+)?", release_id,
+    ):
         raise PublicationError(
             f"Production release must exactly match the approved ID {model['release_id']}"
         )
@@ -1041,7 +1048,10 @@ def enumerate_ordinary_files(root: Path, owner: str) -> list[Path]:
                     raise PublicationError(
                         f"Unsupported entry in {owner}: {path.relative_to(root)}"
                     )
-    return sorted(discovered, key=lambda path: path.relative_to(root).as_posix().casefold())
+    return sorted(
+        discovered,
+        key=lambda path: path.relative_to(root).as_posix().encode("utf-8"),
+    )
 
 
 def safe_output_destination(root: Path, relative: str) -> Path:
@@ -1495,6 +1505,8 @@ def build_site(
         run_quarto(model, executable)
         verify_staged_inputs(staged_hashes)
         verify_live_model(model)
+        if release_id is not None:
+            validate_production_gate(model, release)
         add_public_resources(model, website_hashes, release)
         candidate = PROJECT_ROOT / "_site"
         validate_output(candidate, model, release)
