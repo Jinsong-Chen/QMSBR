@@ -935,6 +935,88 @@ def git_state(root: Path) -> tuple[str | None, bool]:
     return revision.stdout.strip(), bool(status.stdout.strip())
 
 
+def release_specification(model: dict[str, Any], release_id: str | None) -> dict[str, Any]:
+    if release_id is None:
+        identifier = "preview"
+        return {
+            "release_id": identifier,
+            "planned_release_id": model["release_id"],
+            "release_tag": None,
+            "mode": "nondeployable-preview",
+            "nondeployable": True,
+            "checksum_name": f"SHA256SUMS-{identifier}.txt",
+            "built_at_utc": None,
+        }
+    if release_id != model["release_id"] or not re.fullmatch(r"[0-9]{4}\.[0-9]+", release_id):
+        raise PublicationError(
+            f"Production release must exactly match the approved ID {model['release_id']}"
+        )
+    return {
+        "release_id": release_id,
+        "planned_release_id": model["release_id"],
+        "release_tag": f"v{release_id}",
+        "mode": "production",
+        "nondeployable": False,
+        "checksum_name": f"SHA256SUMS-{release_id}.txt",
+        "built_at_utc": datetime.fromtimestamp(
+            model["source_date_epoch"], tz=UTC,
+        ).isoformat().replace("+00:00", "Z"),
+    }
+
+
+def resolved_required_outputs(model: dict[str, Any], release: dict[str, Any]) -> list[str]:
+    result: list[str] = []
+    for raw in require_string_list(model["output"].get("required_outputs"), "required_outputs"):
+        relative = normalize_relative(
+            raw.replace("{release_id}", str(release["release_id"])),
+            "resolved required output",
+        )
+        if "{" in relative or "}" in relative:
+            raise PublicationError(f"Unknown placeholder in required output: {raw}")
+        result.append(relative)
+    if len({path.casefold() for path in result}) != len(result):
+        raise PublicationError("Resolved required outputs contain duplicate paths")
+    if release["checksum_name"] not in result:
+        raise PublicationError("Resolved required outputs omit the release checksum index")
+    return result
+
+
+def validate_production_gate(model: dict[str, Any], release: dict[str, Any]) -> None:
+    required_environment = {
+        "GITHUB_ACTIONS": "true",
+        "GITHUB_EVENT_NAME": "workflow_dispatch",
+        "GITHUB_REPOSITORY": "Jinsong-Chen/QMSBR",
+        "GITHUB_REF": "refs/heads/main",
+        "QMSBR_PUBLICATION_APPROVED": "true",
+    }
+    for name, expected in required_environment.items():
+        actual = os.environ.get(name, "")
+        if actual.casefold() != expected.casefold():
+            raise PublicationError(
+                f"Production release gate rejected {name}; expected {expected!r}"
+            )
+    expected_materials = os.environ.get("QMSBR_EXPECTED_MATERIALS_SHA", "").lower()
+    expected_website = os.environ.get("QMSBR_EXPECTED_WEBSITE_SHA", "").lower()
+    github_sha = os.environ.get("GITHUB_SHA", "").lower()
+    for name, value in (
+        ("QMSBR_EXPECTED_MATERIALS_SHA", expected_materials),
+        ("QMSBR_EXPECTED_WEBSITE_SHA", expected_website),
+        ("GITHUB_SHA", github_sha),
+    ):
+        if not re.fullmatch(r"[0-9a-f]{40}", value):
+            raise PublicationError(f"Production release gate requires a full SHA in {name}")
+    if expected_website != github_sha:
+        raise PublicationError("Requested website SHA differs from the workflow commit")
+    materials_revision, materials_dirty = git_state(model["materials_root"])
+    website_revision, website_dirty = git_state(WEBSITE_ROOT)
+    if materials_revision != expected_materials or materials_dirty:
+        raise PublicationError("Private materials checkout is not the requested clean commit")
+    if website_revision != expected_website or website_dirty:
+        raise PublicationError("Public website checkout is not the requested clean commit")
+    if release["release_id"] != model["release_id"] or release["nondeployable"]:
+        raise PublicationError("Production release specification is not approved")
+
+
 def enumerate_ordinary_files(root: Path, owner: str) -> list[Path]:
     if not root.is_dir() or is_link_or_junction(root):
         raise PublicationError(f"{owner} is absent, not a directory, or linked: {root}")
@@ -992,7 +1074,9 @@ def safe_output_destination(root: Path, relative: str) -> Path:
     return destination
 
 
-def add_public_resources(model: dict[str, Any], website_hashes: dict[str, str]) -> None:
+def add_public_resources(
+    model: dict[str, Any], website_hashes: dict[str, str], release: dict[str, Any],
+) -> None:
     output = PROJECT_ROOT / "_site"
     verify_work_descendant_directory(output, "renderer-created site output")
     enumerate_ordinary_files(output, "renderer-created site output")
@@ -1019,7 +1103,7 @@ def add_public_resources(model: dict[str, Any], website_hashes: dict[str, str]) 
         f"{sha256_bytes((output / Path(*PurePosixPath(path).parts)).read_bytes())}  {path}"
         for path in pdf_paths
     ]
-    checksum_name = "SHA256SUMS-preview.txt"
+    checksum_name = str(release["checksum_name"])
     atomic_write(
         safe_output_destination(output, checksum_name),
         ("\n".join(checksum_lines) + "\n").encode("utf-8"),
@@ -1041,12 +1125,14 @@ def add_public_resources(model: dict[str, Any], website_hashes: dict[str, str]) 
     ).encode("utf-8")
     release_record = {
         "schema_version": 1,
-        "release_id": "preview",
-        "planned_release_id": model["release_id"],
-        "release_tag": None,
-        "mode": "nondeployable-preview",
-        "nondeployable": True,
-        "built_at_utc": datetime.now(tz=UTC).isoformat().replace("+00:00", "Z"),
+        "release_id": release["release_id"],
+        "planned_release_id": release["planned_release_id"],
+        "release_tag": release["release_tag"],
+        "mode": release["mode"],
+        "nondeployable": release["nondeployable"],
+        "built_at_utc": release["built_at_utc"] or datetime.now(tz=UTC).isoformat().replace(
+            "+00:00", "Z",
+        ),
         "materials_commit": materials_revision,
         "materials_dirty": materials_dirty,
         "website_commit": website_revision,
@@ -1172,7 +1258,10 @@ def check_links(site: Path) -> None:
         raise PublicationError(f"Broken internal links ({len(failures)}):\n{preview}")
 
 
-def validate_output(site: Path, model: dict[str, Any]) -> None:
+def validate_output(
+    site: Path, model: dict[str, Any], release: dict[str, Any] | None = None,
+) -> None:
+    release = release or release_specification(model, None)
     try:
         site.absolute().relative_to(WORK_ROOT.absolute())
     except ValueError:
@@ -1185,7 +1274,7 @@ def validate_output(site: Path, model: dict[str, Any]) -> None:
     folded = [path.casefold() for path in files]
     if len(folded) != len(set(folded)):
         raise PublicationError("Rendered output has case-colliding paths")
-    required = set(require_string_list(policy.get("required_outputs"), "required_outputs"))
+    required = set(resolved_required_outputs(model, release))
     generated_assets = set(require_string_list(
         policy.get("generated_chapter_assets"), "generated_chapter_assets",
     ))
@@ -1246,15 +1335,15 @@ def validate_output(site: Path, model: dict[str, Any]) -> None:
     expected_checksum = "\n".join(
         f"{model['approved_binaries'][path]}  {path}" for path in pdf_paths
     ) + "\n"
-    checksum_path = site / "SHA256SUMS-preview.txt"
+    checksum_path = site / str(release["checksum_name"])
     if checksum_path.read_text(encoding="utf-8") != expected_checksum:
-        raise PublicationError("Preview checksum index does not match the approved PDFs")
+        raise PublicationError("Release checksum index does not match the approved PDFs")
 
     try:
         release_record = json.loads((site / "release.json").read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        raise PublicationError(f"Invalid preview release.json: {exc}") from exc
-    release_record = require_mapping(release_record, "preview release.json")
+        raise PublicationError(f"Invalid release.json: {exc}") from exc
+    release_record = require_mapping(release_record, "release.json")
     expected_manifest_hash = sha256_bytes(yaml_bytes(
         manifest_document(model),
         "Generated by website/tools/manage.py; do not edit by hand.",
@@ -1271,11 +1360,11 @@ def validate_output(site: Path, model: dict[str, Any]) -> None:
     ).encode("utf-8")
     expected_release_values = {
         "schema_version": 1,
-        "release_id": "preview",
-        "planned_release_id": model["release_id"],
-        "release_tag": None,
-        "mode": "nondeployable-preview",
-        "nondeployable": True,
+        "release_id": release["release_id"],
+        "planned_release_id": release["planned_release_id"],
+        "release_tag": release["release_tag"],
+        "mode": release["mode"],
+        "nondeployable": release["nondeployable"],
         "quarto_version": model["quarto_version"],
         "r_version": model["r_version"],
         "pyyaml_version": PY_YAML_VERSION,
@@ -1302,17 +1391,19 @@ def validate_output(site: Path, model: dict[str, Any]) -> None:
         if unexpected_keys:
             details.append("unexpected: " + ", ".join(unexpected_keys))
         raise PublicationError(
-            "Preview release.json has a noncanonical top-level schema; " + "; ".join(details)
+            "release.json has a noncanonical top-level schema; " + "; ".join(details)
         )
     for key, expected in expected_release_values.items():
         if release_record.get(key) != expected:
-            raise PublicationError(f"Preview release.json has stale or invalid field: {key}")
+            raise PublicationError(f"release.json has stale or invalid field: {key}")
     if release_record["python_version"] != platform.python_version():
-        raise PublicationError("Preview release.json has a stale or invalid python_version")
+        raise PublicationError("release.json has a stale or invalid python_version")
     try:
         datetime.fromisoformat(str(release_record.get("built_at_utc", "")).replace("Z", "+00:00"))
     except ValueError as exc:
-        raise PublicationError("Preview release.json has an invalid built_at_utc") from exc
+        raise PublicationError("release.json has an invalid built_at_utc") from exc
+    if release["built_at_utc"] is not None and release_record["built_at_utc"] != release["built_at_utc"]:
+        raise PublicationError("Production release.json has a non-reproducible built_at_utc")
     materials_revision, materials_dirty = git_state(model["materials_root"])
     website_revision, website_dirty = git_state(WEBSITE_ROOT)
     current_provenance = {
@@ -1323,7 +1414,7 @@ def validate_output(site: Path, model: dict[str, Any]) -> None:
     }
     for key, expected in current_provenance.items():
         if release_record[key] != expected:
-            raise PublicationError(f"Preview release.json has stale provenance: {key}")
+            raise PublicationError(f"release.json has stale provenance: {key}")
 
     for relative in (
         "CITATION.cff", "LICENSE", "NOTICE", "LICENSES/CC-BY-4.0.txt",
@@ -1386,11 +1477,17 @@ def verify_live_model(model: dict[str, Any]) -> None:
         raise PublicationError("Publication catalogue, approvals, or output policy changed during build")
 
 
-def build_site(materials_root: Path, *, explicit_quarto: str | None) -> None:
+def build_site(
+    materials_root: Path, *, explicit_quarto: str | None,
+    release_id: str | None = None,
+) -> None:
     ensure_work_root()
     validate_boundaries(materials_root)
     model = load_model(materials_root)
     sync_manifest_model(model, check=True)
+    release = release_specification(model, release_id)
+    if release_id is not None:
+        validate_production_gate(model, release)
     check_r_environment(model)
     executable = quarto_executable(model, explicit_quarto)
     website_hashes, staged_hashes = assemble_project(model)
@@ -1398,14 +1495,14 @@ def build_site(materials_root: Path, *, explicit_quarto: str | None) -> None:
         run_quarto(model, executable)
         verify_staged_inputs(staged_hashes)
         verify_live_model(model)
-        add_public_resources(model, website_hashes)
+        add_public_resources(model, website_hashes, release)
         candidate = PROJECT_ROOT / "_site"
-        validate_output(candidate, model)
+        validate_output(candidate, model, release)
         verify_staged_inputs(staged_hashes)
         verify_live_model(model)
         if current_website_input_hashes(model) != website_hashes:
             raise PublicationError("Website source inputs changed during build")
-        validate_output(candidate, model)
+        validate_output(candidate, model, release)
         promote_site(candidate)
     finally:
         safe_remove_tree(PROJECT_ROOT)
@@ -1525,6 +1622,10 @@ def parser() -> argparse.ArgumentParser:
     subparsers.add_parser(
         "build", help="Assemble, render, validate, and promote a nondeployable local preview",
     )
+    release_parser = subparsers.add_parser(
+        "release-build", help="Build a production release inside the protected GitHub workflow",
+    )
+    release_parser.add_argument("--release", required=True, help="Exact approved release ID")
     subparsers.add_parser("bootstrap-quarto", help="Install the pinned portable Quarto under .qmsbr")
     serve_parser = subparsers.add_parser("serve", help="Serve the validated local output")
     serve_parser.add_argument("--port", type=int, default=8765)
@@ -1548,6 +1649,11 @@ def main(argv: list[str] | None = None) -> int:
             print("Publication approvals and split-repository boundary are valid.")
         elif args.command == "build":
             build_site(materials_root, explicit_quarto=args.quarto)
+        elif args.command == "release-build":
+            build_site(
+                materials_root, explicit_quarto=args.quarto,
+                release_id=args.release,
+            )
         elif args.command == "bootstrap-quarto":
             bootstrap_quarto(materials_root)
         elif args.command == "serve":

@@ -1,0 +1,320 @@
+name: Publish QMSBR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: Exact approved release ID
+        required: true
+        default: "2026.1"
+        type: string
+      materials_sha:
+        description: Full approved private-materials commit SHA
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: qmsbr-production-publication
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  prepare-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Read GitHub Pages configuration
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+  build:
+    needs: prepare-pages
+    runs-on: windows-2025
+    environment: qmsbr-production
+    permissions:
+      contents: read
+    steps:
+      - name: Validate the immutable publication inputs
+        shell: pwsh
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          MATERIALS_SHA: ${{ inputs.materials_sha }}
+          WEBSITE_SHA: ${{ github.sha }}
+          WEBSITE_REF: ${{ github.ref }}
+        run: |
+          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+$') {
+            throw "Release ID must match YYYY.N"
+          }
+          if ($env:MATERIALS_SHA -notmatch '^[0-9a-f]{40}$') {
+            throw "Materials commit must be a full lowercase SHA-1"
+          }
+          if ($env:WEBSITE_SHA -notmatch '^[0-9a-f]{40}$') {
+            throw "Website commit must be a full lowercase SHA-1"
+          }
+          if ($env:WEBSITE_REF -ne 'refs/heads/main') {
+            throw "Production publication is restricted to the main branch"
+          }
+
+      - name: Check out the exact public website commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: website
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out the exact approved private-materials commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ secrets.QMSBR_MATERIALS_REPOSITORY }}
+          ref: ${{ inputs.materials_sha }}
+          path: materials
+          fetch-depth: 1
+          persist-credentials: false
+          ssh-key: ${{ secrets.QMSBR_MATERIALS_DEPLOY_KEY }}
+          ssh-strict: true
+
+      - name: Verify both immutable checkouts
+        shell: pwsh
+        env:
+          MATERIALS_SHA: ${{ inputs.materials_sha }}
+          WEBSITE_SHA: ${{ github.sha }}
+        run: |
+          $actualWebsite = (& git -C website rev-parse HEAD).Trim()
+          $actualMaterials = (& git -C materials rev-parse HEAD).Trim()
+          if ($actualWebsite -ne $env:WEBSITE_SHA) {
+            throw "Website checkout does not match the approved commit"
+          }
+          if ($actualMaterials -ne $env:MATERIALS_SHA) {
+            throw "Materials checkout does not match the approved commit"
+          }
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: website/requirements-release.txt
+
+      - name: Install the hash-pinned publisher dependency
+        working-directory: website
+        run: python -m pip install --require-hashes -r requirements-release.txt
+
+      - name: Set up R 4.5.1
+        uses: r-lib/actions/setup-r@465b7d8e732ca3921382b1674c59bada9cbf3399 # v2.13.0
+        with:
+          r-version: "4.5.1"
+          use-public-rspm: true
+          working-directory: materials
+
+      - name: Restore the locked private R environment
+        uses: r-lib/actions/setup-renv@465b7d8e732ca3921382b1674c59bada9cbf3399 # v2.13.0
+        with:
+          working-directory: materials
+
+      - name: Install the pinned portable Quarto renderer
+        working-directory: website
+        shell: pwsh
+        run: |
+          $privateLog = Join-Path $env:RUNNER_TEMP "qmsbr-bootstrap.log"
+          & python tools/manage.py bootstrap-quarto *> $privateLog
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Renderer setup failed. Reproduce locally at the recorded commits; private diagnostics are not printed or uploaded."
+            exit 1
+          }
+          Write-Output "Pinned renderer is ready."
+
+      - name: Build and validate the approved production release
+        working-directory: website
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          QMSBR_PUBLICATION_APPROVED: ${{ vars.PUBLICATION_APPROVED }}
+          QMSBR_EXPECTED_MATERIALS_SHA: ${{ inputs.materials_sha }}
+          QMSBR_EXPECTED_WEBSITE_SHA: ${{ github.sha }}
+        shell: pwsh
+        run: |
+          $privateLog = Join-Path $env:RUNNER_TEMP "qmsbr-private-build.log"
+          & python tools/manage.py release-build --release $env:RELEASE_ID *> $privateLog
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Release validation failed. Reproduce locally at the recorded commits; private diagnostics are not printed or uploaded."
+            exit 1
+          }
+          Write-Output "Approved release output validated without exposing private build diagnostics."
+
+      - name: Stage the exact GitHub Release assets
+        shell: pwsh
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          if ($env:RELEASE_ID -notmatch '^[0-9]{4}\.[0-9]+$') {
+            throw "Release ID must match YYYY.N"
+          }
+          $release = $env:RELEASE_ID
+          $site = Join-Path $PWD "website/.qmsbr/site"
+          $assets = Join-Path $PWD "website/.qmsbr/release-assets"
+          New-Item -ItemType Directory -Path $assets | Out-Null
+          $sources = @(
+            "release.json",
+            "SHA256SUMS-$release.txt",
+            "chapters/chapter_01.pdf",
+            "chapters/chapter_02.pdf",
+            "chapters/chapter_03.pdf",
+            "chapters/chapter_04.pdf",
+            "lectures/lecture_01.pdf"
+          )
+          foreach ($relative in $sources) {
+            $source = Join-Path $site $relative
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+              throw "Missing approved release asset: $relative"
+            }
+            Copy-Item -LiteralPath $source -Destination $assets
+          }
+          $actual = @(Get-ChildItem -LiteralPath $assets -File)
+          if ($actual.Count -ne 7) {
+            throw "Release asset inventory must contain exactly seven files"
+          }
+
+      - name: Upload the exact Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: website/.qmsbr/site
+          include-hidden-files: true
+
+      - name: Upload the short-lived release-assets handoff
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: qmsbr-release-assets
+          path: website/.qmsbr/release-assets/*
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+
+  reserve-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the exact release assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: qmsbr-release-assets
+          path: release-assets
+
+      - name: Reserve the tag and exact draft release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ inputs.release_id }}
+          MATERIALS_SHA: ${{ inputs.materials_sha }}
+          WEBSITE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tag="v${RELEASE_ID}"
+          test "$(find release-assets -maxdepth 1 -type f | wc -l)" -eq 7
+          cat > release-notes.md <<EOF
+          QMSBR Release ${RELEASE_ID}
+
+          This release contains Chapters 01–04 and the Chapter 01 classroom-note example.
+          It contains no public supplements, datasets, scripts, labs, exercises, or ZIP archive.
+
+          Materials commit: ${MATERIALS_SHA}
+          Website commit: ${WEBSITE_SHA}
+          EOF
+          expected_names="$(find release-assets -maxdepth 1 -type f -printf '%f\n' | sort)"
+          if tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null)"; then
+            test "$tag_sha" = "$WEBSITE_SHA"
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/tags/$tag" \
+              -f sha="$WEBSITE_SHA" >/dev/null
+          fi
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha)" = "$WEBSITE_SHA"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+            test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"
+            remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
+            unexpected="$(comm -13 <(printf '%s\n' "$expected_names") <(printf '%s\n' "$remote_names"))"
+            test -z "$unexpected"
+            while IFS= read -r name; do
+              test -n "$name" || continue
+              if printf '%s\n' "$remote_names" | grep -Fqx "$name"; then
+                comparison="$(mktemp -d)"
+                gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$comparison"
+                cmp -s "release-assets/$name" "$comparison/$name"
+              else
+                gh release upload "$tag" "release-assets/$name" --repo "$GITHUB_REPOSITORY"
+              fi
+            done <<< "$expected_names"
+          else
+            gh release create "$tag" release-assets/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$WEBSITE_SHA" \
+              --title "QMSBR ${RELEASE_ID}" \
+              --notes-file release-notes.md \
+              --verify-tag \
+              --draft
+          fi
+
+  deploy:
+    needs: reserve-release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy the validated Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+
+  publish-release:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the exact release assets again
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: qmsbr-release-assets
+          path: release-assets
+
+      - name: Publish the previously reserved immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ inputs.release_id }}
+          MATERIALS_SHA: ${{ inputs.materials_sha }}
+          WEBSITE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tag="v${RELEASE_ID}"
+          test "$RELEASE_ID" != ""
+          test "$(find release-assets -maxdepth 1 -type f | wc -l)" -eq 7
+          cat > release-notes.md <<EOF
+          QMSBR Release ${RELEASE_ID}
+
+          This release contains Chapters 01–04 and the Chapter 01 classroom-note example.
+          It contains no public supplements, datasets, scripts, labs, exercises, or ZIP archive.
+
+          Materials commit: ${MATERIALS_SHA}
+          Website commit: ${WEBSITE_SHA}
+          EOF
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha)" = "$WEBSITE_SHA"
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)" = "$(cat release-notes.md)"
+          expected_names="$(find release-assets -maxdepth 1 -type f -printf '%f\n' | sort)"
+          remote_names="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)"
+          test "$remote_names" = "$expected_names"
+          while IFS= read -r name; do
+            test -n "$name" || continue
+            comparison="$(mktemp -d)"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$comparison"
+            cmp -s "release-assets/$name" "$comparison/$name"
+          done <<< "$expected_names"
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest

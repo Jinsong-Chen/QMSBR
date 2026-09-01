@@ -43,9 +43,11 @@ hash. `build` assembles an empty, allowlisted Quarto project, renders with the
 pinned Quarto version, validates output and links, then promotes the result to
 `.qmsbr/site`. Nothing is published or pushed by these commands.
 
-The resulting site is explicitly a **nondeployable local preview**. Public
-release creation, GitHub Pages deployment, tags, and pushes remain disabled
-until the remote owner and protected publication workflow are configured.
+The ordinary `build` command always produces a **nondeployable local preview**;
+it never creates a release, tag, push, or deployment. Official releases run
+only through the manually dispatched GitHub Pages workflow on the public
+repository and read the approved private commit through a repository-specific,
+read-only deploy key.
 
-The repository URL and GitHub Pages site URL are intentionally absent until the
-GitHub owner name is confirmed.
+- Public source: <https://github.com/Jinsong-Chen/QMSBR>
+- Published site: <https://jinsong-chen.github.io/QMSBR/>

@@ -40,6 +40,26 @@ class SplitPublicationWorkflowTests(unittest.TestCase):
         self.assertEqual(len(manifest["render_targets"]), 4)
         self.assertEqual(len(manifest["copied_resources"]), 5)
 
+    def test_preview_and_production_release_specs_are_distinct_and_exact(self):
+        model = manage.load_model(MATERIALS_ROOT)
+        preview = manage.release_specification(model, None)
+        production = manage.release_specification(model, "2026.1")
+        self.assertTrue(preview["nondeployable"])
+        self.assertEqual(preview["checksum_name"], "SHA256SUMS-preview.txt")
+        self.assertFalse(production["nondeployable"])
+        self.assertEqual(production["release_tag"], "v2026.1")
+        self.assertEqual(production["checksum_name"], "SHA256SUMS-2026.1.txt")
+        self.assertEqual(production["built_at_utc"], "2026-08-31T00:00:00Z")
+        self.assertIn("SHA256SUMS-preview.txt", manage.resolved_required_outputs(model, preview))
+        self.assertIn("SHA256SUMS-2026.1.txt", manage.resolved_required_outputs(model, production))
+
+    def test_production_release_is_rejected_outside_the_protected_workflow(self):
+        model = manage.load_model(MATERIALS_ROOT)
+        release = manage.release_specification(model, "2026.1")
+        with mock.patch.dict("os.environ", {}, clear=True):
+            with self.assertRaisesRegex(manage.PublicationError, "GITHUB_ACTIONS"):
+                manage.validate_production_gate(model, release)
+
     def test_render_only_inputs_have_no_public_paths(self):
         model = manage.load_model(MATERIALS_ROOT)
         manifest = manage.manifest_document(model)
