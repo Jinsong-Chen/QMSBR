@@ -1,0 +1,2233 @@
+---
+title: "Exploratory Factor Analysis and Model Development"
+author: "Jinsong Chen"
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+format:
+  pdf:
+    output-file: chapter_02.pdf
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \usepackage{float}
+          \usepackage{needspace}
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{caption}
+          \captionsetup[table]{position=above,format=plain,justification=raggedright,singlelinecheck=false,labelsep=newline,labelfont=bf,textfont=it}
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(dev=if(knitr::is_latex_output()) "cairo_pdf" else "png",
+  dpi=160,fig.pos="H",fig.align="center")
+options(digits=3,width=80)
+
+# This chapter is self-contained. The SLE population is declared below and the
+# development records are simulated in memory from a fixed seed, so the QMD
+# needs no external script and no data file. The same declarations and seeds
+# produce the distributed sle_continuous.csv, so the records analysed here are
+# the ones the later chapters use.
+for (p in c("psych","GPArotation"))
+  if (!requireNamespace(p,quietly=TRUE)) stop("Required package: ",p)
+
+# ---- SLE codebook, manifest, population -----------------------------------
+
+sle_codebook_lines <- function() c(
+  "item,domain,indicator_definition,wording,unit,coding,missing_code,response_process",
+  "P1,Planning,Planning-routine consistency,I establish a study plan before beginning a task.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "P2,Planning,Priority-setting clarity,I identify which study tasks deserve attention first.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "P3,Planning,Progress-monitoring regularity,I compare my progress with the plan I made.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "P4,Planning,Adaptive planning,I revise my plan when a study method is not working.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index combining planning and method adjustment",
+  "S1,Strategy,Strategy-adjustment flexibility,I change my learning strategy when understanding is weak.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "S2,Strategy,Method-selection deliberateness,I select a learning method suited to the task.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "S3,Strategy,Reflective revision,I revise my explanation after checking my understanding.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index; not a single ordered-category response",
+  "S4,Strategy,Socially supported strategy change,I use discussion with others to improve my learning method.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous index combining learning strategy and social participation",
+  "B1,Belonging,Peer acceptance,I feel accepted by other students.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous experience index; shared peer context with B2",
+  "B2,Belonging,Peer participation,I feel able to join other students in learning activities.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous experience index; shared peer context with B1",
+  "B3,Belonging,Classroom voice,I feel able to express my views in class.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous experience index; not a single ordered-category response",
+  "B4,Belonging,Institutional connection,I feel connected to the university as a whole.,process-index points,higher means more of the stated attribute,NA,hypothetical continuous experience index; broad content rather than one setting"
+)
+
+sle_codebook <- function()
+  read.csv(text=paste(sle_codebook_lines(),collapse="\n"),stringsAsFactors=FALSE)
+
+sle_manifest <- function()
+  data.frame(sample=LETTERS[1:3],
+    role=c("development","confirmation","revalidation"),
+    n=360L,population="SLE-continuous-v1",seed=20260921:20260923,
+    rng="Mersenne-Twister/Inversion/Rejection",stringsAsFactors=FALSE)
+
+sle_population <- function() {
+  items <- c(paste0("P", 1:4), paste0("S", 1:4), paste0("B", 1:4))
+  factors <- c("Planning", "Strategy", "Belonging")
+  Lambda_z <- matrix(0, 12, 3, dimnames = list(items, factors))
+  Lambda_z[1:4, 1] <- c(.78, .74, .70, .55)
+  Lambda_z[5:8, 2] <- c(.76, .72, .68, .55)
+  Lambda_z[9:12, 3] <- c(.80, .74, .67, .50)
+  Lambda_z[4, 2] <- .32
+  Lambda_z[8, 3] <- .30
+  Phi <- matrix(c(1,.42,.30, .42,1,.35, .30,.35,1), 3, 3,
+                dimnames = list(factors, factors))
+  common <- Lambda_z %*% Phi %*% t(Lambda_z)
+  Theta_z <- diag(1 - diag(common))
+  dimnames(Theta_z) <- list(items, items)
+  # Shared peer context not fully represented by the broad factors.
+  Theta_z[9, 10] <- Theta_z[10, 9] <- .12
+  scale <- c(8,10,12,9, 10,8,11,9, 10,12,8,11)
+  D <- diag(scale)
+  nu <- setNames(c(50,52,48,51, 49,50,52,48, 51,49,50,52), items)
+  Lambda <- D %*% Lambda_z
+  Theta <- D %*% Theta_z %*% D
+  dimnames(Lambda) <- dimnames(Lambda_z)
+  dimnames(Theta) <- dimnames(Theta_z)
+  stopifnot(min(eigen(Phi, symmetric=TRUE)$values) > 0,
+            min(eigen(Theta, symmetric=TRUE)$values) > 0)
+  list(version="SLE-continuous-v1", items=items, factors=factors,
+       Lambda_z=Lambda_z, Phi=Phi, Theta_z=Theta_z, scale=scale,
+       nu=nu, alpha=setNames(rep(0,3),factors), Lambda=Lambda, Theta=Theta)
+}
+
+# Simulate one declared sample in memory. Deterministic given the seed.
+sle_simulate <- function(role="development") {
+  manifest <- sle_manifest()
+  row <- manifest[manifest$role==role,,drop=FALSE]
+  stopifnot(nrow(row)==1L)
+  pop <- sle_population()
+  RNGkind("Mersenne-Twister","Inversion","Rejection")
+  set.seed(row$seed)
+  n <- row$n
+  eta <- matrix(rnorm(n*3),n,3) %*% chol(pop$Phi)
+  epsilon <- matrix(rnorm(n*12),n,12) %*% chol(pop$Theta)
+  Y <- sweep(eta %*% t(pop$Lambda)+epsilon,2,pop$nu,"+")
+  colnames(Y) <- pop$items
+  x <- as.data.frame(Y)
+  stopifnot(identical(dim(x),c(360L,12L)),!anyNA(x),all(is.finite(as.matrix(x))))
+  list(x=x,ids=sprintf("%s%03d",row$sample,seq_len(n)),manifest=row,
+    manifest_all=manifest)
+}
+
+# Only the development sample is ever simulated in this chapter.
+efa_read_development <- function() {
+  input <- sle_simulate("development")
+  list(x=input$x,codebook=sle_codebook(),manifest=input$manifest,
+    manifest_all=input$manifest_all)
+}
+
+# ---- exploratory analysis --------------------------------------------------
+
+efa_pa_roots <- function(R) {
+  stopifnot(min(eigen(R,symmetric=TRUE,only.values=TRUE)$values)>1e-10)
+  reduced <- R
+  diag(reduced) <- 1 - 1/diag(solve(R))
+  cbind(component=eigen(R,symmetric=TRUE,only.values=TRUE)$values,
+        factor=eigen(reduced,symmetric=TRUE,only.values=TRUE)$values)
+}
+
+efa_permutation_pa <- function(x, reps=1000L, seed=20260924L) {
+  RNGkind("Mersenne-Twister","Inversion","Rejection")
+  set.seed(seed)
+  observed <- efa_pa_roots(cor(x))
+  null <- array(NA_real_, c(ncol(x),2,reps))
+  for (b in seq_len(reps)) {
+    permuted <- vapply(x, function(v) sample(v, replace=FALSE), numeric(nrow(x)))
+    # Do not discard failures or smooth a matrix: stop the analysis instead.
+    null[,,b] <- efa_pa_roots(cor(permuted))
+  }
+  reference <- apply(null,c(1,2),quantile,probs=.95,type=7)
+  # Retain the leading uninterrupted run, not later isolated crossings.
+  leading <- function(ok) if (all(ok)) length(ok) else which(!ok)[1]-1L
+  counts <- vapply(1:2,function(j) leading(observed[,j]>reference[,j]),integer(1))
+  list(observed=observed,reference=reference,null=null,reps=reps,seed=seed,
+       counts=setNames(counts,c("component","factor")),failures=0L)
+}
+
+efa_extract <- function(R,n,m,fm="ml") {
+  warnings <- character()
+  fit <- withCallingHandlers(psych::fa(R,nfactors=m,n.obs=n,fm=fm,rotate="none",
+    SMC=TRUE,min.err=1e-8,max.iter=1000,smooth=FALSE,scores="none",warnings=TRUE),
+    warning=function(w) {warnings <<- c(warnings,conditionMessage(w)); invokeRestart("muffleWarning")})
+  list(fit=fit,warnings=unique(warnings))
+}
+
+efa_align <- function(P,Phi,reference=NULL) {
+  if (ncol(P)!=3L) return(list(P=P,Phi=Phi))
+  perms <- rbind(c(1,2,3),c(1,3,2),c(2,1,3),c(2,3,1),c(3,1,2),c(3,2,1))
+  if (is.null(reference)) {
+    anchors <- list(1:3,5:7,9:11)
+    strength <- t(vapply(anchors,function(i) colMeans(abs(P[i,,drop=FALSE])),numeric(3)))
+    score <- apply(perms,1,function(p) sum(strength[cbind(1:3,p)]))
+  } else {
+    congruence <- t(reference) %*% P /
+      sqrt(outer(colSums(reference^2),colSums(P^2)))
+    score <- apply(perms,1,function(p) sum(abs(congruence[cbind(1:3,p)])))
+  }
+  order <- perms[which.max(score),]
+  P <- P[,order,drop=FALSE]; Phi <- Phi[order,order,drop=FALSE]
+  signs <- if (is.null(reference)) sign(c(sum(P[1:3,1]),sum(P[5:7,2]),sum(P[9:11,3]))) else
+    sign(colSums(P*reference))
+  signs[signs==0] <- 1
+  P <- sweep(P,2,signs,"*"); Phi <- diag(signs)%*%Phi%*%diag(signs)
+  colnames(P) <- c("Planning","Strategy","Belonging")
+  dimnames(Phi) <- list(colnames(P),colnames(P))
+  list(P=P,Phi=Phi)
+}
+
+efa_rotate <- function(A,method="oblimin",seed=20260925L,reference=NULL) {
+  set.seed(seed)
+  if (ncol(A)==1L) return(list(P=A,Phi=matrix(1),converged=TRUE))
+  rot <- switch(method,
+    oblimin=GPArotation::oblimin(A,gam=0,normalize=FALSE,eps=1e-7,maxit=10000,randomStarts=20),
+    geomin=GPArotation::geominQ(A,delta=.01,normalize=FALSE,eps=1e-7,maxit=10000,randomStarts=20),
+    varimax=GPArotation::Varimax(A,normalize=FALSE,eps=1e-7,maxit=10000,randomStarts=20))
+  Phi <- if (is.null(rot$Phi)) diag(ncol(A)) else rot$Phi
+  aligned <- efa_align(unclass(rot$loadings),Phi,reference)
+  c(aligned,list(converged=isTRUE(rot$convergence),rotation=rot))
+}
+
+efa_discrepancy <- function(S,Sigma) {
+  p <- nrow(S)
+  as.numeric(determinant(Sigma,logarithm=TRUE)$modulus + sum(diag(solve(Sigma,S))) -
+    determinant(S,logarithm=TRUE)$modulus - p)
+}
+
+run_efa_analysis <- function() {
+  for (p in c("psych","GPArotation"))
+    if (!requireNamespace(p,quietly=TRUE)) stop("Required package: ",p)
+  input <- efa_read_development()
+  x <- input$x; n <- nrow(x); p <- ncol(x); R <- cor(x); S <- cov(x)
+  pa <- efa_permutation_pa(x)
+  fits <- lapply(1:5,function(m) efa_extract(R,n,m))
+  # psych does not expose its ML optimizer convergence flag. Independently
+  # check the same likelihood optimum using stats::factanal (five starts).
+  set.seed(20260927L)
+  optimizer_checks <- lapply(1:5,function(m)
+    stats::factanal(covmat=R,n.obs=n,factors=m,rotation="none",control=list(nstart=5)))
+  rotations <- lapply(1:5,function(m) efa_rotate(unclass(fits[[m]]$fit$loadings),seed=20260925L+m))
+  primary <- rotations[[3]]
+  A <- unclass(fits[[3]]$fit$loadings)
+  varimax <- efa_rotate(A,"varimax",reference=primary$P)
+  geomin <- efa_rotate(A,"geomin",seed=20260926L,reference=primary$P)
+  minres <- efa_extract(R,n,3,"minres")
+  minres_rot <- efa_rotate(unclass(minres$fit$loadings),seed=20260926L,reference=primary$P)
+  describe_fit <- function(f,m,rot) {
+    common <- tcrossprod(unclass(f$loadings))
+    Sigma <- common + diag(f$uniquenesses)
+    residual <- R-Sigma
+    Fml <- efa_discrepancy(R,Sigma)
+    df <- ((p-m)^2-p-m)/2
+    multiplier <- n-1-(2*p+5)/6-2*m/3
+    data.frame(Factors=m,df=df,F_ML=Fml,Chi_square=multiplier*Fml,
+      p_value=pchisq(multiplier*Fml,df,lower.tail=FALSE),
+      RMS_offdiag=sqrt(mean(residual[lower.tri(residual)]^2)),
+      Max_residual=max(abs(residual[lower.tri(residual)])),
+      Min_uniqueness=min(f$uniquenesses),
+      Optimizer_check=isTRUE(optimizer_checks[[m]]$converged),
+      Objective_gap=abs(Fml-unname(optimizer_checks[[m]]$criteria["objective"])),Rotated=rot$converged,
+      Boundary=min(f$uniquenesses)<=.0051)
+  }
+  candidates <- do.call(rbind,lapply(1:5,function(m) describe_fit(fits[[m]]$fit,m,rotations[[m]])))
+  common <- primary$P %*% primary$Phi %*% t(primary$P)
+  h2 <- diag(common); u2 <- fits[[3]]$fit$uniquenesses
+  reproduced <- common+diag(u2); residual <- R-reproduced
+  index <- which(lower.tri(residual),arr.ind=TRUE)
+  residual_pairs <- data.frame(Item1=rownames(R)[index[,1]],Item2=colnames(R)[index[,2]],
+    Observed=R[index],Reproduced=reproduced[index],Residual=residual[index])
+  residual_pairs <- residual_pairs[order(abs(residual_pairs$Residual),decreasing=TRUE),]
+  inverse <- solve(R); partial <- -cov2cor(inverse); diag(partial) <- 0
+  kmo <- sum(R[lower.tri(R)]^2)/(sum(R[lower.tri(R)]^2)+sum(partial[lower.tri(partial)]^2))
+  bartlett <- -(n-1-(2*p+5)/6)*as.numeric(determinant(R,logarithm=TRUE)$modulus)
+  audit <- data.frame(Item=names(x),Mean=vapply(x,mean,numeric(1)),SD=vapply(x,sd,numeric(1)),
+    Min=vapply(x,min,numeric(1)),Max=vapply(x,max,numeric(1)),
+    Skew=vapply(x,function(z) mean((z-mean(z))^3)/mean((z-mean(z))^2)^1.5,numeric(1)),
+    Missing=vapply(x,function(z) sum(is.na(z)),integer(1)))
+  sensitivity <- do.call(rbind,lapply(list(ML_oblimin=primary,ML_geomin=geomin,Minres_oblimin=minres_rot),
+    function(z) data.frame(Max_pattern_difference=max(abs(z$P-primary$P)),
+      Max_Phi_difference=max(abs(z$Phi-primary$Phi)),
+      Min_congruence=min(colSums(z$P*primary$P)/sqrt(colSums(z$P^2)*colSums(primary$P^2))))))
+  rownames(sensitivity) <- c("ML oblimin","ML geomin","Minres oblimin")
+  # A single donor-aligned PAF update, separate from ML and the PA target.
+  reduced <- R; diag(reduced) <- 1-1/diag(solve(R))
+  ev <- eigen(reduced,symmetric=TRUE)
+  paf1 <- ev$vectors[,1:3]%*%diag(sqrt(ev$values[1:3]))
+  result <- list(input=input,n=n,p=p,R=R,S=S,pa=pa,fits=fits,rotations=rotations,
+    primary=primary,varimax=varimax,geomin=geomin,minres=minres,minres_rot=minres_rot,
+    candidates=candidates,optimizer_checks=optimizer_checks,common=common,h2=h2,u2=u2,reproduced=reproduced,residual=residual,
+    structure=primary$P%*%primary$Phi,residual_pairs=residual_pairs,kmo=kmo,bartlett=bartlett,
+    audit=audit,sensitivity=sensitivity,paf_update=data.frame(Item=names(x),
+      SMC=diag(reduced),First_update=rowSums(paf1^2)),
+    versions=vapply(c("psych","GPArotation"),function(p) as.character(packageVersion(p)),character(1)))
+  result
+}
+
+verify_efa_results <- function(z) {
+  checks <- list()
+  add <- function(name,value) checks[[name]] <<- isTRUE(value)
+  add("A only",identical(z$input$manifest$sample,"A"))
+  add("360 by 12",identical(dim(z$input$x),c(360L,12L)))
+  add("PA finite",all(is.finite(z$pa$null)))
+  add("PA no failures",z$pa$failures==0L)
+  add("moment counts",all(z$candidates$df==c(54,43,33,24,16)))
+  add("independent optimizer convergence",all(z$candidates$Optimizer_check))
+  add("independent ML objective",max(z$candidates$Objective_gap)<1e-6)
+  add("rotation convergence",all(z$candidates$Rotated))
+  add("primary admissible",min(z$u2)>0 && min(eigen(z$primary$Phi,symmetric=TRUE)$values)>0)
+  add("structure",max(abs(z$structure-z$primary$P%*%z$primary$Phi))<1e-10)
+  add("communalities",max(abs(z$h2-diag(z$common)))<1e-10)
+  add("diagonal reconstruction",max(abs(z$h2+z$u2-1))<1e-6)
+  add("residual identity",max(abs(z$R-z$reproduced-z$residual))<1e-12)
+  A <- unclass(z$fits[[3]]$fit$loadings)
+  for (name in c("primary","varimax","geomin")) {
+    rot <- z[[name]]
+    add(paste("rotation invariance",name),max(abs(rot$P%*%rot$Phi%*%t(rot$P)-tcrossprod(A)))<1e-6)
+  }
+  for (m in 1:5)
+    add(paste("ML statistic",m),abs(z$candidates$Chi_square[m]-z$fits[[m]]$fit$STATISTIC)<1e-5)
+  add("KMO",abs(z$kmo-psych::KMO(z$R)$MSA)<1e-10)
+  add("Bartlett",abs(z$bartlett-psych::cortest.bartlett(z$R,z$n)$chisq)<1e-8)
+  values <- unlist(checks)
+  if(!all(values)) stop("Failed: ",paste(names(values)[!values],collapse=", "))
+  values
+}
+
+# ---- render helpers --------------------------------------------------------
+
+pt2_table <- function(x, digits=3, caption=NULL, row.names=FALSE) {
+  x <- as.data.frame(x,check.names=FALSE)
+  integer_columns <- c("df","Df","Factors","Moments","Free","npar","Dimension",
+    "Effective_parameters","Candidate_df","Delta_df","Missing")
+  for(nm in names(x)) if(is.numeric(x[[nm]])) {
+    d <- if(nm %in% integer_columns) 0 else digits
+    x[[nm]] <- formatC(x[[nm]],digits=d,format="f")
+  }
+  names(x) <- gsub("_"," ",names(x),fixed=TRUE)
+  out <- knitr::kable(x,caption=caption,row.names=row.names,booktabs=TRUE,longtable=FALSE)
+  if(knitr::is_latex_output()) knitr::asis_output(paste0(
+    "\\Needspace{",min(nrow(x)+7,25),"\\baselineskip}\n\n",
+    paste(out,collapse="\n"),"\n\n")) else out
+}
+
+pt2_sle_appendix_table <- function(x,widths) {
+  stopifnot(ncol(x)==length(widths))
+  if(!knitr::is_latex_output()) return(knitr::kable(x,row.names=FALSE))
+  out <- knitr::kable(x,format="latex",booktabs=TRUE,longtable=TRUE,
+    align=rep("l",ncol(x)),row.names=FALSE,linesep="")
+  old <- paste0("\\begin{longtable}{",paste(rep("l",ncol(x)),collapse=""),"}")
+  columns <- paste0("p{",widths,"\\linewidth}",collapse="")
+  out <- sub(old,paste0("\\begin{longtable}{@{}",columns,"@{}}"),out,fixed=TRUE)
+  knitr::asis_output(paste0("\\begingroup\\small\n",out,"\n\\endgroup\n"))
+}
+
+pt2_num <- function(x,digits=3) formatC(x,digits=digits,format="f")
+pt2_p <- function(x) ifelse(x<.001,"< .001",paste0("= ",pt2_num(x)))
+
+pt2_heatmap <- function(M,title="",limit=max(abs(M)),digits=NULL,cex=.7) {
+  nr <- nrow(M); nc <- ncol(M)
+  par(mar=c(4,4,.9,1))
+  palette <- grDevices::colorRampPalette(c("#8c510a","#f7f7f7","#2166ac"))(101)
+  image(1:nc,1:nr,t(M[nr:1,,drop=FALSE]),zlim=c(-limit,limit),
+        col=palette,axes=FALSE,xlab="",ylab="",main=title)
+  axis(1,at=1:nc,labels=colnames(M),las=2,cex.axis=cex)
+  axis(2,at=1:nr,labels=rev(rownames(M)),las=2,cex.axis=cex)
+  if (!is.null(digits)) for (i in 1:nr) for (j in 1:nc) if(is.finite(M[i,j]))
+    text(j,nr+1-i,formatC(M[i,j],digits=digits,format="f"),
+         cex=cex*.8,col=if(abs(M[i,j])>limit*.6) "white" else "black")
+  box()
+}
+
+pt2_pa_plot <- function(pa) {
+  par(mfrow=c(1,2),mar=c(4,4,2,1))
+  for (j in 1:2) {
+    ylim <- range(c(pa$observed[,j],pa$reference[,j]))
+    plot(1:nrow(pa$observed),pa$observed[,j],type="b",pch=16,ylim=ylim,
+      xlab="Ordered dimension",ylab="Eigenvalue",
+      main=c("Full Pearson matrix","SMC-reduced matrix")[j],cex.main=.95)
+    lines(1:nrow(pa$observed),pa$reference[,j],lty=2,lwd=2,col="#9c5600")
+    abline(h=0,col="gray80")
+    legend("topright",c("Observed","Permutation 95th percentile"),
+      lty=c(1,2),pch=c(16,NA),col=c("black","#9c5600"),bty="n",cex=.65)
+  }
+}
+
+pt2_neighbor_plot <- function(z) {
+  par(mfrow=c(1,3))
+  for (m in 2:4) {
+    P <- z$rotations[[m]]$P
+    colnames(P) <- paste0("F",1:m)
+    pt2_heatmap(P,paste(m,"ML factors"),limit=1,digits=2,cex=.8)
+  }
+}
+
+pt2_rotation_plot <- function() {
+  A <- rbind(c(.8,0),c(.7,.1),c(0,.6),c(.1,.7))
+  Q <- matrix(c(1,1,-1,1),2,2)/sqrt(2)
+  T <- matrix(c(1,0,.5,1),2,2)
+  sets <- list(A,A%*%Q,A%*%solve(T))
+  par(mfrow=c(1,3),mar=c(4,3,2,1))
+  for (k in 1:3) {
+    plot(sets[[k]],xlim=c(-.3,1.1),ylim=c(-.8,1),pch=16,
+      xlab="Loading coordinate 1",ylab="Loading coordinate 2",
+      main=c("Original","Orthogonal Q","Inverse-paired T")[k],cex.main=.9)
+    abline(h=0,v=0,col="gray70")
+    text(sets[[k]],labels=paste0("Y",1:4),pos=3,cex=.7)
+  }
+}
+
+pt2_course_map <- function(labels) {
+  n <- length(labels); par(mar=c(0,0,0,0))
+  plot.new(); plot.window(xlim=c(0,n),ylim=c(0,1))
+  for(i in seq_len(n)) {
+    rect(i-.95,.25,i-.15,.75,col="#edf2f5",border="#405768")
+    text(i-.55,.5,labels[i],cex=.8)
+    if(i<n) arrows(i-.13,.5,i+.03,.5,length=.08)
+  }
+}
+
+# ---- shared Part Two path-diagram grammar ----------------------------------
+# Rectangles are recorded variables, circles are variables introduced by the
+# model, single-headed arrows are loadings, double-headed arrows covariances.
+
+pt2_ink        <- "#243746"
+pt2_box_fill   <- "#fff1c7"
+pt2_circ_fill  <- "#dcecf5"
+pt2_path_col   <- "#2c5d77"
+pt2_cross_col  <- "#94a3ad"
+pt2_cov_col    <- "#8c4f2b"
+pt2_resid_col  <- "#596b75"
+
+# Render a label that may be plain text (".70", "0") or a plotmath
+# expression string ("lambda[11]", "eta[1]").
+.pt2_label <- function(x) {
+  if (is.expression(x) || is.language(x)) return(x)
+  if (!nzchar(x)) return("")
+  if (grepl("^[-.0-9]", x)) x else parse(text = x)
+}
+
+.pt2_arrow <- function(x0, y0, x1, y1, dashed = FALSE, both = FALSE,
+                       col = pt2_path_col, lwd = 1.35) {
+  arrows(x0, y0, x1, y1, length = .07, angle = 20,
+         code = if (both) 3 else 2,
+         lty = if (dashed) 2 else 1, lwd = lwd, col = col)
+}
+
+.pt2_box <- function(x, y, label, hw = .74, hh = .30) {
+  rect(x - hw, y - hh, x + hw, y + hh,
+       col = pt2_box_fill, border = pt2_ink, lwd = 1.35)
+  text(x, y, .pt2_label(label), cex = .92)
+}
+
+.pt2_circle <- function(x, y, label, r = .55) {
+  symbols(x, y, circles = r, inches = FALSE, add = TRUE,
+          bg = pt2_circ_fill, fg = pt2_ink, lwd = 1.35)
+  text(x, y, .pt2_label(label), cex = .95)
+}
+
+# Draw a label at a fraction along a path, nudged perpendicular to it.
+.pt2_path_label <- function(x0, y0, x1, y1, label, at = .58, nudge = .15,
+                            col = pt2_ink, cex = .70) {
+  if (is.null(label) || !nzchar(label)) return(invisible(NULL))
+  text(x0 + at * (x1 - x0), y0 + at * (y1 - y0) + nudge,
+       .pt2_label(label), cex = cex, col = col)
+}
+
+# A double-headed covariance arc drawn to the left of two circles.
+.pt2_cov_arc <- function(x, y1, y2, label, r = .55, bulge = .85) {
+  tt <- seq(0, 1, length.out = 60)
+  ym <- (y1 + y2) / 2
+  half <- abs(y2 - y1) / 2 - r * .55
+  ys <- ym + half * cos(pi * tt) * sign(y1 - y2)
+  xs <- x - bulge * sin(pi * tt)
+  lines(xs, ys, col = pt2_cov_col, lwd = 1.4)
+  .pt2_arrow(xs[2], ys[2], xs[1], ys[1], col = pt2_cov_col, lwd = 1.4)
+  n <- length(xs)
+  .pt2_arrow(xs[n - 1], ys[n - 1], xs[n], ys[n], col = pt2_cov_col, lwd = 1.4)
+  if (!is.null(label) && nzchar(label))
+    text(x - bulge - .14, ym, .pt2_label(label), adj = 1, cex = .82)
+  invisible(NULL)
+}
+
+.pt2_canvas <- function(xlim, ylim) {
+  op <- par(mar = rep(.15, 4), xaxs = "i", yaxs = "i")
+  plot.new()
+  plot.window(xlim = xlim, ylim = ylim)
+  op
+}
+
+.pt2_indicator_y <- function(p, top = 7.6, bottom = .9) {
+  if (p == 1) return(mean(c(top, bottom)))
+  seq(top, bottom, length.out = p)
+}
+
+# ---------------------------------------------------------------------------
+# First-order model with m correlated (or orthogonal) factors.
+#
+#   assign  integer vector of length p giving each indicator's primary factor,
+#           or a p x m logical matrix for a fully general pattern.
+#   cross   optional p x m logical matrix of additional (dashed) loadings.
+# ---------------------------------------------------------------------------
+pt2_fa_diagram <- function(assign, m = NULL, cross = NULL,
+                           loading_labels = NULL, factor_labels = NULL,
+                           indicator_labels = NULL, factor_cov_labels = NULL,
+                           show_residuals = TRUE, x_factor = 2.2,
+                           x_indicator = 7.0) {
+  if (is.matrix(assign)) {
+    primary <- assign
+    p <- nrow(primary); m <- ncol(primary)
+  } else {
+    p <- length(assign); if (is.null(m)) m <- max(assign)
+    primary <- matrix(FALSE, p, m)
+    primary[cbind(seq_len(p), assign)] <- TRUE
+  }
+  if (is.null(cross)) cross <- matrix(FALSE, p, m)
+  if (is.null(factor_labels))
+    factor_labels <- paste0("eta[", seq_len(m), "]")
+  if (is.null(indicator_labels))
+    indicator_labels <- paste0("Y[", seq_len(p), "]")
+
+  yi <- .pt2_indicator_y(p)
+  yf <- if (m == 1) mean(range(yi)) else
+    seq(max(yi) - .9, min(yi) + .9, length.out = m)
+  x_resid <- x_indicator + 3.0
+  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  on.exit(par(op))
+
+  # factor covariances: adjacent pairs, arcs on the left
+  if (m > 1 && !is.null(factor_cov_labels)) {
+    if (length(factor_cov_labels) == 1L && m > 2)
+      factor_cov_labels <- rep(factor_cov_labels, m - 1)
+    for (k in seq_len(m - 1))
+      .pt2_cov_arc(x_factor - .55, yf[k], yf[k + 1],
+                   factor_cov_labels[k],
+                   bulge = .70 + .30 * (k %% 2))
+  }
+
+  for (j in seq_len(p)) for (k in seq_len(m)) {
+    is_cross <- isTRUE(cross[j, k])
+    if (!isTRUE(primary[j, k]) && !is_cross) next
+    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+               dashed = is_cross,
+               col = if (is_cross) pt2_cross_col else pt2_path_col,
+               lwd = if (is_cross) 1.1 else 1.35)
+    if (!is.null(loading_labels))
+      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+                      loading_labels[j, k], nudge = if (is_cross) -.16 else .16,
+                      col = if (is_cross) pt2_cross_col else pt2_ink)
+  }
+
+  for (j in seq_len(p)) {
+    .pt2_box(x_indicator, yi[j], indicator_labels[j])
+    if (show_residuals) {
+      .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
+                 col = pt2_resid_col, lwd = 1.15)
+      text(x_resid, yi[j], .pt2_label(paste0("epsilon[", j, "]")), cex = .85)
+    }
+  }
+  for (k in seq_len(m)) .pt2_circle(x_factor, yf[k], factor_labels[k])
+  invisible(NULL)
+}
+
+# ---------------------------------------------------------------------------
+# Higher-order model: one second-order factor above m first-order factors.
+# ---------------------------------------------------------------------------
+pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
+                                     loading_labels = NULL,
+                                     factor_labels = NULL,
+                                     indicator_labels = NULL,
+                                     higher_label = "xi",
+                                     show_disturbances = TRUE) {
+  p <- length(assign); if (is.null(m)) m <- max(assign)
+  if (is.null(factor_labels)) factor_labels <- paste0("eta[", seq_len(m), "]")
+  if (is.null(indicator_labels)) indicator_labels <- paste0("Y[", seq_len(p), "]")
+  x_high <- 1.0; x_factor <- 4.0; x_indicator <- 8.0; x_resid <- 10.8
+
+  yi <- .pt2_indicator_y(p)
+  yf <- seq(max(yi) - .9, min(yi) + .9, length.out = m)
+  yh <- mean(range(yf))
+  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  on.exit(par(op))
+
+  for (k in seq_len(m)) {
+    .pt2_arrow(x_high + .55, yh, x_factor - .55, yf[k])
+    if (!is.null(gamma_labels))
+      .pt2_path_label(x_high + .55, yh, x_factor - .55, yf[k],
+                      gamma_labels[k], at = .55, nudge = .17)
+    if (show_disturbances) {
+      .pt2_arrow(x_factor, yf[k] + 1.05, x_factor, yf[k] + .55,
+                 col = pt2_resid_col, lwd = 1.15)
+      text(x_factor, yf[k] + 1.24,
+           .pt2_label(paste0("zeta[", k, "]")), cex = .82)
+    }
+  }
+  for (j in seq_len(p)) {
+    k <- assign[j]
+    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j])
+    if (!is.null(loading_labels))
+      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+                      loading_labels[j], nudge = .16)
+    .pt2_box(x_indicator, yi[j], indicator_labels[j])
+    .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
+               col = pt2_resid_col, lwd = 1.15)
+    text(x_resid, yi[j], .pt2_label(paste0("epsilon[", j, "]")), cex = .85)
+  }
+  for (k in seq_len(m)) .pt2_circle(x_factor, yf[k], factor_labels[k])
+  .pt2_circle(x_high, yh, higher_label)
+  invisible(NULL)
+}
+
+# ---------------------------------------------------------------------------
+# Bifactor model: one general factor on every indicator, plus orthogonal
+# group factors on their own blocks.
+# ---------------------------------------------------------------------------
+pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
+                                 group_labels = NULL, indicator_labels = NULL,
+                                 general_loadings = NULL,
+                                 group_loadings = NULL) {
+  p <- length(assign); if (is.null(m)) m <- max(assign)
+  if (is.null(group_labels))
+    group_labels <- paste0("eta[", seq_len(m), "]")
+  if (is.null(indicator_labels)) indicator_labels <- paste0("Y[", seq_len(p), "]")
+  x_gen <- 1.0; x_group <- 4.2; x_indicator <- 8.0; x_resid <- 10.8
+
+  yi <- .pt2_indicator_y(p)
+  yg <- seq(max(yi) - .8, min(yi) + .8, length.out = m)
+  ygen <- mean(range(yi))
+  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  on.exit(par(op))
+
+  # general factor reaches every indicator; drawn first and lighter so the
+  # group structure stays readable
+  for (j in seq_len(p)) {
+    .pt2_arrow(x_gen + .55, ygen, x_indicator - .74, yi[j],
+               col = pt2_cross_col, lwd = 1.0)
+    if (!is.null(general_loadings))
+      .pt2_path_label(x_gen + .55, ygen, x_indicator - .74, yi[j],
+                      general_loadings[j], at = .30, nudge = .15,
+                      col = pt2_cross_col, cex = .64)
+  }
+  for (j in seq_len(p)) {
+    k <- assign[j]
+    .pt2_arrow(x_group + .55, yg[k], x_indicator - .74, yi[j])
+    if (!is.null(group_loadings))
+      .pt2_path_label(x_group + .55, yg[k], x_indicator - .74, yi[j],
+                      group_loadings[j], nudge = .16)
+    .pt2_box(x_indicator, yi[j], indicator_labels[j])
+    .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
+               col = pt2_resid_col, lwd = 1.15)
+    text(x_resid, yi[j], .pt2_label(paste0("epsilon[", j, "]")), cex = .85)
+  }
+  for (k in seq_len(m)) .pt2_circle(x_group, yg[k], group_labels[k])
+  .pt2_circle(x_gen, ygen, general_label)
+  text(x_gen, ygen - 1.15, "all factors orthogonal", cex = .68,
+       col = pt2_resid_col)
+  invisible(NULL)
+}
+
+# Survey of retention rules, computed on the same development record.
+# Each rule states a reference; the rule is the comparison, not the number.
+efa_retention_survey <- function(z) {
+  R <- z$R; n <- z$n; p <- z$p
+  observed <- z$pa$observed
+  mean_ref <- apply(z$pa$null, c(1,2), mean)
+  leading <- function(obs, ref) {
+    ok <- obs > ref
+    if (all(ok)) length(ok) else which(!ok)[1] - 1L
+  }
+  # Empirical Kaiser criterion: a sample-adjusted reference, floored at one.
+  ekc_ref <- numeric(p)
+  for (j in seq_len(p)) {
+    explained <- if (j == 1L) 0 else sum(observed[seq_len(j-1), 1])
+    ekc_ref[j] <- max(((1+sqrt(p/n))^2)*(p-explained)/(p-j+1), 1)
+  }
+  # Sequential chi-square model tests on the same ML fits already computed.
+  smt_p <- z$candidates$p_value
+  smt <- if (any(smt_p > .05)) which(smt_p > .05)[1] else NA_integer_
+  survey <- data.frame(
+    Rule = c("Kaiser-Guttman", "Empirical Kaiser criterion",
+             "PA, component roots, mean", "PA, component roots, 95th",
+             "PA, reduced roots, mean", "PA, reduced roots, 95th",
+             "Sequential chi-square tests"),
+    Reference = c("Root exceeds 1",
+                  "Root exceeds a sample-adjusted bound, floored at 1",
+                  "Root exceeds the mean null root",
+                  "Root exceeds the 95th-percentile null root",
+                  "Reduced root exceeds the mean null reduced root",
+                  "Reduced root exceeds the 95th-percentile null reduced root",
+                  "First non-significant exact-fit test"),
+    Retained = c(sum(observed[,1] > 1), leading(observed[,1], ekc_ref),
+                 leading(observed[,1], mean_ref[,1]),
+                 leading(observed[,1], z$pa$reference[,1]),
+                 leading(observed[,2], mean_ref[,2]),
+                 leading(observed[,2], z$pa$reference[,2]),
+                 smt),
+    stringsAsFactors = FALSE)
+  survey$Retained <- as.character(survey$Retained)
+  list(survey=survey, ekc_ref=ekc_ref, mean_ref=mean_ref,
+       mp_bound=(1+sqrt(p/n))^2)
+}
+
+z <- run_efa_analysis()
+checks <- verify_efa_results(z)
+P <- z$primary$P
+Phi <- z$primary$Phi
+retention <- efa_retention_survey(z)
+```
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**What this chapter is for.** Chapter 1 built a common-factor model from
+declared parameters. This chapter reverses the direction: it starts from a
+sample correlation matrix that no simple model reproduces exactly, and works
+back toward a defensible low-dimensional representation. It is the
+exploratory chapter, conceptual and practical, and it ends by freezing a
+precise candidate for the confirmatory work of Chapters 3 and 4.
+
+**Guiding question.** Given an item set and a development sample, how can an
+exploratory factor analysis establish a defensible dimensional
+representation — and what does retaining a factor count establish about the
+attributes the factors are named for?
+
+**Provisional answer.** Extraction, retention, rotation and interpretation
+are linked decisions, each comparing the data against a stated reference.
+When matched diagnostics agree, they support a *candidate* worth taking
+forward. They do not establish that a construct has that many dimensions:
+the coordinates are not unique, the item set and population are fixed by
+the design, and a sample used to make these decisions cannot also confirm
+them. Separating development from confirmation is what keeps the later
+claim available.
+
+**Prerequisites.** Sample covariance and correlation, elementary matrix
+algebra, and Chapter 1's common-factor model, communalities, uniquenesses,
+and coordinate indeterminacies. Basic R helps reproduction; the printed
+matrices, equations, and output support the reasoning without running it.
+
+**Record.** Sample A contains 360 complete, simulated continuous records
+on twelve Student Learning Experiences indicators. No observations concern
+actual students. Samples B and C are not analyzed in this chapter.
+
+**By the end you should be able to:**
+
+- say which matrix is being decomposed, and which covariance structure each
+  extraction method approximates;
+- read a parallel analysis against a matched permutation reference, and
+  state what that reference does and does not compare;
+- count effective parameters and candidate degrees of freedom for an
+  unrestricted $m$-factor solution, and explain the rotational subtraction;
+- rotate to oblique coordinates and read pattern coefficients, structure
+  correlations and factor correlations as three different quantities;
+- locate local discrepancy in a residual correlation matrix rather than
+  relying on a single summary; and
+- convert an exploratory interpretation into explicit fixed, free and
+  constrained restrictions, and say what the development sample cannot
+  establish.
+
+**Scope.** We develop a candidate measurement model on Sample A and stop
+there. No confirmation sample is opened, no restricted model is estimated, and
+no fit index is interpreted as evidence for a construct. Indicators are
+continuous throughout Part Two. This is model development, not instrument
+validation or individual scoring.
+:::
+
+# Define the exploratory measurement problem {#sec-efa-problem}
+
+Chapter 1 began with known loadings and factor covariances and worked
+forward to an implied covariance matrix. Here the direction of work
+changes. We observe a sample of indicator values, calculate their
+associations, and ask which common-factor representation is defensible.
+The observed correlations fluctuate from sample to sample. Their pattern
+does not arrive with a factor count, a preferred rotation, or substantive
+names attached. Those have to be developed and documented.
+
+Exploratory factor analysis, or **EFA**, leaves most loading restrictions
+open while seeking a comparatively low-dimensional representation of
+shared covariation. It is not a procedure with no assumptions. Selecting
+the indicators, defining the population, choosing an association matrix,
+restricting residual covariance, considering a range of dimensions, and
+choosing rotation criteria all shape what the analysis can reveal. A
+carefully designed exploratory study therefore has substantial work to
+do before an extraction routine runs.
+
+The distinction between a provisional representation and a confirmed
+restriction is important from the outset. Suppose an EFA suggests that
+an indicator of adaptive planning also relates to strategy adjustment.
+That can be a useful discovery. It is not evidence that a cross-loading
+specified after seeing these observations was predicted before them.
+The later CFA can evaluate the resulting restriction on unused data,
+but changing the name of the fitting function does not change the
+history of the decision.
+
+## The common-factor model is not restriction-free
+
+For person or observational unit $i$, retain Chapter 1's notation:
+
+$$
+\mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i
+ +\boldsymbol\epsilon_i,\qquad
+\boldsymbol\Sigma=\boldsymbol\Lambda\boldsymbol\Phi
+ \boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta.
+$$ {#eq-efa-model}
+
+There are $p$ indicators and $m$ factors. Thus $\boldsymbol\Lambda$ is
+$p\times m$, $\boldsymbol\Phi$ is $m\times m$, and
+$\boldsymbol\Theta$ and $\boldsymbol\Sigma$ are $p\times p$.
+The factor-residual covariance is zero. Classical EFA initially makes
+$\boldsymbol\Theta$ diagonal: remaining indicator-specific variation
+does not covary across indicators. That restriction can be wrong even
+when most loadings are freely estimated.
+
+The loading pattern is initially open, but its dimension is not. A
+two-factor and a three-factor EFA are different covariance models.
+Scale restrictions are also necessary. One convenient extraction
+representation uses unit-variance, uncorrelated factors; a subsequent
+oblique transformation expresses the same common covariance using
+correlated coordinates. Orthogonality at this computational stage does
+not establish independence of substantively named attributes.
+
+The latent intercept $\boldsymbol\alpha$ equals the factor mean in
+this model without structural paths or separate predictors. It remains
+an intercept symbol throughout Part Two. Likewise $\boldsymbol\Phi$
+denotes total factor covariance, not residual covariance and not the
+later structural-disturbance matrix. These distinctions prevent the
+same letter from silently changing meaning between EFA, CFA, and SEM.
+
+## A twelve-indicator content record
+
+The sustained example concerns **Student Learning Experiences (SLE)**.
+The proposed domains are Planning, Strategy, and Belonging. These names
+organize the starting content questions; they do not determine how many
+factors Sample A will support. All twelve variables are explicitly
+simulated continuous process indices. Their units are index points,
+not response categories, percentages, or counts. The statements below
+clarify intended content, but they are not presented as an administered
+and validated questionnaire.
+
+```{r}
+#| label: tbl-efa-items
+#| tbl-cap: "Proposed content before factor analysis. All indices are positively directed."
+pt2_table(z$input$codebook[c("item","domain","wording")])
+```
+
+P4 concerns changing a plan when a learning method fails. S4 concerns
+using discussion with others to improve a learning method. Their content
+already suggests possible overlap between domains. A cross-loading
+would not automatically make either indicator defective. Conversely,
+clear wording does not guarantee that its covariance pattern will
+match the intended domain.
+
+The twelve columns have different raw dispersions. All are coded so
+that larger values mean more of the stated attribute, and none is
+reverse-scored. The simulation imposes neither missing observations
+nor response limits. Its unbounded normal records are a deliberate
+teaching design, not a claim that actual student experiences are
+normally distributed or measured without limits.
+
+Download [sle_continuous.csv](sle_continuous.csv), the only SLE data file
+needed for the examples. The [SLE data appendix](#sec-sle-data) contains
+the complete codebook and sample manifest. Its `sample` column identifies
+three independent 360-case samples, not three groups to pool. Select A
+before inspecting indicators or calculating statistics in this chapter.
+Population parameters remain in the documented generator, separate from
+the learner-facing analysis: knowing the recipe is not a substitute for
+reasoning from Sample A. No empirical
+summary, correlation, factor solution, or fit statistic from B or C
+has been used to make the decisions reported here.
+
+## Audit before interpreting correlations
+
+Data auditing is part of defining the statistical input. An unintended
+reverse code can change signs. A nearly constant indicator can make a
+correlation unstable. Duplicate records alter the apparent amount of
+information. Pairwise deletion can produce different effective samples
+for different correlations, and sometimes a matrix that is not positive
+definite. None of these problems is repaired merely by rotating a
+loading matrix until it looks recognizable.
+
+```{r}
+#| label: tbl-efa-audit
+#| tbl-cap: "Sample A audit, in raw process-index points; skewness is the third standardized central moment."
+pt2_table(z$audit,digits=2)
+```
+
+There are `r z$n` distinct rows, no missing values, and positive
+variance in every indicator. The minimum eigenvalue of the Pearson
+matrix is `r pt2_num(min(eigen(z$R,symmetric=TRUE)$values))`, so its
+inverse exists without matrix repair. This is a useful computational
+check, not evidence that the factor model is true. Normal-theory ML
+also needs an appropriate sampling and distributional interpretation.
+The simulation supplies independent normal factor/residual draws; a
+real study would have to justify or investigate those assumptions.
+
+```{r}
+#| label: fig-efa-distributions
+#| fig-width: 7
+#| fig-height: 3.2
+#| fig-cap: "Raw distributions in Sample A. Different dispersions motivate an explicit scaling choice."
+#| fig-alt: "Boxplots of twelve continuous SLE indices, grouped by Planning, Strategy, and Belonging; all have nonzero dispersion."
+par(mar=c(3,4,1,1))
+boxplot(z$input$x,col=rep(c("#dce8ef","#eee5d3","#e5e5e5"),each=4),
+        ylab="Process-index points",outline=TRUE)
+```
+
+In an actual application, an unusual observation deserves examination
+of provenance and measurement, not automatic removal because it makes
+normality less convenient. A miscoded value, a genuine extreme case,
+and a member of another target population call for different actions.
+Any exclusion changes the estimand's population or the analyzed record
+and must be described. Here no item or case is removed. That keeps the
+same twelve-variable target available for later confirmatory comparisons.
+
+# Choose the matrix and extraction target {#sec-efa-target}
+
+## Covariance and correlation answer different scaling questions
+
+Let $\mathbf S$ denote the ordinary sample covariance matrix computed
+with denominator $n-1$, and let
+$\mathbf D_S=\operatorname{diag}(s_{11},\ldots,s_{pp})$.
+The Pearson correlation matrix is
+
+$$
+\mathbf R=\mathbf D_S^{-1/2}\mathbf S\mathbf D_S^{-1/2}.
+$$ {#eq-efa-standardization}
+
+This operation divides each covariance by the two sample standard
+deviations. It does not remove dependencies, correct measurement error,
+or make a nonnormal distribution normal. It changes the units in which
+the association structure is represented. Covariance-scale analysis
+preserves raw variances; correlation-scale analysis gives each observed
+variable a unit diagonal.
+
+Our primary analysis uses $\mathbf R$. The rationale is that the
+process-index dispersions are not intended to set the relative weight
+of the content domains. Raw $\mathbf S$, means, and standard deviations
+are retained, however. Later CFA fits raw observations, and an explicit
+scale transformation connects those fits with this standardized EFA.
+No variable is replaced by an ordinal score or a new construct along
+the way.
+
+```r
+# The development sample is simulated from the declared population, so this
+# runs without any data file. Appendix A gives the population and seeds.
+X <- sle_simulate("development")$x
+S <- cov(X)
+R <- cor(X)
+all.equal(R, cov2cor(S))
+```
+
+The last line returns `TRUE` for these complete observations. It checks
+the transformation, not the suitability of Pearson correlation for
+every dataset. Numeric codes for categories would require a separate
+measurement treatment; that topic belongs to other courses or later
+series. Categorical group labels and coded predictors remain possible
+in later multigroup or MIMIC work. This brief boundary introduces no
+categorical-estimator track here.
+
+```{r}
+#| label: fig-efa-correlation
+#| fig-width: 6.5
+#| fig-height: 5.4
+#| fig-cap: "Sample A Pearson correlations, with a fixed scale from -1 to 1. The ordering follows the content map, not a fitted cluster algorithm."
+#| fig-alt: "Twelve-by-twelve Pearson matrix with generally stronger within-domain correlations and positive relations between domains."
+pt2_heatmap(z$R,limit=1,digits=2,cex=.8)
+```
+
+The broad blocks are suggestive, not conclusive. A correlation between
+a Planning and a Strategy indicator might arise from correlated
+factors, a cross-loading, residual dependence, or some combination.
+The same visible association can therefore be represented by different
+restrictions. The task is not to give each colored block a name and
+stop; it is to evaluate a coherent factor representation of the matrix.
+
+## PCA: a decomposition of total observed variance
+
+For a symmetric positive-definite correlation matrix,
+
+$$
+\mathbf R=\mathbf V\mathbf D\mathbf V^{\mathsf T},\qquad
+\mathbf V^{\mathsf T}\mathbf V=\mathbf I,
+$$ {#eq-efa-spectral}
+
+where the columns of $\mathbf V$ are orthonormal eigenvectors and
+$\mathbf D=\operatorname{diag}(d_1,\ldots,d_p)$ contains ordered
+eigenvalues. A rank-$m$ PCA reconstruction uses
+
+$$
+\mathbf A_m=\mathbf V_m\mathbf D_m^{1/2},\qquad
+\widehat{\mathbf R}_{\mathrm{PCA},m}=\mathbf A_m\mathbf A_m^{\mathsf T}.
+$$ {#eq-efa-pca}
+
+The full decomposition is exact; a truncated one generally is not.
+PCA chooses directions of high observed variance. Component scores
+are weighted functions of observed variables, not unobserved random
+variables whose common contribution is separated from item residuals.
+Calling $\mathbf A_m$ a loading matrix in software does not change
+that distinction.
+
+The first three Sample A component eigenvalues sum to
+`r pt2_num(sum(z$pa$observed[1:3,1]))`, or
+`r pt2_num(100*sum(z$pa$observed[1:3,1])/12,1)`% of the twelve units
+of standardized observed variance. This is a PCA summary. It is not
+the common variance attributed to three latent factors by the ML model.
+The two summaries can differ because their objectives differ, even
+when their broad dimensional patterns look similar.
+
+PCA may be appropriate when compact prediction, compression, or a
+descriptive coordinate system is the objective. The problem is not
+using PCA; it is interpreting its output as if a common-factor
+measurement model had been estimated. A method should be judged
+against the task it actually solves.
+
+## Principal-axis factoring: estimate the diagonal contribution
+
+Principal-axis factoring, or PAF, works with a reduced correlation
+matrix. At iteration $t$, replace the unit diagonal by estimated
+communalities:
+
+$$
+\mathbf R_c^{(t)}=\mathbf R-
+ \operatorname{diag}(1-\widehat{\mathbf h}^{2(t)}).
+$$ {#eq-efa-paf}
+
+Decompose this matrix, use its leading positive eigenvalues to form
+a provisional loading matrix, and update the communalities from its
+row sums of squared loadings in an orthogonal representation. Repeat
+until a declared rule indicates sufficiently small changes. The
+initial diagonal, handling of nonpositive roots, and stopping rule
+are implementation choices, not properties of factor analysis itself.
+
+One common initialization is the squared multiple correlation of
+each variable with the remaining variables. For nonsingular $\mathbf R$,
+
+$$
+\widehat h_{j,0}^{,2}=1-
+ \frac{1}{(\mathbf R^{-1})_{jj}}.
+$$ {#eq-efa-smc}
+
+These are regression summaries of the observed matrix, not known
+common variances. They can underestimate some true communalities and
+can be unstable when predictors are highly redundant. They provide
+a starting point, not an answer to the factor-count question.
+
+```{r}
+#| label: tbl-efa-paf-update
+#| tbl-cap: "A single three-factor PAF-style spectral update from an SMC diagonal. This is an illustration, not the primary ML fit or a converged PAF solution."
+pt2_table(z$paf_update)
+```
+
+For P1, the SMC start is `r pt2_num(z$paf_update$SMC[1])` and the
+first updated communality is `r pt2_num(z$paf_update$First_update[1])`.
+Repeating that update would change the reduced diagonal again. This
+explains why a PAF root is not automatically the same as a root of
+the original unit-diagonal correlation matrix.
+
+## Minimum residual and maximum likelihood extraction
+
+Minimum-residual extraction seeks small discrepancies between observed
+and reproduced off-diagonal correlations. A representative objective is
+
+$$
+F_{\mathrm{minres}}=
+ \sum_{j<k}\left[r_{jk}-(\boldsymbol\Lambda\boldsymbol\Phi
+ \boldsymbol\Lambda^{\mathsf T})_{jk}\right]^2.
+$$ {#eq-efa-minres}
+
+The diagonal residual variances then complete the observed variances.
+This criterion gives the same squared-error weight to each displayed
+off-diagonal discrepancy. Software algorithms can differ in numerical
+details; the objective, convergence criteria, and resulting covariance
+still need to be checked. PAF and minres are both common-factor
+approaches, but they are not names for the same algorithm.
+
+The primary method here is **maximum-likelihood common-factor
+extraction**. For an observed covariance matrix $\mathbf S$ and a
+positive-definite model-implied covariance
+$\boldsymbol\Sigma(\boldsymbol\vartheta)$, the normal-theory
+discrepancy can be written
+
+$$
+F_{\mathrm{ML}}(\boldsymbol\vartheta)=
+ \log|\boldsymbol\Sigma(\boldsymbol\vartheta)|
+ +\operatorname{tr}\!\left[\mathbf S\boldsymbol\Sigma(\boldsymbol\vartheta)^{-1}\right]
+ -\log|\mathbf S|-p.
+$$ {#eq-efa-ml}
+
+Here $\boldsymbol\vartheta$ collects free parameters; it is not the
+residual matrix $\boldsymbol\Theta$. The determinant terms measure
+covariance volume, while the trace term measures discrepancy relative
+to the model's covariance geometry. The two sample-only terms set
+the discrepancy to zero for exact reproduction. Minimization chooses
+parameter values under the model's restrictions, rather than choosing
+a covariance matrix independently of them.
+
+The same expression applies to our correlation-scale analysis with
+$\mathbf R$ in place of $\mathbf S$. Under freely rescalable loadings
+and residual variances, transforming observed units has a corresponding
+parameter transformation. This does not mean every arbitrary
+constraint is invariant to units. Equal unstandardized loadings,
+for example, must be re-expressed when the indicators change scale.
+
+Normal ML supplies a distributional framework for standard errors and
+test statistics when its assumptions and regularity conditions hold.
+Independent observations, a suitable population sampling interpretation,
+identification, and admissible covariance matrices matter. Good-looking
+loadings cannot supply any of these by themselves. Numerical convergence
+only says that the optimizer met a stopping rule; it does not show that
+the fitted representation is adequate or that the solution is uniquely
+identified.
+
+| Method | Immediate target | What the output does not establish |
+|:--|:--|:--|
+| PCA | Low-rank reconstruction of total observed variance | A latent measurement decomposition |
+| PAF | Iterative reduced-matrix factor representation | A universal diagonal start or stopping tolerance |
+| Minres | Small off-diagonal squared residuals | Normal-likelihood inference without additional work |
+| ML factor analysis | Best normal likelihood within the factor model | Substantive truth, validity, or acceptable fit merely from convergence |
+
+The maintained sequence is therefore Pearson correlations, ML
+extraction, and oblimin rotation. Minres is a bounded sensitivity
+comparison on the same matrix. The later CFA uses the same continuous
+ML family; it is not a transition from one response model to another.
+
+# Determine a plausible factor count {#sec-efa-retention}
+
+## Underfactoring and overfactoring have different costs
+
+Too few factors force distinctions into an inadequate space. Indicators
+of an omitted dimension can acquire misleading loadings on the retained
+dimensions, factor correlations can shift, and structured residuals can
+remain. Too many factors can divide one broad pattern into weak or
+unstable directions, make residual variances approach a boundary, and
+encourage names for sample-specific features. Adding a dimension is not
+free just because numerical reconstruction improves.
+
+Retention is therefore a question about the representation to carry
+forward, not a race to maximize variance accounted for. We consider
+one through five factors before examining the results. Three is a
+content-based expectation, not a required outcome of the analysis.
+The full range is retained in the record even when neighboring models
+give inconvenient results.
+
+## Specify the matrix whose eigenvalues are being read
+
+A spectral eigenvalue satisfies
+
+$$
+\mathbf R\mathbf v_k=d_k\mathbf v_k.
+$$ {#eq-efa-eigenvalue}
+
+Its meaning depends on the matrix. Eigenvalues of the full Pearson
+matrix include all standardized observed variance and sum to $p$.
+Eigenvalues of an SMC-reduced matrix use a different diagonal and need
+not all be positive. An estimated common covariance has yet another
+spectrum. A printed column headed "eigenvalue" must therefore be
+interpreted alongside the software's construction of that column.
+
+The post-rotation column statistic
+
+$$
+SS_k=\sum_{j=1}^p\lambda_{jk}^2
+$$ {#eq-efa-ss}
+
+is an **SS loading**, not generally a spectral eigenvalue. In suitable
+unrotated orthogonal decompositions these quantities coincide; after
+rotation the column allocation can change while common covariance
+stays fixed. With correlated factors, pattern-column SS values do not
+provide a unique additive partition of common variance. Chapter 1's
+rotated two-factor example already demonstrated the simpler orthogonal
+version of this distinction.
+
+## Scree and the eigenvalue-greater-than-one heuristic
+
+The familiar Kaiser--Guttman heuristic retains roots above one in a
+unit-diagonal correlation analysis. It compares a component's variance
+with one observed standardized variable's variance. Sampling variation
+alone can create roots above one, so this is neither a necessary
+condition for a useful common factor nor a reliable stand-alone count.
+Applying the same threshold to a reduced matrix changes the comparison
+and should not be treated as an interchangeable implementation.
+
+A scree plot instead asks where large decreases give way to a flatter
+sequence. It can reveal a distinct elbow, multiple plausible elbows,
+or no clear break. The method involves judgment: a visually appealing
+elbow does not supply a sampling reference. Full- and reduced-matrix
+plots need not agree, even when they do in the present example.
+
+In Sample A, the first three full-matrix roots are
+`r paste(pt2_num(z$pa$observed[1:3,1]),collapse=", ")`, followed by
+`r pt2_num(z$pa$observed[4,1])`. That drop makes three a plausible
+candidate. It becomes more informative when compared with what equally
+sized data containing no cross-variable dependence would produce.
+
+## Parallel analysis with a reproducible null comparison
+
+Parallel analysis compares ordered observed eigenvalues with a matched
+reference distribution [@horn1965; @bujaEyuboglu1992]. For dimension $k$,
+our comparison is
+
+$$
+d_k^{\mathrm{observed}}>
+ Q_{.95}\{d_{k,1}^{\mathrm{null}},\ldots,d_{k,1000}^{\mathrm{null}}\}.
+$$ {#eq-efa-pa}
+
+The reference is the 95th percentile, not the mean. We independently
+permute the 360 entries of each observed column **without replacement**.
+This preserves each empirical marginal distribution exactly while
+breaking the original matching of observations between columns. Every
+null dataset still has 360 rows and twelve variables.
+
+Two comparisons are kept separate. Component PA uses eigenvalues of
+the full Pearson matrix. Common-factor PA here uses eigenvalues of
+that matrix after replacing its diagonal by SMCs. The same SMC rule is
+applied to the observed and every permuted matrix. This is a precisely
+defined reduced-matrix diagnostic, not a sequence of ML factor fits,
+and not a claim that SMCs are known population communalities.
+
+| Setting | Declared value |
+|:--|:--|
+| Input | Sample A, all twelve continuous indicators, complete observations |
+| Null generation | Independent within-column permutations without replacement |
+| Matrix | Pearson correlations in each observed/null calculation |
+| Component target | Full unit-diagonal matrix eigenvalues |
+| Factor target | SMC-diagonal reduced-matrix eigenvalues; no iterative extraction |
+| Reference | 95th percentile, R quantile type 7 |
+| Replications and seed | 1,000; 20260924 |
+| RNG | Mersenne-Twister / Inversion / Rejection |
+| Failure policy | Stop and investigate; no discarded replicate, smoothing, or replacement seed |
+| Count convention | Leading consecutive dimensions above their matched references |
+
+The last convention prevents a late isolated crossing among small
+or negative reduced roots from being counted as another meaningful
+dimension. It is declared before reading the curves. Reference choices
+also matter: a mean comparison and a 95th-percentile comparison are
+different procedures, not two labels for the same decision rule.
+
+The installed `psych` version's `fa.parallel(sim=FALSE)` option was
+tested before choosing the implementation. In version 2.5.6 it samples
+column values **with replacement**, rather than performing the exact
+permutation specified here. The chapter therefore uses a short explicit
+permutation loop. This is a reason to inspect the implementation, not
+an argument that package functions are intrinsically unreliable.
+The [official documentation](https://personality-project.org/r/psych/help/fa.parallel.html)
+is useful for identifying the different targets and options.
+
+```r
+# Compact component version; the companion adds the matched SMC target.
+set.seed(20260924)
+null_roots <- replicate(1000, {
+  X0 <- vapply(X, function(v) sample(v, replace = FALSE),
+               numeric(nrow(X)))
+  eigen(cor(X0), symmetric = TRUE, only.values = TRUE)$values
+})
+reference_95 <- apply(null_roots, 1, quantile, probs = .95, type = 7)
+```
+
+This code exposes the resampling rule instead of hiding it behind a
+function name. It is illustrative; the canonical companion also checks
+positive definiteness and computes the two targets in the same loop.
+There were zero failures among the 1,000 reference replications. No
+null matrix was repaired and no replicate was dropped from a quantile.
+
+```{r}
+#| label: fig-efa-pa
+#| fig-width: 7.2
+#| fig-height: 3.6
+#| fig-cap: "Scree and parallel-analysis evidence. Each observed sequence is compared only with its matching permutation reference."
+#| fig-alt: "Two panels show full Pearson and SMC-reduced eigenvalues against their separate permutation 95th percentiles. The first three observed roots exceed their references in each panel."
+pt2_pa_plot(z$pa)
+```
+
+```{r}
+#| label: tbl-efa-pa
+#| tbl-cap: "Leading observed and null-reference eigenvalues; full and reduced targets are not pooled."
+pa_table <- data.frame(Dimension=1:5,Component=z$pa$observed[1:5,1],
+  Component_95=z$pa$reference[1:5,1],Factor=z$pa$observed[1:5,2],Factor_95=z$pa$reference[1:5,2])
+pt2_table(pa_table)
+```
+
+Both comparisons retain a leading run of three dimensions. For the
+third component root, `r pt2_num(z$pa$observed[3,1])` exceeds
+`r pt2_num(z$pa$reference[3,1])`; for the fourth,
+`r pt2_num(z$pa$observed[4,1])` does not exceed
+`r pt2_num(z$pa$reference[4,1])`. The reduced-matrix comparison
+reaches the same count by a different set of numerical comparisons.
+Agreement makes the candidate less dependent on this particular
+diagonal choice, but does not turn the procedure into a proof that
+three substantive attributes exist.
+
+PA addresses a matched null reference, not every plausible alternative
+population. Factor correlations, weak factors, minor dimensions,
+sample size, and the chosen root algorithm can change its performance.
+It should be read alongside content, neighboring solutions, and
+residuals.
+
+## A wider family of retention rules {#sec-efa-family}
+
+Retention is the decision an exploratory analysis most often gets wrong, and
+the familiar heuristics are among the weaker available options.
+@auerswaldMoshagen2019 compared the main extraction criteria across realistic
+conditions - correlated factors, unequal loadings, minor factors, non-normal
+responses, varying sample sizes - and found the eigenvalue-greater-than-one
+rule and the unaided scree plot performing poorly enough that neither should
+carry a retention decision alone. Several better-behaved alternatives exist,
+and they are worth knowing not as a longer checklist but because each states a
+different reference, and knowing the reference is what lets a disagreement be
+interpreted.
+
+**Parallel analysis is a family, not a method.** Two choices generate four
+distinct procedures. The roots may come from the full Pearson matrix, as in a
+component analysis, or from a reduced matrix with communality estimates on the
+diagonal, closer to the common-factor model. The null reference may be the
+mean of the simulated roots or their 95th percentile. Across
+@auerswaldMoshagen2019's conditions the component-based versions generally
+outperformed the reduced-matrix versions, and the mean reference tends to
+retain more dimensions than the percentile reference. All four share one
+structural weakness: the reference data are uncorrelated by construction, so
+after a strong first factor has absorbed much of the observed covariance, the
+comparison for the second and later roots is no longer like for like, and a
+genuine second dimension can be missed.
+
+**The empirical Kaiser criterion** repairs the Kaiser--Guttman rule rather
+than discarding it [@braekenVanAssen2017]. Under the null model the sample
+eigenvalues of uncorrelated variables follow a Marchenko--Pastur distribution
+whose upper bound is $(1+\sqrt{p/n})^2$; this is the reference for the first
+root. Later roots are corrected for the variance already accounted for, and
+the reference is never allowed below one:
+
+$$
+\text{EKC}_j=\max\!\left\{(1+\sqrt{p/n})^{2}\,
+\frac{p-\sum_{i<j} d_i}{p-j+1},\; 1\right\}.
+$$ {#eq-efa-ekc}
+
+With $p=12$ and $n=360$ the first reference is
+`r pt2_num(retention$mp_bound)`, appreciably above one: a leading root of
+$1.1$ would satisfy Kaiser--Guttman and fail the EKC. From the second root
+onward the correction term falls below one in this record, so the floor
+applies and the remaining references equal one. The criterion is therefore
+stricter than Kaiser--Guttman at the first root and identical afterwards -
+here, on this data, which is exactly the sort of detail that a printed count
+conceals.
+
+**Sequential model tests** use the exact-fit statistic rather than an
+eigenvalue. Fit a one-factor model; if its test is significant, fit two, and
+continue until a test is not significant. The logic is clean, but it carries a
+caveat worth stating: once the number of factors exceeds the true number, the
+regularity conditions behind the $\chi^2$ reference fail, so the sequence is
+only trustworthy while it is still under-fitting. An earlier test that was
+significant by chance therefore propagates into further over-extraction rather
+than being corrected.
+
+**Two further methods** appear in the comparison literature and in the
+companion utilities. The Hull method chooses the count at which the balance
+between fit and number of parameters stops improving, borrowing the convex-hull
+idea from model selection [@lorenzoSeva2011]. Comparison data generates
+reference datasets that *reproduce* the observed correlation matrix under a
+known factorial structure of $1,2,3,\ldots$ factors, rather than under
+independence, and retains the smallest count whose reference data resemble the
+observed data [@ruscioRoche2012]. Both address the same weakness in parallel
+analysis: an uncorrelated null is not the relevant comparison once one factor
+is granted.
+
+@tbl-efa-family applies seven of these rules to the present record, using the
+same permutation replications throughout so that the comparisons differ only
+in the stated respect.
+
+```{r}
+#| label: tbl-efa-family
+#| tbl-cap: "Seven retention rules on the same development record. What separates them is the reference each uses, not the data."
+pt2_table(retention$survey)
+```
+
+Every rule returns three. That agreement is a fact about this record, not a
+general property of the methods, and it is what a well-behaved simulated
+population with three clearly separated factors is expected to produce. Real
+records disagree often, which is why @auerswaldMoshagen2019 recommend
+**combination rules** rather than any single criterion: when sequential model
+tests agree with either the 95th-percentile component parallel analysis or the
+empirical Kaiser criterion, the pair identified the correct count with high
+consistency across their conditions. Sequential tests perform well with highly
+correlated factors but over-extract in the presence of minor factors and under
+non-normality; the other two are robust and do not over-extract, which is why
+they pair well.
+
+The value of a combination rule is not that it counts votes. It is that
+disagreement is informative: when these criteria diverge, the dimensions are
+genuinely hard to detect in the available evidence, and the appropriate
+response is usually more data or a narrower claim rather than a casting vote.
+A majority vote among heuristics cannot replace explaining what each
+diagnostic is comparing.
+
+# Estimate neighboring dimensional solutions
+
+## Count effective parameters, not every printed loading
+
+For $p$ indicators, the symmetric covariance matrix supplies
+$u=p(p+1)/2$ distinct second moments. An exploratory model with $m$
+orthonormal factors appears to contain $pm$ loadings and $p$ uniquenesses.
+However, orthogonal rotations leave its implied covariance unchanged.
+The $m(m-1)/2$ rotational degrees of freedom do not add independently
+recoverable covariance parameters. The effective count is therefore
+
+$$
+t_m=pm+p-\frac{m(m-1)}2,
+\qquad
+df_m=\frac{p(p+1)}2-t_m
+=\frac{(p-m)^2-p-m}{2}.
+$$
+
+This is a dimension count for the unrestricted common-factor covariance
+model at regular points. An oblique rotation does not add factor
+correlations to this count: it re-expresses the same fitted covariance.
+Counting every oblique loading, every factor correlation, and every
+uniqueness as independently identified would count the same freedom
+more than once.
+
+```{r}
+#| label: tbl-efa-counts
+#| tbl-cap: "Covariance-moment accounting for 12 indicators."
+m <- 1:5
+pt2_table(data.frame(Factors=m,Moments=78,
+  Effective_parameters=12*m+12-m*(m-1)/2,
+  Candidate_df=z$candidates$df),digits=0)
+```
+
+The nonnegative-df condition also yields the familiar upper counting
+bound
+
+$$
+m\leq\frac{2p+1-\sqrt{8p+1}}2.
+$$
+
+For $p=12$, the right side is about 7.58, so the integer count allows at
+most seven factors. This bound is not a recommendation to extract seven,
+a count of positive eigenvalues, or a proof of identification. Particular
+loading patterns can be deficient, and a solution can be weakly determined
+even when the generic count looks comfortable. Chapter 3 examines these
+distinctions directly.
+
+## Fit one through five; inspect two, three, and four closely
+
+We estimate normal-theory ML common-factor models for one through five
+factors. Each fit uses the same Pearson matrix, $n=360$, SMC starts,
+and the same uniqueness-bound convention. The primary extraction is
+unrotated; rotation is a subsequent coordinate choice. The printed code
+shows the essential calls, while the shared script records convergence
+checks and full settings.
+
+```r
+fit3 <- psych::fa(R, nfactors = 3, n.obs = nrow(x),
+                  fm = "ml", rotate = "none", SMC = TRUE,
+                  min.err = 1e-8, max.iter = 1000,
+                  smooth = FALSE, scores = "none")
+A <- unclass(fit3$loadings)
+```
+
+The implemented analysis also checks the ML objective using
+`stats::factanal()` with five starting values. Agreement of independently
+computed objectives is a useful numerical check, not proof that the
+scientific model is correct. A numerical algorithm can converge perfectly
+to an inadequate model.
+
+```{r}
+#| label: tbl-efa-neighbors
+#| tbl-cap: "Neighboring ML solutions. RMS uses distinct off-diagonal correlation residuals."
+pt2_table(z$candidates[,c("Factors","df","F_ML","RMS_offdiag",
+  "Max_residual","Min_uniqueness","Boundary")])
+```
+
+The two-factor solution leaves a largest absolute residual correlation
+of `r pt2_num(z$candidates$Max_residual[2])`, compared with
+`r pt2_num(z$candidates$Max_residual[3])` for three factors. That is a
+substantial change in the covariance reconstruction, not merely an
+additional column of interpretable words. Adding a fourth factor reduces
+the discrepancy further, but its smallest uniqueness is approximately
+.005, at the numerical lower bound. The fifth-factor solution does the
+same. A bound prevents an optimizer from reporting a negative uniqueness;
+it does not make that boundary estimate substantively credible.
+
+An interior uniqueness of .20 and a bound-constrained uniqueness of .005
+are qualitatively different evidence. The latter can signal too many
+factors, a highly redundant pair, sampling fluctuation, or a misspecified
+common-factor model. Inspect its indicator and neighboring pattern before
+assigning a new construct name. Do not silently omit the bound from the
+report or describe it as evidence of nearly perfect measurement.
+
+```{r}
+#| label: fig-efa-neighbors
+#| fig-width: 7.2
+#| fig-height: 5.3
+#| fig-cap: "Oblimin patterns for neighboring dimensions. Column signs and order are arbitrary across different factor counts; compare item groupings, not column numbers."
+#| fig-alt: "Three heatmaps display all loadings in the two-, three-, and four-factor solutions, allowing comparison of merged and split item groups."
+pt2_neighbor_plot(z)
+```
+
+Read this display in two directions. Down a column, ask which items
+define a coherent factor. Across a row, ask whether an item has a stable
+primary relation or is distributed across factors. A smaller model must
+represent more covariance using fewer common directions; it may merge
+domains or leave patterned residuals. A larger model can separate narrow
+item-specific covariance that does not justify an additional broad
+construct. In neither case is a short label an adequate diagnostic.
+
+## An exact-fit test is one piece of evidence
+
+For reference, `psych` reports a corrected ML statistic of the form
+
+$$
+T_m=\left[n-1-\frac{2p+5}{6}-\frac{2m}{3}\right]
+\widehat F_{\mathrm{ML}}.
+$$
+
+Under the exact factor model and suitable regularity conditions, its
+reference is approximately $\chi^2_{df_m}$. For the three-factor fit,
+$T_3=$ `r pt2_num(z$candidates$Chi_square[3])` with 33 df, giving
+$p=$ `r pt2_num(z$candidates$p_value[3])`. This does not establish that
+the factor interpretation is true; it says that this discrepancy is not
+unusual under the exact-model reference used by the test. Power and
+misspecification size matter. A nonsignificant test cannot establish
+equivalence or rule out consequential departures.
+
+The fourth- and fifth-factor solutions reach a variance boundary, where
+ordinary interior-point chi-square arguments need additional care. Their
+large conventional $p$ values should not be used to endorse extra factors.
+Nor should one subtract any two displayed factor tests and automatically
+declare a regular nested likelihood-ratio test: changes of factor count
+involve singular or boundary configurations under the smaller model.
+
+Chapter 3 uses raw-data ML with an explicit normal-likelihood convention.
+Its test multiplier is not this small-sample EFA correction. Comparability
+of estimation families does not mean every package reports an identical
+finite-sample test statistic.
+
+# Resolve the orientation by rotation
+
+## What rotation changes, and what it preserves
+
+An unrotated solution is convenient for estimation but often inconvenient
+for interpretation. Suppose the extracted common covariance is
+$\mathbf A\mathbf A^{\mathsf T}$. For an orthogonal matrix $\mathbf Q$,
+with $\mathbf Q^{\mathsf T}\mathbf Q=\mathbf I$,
+
+$$
+\mathbf P=\mathbf A\mathbf Q
+\quad\Longrightarrow\quad
+\mathbf P\mathbf P^{\mathsf T}
+=\mathbf A\mathbf A^{\mathsf T}.
+$$
+
+The rows of $\mathbf P$ locate the indicators in a rotated coordinate
+system. The reproduced covariance, communalities, uniquenesses, and
+extraction discrepancy are unchanged. The individual loading coefficients
+change because they refer to different axes.
+
+The general nonsingular transformation requires a paired change. Let
+$\boldsymbol\eta^*=\mathbf T\boldsymbol\eta$, where the original
+factor covariance is $\mathbf I$. Then
+
+$$
+\mathbf P=\mathbf A\mathbf T^{-1},\qquad
+\boldsymbol\Phi^*=\mathbf T\mathbf T^{\mathsf T},
+$$
+
+and
+
+$$
+\begin{aligned}
+\mathbf P\boldsymbol\Phi^*\mathbf P^{\mathsf T}
+&=\mathbf A\mathbf T^{-1}\mathbf T\mathbf T^{\mathsf T}
+  (\mathbf T^{-1})^{\mathsf T}\mathbf A^{\mathsf T}\\
+&=\mathbf A\mathbf A^{\mathsf T}.
+\end{aligned}
+$$
+
+If the transformed factor variances are subsequently rescaled to one,
+the loading columns must be rescaled correspondingly. Multiplying the
+loadings by an arbitrary matrix while leaving $\boldsymbol\Phi$
+unchanged is not an equivalent oblique rotation. This inverse-paired
+transformation is the same coordinate principle introduced in Chapter 1.
+
+```{r}
+#| label: fig-efa-rotation
+#| fig-width: 7.2
+#| fig-height: 3.3
+#| fig-cap: "Coordinate changes in a two-dimensional illustration. These are illustrative loadings, not a second empirical data set."
+#| fig-alt: "Three panels show the same four indicators under original, orthogonal, and oblique factor coordinates; oblique coordinates require a matching factor covariance."
+pt2_rotation_plot()
+```
+
+## Orthogonal and oblique simple structure
+
+Simple structure favors interpretable differentiation: relatively few
+substantial relations per item and identifiable groups of indicators.
+It is an orientation criterion, not a new criterion of fit to the observed
+covariance matrix. Rotation does not improve $F_{\mathrm{ML}}$.
+
+Varimax is an orthogonal criterion. In an unnormalized version it
+maximizes, across columns, the dispersion of squared loadings:
+
+$$
+V(\mathbf P)=\sum_{a=1}^m
+\left\{\frac1p\sum_{j=1}^p p_{ja}^4
+-\left(\frac1p\sum_{j=1}^p p_{ja}^2\right)^2\right\}.
+$$
+
+A column with some larger and some smaller squared loadings has a higher
+criterion than a column whose squared loadings are all similar. The
+orthogonality constraint remains in force; a clean-looking varimax
+pattern does not establish that the substantive attributes are unrelated.
+
+Oblique criteria permit factor correlations while seeking a simpler
+pattern. Here the primary rotation is direct oblimin with $\gamma=0$
+(quartimin), no Kaiser normalization, convergence tolerance $10^{-7}$,
+up to 10,000 iterations, and 20 random starts. At $\gamma=0$, the
+criterion discourages a row from having large squared coefficients in
+several columns. It does not set the factor correlations to zero.
+
+```r
+set.seed(20260928)
+rot3 <- GPArotation::oblimin(A, gam = 0, normalize = FALSE,
+                            eps = 1e-7, maxit = 10000,
+                            randomStarts = 20)
+pattern <- unclass(rot3$loadings)
+factor_correlations <- rot3$Phi
+```
+
+Kaiser normalization, when requested, divides each row by its
+communality-based length before optimizing and restores its scale
+afterward. That changes the criterion's relative weighting of indicators.
+It is not the same operation as standardizing the original observed
+variables. Because implementation details can affect the chosen
+orientation, the rotation name alone is not a sufficient specification.
+
+Multiple starts reduce dependence on a single starting orientation but
+do not prove that a global optimum was found. Signs and column order are
+also arbitrary. Our reported solution aligns columns with the first
+three content anchors in each domain and makes their summed primary
+loadings positive. This is a labelling convention applied after fitting;
+it is not an extra model restriction.
+
+## Why the oblique solution is primary here
+
+Planning, strategy adjustment, and belonging need not be independent.
+The oblimin solution estimates the following factor correlations:
+
+```{r}
+#| label: tbl-efa-phi
+#| tbl-cap: "Factor correlation matrix in the aligned three-factor oblimin solution."
+pt2_table(data.frame(Factor=rownames(Phi),Phi,check.names=FALSE))
+```
+
+These are estimated relations between the chosen common-factor
+coordinates. They are not causal paths, observed scale correlations, or
+proof that the same orientation would be uniquely recovered in another
+sample. Varimax provides a useful comparison precisely because it
+represents the same common covariance with orthogonal coordinates.
+The maximum absolute difference in reproduced common covariance between
+the reported oblimin and varimax solutions is
+`r format(max(abs(z$common-z$varimax$P%*%z$varimax$Phi%*%t(z$varimax$P))),scientific=TRUE,digits=2)`.
+The near-zero value verifies invariance; it does not make their loading
+tables interchangeable.
+
+# Read an oblique factor system
+
+## Pattern coefficients and structure correlations
+
+With standardized indicators and unit-variance factors, the pattern
+matrix $\mathbf P$ contains the coefficients in
+
+$$
+\mathbf z_i=\mathbf P\boldsymbol\eta_i+\boldsymbol\epsilon_i.
+$$
+
+Each row is a simultaneous linear decomposition. A coefficient describes
+the relation of that factor to the indicator conditional on the other
+factors in this representation. The structure matrix instead gives the
+zero-order indicator--factor correlations:
+
+$$
+\mathbf C=\operatorname{Cov}(\mathbf z,\boldsymbol\eta)
+=\mathbf P\boldsymbol\Phi.
+$$
+
+Since both sides have unit marginal variances, those covariances are
+correlations. In an orthogonal solution $\boldsymbol\Phi=\mathbf I$,
+so pattern and structure coincide. In an oblique solution they generally
+do not.
+
+```{r}
+#| label: tbl-efa-pattern
+#| tbl-cap: "All pattern coefficients. Small entries remain visible; none were suppressed at .30."
+pt2_table(data.frame(Item=rownames(P),P,check.names=FALSE))
+```
+
+```{r}
+#| label: tbl-efa-structure
+#| tbl-cap: "Structure correlations for the same orientation."
+pt2_table(data.frame(Item=rownames(P),z$structure,check.names=FALSE))
+```
+
+For P4, the Strategy structure correlation is
+
+$$
+c_{\mathrm{P4,S}}
+=p_{\mathrm{P4,P}}\phi_{\mathrm{PS}}
+ +p_{\mathrm{P4,S}}+p_{\mathrm{P4,B}}\phi_{\mathrm{BS}}.
+$$
+
+Substituting the unrounded estimates gives
+`r pt2_num(z$structure["P4","Strategy"])`. The direct Strategy
+pattern coefficient is only `r pt2_num(P["P4","Strategy"])`.
+Much of the zero-order relation reflects P4's Planning loading together
+with the Planning--Strategy association. Reading the structure matrix as
+if every entry were a separate direct loading would therefore exaggerate
+cross-loading complexity.
+
+Conversely, dismissing every secondary pattern coefficient below .30
+would conceal the two content-relevant relations under consideration.
+P4 concerns revising a plan when a method fails; S4 concerns using others
+to improve a learning strategy. Their secondary coefficients,
+`r pt2_num(P["P4","Strategy"])` and
+`r pt2_num(P["S4","Belonging"])`, are evidence to evaluate alongside
+content, orientation sensitivity, and later independent estimation.
+They are not established nonzero population coefficients merely because
+we can give them plausible names.
+
+## Communality is a quadratic form
+
+For indicator $j$, let $\mathbf p_j^{\mathsf T}$ be row $j$ of the
+pattern matrix. Its common variance is
+
+$$
+h_j^2=\mathbf p_j^{\mathsf T}\boldsymbol\Phi\mathbf p_j,
+\qquad
+u_j^2=1-h_j^2.
+$$
+
+For three standardized factors this expands to
+
+$$
+h_j^2=p_{j1}^2+p_{j2}^2+p_{j3}^2
+ +2p_{j1}p_{j2}\phi_{12}
+ +2p_{j1}p_{j3}\phi_{13}
+ +2p_{j2}p_{j3}\phi_{23}.
+$$
+
+The cross-products are part of the common variance. Summing squared
+pattern coefficients alone drops them. For P4, the row sum of squared
+pattern coefficients is `r pt2_num(sum(P["P4",]^2))`, whereas the
+communality is `r pt2_num(z$h2["P4"])`. Neither number should be
+labelled the variance uniquely explained by Planning.
+
+```{r}
+#| label: tbl-efa-communalities
+#| tbl-cap: "Common and unique variance in the standardized metric. Row sums of squared pattern coefficients are included only to expose the oblique distinction."
+pt2_table(data.frame(Item=rownames(P),Pattern_SS=rowSums(P^2),
+  Communality=z$h2,Uniqueness=z$u2))
+```
+
+The column sums of squared loadings reported by software are useful
+descriptions of an orientation, but correlated factors do not provide a
+unique additive allocation of common variance to separate constructs.
+One cannot turn overlapping factor relations into mutually exclusive
+percentages simply by dividing each column sum by $p$.
+
+A low communality can mean that an indicator is weakly represented by
+this common-factor system. It does not by itself show poor wording or
+justify removal. An indicator may intentionally cover content absent
+from the other items. Removing it can make the covariance model cleaner
+while narrowing the construct. A high communality can likewise arise
+from redundancy rather than desirable breadth.
+
+## Reconstruct a pair, then the whole matrix
+
+Under diagonal uniqueness, the reproduced correlation of distinct
+indicators $j$ and $k$ is
+
+$$
+\widehat r_{jk}=\widehat{\mathbf p}_j^{\mathsf T}
+\widehat{\boldsymbol\Phi}\widehat{\mathbf p}_k.
+$$
+
+All primary and secondary coefficients participate. For P4 and S4,
+the observed correlation is `r pt2_num(z$R["P4","S4"])` and the
+reproduced correlation is `r pt2_num(z$reproduced["P4","S4"])`.
+The residual, defined as observed minus reproduced, is
+`r pt2_num(z$residual["P4","S4"])`. Its sign is interpretable only
+after the subtraction convention is stated.
+
+```r
+common <- pattern %*% factor_correlations %*% t(pattern)
+communality <- diag(common)
+reproduced <- common + diag(fit3$uniquenesses)
+residual <- R - reproduced
+```
+
+This short calculation is more informative than memorizing the names of
+several output tables. It links loadings, factor correlations,
+communalities, uniquenesses, and residuals to one covariance equation.
+When a table cannot be reconstructed from that equation, first check
+the standardization and rotation conventions rather than inventing a
+substantive explanation.
+
+## What is uncertain about this interpretation?
+
+Sampling affects extraction, factor count, orientation, and the apparent
+stability of item assignments. A coefficient reported to three decimals
+is not thereby precise to three decimals. The comparisons below examine
+specified analytic alternatives on one sample; they do not provide a
+sampling confidence interval. Bootstrap analysis would additionally
+require re-estimation, alignment, and a decision about whether the factor
+count is held fixed. Unaligned bootstrap columns cannot sensibly be
+averaged.
+
+Factor scores are another distinct object. EFA estimates a population
+covariance representation; individual latent values are not observed
+merely because loadings have been estimated. Alternative scoring rules
+can produce different scores under the same factor model. Chapter 4
+develops this issue after measurement-model evaluation.
+
+# Check reconstruction and analytic sensitivity
+
+## Examine local residuals, not only an average
+
+Define the correlation residual matrix
+
+$$
+\mathbf E=\mathbf R-\widehat{\mathbf R},
+\qquad
+\mathrm{RMS}_{\mathrm{off}}
+=\sqrt{\frac{2}{p(p-1)}\sum_{j<k}e_{jk}^2}.
+$$
+
+The off-diagonal average deliberately excludes variances. It is not
+automatically identical to every software statistic called RMSR or SRMR.
+Its definition here is transparent and reproducible. The largest
+absolute residual supplies different information: one problematic pair
+can be concealed by averaging many small residuals.
+
+```{r}
+#| label: fig-efa-residual
+#| fig-width: 6.3
+#| fig-height: 5.5
+#| fig-cap: "Observed minus reproduced correlations for the three-factor ML solution. The scale is centered on zero."
+#| fig-alt: "A labelled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell."
+pt2_heatmap(z$residual,"Three-factor correlation residuals",limit=.05,digits=2,cex=.64)
+```
+
+```{r}
+#| label: tbl-efa-residual-pairs
+#| tbl-cap: "Eight largest absolute off-diagonal residuals, with observed and reproduced values."
+pt2_table(head(z$residual_pairs,8),row.names=FALSE)
+```
+
+Ask whether residuals concentrate within a domain, between two domains,
+or around a particular item. Those patterns suggest different questions
+about omitted common dimensions, secondary loadings, and local residual
+relations. A residual is evidence of unreproduced covariance, not a label
+for its cause. An unrestricted exploratory loading pattern can also
+absorb a local relation into its common part. Small EFA residuals therefore
+do not certify that every later simple-structure CFA restriction is safe.
+
+## KMO and Bartlett answer preliminary questions
+
+Let $a_{jk}$ be the partial correlation between indicators $j$ and $k$
+controlling the remaining indicators. A common overall KMO statistic is
+
+$$
+\mathrm{KMO}=
+\frac{\sum_{j<k}r_{jk}^2}
+{\sum_{j<k}r_{jk}^2+\sum_{j<k}a_{jk}^2}.
+$$
+
+The sample value is `r pt2_num(z$kmo)`. It is larger when the squared
+partial correlations are small relative to the squared zero-order
+correlations. That is a useful compact description, but it neither
+selects the number of factors nor establishes the meaning of any factor.
+It is also not a universal minimum-sample-size calculation.
+
+Bartlett's sphericity test addresses $H_0:\mathbf R_{\mathrm{population}}
+=\mathbf I$. A familiar normal-theory approximation is
+
+$$
+T_B=-\left[n-1-\frac{2p+5}{6}\right]\log|\mathbf R|,
+\qquad df_B=\frac{p(p-1)}2.
+$$
+
+Here $T_B=$ `r pt2_num(z$bartlett,1)` on 66 df. Rejecting an identity
+correlation matrix says that the indicators are not mutually uncorrelated
+in the population under the test assumptions. It does not show that a
+particular low-dimensional factor model fits. A matrix with complicated
+local dependencies can readily reject sphericity.
+
+Use these summaries to characterize the input, not as entrance tickets
+that replace inspecting the correlation matrix, positive definiteness,
+indicator content, and the fitted model.
+
+## Change one analytic choice at a time
+
+Two bounded sensitivity analyses use the same observations, variables,
+and Pearson matrix. First, keep ML extraction and use oblique geomin
+rotation with $\delta=.01$, no normalization, and 20 starts. Second,
+keep three factors and oblimin but replace ML extraction by minres.
+The first changes the orientation criterion; the second changes how
+the covariance discrepancy is weighted.
+
+Signs and factor order are aligned before comparing coefficients.
+For loading columns $\mathbf a$ and $\mathbf b$, Tucker's congruence
+coefficient is
+
+$$
+c(\mathbf a,\mathbf b)=
+\frac{\mathbf a^{\mathsf T}\mathbf b}
+{\sqrt{\mathbf a^{\mathsf T}\mathbf a}
+ \sqrt{\mathbf b^{\mathsf T}\mathbf b}}.
+$$
+
+It compares the directions of two coefficient vectors, not the
+correlation between participant scores. Near-one congruence can coexist
+with an important difference for one item, so also inspect the largest
+coefficient difference and the relevant rows.
+
+```{r}
+#| label: tbl-efa-sensitivity
+#| tbl-cap: "Aligned sensitivity comparisons against primary ML oblimin. These are same-sample analytic checks, not independent replications."
+pt2_table(data.frame(Analysis=rownames(z$sensitivity),z$sensitivity,
+  row.names=NULL,check.names=FALSE))
+```
+
+The largest pattern change under geomin is
+`r pt2_num(z$sensitivity[2,"Max_pattern_difference"])`; under minres
+it is `r pt2_num(z$sensitivity[3,"Max_pattern_difference"])`.
+The principal item groupings and the two content-relevant secondary
+relations persist. This supports carrying a specific candidate forward
+without claiming that all reasonable analyses have been exhausted.
+Changing the item set, sample, distributional assumptions, or factor
+count would be a different sensitivity question.
+
+The defensible conclusion is deliberately narrower than “the scale is
+validated.” Three correlated dimensions summarize Sample A better than
+two, the main orientation is interpretable and stable across these
+limited checks, and the larger fitted solutions encounter boundaries.
+These observations justify a candidate to test elsewhere.
+
+# Summary and reading bridge {#sec-summary-bridge}
+
+EFA is a sequence of linked decisions. The input matrix establishes the
+observed metric. Extraction states which covariance structure is being
+approximated and how discrepancies are weighted. Retention selects a
+plausible dimension using matched reference comparisons, content, and
+neighboring solutions. Rotation chooses interpretable coordinates
+without changing the fitted covariance. Interpretation then requires
+pattern, structure, factor correlations, and the quadratic-form
+communality to be read together.
+
+The Sample A record supports a three-factor candidate, not a final
+measurement verdict. Both declared parallel analyses retain three
+dimensions; two factors leave appreciably larger residuals; four and
+five reach uniqueness bounds. The primary oblique pattern and limited
+same-sample sensitivity checks support three content-defined domains -
+Planning, Strategy and Belonging - together with two secondary loadings that
+are retained on content grounds rather than by a numerical cutoff: P4 on
+Strategy and S4 on Belonging. All twelve indicators are kept, in the codebook
+order, and every other cross-loading and every residual covariance would be
+fixed at zero in a restricted version of this model. That specification, and
+the stricter simple-structure alternative that fixes both secondary loadings
+to zero, are what a confirmatory analysis on unused data would have to test.
+
+A compact report could read:
+
+> We analyzed Pearson correlations for 12 complete continuous indicators
+> in a simulated development sample of 360 cases. Matched 95th-percentile
+> permutation references for full and SMC-reduced eigenvalues both
+> retained three dimensions. Neighboring ML models and residual inspection
+> supported examining a three-factor representation; four- and five-factor
+> fits reached uniqueness bounds. Direct oblimin with stated settings
+> produced interpretable correlated domains. Geomin and minres checks
+> gave closely aligned patterns. A 12-indicator CFA candidate with two
+> content-motivated secondary loadings was frozen for independent-sample
+> estimation; this development analysis is not itself confirmation.
+
+For mathematical background, connect the common-factor representation
+and rotational indeterminacy to @mulaik2010 and @bartholomewKnott1999.
+Read @horn1965 for the parallel-analysis idea and @bujaEyuboglu1992 for
+the permutation perspective and qualifications. The historical oblique
+rotation literature includes @jennrichSampson1966. Software documentation
+is indispensable for implementation details, especially distinctions
+between simulation, resampling, and permutation.
+
+Chapter 3 now changes the question: **given the frozen zero, free, and
+equality restrictions, can a CFA be specified, identified, and estimated
+coherently?** An exploratory orientation becomes a confirmatory model
+only when its restrictions and analytic history are made explicit.
+
+# Exercises {.unnumbered}
+
+The following exercises are answer-free. Use the printed tables where
+possible; code is optional unless a prompt explicitly asks for it.
+
+1. **Foundational -- identify the target.** An analyst extracts principal
+   components from $\mathbf R$ and calls the discarded component variance
+   “measurement error.” Explain the missing common-factor assumptions.
+   For $\mathbf R=\begin{bmatrix}1&.6\\.6&1\end{bmatrix}$, obtain its
+   eigenvalues and the variance represented by the first component.
+2. **Foundational -- update a diagonal.** For the three-variable matrix
+   $\mathbf R=\begin{bmatrix}1&.5&.4\\.5&1&.3\\.4&.3&1\end{bmatrix}$,
+   calculate the SMCs using $1-1/(\mathbf R^{-1})_{jj}$. Form the reduced
+   matrix and describe one principal-axis update. Explain why a negative
+   reduced-matrix eigenvalue is not automatically a negative variance.
+3. **Foundational -- audit the count.** Derive the effective parameter
+   counts and candidate df for $p=8$, $m=1,2,3$. Explain the rotational
+   subtraction and why a nonnegative count does not prove identification.
+4. **Foundational -- match the null.** At ranks 1--4, observed roots are
+   $3.8,1.5,.9,.2$, and matching permutation 95th percentiles are
+   $.5,.3,.2,.1$. Determine the leading crossing count. Explain why this
+   table cannot be interpreted without knowing which matrix generated
+   the roots, and why a full-matrix reference cannot replace a reduced one.
+5. **Foundational -- verify a coordinate change.** Let
+   $\mathbf A=\begin{bmatrix}.8&.1\\.2&.7\\.5&.4\end{bmatrix}$ and
+   $\mathbf T=\begin{bmatrix}1&.3\\0&1\end{bmatrix}$. Calculate
+   $\mathbf P=\mathbf A\mathbf T^{-1}$ and
+   $\boldsymbol\Phi^*=\mathbf T\mathbf T^{\mathsf T}$, and verify the
+   common-covariance identity. Is $\boldsymbol\Phi^*$ already a
+   correlation matrix?
+6. **Foundational -- read an oblique row.** For pattern row $(.6,.3)$ and
+   factor correlation .4, compute the two structure correlations,
+   communality, and uniqueness of a standardized indicator. Explain why
+   the sum of squared pattern coefficients gives a different result.
+7. **Foundational -- reconstruct a pair.** Take pattern rows $(.7,.1)$
+   and $(.2,.6)$ with factor correlation .35. Compute their reproduced
+   correlation. If the observed correlation is .45, calculate the signed
+   residual and explain what it does and does not diagnose.
+8. **Integrative -- compare dimensions.** Using the one-to-five-factor
+   table and neighboring-pattern figure, recommend a dimension for further
+   study. Discuss the uniqueness boundary and explain why neither the
+   smallest discrepancy nor the largest conventional $p$ value is a
+   sufficient decision rule.
+9. **Integrative -- evaluate an item.** Contrast P4 and B4 using wording,
+   pattern, structure, and communalities. Propose what additional evidence
+   would be needed before deleting either. Do not use a loading cutoff
+   as the complete rationale.
+10. **Integrative -- audit sensitivity.** Explain what is held constant
+    in the ML/geomin and minres/oblimin comparisons. Why must factor
+    order and sign be aligned? Identify one question these comparisons
+    cannot answer about sampling uncertainty.
+11. **Integrative -- reproduce the contract.** Write plain R code to read
+    Sample A, select the codebook item order, check completeness, and
+    compute the Pearson matrix. Then specify how to generate an exact
+    column-permutation reference with a fixed seed. Explain why resampling
+    with replacement is a different reference procedure.
+12. **Integrative -- state the handoff.** Write the free/fixed relation
+    ledger for two restricted models: the three-factor candidate that keeps the
+    P4 and S4 secondary loadings free, and the stricter version that fixes both
+    at zero. Give the free-parameter count and candidate df for each against
+    the 78 distinct moments of twelve indicators. Then identify which evidence
+    could and could not be used to choose between them, and explain what
+    changes if a model is revised after inspecting a second sample.
+
+# Appendix A: SLE data dictionary and sample manifest {#sec-sle-data .unnumbered}
+
+The downloadable file [sle_continuous.csv](sle_continuous.csv) contains
+1,080 simulated records and 14 columns: two identifiers and twelve
+continuous indicators. The codebook and manifest are printed here so
+that no separate metadata file is needed. The three samples have been
+combined for distribution only; no observations have been pooled for
+analysis, regenerated, rounded, standardized, or reassigned.
+
+## Fields and common coding {.unnumbered}
+
+```{r}
+#| label: tbl-sle-fields
+#| tbl-cap: "CSV fields and coding rules. Neither sample nor id is a factor indicator."
+pt2_sle_appendix_table(data.frame(
+  Field=c("sample","id","P1-P4","S1-S4","B1-B4","All twelve indicators",
+    "Direction","Missing values","Response format"),
+  Meaning=c("A = development; B = confirmation; C = revalidation.",
+    "Unique synthetic record ID; the first letter agrees with sample.",
+    "Proposed Planning domain.","Proposed Strategy domain.",
+    "Proposed Belonging domain.","Continuous, unbounded process-index points.",
+    "Higher values mean more of the stated attribute; no reverse coding.",
+    "NA is the missing-value code; the supplied records have no missing observations.",
+    "Hypothetical continuous indices, not single ordered-category responses, percentages, or counts.")
+),c(.22,.69))
+```
+
+## Item codebook {.unnumbered}
+
+The wording gives illustrative content, not evidence that a questionnaire
+was administered or validated. Proposed domains precede EFA and do not
+guarantee the recovered factor structure.
+
+```{r}
+#| label: tbl-sle-codebook
+#| tbl-cap: "Complete SLE item definitions and illustrative wording; the common coding rules above apply to every row."
+book <- z$input$codebook
+pt2_sle_appendix_table(data.frame(Item=book$item,Domain=book$domain,
+  Definition=book$indicator_definition,Wording=book$wording),
+  c(.06,.13,.24,.43))
+```
+
+The Planning and Strategy indicators are hypothetical continuous process
+indices; Belonging indicators are hypothetical continuous experience
+indices. The following qualifications make overlapping content explicit.
+They do not disclose an estimated loading or authorize a model change.
+
+```{r}
+#| label: tbl-sle-process
+#| tbl-cap: "Indicator-specific response-process qualifications."
+pt2_sle_appendix_table(data.frame(
+  Item=c("P4","S4","B1 and B2","B4"),
+  Qualification=c("Combines planning and method adjustment.",
+    "Combines learning strategy and social participation.",
+    "Both refer to a shared peer context.",
+    "Broad institutional content rather than one setting.")
+),c(.16,.75))
+```
+
+```{=latex}
+\Needspace{14\baselineskip}
+```
+
+## Sample manifest {.unnumbered}
+
+```{r}
+#| label: tbl-sle-manifest
+#| tbl-cap: "Three independent samples in one file. The first-use rules concern analytical evidence, not physical file accessibility."
+manifest <- z$input$manifest_all
+pt2_sle_appendix_table(data.frame(
+  Sample=paste(manifest$sample,manifest$role,sep=": "),
+  N=as.character(manifest$n),
+  IDs=c("A001-A360","B001-B360","C001-C360"),
+  Seed=as.character(manifest$seed),
+  `Permitted first use`=c("Chapter 2: EFA development.",
+    "Chapter 3: estimate the candidate frozen after A; Chapter 4: evaluate it.",
+    "Chapter 4: retest the revision frozen after B."),
+  check.names=FALSE),c(.18,.05,.17,.15,.29))
+```
+
+Each row belongs to one sample only. The 360-case sample sizes are
+pedagogical choices, not general adequacy recommendations. Importing the
+combined file does not authorize earlier use of B or C. Select the eligible
+sample before descriptive summaries, missing-data decisions, rescaling,
+correlations, extraction, estimation, or diagnostics. Keep `sample` and
+`id` out of the indicator matrix.
+
+The records are simulated from the declared population with the seeds in
+@tbl-sle-manifest. The chapter regenerates the development sample in memory
+each time it renders, so nothing has to be downloaded to reproduce every
+number printed here; the distributed `sle_continuous.csv` contains the same
+records for readers who prefer to work from a file. The generation
+specification was declared before any sample was inspected, and no seed was
+chosen for its fit results.
+
+# Appendix B: Spectral and rotation details {.unnumbered}
+
+## Why a truncated eigendecomposition is a component solution {.unnumbered}
+
+For a symmetric positive-semidefinite matrix,
+$\mathbf R=\mathbf V\mathbf D\mathbf V^{\mathsf T}$ with orthonormal
+eigenvectors. Retaining the first $m$ eigenpairs gives
+$\mathbf R_m=\mathbf V_m\mathbf D_m\mathbf V_m^{\mathsf T}$.
+Its trace is the sum of the retained eigenvalues. Among unrestricted
+rank-$m$ approximations, this truncation minimizes squared Frobenius
+error. The omitted diagonal is not required to be a diagonal residual
+covariance from a latent-variable measurement model. That is the key
+reason a convenient low-rank approximation and common-factor estimation
+answer different questions.
+
+Replacing the diagonal by communality estimates changes the eigenproblem.
+The reduced matrix need not be positive semidefinite: its diagonal is
+no longer the full variance of an observed random vector. In a
+principal-axis iteration, the retained positive roots define a current
+common part whose diagonal supplies the next communality estimates.
+Convergence of that iteration and its sensitivity to starts are numerical
+questions separate from whether the resulting factors make sense.
+
+## Other retention summaries are not interchangeable votes {.unnumbered}
+
+The minimum average partial (MAP) idea progressively removes component
+directions and examines the remaining partial-correlation structure.
+It is not the same reference comparison as parallel analysis. Very
+simple structure (VSS) compares approximations obtained by simplifying
+loading patterns to a small number of entries per row; it consequently
+depends on the kind of simplicity one is prepared to impose. Sequential
+model tests target exact covariance restrictions under their reference
+conditions. Information criteria trade likelihood against parameter
+count but also require a carefully specified likelihood and admissible
+candidate family.
+
+These methods can disagree because they target different features. A
+useful extension would state each target, its tuning choices, and the
+implications of disagreement, rather than assemble a majority-vote
+factor count. Newer eigenvalue corrections likewise require their own
+derivation and calibration; they should not be introduced merely by
+renaming the eigenvalue-greater-than-one rule.
+
+## Two explicit oblique criteria {.unnumbered}
+
+Ignoring a positive multiplicative constant, the quartimin objective is
+
+$$
+Q_{\mathrm{quartimin}}(\mathbf P)
+=\sum_{j=1}^p\sum_{a<b}p_{ja}^2p_{jb}^2.
+$$
+
+Large coefficients in two columns of the same row increase this
+objective. A geomin objective takes the form
+
+$$
+Q_{\mathrm{geomin}}(\mathbf P)
+=\sum_{j=1}^p
+\left[\prod_{a=1}^m(p_{ja}^2+\delta)\right]^{1/m},
+\qquad\delta>0.
+$$
+
+The small positive $\delta$ regularizes behavior near zero. These
+criteria may have several local optima. Convergence checks, multiple
+starts, and sensitivity comparisons are therefore part of a complete
+rotation report. Neither objective supplies a probability that a factor
+name is correct, and neither changes the fitted common covariance when
+implemented as an equivalent rotation.
+
+## Factor-score indeterminacy in one equation {.unnumbered}
+
+If factors and indicators are jointly normal, a model-based conditional
+mean score in the standardized metric is
+
+$$
+E(\boldsymbol\eta\mid\mathbf z)
+=\boldsymbol\Phi\mathbf P^{\mathsf T}
+\boldsymbol\Sigma_z^{-1}\mathbf z.
+$$
+
+The conditional variance generally remains positive. Thus knowing the
+model parameters does not identify each person's latent value without
+error. Other scoring criteria lead to other point estimates. This
+appendix supplies the conceptual warning; Chapter 4 develops scoring
+and its uncertainty after the CFA model has been evaluated.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

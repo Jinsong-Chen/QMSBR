@@ -1,0 +1,1551 @@
+---
+title: "Specifying and Estimating Confirmatory Factor Models"
+author: "Jinsong Chen"
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+format:
+  pdf:
+    output-file: chapter_03.pdf
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \usepackage{float}
+          \usepackage{needspace}
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{caption}
+          \captionsetup[table]{position=above,format=plain,justification=raggedright,singlelinecheck=false,labelsep=newline,labelfont=bf,textfont=it}
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(dev=if(knitr::is_latex_output()) "cairo_pdf" else "png",
+  dpi=160,fig.pos="H",fig.align="center")
+options(digits=3,width=80)
+source("chapter_02.R")
+source("chapter_03.R")
+h <- readRDS("chapter_03_chapter_04_handoff.rds")
+fresh <- pt3_build()
+stopifnot(max(abs(lavaan::coef(h$fit)-lavaan::coef(fresh$fit)))<1e-7,
+  identical(h$candidate_sha256,fresh$candidate_sha256),all(h$audit$checks))
+pe <- h$audit$parameters
+pop <- h$microcase
+L <- pop$Lambda; Phi <- pop$Phi; Theta <- pop$Theta
+
+# All measurement diagrams are built locally from an explicit edge ledger.
+# Nothing is read from the donor archive and no persistent figure directory is
+# created. The visual grammar adapts the donor fig-fa.r Graphviz/neato code.
+pt_graphviz_file <- function(dot,prefix="fa-") {
+  needed <- c("DiagrammeR","DiagrammeRsvg","rsvg","digest")
+  missing <- needed[!vapply(needed,requireNamespace,logical(1),quietly=TRUE)]
+  if(length(missing)) stop("Diagram packages missing: ",paste(missing,collapse=", "))
+  svg <- DiagrammeRsvg::export_svg(DiagrammeR::grViz(dot))
+  # Deterministic name inside the figure directory so the artifact is captured
+  # by _freeze and restored on a clean CI checkout. A random tempfile() name
+  # can never be committed, which silently yields a figure-less deployed page.
+  dir <- file.path("chapter_03_files","figure-html")
+  dir.create(dir,recursive=TRUE,showWarnings=FALSE)
+  stem <- paste0(prefix,substr(digest::digest(dot,algo="sha256"),1,12))
+  if(knitr::is_latex_output()) {
+    path <- file.path(dir,paste0(stem,".pdf"))
+    rsvg::rsvg_pdf(charToRaw(svg),file=path)
+  } else {
+    path <- file.path(dir,paste0(stem,".png"))
+    rsvg::rsvg_png(charToRaw(svg),file=path,width=1600)
+  }
+  path
+}
+
+pt_measurement_dot <- function(groups,correlated=TRUE,marker=FALSE,
+  cross=NULL,residual=NULL,prefix="cfa-") {
+  stopifnot(length(groups)>=1L,!is.null(names(groups)))
+  x <- (seq_along(groups)-1)*3.8
+  factor_ids <- paste0("f",seq_along(groups))
+  nodes <- sprintf('%s [label="%s", shape=ellipse, width=1.18, height=.55, pos="%.2f,6.2!", fillcolor="#DCEAF2"];',
+    factor_ids,names(groups),x)
+  edges <- character()
+  residual_ids <- character()
+  for(g in seq_along(groups)) for(j in seq_along(groups[[g]])) {
+    item <- groups[[g]][j]; iid <- gsub("[^A-Za-z0-9_]","_",item)
+    eid <- paste0("e_",iid); y <- 4.75-(j-1)*1.15
+    nodes <- c(nodes,
+      sprintf('%s [label="%s", shape=box, width=.72, height=.38, pos="%.2f,%.2f!", fillcolor="#F7F1DF"];',iid,item,x[g],y),
+      sprintf('%s [label="e%s", shape=circle, width=.35, height=.35, fixedsize=true, pos="%.2f,%.2f!", fillcolor="#F2F2F2", fontsize=9];',eid,item,x[g]+1.18,y))
+    label <- if(marker && j==1L) 'label="1"' else ""
+    edges <- c(edges,sprintf('%s -> %s [%s];',factor_ids[g],iid,label),
+      sprintf('%s -> %s [arrowsize=.55, color="#666666"];',eid,iid))
+    residual_ids[item] <- eid
+  }
+  if(correlated && length(groups)>1L) for(a in 1:(length(groups)-1L))
+    for(bb in (a+1L):length(groups)) edges <- c(edges,
+      sprintf('%s -> %s [dir=both, arrowhead=normal, arrowtail=normal, constraint=false, color="#405768", penwidth=1.25];',factor_ids[a],factor_ids[bb]))
+  if(!is.null(cross) && nrow(cross)) for(i in seq_len(nrow(cross))) {
+    g <- match(cross$factor[i],names(groups)); iid <- gsub("[^A-Za-z0-9_]","_",cross$item[i])
+    edges <- c(edges,sprintf('%s -> %s [style=dashed, color="#A45719", penwidth=1.6];',factor_ids[g],iid))
+  }
+  if(!is.null(residual) && nrow(residual)) for(i in seq_len(nrow(residual))) {
+    edges <- c(edges,sprintf('%s -> %s [dir=both, arrowhead=normal, arrowtail=normal, constraint=false, style=dotted, color="#A45719", penwidth=1.5];',
+      residual_ids[residual$item1[i]],residual_ids[residual$item2[i]]))
+  }
+  dot <- paste0('digraph cfa { graph [layout=neato, overlap=false, outputorder=edgesfirst, splines=curved, bgcolor="transparent", pad=.18]; ',
+    'node [fontname="Arial", fontsize=11, style="filled", color="#405768", penwidth=1.1]; ',
+    'edge [fontname="Arial", fontsize=9, color="#405768", arrowsize=.7]; ',
+    paste(nodes,collapse=" ")," ",paste(edges,collapse=" ")," }")
+  pt_graphviz_file(dot,prefix)
+}
+
+pt_higher_order_pair_file <- function() {
+  dot <- paste0('digraph pair { graph [layout=neato, overlap=false, outputorder=edgesfirst, splines=curved, bgcolor="transparent", pad=.15]; ',
+    'node [fontname="Arial", fontsize=10, style="filled", color="#405768"]; edge [fontname="Arial", fontsize=9, color="#405768", arrowsize=.65]; ',
+    'L [label="correlated first-order", shape=plaintext, style="", fontcolor="#405768", pos="1.5,7.0!"]; R [label="constrained second-order", shape=plaintext, style="", fontcolor="#405768", pos="7.2,7.0!"]; ',
+    'lf1 [label="F1", shape=ellipse, fillcolor="#DCEAF2", pos="0,5.5!"]; lf2 [label="F2", shape=ellipse, fillcolor="#DCEAF2", pos="3,5.5!"]; ',
+    'rf1 [label="F1", shape=ellipse, fillcolor="#DCEAF2", pos="6,4.3!"]; rf2 [label="F2", shape=ellipse, fillcolor="#DCEAF2", pos="8.4,4.3!"]; g [label="G", shape=ellipse, fillcolor="#D9EAD3", pos="7.2,5.8!"]; ',
+    'y1 [label="Y1--Y3", shape=box, fillcolor="#F7F1DF", pos="0,3.4!"]; y2 [label="Y4--Y6", shape=box, fillcolor="#F7F1DF", pos="3,3.4!"]; ry1 [label="Y1--Y3", shape=box, fillcolor="#F7F1DF", pos="6,2.3!"]; ry2 [label="Y4--Y6", shape=box, fillcolor="#F7F1DF", pos="8.4,2.3!"]; ',
+    'lf1 -> y1; lf2 -> y2; lf1 -> lf2 [dir=both,arrowhead=normal,arrowtail=normal,constraint=false]; rf1 -> ry1; rf2 -> ry2; g -> rf1 [label="1"]; g -> rf2 [label="1"]; }')
+  pt_graphviz_file(dot,"equiv-")
+}
+```
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**Central question:** How can a proposed measurement structure be written
+as a restricted model whose parameters can be recovered and estimated?
+
+**Prerequisites:** Chapters 1--2's covariance decomposition, factor scale
+and orientation, pattern coefficients, and frozen EFA-to-CFA candidate.
+
+**Representations and records:** A neutral six-indicator model makes the
+algebra visible; a published four-factor topology tests diagram-to-syntax
+transfer. The exact twelve-indicator SLE candidate is estimated on
+continuous Sample B, previously untouched by the development analysis.
+
+**Destination:** A checked fitted object, parameter ledger, uncertainty
+record, and analysis settings for Chapter 4. Convergence and admissibility
+are evaluated here; overall model adequacy is not.
+:::
+
+# From exploratory structure to restricted CFA
+
+## The change is in the restrictions
+
+The common-factor equation has not changed:
+
+$$
+\mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i
+ +\boldsymbol\epsilon_i,
+\qquad
+\boldsymbol\Sigma(\boldsymbol\vartheta)
+=\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}
+ +\boldsymbol\Theta.
+$$
+
+What changes in confirmatory factor analysis is how the parameters are
+restricted before estimation. A CFA might assign each indicator to one
+factor, allow a few specified secondary loadings, constrain selected
+loadings to equality, or specify a local residual covariance. The model
+then has testable implications beyond the number of factors alone.
+
+Here $\boldsymbol\vartheta$ denotes the vector of free parameters;
+$\boldsymbol\Theta$ denotes the residual covariance matrix. They are
+not two notations for the same object. For $p$ indicators and $m$ factors,
+$\boldsymbol\Lambda$ is $p\times m$, $\boldsymbol\Phi$ is $m\times m$,
+and $\boldsymbol\Theta$ is $p\times p$. As throughout Part Two,
+$\boldsymbol\Phi=\operatorname{Var}(\boldsymbol\eta)$.
+
+```{=latex}
+\Needspace{14\baselineskip}
+```
+
+| Question | EFA in Chapter 2 | CFA in this chapter |
+|:--|:--|:--|
+| Which loadings are estimated? | All, before choosing an orientation | Only the declared free relations |
+| How is orientation handled? | Rotation and subsequent labels | Loading restrictions and factor metrics |
+| What determines the candidate? | Development evidence plus content | A frozen specification, with named rivals |
+| What data are being used? | Sample A for development | Sample B for estimation of that candidate |
+| What has not been established? | Unique substantive interpretation | Adequacy, validity, or causality |
+
+“Confirmatory” describes restrictions and analytic history, not a
+guaranteed favorable conclusion. A CFA estimated after repeated same-data
+changes is still mathematically a CFA, but the changed specification is
+data-developed. Conversely, a prespecified cross-loading does not make a
+model nonconfirmatory merely because it departs from independent-clusters
+simple structure.
+
+## Missing arrows have statistical consequences
+
+An absent loading arrow generally means a coefficient fixed to zero.
+It does not mean that the indicator and factor are uncorrelated. Under
+correlated factors, an indicator can correlate with a factor on which
+it has no direct loading. Chapter 2's pattern--structure distinction
+therefore remains essential.
+
+An absent residual covariance means that two residuals are uncorrelated
+under the model. That is a moment restriction. To assert conditional
+independence of indicators given the factors, we additionally need an
+appropriate conditional distribution or factorization; in a jointly
+normal linear model, diagonal residual covariance supplies that stronger
+property. Zero covariance alone does not generally imply independence.
+
+A factor-to-indicator arrow specifies a loading relation. Interpreting
+the arrow causally requires design and substantive assumptions beyond
+the covariance equation. Good fit cannot supply temporal precedence or
+exclude every alternative explanation.
+
+```{r}
+#| label: fig-cfa-sequence
+#| fig-width: 7
+#| fig-height: 1.6
+#| fig-cap: "Specification, recoverability, and numerical estimation are distinct tasks. Chapter 4 evaluates the fitted record."
+#| fig-alt: "Four linked boxes show restrictions, identification, estimation, and evaluation, with evaluation assigned to Chapter 4."
+pt2_course_map(c("Restrictions","Identification","Estimation","Chapter 4\nEvaluation"))
+```
+
+# Write one model four ways
+
+## A verbal specification
+
+Begin with six continuous indicators, $Y_1,\ldots,Y_6$, and two
+correlated factors. The first three indicators load only on $\eta_1$;
+the last three load only on $\eta_2$. All six residual variances are
+free and all residual covariances are zero. Factors and residuals are
+uncorrelated. Use $Y_1$ and $Y_4$ as markers, fixing their loadings to
+one. The factor variances and their covariance remain free.
+
+The labels are intentionally neutral. This compact model is adapted from
+the donor's two-factor/six-indicator teaching structure, not extracted
+from the SLE items. It lets us follow each restriction without introducing
+a second substantive measurement story.
+
+## Six scalar equations
+
+With zero latent intercepts and zero-mean residuals,
+
+$$
+\begin{aligned}
+Y_{i1}&=\nu_1+\eta_{i1}+\epsilon_{i1},&
+Y_{i4}&=\nu_4+\eta_{i2}+\epsilon_{i4},\\
+Y_{i2}&=\nu_2+\lambda_{21}\eta_{i1}+\epsilon_{i2},&
+Y_{i5}&=\nu_5+\lambda_{52}\eta_{i2}+\epsilon_{i5},\\
+Y_{i3}&=\nu_3+\lambda_{31}\eta_{i1}+\epsilon_{i3},&
+Y_{i6}&=\nu_6+\lambda_{62}\eta_{i2}+\epsilon_{i6}.
+\end{aligned}
+$$
+
+The subscript $i$ denotes a person; the first subscript of
+$\lambda_{ja}$ identifies the indicator, and the second identifies
+the factor. Writing all six equations is useful once: it prevents a
+compact diagram from hiding a cross-loading or a mistaken marker.
+Later, matrix notation avoids repeating the same structure.
+
+## Three parameter matrices
+
+The same model is
+
+$$
+\boldsymbol\Lambda=
+\begin{bmatrix}
+1&0\\\lambda_{21}&0\\\lambda_{31}&0\\
+0&1\\0&\lambda_{52}\\0&\lambda_{62}
+\end{bmatrix},\qquad
+\boldsymbol\Phi=\begin{bmatrix}\phi_{11}&\phi_{12}\\
+\phi_{12}&\phi_{22}\end{bmatrix},\qquad
+\boldsymbol\Theta=\operatorname{diag}(\theta_{11},\ldots,\theta_{66}).
+$$
+
+There are twelve loading slots, not twelve freely estimated loadings:
+four are free, two are fixed at one for scaling, and six are fixed at
+zero. Symmetry means $\phi_{12}$ and $\phi_{21}$ are the same covariance,
+not two independent parameters. Likewise, a freely estimated residual
+covariance would occupy two symmetric matrix entries but add only one
+free coordinate.
+
+The implied mean vector is
+$\boldsymbol\mu=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\alpha$.
+Here $\boldsymbol\alpha=\mathbf0$, so
+$\boldsymbol\mu=\boldsymbol\nu$. The latent intercept equals the
+latent mean because this CFA has no structural paths or latent
+predictors. This convention will need an explicit distinction between
+intercepts and marginal means once structural regressions enter.
+
+## A diagram and executable syntax
+
+```{r}
+#| label: fig-cfa-six
+#| fig-width: 7
+#| fig-height: 4.5
+#| fig-cap: "Marker-scaled six-indicator CFA. Residual variances are free; residual covariances and unshown loadings are zero. Intercepts are omitted from this covariance diagram."
+#| fig-alt: "F1 predicts Y1, Y2, and Y3; F2 predicts Y4, Y5, and Y6. The Y1 and Y4 loadings equal one. Factor variances and their covariance are free."
+knitr::include_graphics(pt_measurement_dot(
+  list(F1=paste0("Y",1:3),F2=paste0("Y",4:6)),marker=TRUE,prefix="two-factor-"))
+```
+
+In R, the `lavaan` package represents factor loadings with `=~` and
+variances or covariances with `~~`. The following is the marker-scaled
+specification:
+
+```r
+model6 <- '
+  F1 =~ 1*Y1 + Y2 + Y3
+  F2 =~ 1*Y4 + Y5 + Y6
+  F1 ~~ F2
+'
+```
+
+The `cfa()` convenience function supplies free indicator residual
+variances and fixes unmentioned residual covariances to zero in this
+model. Defaults must still be audited; a short syntax string is not a
+complete parameter ledger. The [official CFA tutorial](https://lavaan.ugent.be/tutorial/cfa.html)
+is a useful orientation to the specify--fit--extract workflow.
+
+| Representation | What to check |
+|:--|:--|
+| Words | Indicator assignments, residual assumptions, metric, and means |
+| Scalar equations | Every indicator has exactly the stated loading terms |
+| Matrices | All zero, fixed, and shared entries are explicit |
+| Diagram and syntax | Every drawn or coded relation matches the same ledger |
+
+If two representations disagree, no amount of numerical convergence can
+resolve which model the researcher intended. Fix the specification before
+interpreting output.
+
+## Transfer the grammar to four factors
+
+A larger diagram should be read with the same ledger rather than as a new
+kind of model. As a published-reading exercise, reconstruct the topology of
+Figure 3 in @chou2021: four correlated factors---self-efficacy, school
+support, privacy concerns, and technostress---each measured by four
+indicators. The reconstruction below records the displayed assignments and
+factor relations; it does not reproduce the paper's estimated coefficients
+or imply that every software default used in the original analysis is known.
+
+```{r}
+#| label: fig-cfa-four
+#| fig-width: 7
+#| fig-height: 5.4
+#| fig-cap: "Four-factor, sixteen-indicator CFA reconstructed as a diagram-reading transfer. All six factor correlations are free; fixed-factor scaling is used for the count."
+#| fig-alt: "Four correlated factors called Self-efficacy, School support, Privacy concerns, and Technostress each predict four separate indicators. Each indicator has a residual."
+knitr::include_graphics(pt_measurement_dot(
+  list(`Self-efficacy`=paste0("E",1:4),`School support`=paste0("S",1:4),
+    `Privacy concerns`=paste0("P",1:4),Technostress=paste0("T",1:4)),
+  correlated=TRUE,marker=FALSE,prefix="four-factor-"))
+```
+
+Under fixed-factor scaling, a direct `lavaan` translation is
+
+```r
+model4 <- '
+  SelfEfficacy =~ E1 + E2 + E3 + E4
+  SchoolSupport =~ S1 + S2 + S3 + S4
+  Privacy =~ P1 + P2 + P3 + P4
+  Technostress =~ T1 + T2 + T3 + T4
+'
+fit4 <- lavaan::cfa(model4, data = dat, std.lv = TRUE)
+```
+
+The omitted loading arrows are fixed zero, the four latent variances set the
+factor metrics, and the six pairwise factor covariances are free. With 16
+continuous indicators, the covariance ledger is therefore
+
+$$
+u=\frac{16(17)}2=136,\qquad
+t=16\text{ loadings}+16\text{ residual variances}
+  +\frac{4(3)}2\text{ factor correlations}=38,
+\qquad df=98.
+$$
+
+This transfer matters because visual density can conceal a counting error.
+Four double-headed arrows would omit two factor correlations; counting 16
+drawn loading slots as 16 *free* loadings would be wrong under marker
+scaling but correct under the fixed-factor convention used here. Always
+state the metric before reading freedom from a diagram.
+
+# Free, fixed, and constrained parameters
+
+## Different restrictions do different jobs
+
+A free parameter is estimated from the data under the other restrictions.
+A fixed parameter is assigned a known constant. An equality constraint
+requires two or more parameter entries to share a value; it does not
+necessarily assign that value in advance. A bound restricts the allowable
+range. A defined parameter is a computed function of fitted parameters
+and does not add a new free coordinate.
+
+```{=latex}
+\Needspace{18\baselineskip}
+```
+
+| Entry | Status | Statistical role | Reason to state |
+|:--|:--|:--|:--|
+| $\lambda_{11}=1$ | Fixed | Factor metric | Marker choice |
+| $\lambda_{21}$ | Free | Target loading | Indicator assignment |
+| $\lambda_{22}=0$ | Fixed | Excluded secondary loading | Content/design restriction |
+| $\lambda_{21}=\lambda_{31}$ | Equality | Shared loading value | Equality on a stated scale |
+| $\theta_{23}=0$ | Fixed | Residual relation excluded | Local measurement assumption |
+| $\phi_{12}$ | Free | Factor association | Correlation permitted |
+| $\theta_{jj}>0$ | Admissibility condition | Positive residual variance | Statistical parameter space |
+| $\lambda_{21}-\lambda_{31}$ | Defined | Loading difference | Derived estimand, not extra freedom |
+
+Fixing one loading to one selects a unit. Fixing a secondary loading to
+zero excludes a relation. They are both constants in software, but only
+the latter ordinarily adds a substantive covariance restriction when
+the former replaces another valid scale normalization.
+
+“Unconstrained” is also relative. A free loading is estimated within a
+model whose other loadings, residual structure, and factor variances
+may be strongly restricted. Its estimate is not model-free evidence
+about that indicator.
+
+## Change one loading restriction
+
+Allow $Y_3$ to load on factor 2 as well:
+
+$$
+Y_{i3}=\nu_3+\lambda_{31}\eta_{i1}
++\lambda_{32}\eta_{i2}+\epsilon_{i3}.
+$$
+
+One formerly zero matrix entry becomes free. The new coefficient affects
+the variance of $Y_3$ and its covariances with all indicators connected
+to either factor. It does not merely repair the covariance of one chosen
+pair. The coefficient's interpretation is conditional on factor 1, just
+as an oblique EFA pattern coefficient was conditional on the other factors.
+
+```{r}
+#| label: fig-cfa-cross
+#| fig-width: 7
+#| fig-height: 4.3
+#| fig-cap: "A single additional loading changes several implied moments. The dashed path is lambda32."
+#| fig-alt: "The six-indicator model adds one dashed arrow from F2 to Y3; all other relations match the marker-scaled base model."
+knitr::include_graphics(pt_measurement_dot(
+  list(F1=paste0("Y",1:3),F2=paste0("Y",4:6)),marker=TRUE,
+  cross=data.frame(factor="F2",item="Y3"),prefix="two-factor-cross-"))
+```
+
+## Change one residual relation instead
+
+Alternatively, retain the original loading matrix but free
+$\theta_{23}=\operatorname{Cov}(\epsilon_2,\epsilon_3)$.
+Then only the $(2,3)$ and $(3,2)$ entries of the residual matrix change.
+This can represent item-specific shared wording, a common task, or
+another source of association outside the two modeled factors.
+Its meaning must be justified; “the software suggested it” is not a
+measurement explanation.
+
+```{r}
+#| label: fig-cfa-residual
+#| fig-width: 7
+#| fig-height: 4.3
+#| fig-cap: "A residual covariance is a different model change from a cross-loading. The dotted relation connects e2 and e3."
+#| fig-alt: "The base six-indicator model adds a covariance between residuals e2 and e3 without adding a factor-to-indicator loading."
+knitr::include_graphics(pt_measurement_dot(
+  list(F1=paste0("Y",1:3),F2=paste0("Y",4:6)),marker=TRUE,
+  residual=data.frame(item1="Y2",item2="Y3"),prefix="two-factor-residual-"))
+```
+
+Both changes add one parameter, but they generally produce different
+sets of implied covariance matrices. Equal df therefore does not imply
+equivalent models. When two modifications improve the same observed
+pair, their consequences for the other pairs help distinguish them.
+Chapter 4 uses this distinction in local diagnosis.
+
+## Equality requires a common metric
+
+The restriction $\lambda_{21}=\lambda_{31}$ states equal raw changes
+in $Y_2$ and $Y_3$ for a one-unit change in their common factor. If
+$Y_3$ is rescaled from points to tens of points, the equivalent restriction
+must be transformed. Repeating the old equality on rescaled data tests
+a different hypothesis.
+
+Equality of loadings is not equality of residual variances, intercepts,
+or item distributions. Equal loadings with unequal residual variances
+allow different precision. Stronger parallel-measurement conditions
+require additional restrictions. A short-form scale cannot be justified
+simply by retaining the largest estimated loadings; content coverage
+and intended score use also change when items are removed.
+
+# Give latent variables a metric
+
+## Marker scaling and fixed-factor scaling
+
+Latent variables have no observed unit until we assign one. Under marker
+scaling, $\lambda_{11}=1$ means that a one-unit change in $\eta_1$
+contributes one unit to $Y_1$ through its loading relation. It does not
+set the factor variance to one or make the marker error-free.
+
+Under fixed-factor scaling, set $\phi_{11}=\phi_{22}=1$ and estimate
+all six target loadings. A factor unit is then one model-standard-deviation
+unit in this single-group CFA. The indicators retain their raw units.
+In `lavaan`, `std.lv=TRUE` requests this scale choice. It is not a command
+to standardize every observed column.
+
+| Quantity | Marker scaling | Fixed-factor scaling |
+|:--|:--|:--|
+| Marker loadings | Fixed at one | Free |
+| Factor variances | Free | Fixed at one |
+| Free target loadings | 4 | 6 |
+| Free factor variance/covariance entries | 3 | 1 |
+| Free residual variances | 6 | 6 |
+| Total free covariance coordinates | 13 | 13 |
+
+One must also choose factor signs. With unit factor variances, changing
+the sign of a factor and every loading on it leaves the covariance
+unchanged. A declared positive orientation for central indicators makes
+reported signs interpretable; a negative factor does not represent a
+different fit merely because its column points the other way.
+
+## Derive the reparameterization
+
+For an invertible diagonal $m\times m$ matrix $\mathbf D$, define
+
+$$
+\boldsymbol\eta_i^*=\mathbf D\boldsymbol\eta_i,
+\qquad
+\boldsymbol\Lambda^*=\boldsymbol\Lambda\mathbf D^{-1},
+\qquad
+\boldsymbol\Phi^*=\mathbf D\boldsymbol\Phi\mathbf D^{\mathsf T}.
+$$
+
+Then
+
+$$
+\boldsymbol\Lambda^*\boldsymbol\Phi^*
+(\boldsymbol\Lambda^*)^{\mathsf T}
+=\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}.
+$$
+
+For positive factor variances, choosing
+$\mathbf D=\operatorname{diag}(\phi_{11}^{-1/2},\phi_{22}^{-1/2})$
+makes the transformed factor variances one. The residual matrix is
+unchanged. If latent means are modeled, transform
+$\boldsymbol\alpha^*=\mathbf D\boldsymbol\alpha$ as well.
+
+Use the following controlled values for hand calculation:
+
+$$
+\boldsymbol\Lambda=
+\begin{bmatrix}1&0\\.8&0\\1.2&0\\0&1\\0&1.1\\0&.9\end{bmatrix},
+\quad
+\boldsymbol\Phi=\begin{bmatrix}4&1.2\\1.2&9\end{bmatrix},
+\quad
+\boldsymbol\Theta=\operatorname{diag}(2,3,4,3,4,5).
+$$
+
+The transformation divides factor 1 by 2 and factor 2 by 3. Accordingly,
+the transformed loading columns multiply by 2 and 3. The covariance
+1.2 becomes a correlation $1.2/(2\times3)=.20$. The transformed
+primary loading of $Y_2$ is 1.6, but its implied variance has not changed.
+
+```{r}
+#| label: tbl-cfa-scale-values
+#| tbl-cap: "Controlled values under two metrics; these are stipulated parameters, not sample estimates."
+pt2_table(data.frame(Item=rownames(L),Marker_loading=c(L[1:3,1],L[4:6,2]),
+  Fixed_factor_loading=c(h$scaled$Lambda[1:3,1],h$scaled$Lambda[4:6,2]),
+  Residual_variance=diag(Theta),Implied_variance=diag(pop$Sigma)))
+```
+
+This is a reparameterization of the same covariance model, not evidence
+that marker and fixed-factor methods estimate different constructs.
+Equivalence can fail if a constraint is not transformed with the metric,
+if a required marker loading is zero, or if a factor variance is on an
+inadmissible boundary. Multigroup means and nonlinear models need
+additional care. A convenient single-group result should not be
+generalized without checking those conditions.
+
+## Changing observed units is a different operation
+
+Latent rescaling leaves the observed variables untouched. Changing an
+indicator from raw points to tens of points changes the numerical record
+itself. Let
+
+$$
+\mathbf y_i^*=\mathbf b+\boldsymbol\Delta\mathbf y_i,
+$$
+
+where $\boldsymbol\Delta$ is a nonsingular diagonal matrix of observed-unit
+conversion factors. The matching model is
+
+$$
+\begin{aligned}
+\boldsymbol\nu^*&=\mathbf b+\boldsymbol\Delta\boldsymbol\nu,
+&\boldsymbol\Lambda^*&=\boldsymbol\Delta\boldsymbol\Lambda,\\
+\boldsymbol\Theta^*&=\boldsymbol\Delta\boldsymbol\Theta
+\boldsymbol\Delta^{\mathsf T},
+&\boldsymbol\Sigma^*&=\boldsymbol\Delta\boldsymbol\Sigma
+\boldsymbol\Delta^{\mathsf T}.
+\end{aligned}
+$$ {#eq-cfa-observed-rescaling}
+
+Thus multiplying one indicator by 10 multiplies its intercept and loading by
+10, its variance and residual variance by 100, and its covariance with an
+unchanged indicator by 10. A fixed shift changes its intercept and mean but
+not its covariance. Nothing is unidentified in this operation: the same
+observed information is expressed in different units, and every affected
+model quantity must change coherently.
+
+Let $\mathbf D_y=\operatorname{diag}(\boldsymbol\Sigma)$ contain the positive
+observed variances. The corresponding correlation model is
+
+$$
+\begin{aligned}
+\mathbf R
+&=\mathbf D_y^{-1/2}\boldsymbol\Sigma\mathbf D_y^{-1/2}\\
+&=\widetilde{\boldsymbol\Lambda}\boldsymbol\Phi
+\widetilde{\boldsymbol\Lambda}^{\mathsf T}
++\widetilde{\boldsymbol\Theta},
+\end{aligned}
+$$ {#eq-cfa-correlation-reparameterization}
+
+where $\widetilde{\boldsymbol\Lambda}=\mathbf D_y^{-1/2}
+\boldsymbol\Lambda$ and $\widetilde{\boldsymbol\Theta}=
+\mathbf D_y^{-1/2}\boldsymbol\Theta\mathbf D_y^{-1/2}$. This standardizes
+the indicators, not the factors. With continuous ML and a consistently
+transformed model, observed-unit rescaling does not change fit. Repeating an
+untransformed numerical equality constraint after changing units, however,
+tests a different model.
+
+## Three kinds of coefficient output
+
+For a loading $\lambda_{ja}$, latent-standardized and fully standardized
+versions are, respectively,
+
+$$
+\lambda_{ja}^{(\mathrm{lv})}
+=\lambda_{ja}\sqrt{\phi_{aa}},
+\qquad
+\lambda_{ja}^{(\mathrm{all})}
+=\lambda_{ja}\frac{\sqrt{\phi_{aa}}}{\sqrt{\sigma_{jj}}}.
+$$
+
+The first expresses a factor change in standard-deviation units while
+retaining the indicator's raw unit. The second standardizes both. In
+our fixed-factor CFA, raw and latent-standardized loadings coincide,
+but fully standardized loadings generally differ.
+
+Standardizing output after fitting does not impose equal indicator
+variances during estimation. Moreover, the uncertainty of a standardized
+coefficient depends on the estimated quantities used in the
+transformation. Dividing a raw standard error by a displayed rounded
+standard deviation is not generally the correct standard error for the
+fully standardized coefficient.
+
+A loading greater than one in raw units is unremarkable. Even a
+standardized pattern coefficient needs to be interpreted in its
+multivariate context; admissibility concerns the full covariance
+decomposition. For a single-loading item with uncorrelated residuals,
+the squared fully standardized loading is its communality. For a
+cross-loading item, use the full quadratic form, not a single square.
+
+# Trace restrictions into implied moments
+
+## Within-factor and between-factor covariance
+
+From the controlled marker-scaled model,
+
+$$
+\begin{aligned}
+\operatorname{Var}(Y_2)&=\lambda_{21}^2\phi_{11}+\theta_{22},\\
+\operatorname{Cov}(Y_2,Y_3)&=\lambda_{21}\lambda_{31}\phi_{11},\\
+\operatorname{Cov}(Y_2,Y_5)&=\lambda_{21}\lambda_{52}\phi_{12},\\
+\operatorname{Cov}(Y_5,Y_6)&=\lambda_{52}\lambda_{62}\phi_{22}.
+\end{aligned}
+$$
+
+The numerical values are $5.56$, $3.84$, $1.056$, and $8.91$.
+Each expression has a reason. $Y_2$'s variance contains common and
+residual variance. $Y_2$ and $Y_3$ share factor 1. $Y_2$ and $Y_5$
+are connected through the factor covariance. There is no residual
+cross-term because the base residual matrix is diagonal.
+
+The diagonal and off-diagonal equations do different work during
+estimation. The covariances inform relations among loadings and factor
+covariances; the variances also constrain residual variances. An
+implausibly large common part may force a residual variance toward zero
+or below it. A Heywood case is therefore a symptom of the whole
+decomposition, not a harmless cosmetic warning.
+
+```{r}
+#| label: tbl-cfa-six-sigma
+#| tbl-cap: "Full implied covariance matrix from the controlled six-indicator model."
+pt2_table(data.frame(Indicator=rownames(pop$Sigma),pop$Sigma,check.names=FALSE))
+```
+
+```r
+Sigma <- Lambda %*% Phi %*% t(Lambda) + Theta
+Sigma[2, 3]
+Sigma[2, 5]
+cov2cor(Sigma)
+```
+
+The final line changes covariance units to correlations; it does not
+re-estimate the model. In a fitted model, compare the implied covariance
+to the sample covariance using matching divisors and variable order.
+
+## What the cross-loading adds
+
+Now add $\lambda_{32}$ to the third indicator's row. Its variance is
+
+$$
+\sigma_{33}=\lambda_{31}^2\phi_{11}
++\lambda_{32}^2\phi_{22}
++2\lambda_{31}\lambda_{32}\phi_{12}+\theta_{33}.
+$$
+
+The covariances with $Y_2$ and $Y_5$ become
+
+$$
+\begin{aligned}
+\sigma_{23}&=\lambda_{21}
+(\lambda_{31}\phi_{11}+\lambda_{32}\phi_{12}),\\
+\sigma_{35}&=\lambda_{52}
+(\lambda_{31}\phi_{12}+\lambda_{32}\phi_{22}).
+\end{aligned}
+$$
+
+If $\lambda_{32}=.25$ while the other controlled parameters stay fixed,
+$\sigma_{23}$ increases by $.8\times.25\times1.2=.24$,
+whereas $\sigma_{35}$ increases by $1.1\times.25\times9=2.475$.
+The unequal changes follow from the pathways and factor variances,
+not a software accident.
+
+The independently generated continuous donor microcase used for
+estimation has precisely this additional .25 population loading,
+$n=500$, and a separately recorded seed. Its file is
+`chapter_03_donor_continuous.csv` beside this chapter.
+It is not an archived ordinal data set and is not Sample B. The base
+six-indicator fit is useful for illustrating parameterization even
+when its adequacy remains a separate question.
+
+## What a residual covariance adds
+
+Instead, in the base model, adding $\theta_{23}=.50$ changes
+$\sigma_{23}$ from 3.84 to 4.34 and leaves all other unique covariance
+entries unchanged when the remaining parameters are held fixed.
+This contrasts sharply with the cross-loading's multi-pair changes.
+
+After refitting, other estimates will generally change too. The
+controlled comparison holds them fixed only to expose the direct
+algebraic consequences of the specification. Do not confuse that
+hand calculation with the total change after an optimizer re-estimates
+every free parameter.
+
+## Means are a separate set of moments
+
+In covariance-only analysis there are $p(p+1)/2$ observed moments.
+Adding a mean structure adds $p$ more:
+
+$$
+u_{\mathrm{cov}}=\frac{p(p+1)}2,
+\qquad
+u_{\mathrm{mean+cov}}=\frac{p(p+1)}2+p.
+$$
+
+If all indicator intercepts are free and latent intercepts are fixed
+to zero, the extra $p$ mean moments are matched by $p$ extra parameters.
+The covariance restrictions and df are unchanged. This is different
+from testing structured mean differences or constraining intercepts
+across groups, topics that will become important later.
+
+Freeing every indicator intercept and every latent intercept at once
+does not identify a latent origin. For any vector $\mathbf c$,
+
+$$
+\boldsymbol\alpha^*=\boldsymbol\alpha+\mathbf c,
+\qquad
+\boldsymbol\nu^*=\boldsymbol\nu-\boldsymbol\Lambda\mathbf c
+$$
+
+produce the same observed means. Location restrictions are needed in
+addition to scale restrictions. Fixing factor variances to one does not
+remove this location ambiguity.
+
+# Can the parameters be recovered?
+
+## Identification is about the parameter-to-moment mapping
+
+After accounting for scale and sign conventions, global identification
+requires that
+
+$$
+\boldsymbol\Sigma(\boldsymbol\vartheta_1)
+=\boldsymbol\Sigma(\boldsymbol\vartheta_2)
+\quad\Longrightarrow\quad
+\boldsymbol\vartheta_1=\boldsymbol\vartheta_2
+$$
+
+for admissible parameter vectors in the declared model. Local
+identification requires uniqueness in a neighborhood. Generic
+identification permits exceptional parameter sets, such as special
+zero loadings, where recoverability fails. For models with means,
+replace the covariance mapping by the joint mean-and-covariance mapping.
+
+Identification is not the existence of an exact solution to every
+sample covariance matrix. An identified overrestricted model usually
+cannot reproduce arbitrary sample moments exactly; estimation finds
+the closest admissible representation under a stated discrepancy.
+Conversely, multiple parameter vectors can reproduce the same moments
+even if an optimizer prints only one of them.
+
+## Count moments and free coordinates
+
+Counting begins by choosing one coherent moment representation. For $p$
+continuous indicators, a covariance matrix supplies $p(p+1)/2$ distinct
+variances and covariances. A correlation matrix supplies only $p(p-1)/2$
+freely varying off-diagonal entries because its $p$ diagonal entries equal
+one. Adding an unrestricted observed mean vector contributes another $p$
+moments.
+
+For six indicators this gives
+
+| Moment representation | Distinct information |
+|:--|--:|
+| Covariances, including variances | $6(7)/2=21$ |
+| Correlations, with unit diagonals fixed | $6(5)/2=15$ |
+| Covariances plus observed means | $21+6=27$ |
+
+In covariance form, the fixed-factor two-factor simple-structure model has
+six loadings, one factor correlation, and six residual variances: $t=13$ and
+$df=21-13=8$. In correlation form, the six unit-diagonal equations determine
+the six residual variances, leaving seven free coordinates and the same
+$df=15-7=8$. Subtracting all 13 covariance-model parameters from 15
+correlations would count standardization twice.
+
+For the marker-scaled six-indicator base model,
+
+$$
+u=\frac{6(7)}2=21,\qquad
+t=4+3+6=13,\qquad df=21-13=8.
+$$
+
+Adding one cross-loading yields $t=14$, $df=7$. Adding one residual
+covariance instead gives the same count but a different model. Adding
+both gives $t=15$, $df=6$. A single independent equality constraint
+on two otherwise free loadings reduces the free-coordinate count by
+one. Merely giving a free parameter a label does not change the count.
+
+| Six-indicator specification | Loading coordinates | Factor covariance coordinates | Residual coordinates | Candidate df |
+|:--|--:|--:|--:|--:|
+| Marker-scaled base | 4 | 3 | 6 | 8 |
+| Fixed-factor base | 6 | 1 | 6 | 8 |
+| Base plus one cross-loading | 5 | 3 | 6 | 7 |
+| Base plus one residual covariance | 4 | 3 | 7 | 7 |
+| Base with one loading equality | 3 | 3 | 6 | 9 |
+
+The count $df=u-t$ is necessary bookkeeping, not sufficient proof.
+The term “observed moments” is preferable to “number of observations”
+here: 21 unique covariance entries are not 21 people. Increasing the
+sample size improves precision under suitable conditions but does not
+create new types of covariance moments or repair structural
+nonidentification.
+
+The same bookkeeping clarifies why a displayed unrestricted EFA loading
+matrix contains more entries than the model has distinguishable coordinates.
+With six indicators and two unit-variance orthogonal factors, there are 12
+raw loading entries and six residual variances. A two-factor orthogonal
+rotation has $2(2-1)/2=1$ continuous degree of freedom and changes the loading
+display without changing its reproduced covariance. The generic dimension is
+
+$$
+t_{\mathrm{EFA}}=12+6-\frac{2(2-1)}2=17,
+\qquad df=21-17=4.
+$$ {#eq-cfa-efa-dimension}
+
+This subtraction counts distinct covariance-model coordinates at regular,
+full-rank parameter points. It does not declare any substantively preferred
+loading to be known, and it does not replace an identification analysis.
+
+## A recoverable block and a counterexample
+
+For a single marker-scaled factor with three indicators and diagonal
+residuals,
+
+$$
+\sigma_{12}=\lambda_2\phi,
+\quad \sigma_{13}=\lambda_3\phi,
+\quad \sigma_{23}=\lambda_2\lambda_3\phi.
+$$
+
+When the relevant covariances are nonzero, these imply
+
+$$
+\phi=\frac{\sigma_{12}\sigma_{13}}{\sigma_{23}},
+\quad \lambda_2=\frac{\sigma_{23}}{\sigma_{13}},
+\quad \lambda_3=\frac{\sigma_{23}}{\sigma_{12}}.
+$$
+
+The diagonal equations then determine residual variances. These
+expressions explain generic recoverability for this simple block,
+subject to admissibility. If a denominator vanishes, the reasoning
+must be revisited; a generic result does not cover every exceptional
+configuration.
+
+```{r}
+#| label: fig-cfa-three-indicator
+#| fig-width: 5.6
+#| fig-height: 3.7
+#| fig-cap: "A marker-scaled three-indicator block. The three off-diagonal covariances can recover the factor variance and two non-marker loadings at regular, nonzero parameter points."
+#| fig-alt: "One factor predicts three indicators, the first loading is fixed to one, and each indicator has a residual."
+knitr::include_graphics(pt_measurement_dot(
+  list(F=paste0("Y",1:3)),correlated=FALSE,marker=TRUE,
+  prefix="three-indicator-"))
+```
+
+Now consider two *orthogonal*, isolated two-indicator factors, with
+unit factor variances. Each block has two free loadings and two residual
+variances but only three covariance moments. Across both blocks there
+are ten available covariance entries and eight free parameters, giving
+a superficially favorable $df=2$. Yet the cross-block covariances are
+all fixed to zero and provide no information to separate the two
+loadings within either block. For one block,
+
+$$
+\sigma_{12}=\lambda_1\lambda_2,
+\quad \theta_{11}=\sigma_{11}-\lambda_1^2,
+\quad \theta_{22}=\sigma_{22}-\lambda_2^2.
+$$
+
+A range of choices for $\lambda_1$ can yield the same moments by
+adjusting $\lambda_2$ and both residual variances, while retaining
+positive variances. The whole-model count did not reveal the local
+deficiency. Additional indicators or justified restrictions can help;
+adding an arbitrary constraint solely to make software run changes the
+measurement model and needs a rationale.
+
+The diagram pair makes the missing information visible. In the isolated
+model, all four cross-block covariances are fixed to zero, so the positive
+whole-model df do not help identify either two-indicator block. Allowing a
+nonzero factor covariance connects the blocks: cross-block moments then
+contain products of loadings from both factors. The connected model is
+generically identified under regular nonzero loadings and
+$\phi_{12}\ne0$; the argument degenerates when that connection is zero.
+
+```{r}
+#| label: fig-cfa-identification-pair
+#| layout-ncol: 2
+#| fig-subcap:
+#|   - "Isolated orthogonal blocks"
+#|   - "Connected correlated blocks"
+#| fig-cap: "Two-indicator blocks can have the same whole-model count but different recoverability because the covariance edge changes which moments carry loading information."
+#| fig-alt: "The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors."
+knitr::include_graphics(c(
+  pt_measurement_dot(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),
+    correlated=FALSE,marker=FALSE,prefix="isolated-two-block-"),
+  pt_measurement_dot(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),
+    correlated=TRUE,marker=FALSE,prefix="connected-two-block-")))
+```
+
+## Structural, weak, and numerical problems
+
+Structural nonidentification is built into the parameter mapping.
+Weak identification describes a formally recoverable model whose
+parameters are poorly distinguished in a particular configuration.
+Small loadings, nearly proportional loading columns, or factor
+correlations close to one can make very different parameter vectors
+produce nearly indistinguishable moments. Numerical difficulty is
+another issue: unsuitable starts or badly scaled variables can impede
+an optimizer even when a well-behaved optimum exists.
+
+```{=latex}
+\Needspace{18\baselineskip}
+```
+
+| Audit | Warning | What it warrants |
+|:--|:--|:--|
+| Moment count | More free coordinates than moments | Reconsider specification |
+| Metric and sign | No normalization or inconsistent orientation | Specify units and signs |
+| Local connections | Isolated insufficient indicator block | Examine block equations |
+| Loading rank | Redundant factor patterns | Examine distinct common directions |
+| Factor covariance | Near singularity | Investigate weak separation |
+| Residual variances | Zero or negative estimates | Inspect admissibility and misspecification |
+| Information/SEs | Singular matrix or unstable large SEs | Check recoverability and numerical behavior |
+| Starts and gradients | Different optima or nonzero gradient | Resolve optimization before interpretation |
+
+A numerical derivative matrix provides a local diagnostic. If
+$\mathbf s(\boldsymbol\vartheta)$ stacks the distinct implied moments,
+its Jacobian is
+$\boldsymbol\Delta=\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$.
+Full column rank at a regular point supports local identification;
+it does not prove global uniqueness or uniform stability throughout
+the parameter space. Students need not derive this matrix to understand
+what the diagnostic adds beyond counting.
+
+The SLE primary fit has numerical Jacobian rank
+`r h$audit$delta_rank` for `r h$audit$delta_columns` free coordinates.
+That is a useful local check of the actual fitted candidate. The
+three blocks also have several pure primary indicators, so the two
+retained cross-loadings do not leave every factor's orientation open
+as in unrestricted EFA.
+
+## Nested, nonnested, and equivalent models
+
+A restricted model is nested in another if every covariance matrix it
+can generate belongs to the larger model's covariance set. Show the
+restrictions that produce that inclusion; a parameter-count comparison
+alone is not enough. The base six-indicator model is nested in its
+cross-loading extension by setting $\lambda_{32}=0$.
+
+Two models can have the same df and different covariance sets, as with
+an alternative indicator assignment. They can also have different-looking
+parameters but identical covariance sets, as with the regular marker
+and fixed-factor reparameterizations. Observational equivalence limits
+what covariance data can distinguish. It does not establish that
+higher-order, bifactor, and correlated-residual models are generally
+equivalent; each such claim requires an exact mapping and conditions.
+
+One deliberately constrained example shows what an exact mapping looks like.
+For two positively correlated first-order factors, fix both second-order
+loadings to one, set $\operatorname{Var}(G)=\phi_{12}$, and set the two
+first-order disturbance variances to $\phi_{11}-\phi_{12}$ and
+$\phi_{22}-\phi_{12}$. When these variances are nonnegative, the second-order
+parameterization reproduces exactly the same $2\times2$ factor covariance
+matrix. Without the two extra scale/equality restrictions, two first-order
+factors do not by themselves identify a second-order factor. Chapter 4 treats
+the substantively more useful three- and four-factor cases.
+
+```{r}
+#| label: fig-cfa-equivalent-pair
+#| fig-width: 7
+#| fig-height: 4.2
+#| fig-cap: "A correlated two-factor model and one constrained second-order reparameterization. The equivalence requires the stated fixed loadings and admissible disturbance variances."
+#| fig-alt: "The left model connects two first-order factors with a covariance. The right model replaces that covariance with one general factor loading one-to-one on each first-order factor."
+knitr::include_graphics(pt_higher_order_pair_file())
+```
+
+These distinctions prepare comparison. They do not yet say which
+candidate is adequate or which restriction the data oppose.
+
+# What estimation does
+
+## Minimize a stated discrepancy
+
+Let $\mathcal P$ be the admissible parameter space and $\mathbf S$
+the sample covariance under a declared divisor. Covariance estimation
+can be written
+
+$$
+\widehat{\boldsymbol\vartheta}
+=\arg\min_{\boldsymbol\vartheta\in\mathcal P}
+F\{\mathbf S,\boldsymbol\Sigma(\boldsymbol\vartheta)\}.
+$$
+
+For normal-theory ML, a conventional covariance discrepancy is
+
+$$
+F_{\mathrm{ML}}
+=\log|\boldsymbol\Sigma(\boldsymbol\vartheta)|
++\operatorname{tr}\{\mathbf S\boldsymbol\Sigma(\boldsymbol\vartheta)^{-1}\}
+-\log|\mathbf S|-p.
+$$
+
+The determinant summarizes multivariate dispersion; the trace term
+compares the sample covariance to the model's inverse-covariance
+weighting. The last two terms depend only on the input matrix and
+dimension. They normalize the discrepancy to zero when
+$\boldsymbol\Sigma=\mathbf S$, because
+$\operatorname{tr}(\mathbf S\mathbf S^{-1})=p$.
+The dimension term is the number of observed variables, not the
+number of indicators plus factors.
+
+At a proper optimum, numerical changes in the free coordinates cannot
+materially lower the objective under the specified constraints.
+That is an optimization statement. It does not imply small absolute
+discrepancy, plausible parameter meaning, or a unique substantive model.
+
+```{r}
+#| label: fig-cfa-estimation
+#| fig-width: 6.6
+#| fig-height: 3.2
+#| fig-cap: "Conceptual estimation geometry. The curve represents a restricted set of moments, not the literal dimension or shape of this CFA."
+#| fig-alt: "Observed moments lie away from a curve of model-implied moments; a dashed arrow points to a selected model point, with a warning that ML is not Euclidean distance."
+pt3_estimation_plot()
+```
+
+## Normality belongs to the likelihood contract
+
+The factor covariance equation follows from linearity, finite second
+moments, and the stated zero covariances. It does not require normality.
+Conventional normal-theory ML standard errors and tests additionally
+use sampling and distributional regularity. Independently distributed
+normal factors and normal residuals give a jointly normal observed
+vector in this linear model. Marginally normal histograms alone do not
+establish multivariate normality or independent sampling.
+
+Sample B consists of 360 complete, independently simulated continuous
+records. There is no silent missing-case removal, imputation, weighting,
+clustering adjustment, or ordinal recoding. The raw indicators retain
+the frozen process-index units. The fitted settings are explicit:
+
+```{=latex}
+\Needspace{18\baselineskip}
+```
+
+```r
+sle <- read.csv("sle_continuous.csv")
+dat <- sle[sle$sample == "B", ]
+items <- c(paste0("P", 1:4), paste0("S", 1:4), paste0("B", 1:4))
+model <- '
+  Planning =~ p1*P1 + p2*P2 + P3 + P4
+  Strategy =~ S1 + S2 + S3 + S4 + P4
+  Belonging =~ B1 + B2 + B3 + B4 + S4
+'
+fit <- lavaan::cfa(model, data = dat[items],
+                   estimator = "ML", likelihood = "normal",
+                   std.lv = TRUE, meanstructure = FALSE,
+                   missing = "listwise", se = "standard",
+                   test = "standard", information = "expected")
+```
+
+The same [single CSV](sle_continuous.csv) used in Chapter 2 supplies B;
+the [Chapter 2 data appendix](chapter_02.qmd#sec-sle-data) gives its
+codebook and sample manifest. The explicit syntax above matches the
+frozen candidate; no saved-model download is needed to run this example.
+The canonical script separately checks the manifest's continuous-data declaration,
+item names and order, sample role, completeness, size, and hashes before
+the call. Numerically coded columns alone are not sufficient evidence
+of a continuous measurement scale.
+
+Categorical indicators are covered elsewhere. Categorical group labels
+and dummy predictors remain available for later multigroup and MIMIC
+models. Later SEM chapters address robust ML inference for nonnormality
+and FIML for missing continuous data under suitable assumptions; neither
+is a categorical-measurement switch.
+
+## Record the covariance divisor
+
+The normal-likelihood convention uses
+
+$$
+\mathbf S_N=\frac1N\sum_{i=1}^N
+(\mathbf y_i-\bar{\mathbf y})(\mathbf y_i-\bar{\mathbf y})^{\mathsf T}
+=\frac{N-1}{N}\mathbf S_{N-1}.
+$$
+
+R's `cov()` uses $N-1$; `lavaan` performs the normal-likelihood
+rescaling internally. Do not pre-rescale raw observations to compensate.
+When working from a covariance matrix rather than raw data, disclose
+the supplied divisor and package rescaling options. The [estimator
+documentation](https://lavaan.ugent.be/tutorial/est.html) distinguishes
+the normal and Wishart conventions explicitly.
+
+For the normal convention, the model statistic uses $N$ times the
+covariance discrepancy. The Wishart convention uses an $N-1$ covariance
+and multiplier. Chapter 2's corrected exploratory statistic is a
+further distinct finite-sample convention. This chapter records the
+normal family without interpreting its model test; Chapter 4 reconstructs
+the values from the fitted object.
+
+## A small mean-structure comparison
+
+The frozen M1-cross has 78 covariance moments, 29 free covariance
+coordinates, and 49 df. Adding twelve free indicator intercepts while
+keeping latent intercepts zero gives 90 moments, 41 free coordinates,
+and the same 49 df. For the stricter M0-simple model the corresponding
+counts are 78/27/51 and 90/39/51.
+
+```{r}
+#| label: tbl-cfa-mean-counts
+#| tbl-cap: "Counts verified against actual fitted parameter tables. The mean extension does not constrain the indicator means."
+audits <- list(pt3_audit(list(fit=h$fit,warnings=h$warnings)),
+  pt3_audit(h$means),pt3_audit(h$simple_means))
+pt2_table(data.frame(Model=c("M1 covariance","M1 free intercepts","M0 free intercepts"),
+  Moments=sapply(audits,function(a)a$moments),
+  Free=sapply(audits,function(a)a$nfree),Df=sapply(audits,function(a)a$df)),digits=0)
+```
+
+The largest difference between the M1 covariance-only and free-intercept
+implied covariance matrices is
+`r format(max(abs(lavaan::fitted(h$means$fit)$cov-h$audit$Sigma)),scientific=TRUE,digits=2)`.
+The estimated free intercepts reproduce the sample means. This verifies
+the intended separation of covariance restrictions from an unrestricted
+mean extension. It does not justify freely estimating latent origins
+without additional constraints.
+
+# Read an estimated model before reading its fit
+
+## Convergence and admissibility first
+
+The optimizer reports convergence for the inherited M1-cross model,
+with no captured fitting warnings. The maximum absolute gradient is
+`r format(h$audit$max_gradient,scientific=TRUE,digits=2)`.
+All residual variances are positive, the factor covariance and implied
+covariance matrices are positive definite, and standard errors are
+available. The smallest information-matrix eigenvalue is positive,
+although its magnitude depends on parameter scaling and is not a
+universal quality index.
+
+```{r}
+#| label: tbl-cfa-audit
+#| tbl-cap: "Selected estimation gates for the actual Sample B primary fit. Passing these gates does not establish adequate fit."
+gate <- h$audit$checks[1:5]
+pt2_table(data.frame(Check=gsub("_"," ",names(gate)),Passed=unname(gate)))
+```
+
+If convergence fails, first inspect the stated model, data, scale, and
+starting values. If convergence succeeds but a variance is negative,
+the solution is improper for this model. Do not proceed directly to
+fit-index interpretation or replace the negative value by zero in a
+report. If an admissible fit has large standard errors or near-perfect
+factor correlations, examine weak separation and sensitivity. Different
+warnings imply different investigations.
+
+These checks are reproducible from `lavInspect()` and the parameter
+table. They are diagnostics at the fitted point; they do not substitute
+for the earlier structural identification reasoning.
+
+## Read loadings in their stated units
+
+```{r}
+#| label: tbl-cfa-loadings
+#| tbl-cap: "Sample B loadings for the frozen M1-cross. Intervals are 95 percent normal-approximation intervals for raw coefficients. Std. all is a point estimate on the fully standardized metric."
+tab <- pe[pe$op=="=~",c("lhs","rhs","est","se","ci.lower","ci.upper","std.all")]
+names(tab) <- c("Factor","Item","Raw","SE","Lower","Upper","Std.all")
+pt2_table(tab)
+```
+
+For P1, a one-standard-deviation increase in Planning corresponds to
+an estimated `r pt2_num(pe$est[1])` process-index-point change through
+the specified loading relation. Its standard error is
+`r pt2_num(pe$se[1])`, and its 95% interval runs from
+`r pt2_num(pe$ci.lower[1])` to `r pt2_num(pe$ci.upper[1])`.
+The fully standardized loading, `r pt2_num(pe$std.all[1])`, expresses
+the same relation relative to P1's model-implied standard deviation.
+Neither magnitude is a causal effect established by this analysis.
+
+P4 and S4 each have two rows because two loadings were frozen as free
+before Sample B was inspected. In this restricted CFA, the secondary
+coefficients are estimated jointly with all other free parameters.
+They need not equal the rotated EFA coefficients from another sample,
+another matrix metric, and a less restricted loading model.
+
+The signs and intervals support reading these as positive conditional
+relations within the specified model. They do not license removing
+other restrictions without evaluation. A precise coefficient can be
+estimated inside a model whose broader covariance representation is
+inadequate.
+
+## Standard errors, intervals, and tests
+
+For a regular interior parameter with null value $\vartheta_0$,
+
+$$
+z=\frac{\widehat\vartheta-\vartheta_0}
+{\operatorname{SE}(\widehat\vartheta)},
+\qquad
+\widehat\vartheta\ \pm\ 1.96\operatorname{SE}(\widehat\vartheta)
+$$
+
+give a conventional asymptotic test and 95% interval under the stated
+ML assumptions. The interval concerns repeated-sample coverage of a
+population parameter under that model. It is not a range containing
+95% of individual factor scores or item responses.
+
+Normal approximations deserve particular caution for boundary variances,
+strongly asymmetric sampling distributions, weak identification, and
+misspecified distributional assumptions. A fixed parameter has no
+sampling standard error as a freely estimated quantity: its printed
+value of one or zero is a specification, not a highly precise discovery.
+Software may print zero SE and omit its $z$ test for that reason.
+
+Statistical significance also differs from measurement importance.
+A small loading can be precisely estimated in a large sample; a
+content-essential loading may be uncertain in a small sample. Deleting
+items solely because $p>.05$ changes the model and the content represented.
+That decision needs more than a significance column.
+
+## Factor relations and residual variance
+
+```{r}
+#| label: tbl-cfa-factor-relations
+#| tbl-cap: "Estimated factor correlations under fixed-factor scaling, with raw-metric intervals. Here the raw factor covariance is itself a correlation."
+fp <- pe[pe$op=="~~" & pe$lhs!=pe$rhs,c("lhs","rhs","est","se","ci.lower","ci.upper")]
+names(fp) <- c("Factor1","Factor2","Correlation","SE","Lower","Upper")
+pt2_table(fp)
+```
+
+All three correlations are positive and distinct from one in the
+reported point solution. A correlation is not the percentage of one
+factor caused by another. It also does not measure the reliability
+of either factor. Later structural models place restrictions on these
+associations; measurement estimation alone does not select their
+direction.
+
+For a single-loading item, the standardized residual variance is
+$\theta_{jj}/\sigma_{jj}$ and the common proportion is its complement.
+For a cross-loading item,
+
+$$
+h_j^2=\frac{\boldsymbol\lambda_j^{\mathsf T}
+\boldsymbol\Phi\boldsymbol\lambda_j}{\sigma_{jj}}.
+$$
+
+The numerator includes cross-products involving factor correlations.
+It is not generally the sum of two squared standardized coefficients.
+Residual variance can include specific stable influences and random
+measurement error; the factor model does not automatically separate
+those components.
+
+## A planned equality test
+
+M3-equal was named in Chapter 2: it constrains the raw Planning loadings
+of P1 and P2 to equality. Let $\mathbf R\boldsymbol\vartheta=\mathbf r$
+represent $q$ independent linear restrictions. The Wald statistic is
+
+$$
+W=(\mathbf R\widehat{\boldsymbol\vartheta}-\mathbf r)^{\mathsf T}
+\left[\mathbf R\widehat{\operatorname{Var}}
+(\widehat{\boldsymbol\vartheta})\mathbf R^{\mathsf T}\right]^{-1}
+(\mathbf R\widehat{\boldsymbol\vartheta}-\mathbf r).
+$$
+
+Under suitable regularity, its reference is $\chi_q^2$. For one
+loading difference, the estimated variance is
+
+$$
+\operatorname{Var}(\widehat\lambda_{\mathrm{P1}}
+-\widehat\lambda_{\mathrm{P2}})
+=\operatorname{Var}(\widehat\lambda_{\mathrm{P1}})
++\operatorname{Var}(\widehat\lambda_{\mathrm{P2}})
+-2\operatorname{Cov}(\widehat\lambda_{\mathrm{P1}},
+\widehat\lambda_{\mathrm{P2}}).
+$$
+
+Ignoring the covariance between estimates can give the wrong test.
+The syntax labels `p1` and `p2` identify the coefficients:
+
+```r
+lavaan::lavTestWald(fit, constraints = "p1 == p2")
+```
+
+Here $W=$ `r pt2_num(h$wald$stat)` on one df, with
+$p$ `r pt2_p(h$wald$p.value)`. Under the declared model and
+normal approximation, the data oppose this particular raw-loading
+equality. This is not a test that M1 is globally adequate, nor a
+test of equality of fully standardized loadings. Chapter 4 compares
+this Wald perspective with restricted-model and likelihood-ratio
+perspectives.
+
+# Build the Chapter 4 handoff record
+
+## Carry the exact candidate, not an assumed baseline
+
+The inherited model has twelve indicators, three correlated factors,
+and two additional loadings. Its fixed-factor covariance ledger is
+
+$$
+u=78,\qquad
+t=14\text{ loadings}+12\text{ residual variances}
++3\text{ factor correlations}=29,\qquad df=49.
+$$
+
+The simpler 27-parameter, 51-df model remains M0-simple, a named rival.
+It is not silently substituted for the inherited model. The all-item
+one-factor rival, the orthogonal restriction, and the raw-loading
+equality retain their Chapter 2 definitions. Models keep their M0--M4
+identifiers across the three chapters; the separate donor models use
+D1--D4, and a later data-developed revision will use an R identifier.
+
+```{r}
+#| label: fig-cfa-handoff
+#| fig-width: 7
+#| fig-height: 5.3
+#| fig-cap: "The exact M1-cross structure passed to Chapter 4, not a redrawn simple-structure substitute."
+#| fig-alt: "Three correlated SLE factors have twelve primary indicator relations and the two frozen additional loadings, P4 on Strategy and S4 on Belonging."
+knitr::include_graphics(pt_measurement_dot(
+  list(Planning=paste0("P",1:4),Strategy=paste0("S",1:4),
+    Belonging=paste0("B",1:4)),correlated=TRUE,marker=FALSE,
+  cross=data.frame(factor=c("Strategy","Belonging"),item=c("P4","S4")),
+  prefix="three-factor-sle-"))
+```
+
+## Save what another analyst needs
+
+```{=latex}
+\Needspace{22\baselineskip}
+```
+
+| Record component | Saved content |
+|:--|:--|
+| Evidence identity | Sample B role, 360 rows, item order, IDs and hashes |
+| Measurement specification | Frozen syntax, item codebook, factors and all rivals |
+| Parameter conventions | Unit factor variances, zero latent location, covariance-only model |
+| Estimation | ML, normal likelihood, expected-information standard errors |
+| Data handling | Complete continuous raw observations; no weights or clustering |
+| Numerical status | Convergence, warnings, gradients, admissibility, local rank |
+| Parameter output | Full free/fixed ledger, estimates, SEs, intervals, standardizations |
+| Fitted moments | Observed $\mathbf S_N$ and exact model-implied covariance |
+| Evaluation fields | Conventional test, df, RMSEA/interval, CFI/TLI, SRMR, log likelihood, AIC/BIC |
+| Reproduction | R and package versions, source hashes, saved fitted object |
+
+The canonical object is
+`chapter_03_chapter_04_handoff.rds`.
+Chapter 4 reads this exact path. Its baseline is the saved `lavaan`
+fit, not a reconstruction from rounded coefficients. A clean-session
+reproduction checks that the candidate hash, coefficients, and settings
+match before this chapter renders.
+
+The numerical marker/fixed-factor comparison also succeeds for both
+records. For the SLE fit, the largest absolute difference in implied
+covariance is
+`r format(max(abs(lavaan::fitted(h$marker$fit)$cov-h$audit$Sigma)),scientific=TRUE,digits=2)`;
+for the six-indicator donor fit it is
+`r format(max(abs(lavaan::fitted(h$donor$fit)$cov-lavaan::fitted(h$donor_marker$fit)$cov)),scientific=TRUE,digits=2)`.
+The small numerical tolerances reflect separate optimization, not a
+theoretical discrepancy between valid scale choices.
+
+Saving evaluation fields is not interpreting them. They are checked for
+availability and matching conventions here so that Chapter 4 can begin
+with an intact record. Sample C has not been analyzed in building this
+handoff.
+
+# Summary and reading bridge
+
+Five equations organize the chapter: the scalar measurement equation,
+the covariance decomposition, the scale transformation, the
+parameter-to-moment identification mapping, and the discrepancy
+minimization. Together they distinguish a proposed structure from a
+recoverable parameterization and a successful numerical estimate.
+
+A disciplined specification audit asks whether words, equations,
+matrices, diagram, and syntax describe the same model. A parameter audit
+then separates free entries, scale normalizations, substantive zeros,
+equalities, and derived quantities. The count of distinct moments minus
+free coordinates is essential but does not replace local-block or
+identification reasoning. Mean models need location conventions as well
+as factor scales.
+
+The Sample B candidate passes the stated estimation and admissibility
+checks. Its parameters can be read with explicit units and conventional
+uncertainty. That is the stopping point: **an identified, converged,
+admissible estimate is necessary for ordinary interpretation, but it is
+not evidence by itself of adequate model fit.**
+
+The technical route follows the CFA specification tradition developed
+in @joreskog1969, @bollen1989, and @brown2006. For software details,
+the [parameter-syntax tutorial](https://lavaan.ugent.be/tutorial/syntax2.html)
+and [output-extraction guide](https://lavaan.ugent.be/tutorial/inspect.html)
+help connect restrictions and fitted-object components. Chapter 4 now
+examines the exact-fit test, fit profile, local residuals, planned
+comparisons, and the conditions under which a revision would need new
+evidence.
+
+# Exercises {.unnumbered}
+
+1. **Foundational -- represent a model.** Write the six-indicator base
+   model in equations, matrices, and syntax. Identify its four free
+   non-marker loadings, two marker constraints, six target zeros, and
+   residual assumptions. Explain why no drawn arrow is causal proof.
+2. **Foundational -- trace a changed relation.** Using the controlled
+   parameter values in Section 4, compute $\sigma_{16}$ and
+   $\sigma_{36}$. Add $\lambda_{32}=.25$ and recompute the affected
+   moments. Contrast adding $\theta_{23}=.50$ instead.
+3. **Foundational -- transform the metric.** For marker-scale factor
+   variances 9 and 4, covariance 1.8, and target loadings
+   $(1,.7,1.1)$ and $(1,.8,1.2)$, obtain the fixed-factor loading matrix
+   and factor correlation. Verify a within-factor and a between-factor
+   covariance before and after transformation.
+4. **Foundational -- count carefully.** Audit the six-indicator base,
+   its one-cross-loading extension, and its loading-equality restriction.
+   Reconstruct the four-factor, sixteen-indicator count
+   $136-(16+16+6)=98$. Then derive $78/(27+k)/(51-k)$ for twelve
+   indicators and $k$ extra free cross-loadings under the stated
+   simple-structure assumptions.
+5. **Foundational -- add means.** Reproduce 90/39/51 for the M0 free-
+   intercept extension and 90/41/49 for M1. Explain why freeing all
+   latent and indicator intercepts together creates a location ambiguity.
+6. **Foundational -- count is not identification.** Construct two
+   distinct admissible loading/residual-variance parameter vectors for
+   a two-indicator unit-variance factor with
+   $\sigma_{11}=\sigma_{22}=1$ and $\sigma_{12}=.4$. Explain how
+   an isolated copy of this block can remain unidentified inside a
+   positive-df whole model.
+7. **Foundational -- read uncertainty.** From the Sample B loading
+   table, interpret P3's raw coefficient, SE, interval, and fully
+   standardized coefficient. Explain why its raw coefficient above
+   one is not an improper solution and why the printed raw SE is not
+   the fully standardized SE.
+8. **Integrative -- audit the contract.** An analyst feeds R's `cov()`
+   matrix into another program, leaves its divisor unspecified, fixes
+   marker loadings to one, and compares its test directly with this
+   chapter's raw-data fit. List the settings and invariances that must
+   be checked before interpreting a numerical difference.
+9. **Integrative -- test a restriction.** Explain the P1/P2 raw-loading
+   equality, write its $\mathbf R$ row, and identify the covariance
+   term required for the variance of the estimated difference. Why
+   does this test not decide global fit or full parallel measurement?
+10. **Integrative -- preserve the handoff.** Prepare a one-page
+    specification-and-estimation record for M1-cross using the saved
+    item order, parameter count, data role, options, and admissibility
+    checks. List the outputs Chapter 4 needs, but do not give a model-
+    adequacy verdict. Explain why Sample C remains unopened at this stage.
+
+# Appendix: Structured means and parcels {.unnumbered}
+
+## Latent location is not identified by naming a factor {.unnumbered}
+
+The mean equation $\boldsymbol\mu=\boldsymbol\nu+
+\boldsymbol\Lambda\boldsymbol\alpha$ contains both indicator
+intercepts and latent intercepts. In a single group, zero latent
+intercepts with free indicator intercepts are a convenient reference
+convention. In multigroup work, some intercept restrictions can anchor
+latent mean differences, but those restrictions carry measurement
+content. A numerical origin does not arise from labelling one group
+“control” or one factor “ability.” Later invariance chapters develop
+the required scale and location links.
+
+The covariance-only model is unaffected by translating every observed
+column by a constant. A structured-mean model need not be. Similarly,
+rescaling a factor requires transforming its loadings, covariance, and
+latent intercept; rescaling an observed variable requires transforming
+its intercept and residual variance as well. An equality imposed after
+only some of these transformations can silently change the hypothesis.
+
+## Parceling changes the observed system {.unnumbered}
+
+Let a vector of parcel scores be $\mathbf z=\mathbf A\mathbf y$,
+where rows of $\mathbf A$ specify item averages or sums. Then
+
+$$
+E(\mathbf z)=\mathbf A\boldsymbol\mu,
+\qquad
+\operatorname{Var}(\mathbf z)
+=\mathbf A\boldsymbol\Sigma\mathbf A^{\mathsf T}.
+$$
+
+If $\mathbf A$ reduces dimension, several different item-level
+covariance patterns can yield the same parcel covariance. Opposing
+secondary loadings or local dependencies may partly cancel within
+averages. A well-fitting parcel model therefore does not establish
+that the item-level restrictions would fit, and its AIC/BIC is not
+directly comparable to an item-level model with different outcomes.
+
+Parceling can be useful under a justified measurement design, but it
+is not a generic normality repair or a route around identification
+and dimensionality questions. Evaluate item structure and preserve
+the meaning of the resulting score before changing the observed
+system. No parcels are used in the SLE course record.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

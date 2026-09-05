@@ -1,0 +1,1821 @@
+---
+title: "Extending the Argument-Based Approach to Quantitative Studies"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-cap: true
+    tbl-cap: true
+    fig-align: center
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+if (knitr::is_latex_output()) {
+  knitr::opts_chunk$set(dev = "cairo_pdf")
+}
+
+draw_workflow <- function() {
+  old <- par(mar = rep(0.2, 4), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 14), ylim = c(0, 8))
+
+  rect(0.15, 4.15, 13.85, 7.60, col = "#EEF5F8", border = "#9BB6C4")
+  rect(0.15, 0.25, 13.85, 3.70, col = "#F1F6EF", border = "#A7BFA2")
+  text(0.38, 7.30, "PHASE 1 - UNDERSTAND AND PLAN | iterate within Stages 1-3",
+       adj = 0, font = 2, cex = 0.69, col = "#244A63")
+  text(0.38, 3.40, "PHASE 2 - PRODUCE AND COMPLETE | iterate within Stages 4-7",
+       adj = 0, font = 2, cex = 0.65, col = "#466B43")
+
+  top_x <- c(0.48, 5.565, 10.65)
+  labels <- c(
+    "Literature\nand problem",
+    "Questions, answers,\nand status",
+    "Align design, measures,\nestimands, evidence,\nand inference",
+    "Produce or acquire\nand document evidence",
+    "Estimate, check,\nand analyse",
+    "Contextualize, justify,\ninterpret, and complete\nbounded answers",
+    "State outcomes\nand synthesize"
+  )
+
+  stage_box <- function(x0, y0, number, label) {
+    rect(x0, y0, x0 + 2.72, y0 + 1.62, col = "white",
+         border = "#344A55", lwd = 1)
+    text(x0 + 0.18, y0 + 1.34, paste0("STAGE ", number), adj = 0,
+         font = 2, cex = 0.60, col = "#203744")
+    text(x0 + 1.36, y0 + 0.66, label, cex = 0.66, col = "#29353B")
+  }
+
+  bottom_x <- c(10.65, 7.26, 3.87, 0.48)
+  for (i in 1:3) stage_box(top_x[i], 4.65, i, labels[i])
+  for (i in 1:4) stage_box(bottom_x[i], 0.75, i + 3, labels[i + 3])
+  for (i in 1:2) {
+    arrows(top_x[i] + 2.74, 5.46, top_x[i + 1] - 0.02, 5.46,
+           length = 0.07, col = "#4F6875")
+  }
+  for (i in 1:3) {
+    arrows(bottom_x[i] - 0.02, 1.56,
+           bottom_x[i + 1] + 2.74, 1.56,
+           length = 0.07, col = "#557052")
+  }
+  arrows(top_x[3] + 1.36, 4.63, top_x[3] + 1.36, 2.39,
+         length = 0.07, col = "#6B6B6B")
+  arrows(11.35, 6.58, 1.20, 6.58, length = 0.07, lty = 2,
+         col = "#7A4B2A")
+  text(6.25, 6.84, "revise and realign before evidence production or acquisition",
+        cex = 0.65, col = "#7A4B2A")
+  arrows(3.20, 0.52, 12.00, 0.52, length = 0.07, lty = 2,
+         col = "#7A4B2A")
+  text(7.60, 0.33, "reanalyse, reinterpret, and recalibrate within Phase 2",
+        cex = 0.65, col = "#7A4B2A")
+}
+
+draw_statistical_strands <- function() {
+  old <- par(mar = rep(0.15, 4), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 20), ylim = c(0, 13.8))
+
+  ink <- "#203744"
+  e_fill <- "#DCEAF3"
+  j_fill <- "#DDEEDB"
+  i_fill <- "#F8EDC7"
+  c_fill <- "#F5D9C8"
+  link <- "#9A5A35"
+
+  rect(0.25, 0.72, 12.55, 13.35, col = "#F5F9FB",
+       border = "#9BB6C4")
+  rect(13.05, 0.72, 19.75, 13.35, col = "#F7FAF6",
+       border = "#A7BFA2")
+  text(0.55, 12.98, "STATISTICAL LAYER", adj = 0, font = 2,
+       cex = 0.78, col = "#244A63")
+  text(0.55, 12.52, "shared E/J core; two estimand-specific strand columns",
+       adj = 0, cex = 0.62, col = "#56656C")
+  text(13.38, 12.98, "SUBSTANTIVE LAYER", adj = 0, font = 2,
+       cex = 0.78, col = "#466B43")
+  text(13.38, 12.52, "one integrated answer", adj = 0,
+       cex = 0.62, col = "#56656C")
+
+  component_box <- function(cx, y0, y1, width, code, label, fill,
+                            code_cex = 0.72, label_cex = 0.61) {
+    rect(cx - width / 2, y0, cx + width / 2, y1,
+         col = fill, border = ink, lwd = 1.05)
+    text(cx, y1 - 0.30, code, font = 2, cex = code_cex, col = ink)
+    text(cx, mean(c(y0, y1)) - 0.17, label, cex = label_cex,
+         col = "#29353B")
+  }
+
+  stat_cx <- 6.30
+  stat_w <- 10.60
+  strand_cx <- c(3.60, 9.00)
+  strand_w <- 5.00
+  sub_cx <- 16.35
+  sub_w <- 5.20
+  rows <- c(E = 10.85, J = 8.60, I = 5.80, C = 2.85)
+
+  component_box(stat_cx, 10.20, 11.50, stat_w, "STAT-E CORE",
+                "Shared assignments, cohort,\nand timing records", e_fill)
+  component_box(stat_cx, 7.95, 9.25, stat_w, "STAT-J CORE",
+                "Shared randomized-design warrant", j_fill)
+  text(stat_cx, 9.70, "+", font = 2, cex = 1.05, col = ink)
+
+  component_box(strand_cx[1], 5.05, 6.55, strand_w,
+                "STRAND 1  |  STAT-I1",
+                "Score estimate, interval,\nchecks, and status", i_fill,
+                code_cex = 0.68, label_cex = 0.59)
+  component_box(strand_cx[2], 5.05, 6.55, strand_w,
+                "STRAND 2  |  STAT-I2",
+                "Completion estimate,\nuncertainty, and checks", i_fill,
+                code_cex = 0.68, label_cex = 0.59)
+  component_box(strand_cx[1], 2.10, 3.60, strand_w, "STAT-C1",
+                "Score input to joint criterion\nwith stated limits", c_fill,
+                label_cex = 0.59)
+  component_box(strand_cx[2], 2.10, 3.60, strand_w, "STAT-C2",
+                "Completion input to joint criterion\nwith stated limits", c_fill,
+                label_cex = 0.59)
+
+  # The shared core feeds both strands; each strand then moves I -> C.
+  arrows(strand_cx[1], 7.90, strand_cx[1], 6.60,
+         length = 0.06, col = ink)
+  arrows(strand_cx[2], 7.90, strand_cx[2], 6.60,
+         length = 0.06, col = ink)
+  arrows(strand_cx[1], 5.00, strand_cx[1], 3.65,
+         length = 0.06, col = ink)
+  arrows(strand_cx[2], 5.00, strand_cx[2], 3.65,
+         length = 0.06, col = ink)
+
+  sub_specs <- list(
+    E = c(10.20, 11.50, "SUB-E", "Situated students, outcomes,\nand setting"),
+    J = c(7.95, 9.25, "SUB-J", "Meaning, implementation,\nand scope"),
+    I = c(5.05, 6.55, "SUB-I", "Integrates both\nstrand results"),
+    C = c(2.10, 3.60, "SUB-C", "Reports whether the joint\ncriterion was met")
+  )
+  sub_fills <- c(E = e_fill, J = j_fill, I = i_fill, C = c_fill)
+  for (nm in names(sub_specs)) {
+    spec <- sub_specs[[nm]]
+    component_box(sub_cx, as.numeric(spec[1]), as.numeric(spec[2]), sub_w,
+                  spec[3], spec[4], sub_fills[[nm]], label_cex = 0.59)
+  }
+  text(sub_cx, 9.70, "+", font = 2, cex = 1.05, col = ink)
+  arrows(sub_cx, 7.90, sub_cx, 6.60, length = 0.06, col = ink)
+  arrows(sub_cx, 5.00, sub_cx, 3.65, length = 0.06, col = ink)
+
+  # Ochre outlines make convergence explicit without running connectors
+  # through either strand. Each paired row maps to one like SUB component.
+  rect(0.92, 4.90, 11.68, 6.70, border = link, lwd = 1.05, lty = 2)
+  rect(0.92, 1.95, 11.68, 3.75, border = link, lwd = 1.05, lty = 2)
+  arrows(11.72, rows["E"], 13.70, rows["E"], length = 0.07,
+         col = link, lwd = 1.10)
+  arrows(11.72, rows["J"], 13.70, rows["J"], length = 0.07,
+         col = link, lwd = 1.10)
+  arrows(11.72, rows["I"], 13.70, rows["I"], length = 0.07,
+         col = link, lwd = 1.10)
+  arrows(11.72, rows["C"], 13.70, rows["C"], length = 0.07,
+         col = link, lwd = 1.10)
+
+  text(10, 0.28,
+       "Each strand adds specific E/J  |  Ochre groups like components  |  One declared question, not an omnibus across questions",
+       cex = 0.58, col = "#56656C")
+}
+```
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**Central question:** How can a reader extend the argument-based approach from
+a simple study to a relatively complex quantitative study with coordinated
+questions whose estimands, evidence, models, and interpretations interact?
+
+**Focal components:** Every question--answer pair retains its own argument with
+linked statistical and substantive layers. To support that reading task, the
+chapter distinguishes multiple question-level arguments from multiple
+statistical strands inside one argument. It then extends the basic six-stage
+construction workflow to seven stages for
+coordinated questions, develops seven quality-evaluation questions, and
+shows how regression can instantiate question-specific estimands.
+
+**Main evidence:** An upgraded hypothetical special-practice study with 320
+randomized participants, three distinct questions, imperfect attendance,
+missing delayed outcomes, section structure, adjustment, and interaction; and a
+compact transfer application to the Deslauriers et al. published study and its
+supporting materials.
+
+**Scope:** Reading quantitative studies remains the approach's **primary use**.
+Quality evaluation is its **secondary use**: it follows and depends on reading
+but is not part of reading's definition. The construction workflow is its
+**auxiliary use** for researchers conducting a study. *How to Read a
+Quantitative Study as an Argument* is
+sufficient for a simple study with one primary question, or with multiple
+independent questions that can be addressed separately. This advanced tutorial
+is optional and is not a prerequisite for Chapters 2--14. It addresses
+relatively complex studies with coordinated questions. Its construction
+workflow and quality-evaluation questions retain those ranked uses. The
+workflow covers much, but not all, of the research process; the evaluation questions
+do not produce a mechanical score; and regression
+does not supply measurement meaning, design support, substantive importance,
+or generalizability by itself. All learner-directed activities follow Section
+9 in the unnumbered Exercises section.
+:::
+
+## Coordinating Question-Specific Arguments in More Complex Studies
+
+### What remains unchanged
+
+The core rule remains:
+
+> Each question--answer pair has one argument with linked layers.
+
+The basic tutorial can therefore be applied more than once when a study has
+several independent questions that can be read separately. The
+advanced treatment becomes useful when questions are coordinated through
+shared estimands, evidence, models, priorities, or synthesis, so that decisions
+and interpretations for one pair can affect another.
+
+Within each statistical or substantive layer, Evidence and Justification
+support Inference, which supports a bounded Claim:
+
+$$
+E + J \longrightarrow I \longrightarrow C.
+$$
+
+The statistical layer addresses what the recorded evidence supports about a
+defined estimand. The substantive layer situates, augments and contextualizes,
+interprets, and bounds that result as an answer about the people, practices, settings, or
+phenomena named in the question.
+
+Complexity does not create permission to merge questions that are owed
+separately reportable answers. If a study separately asks about an average assignment effect,
+variation in that effect, and the relationship between attendance and
+performance, it owes three separately reportable question-facing answers. The
+three question--answer pairs therefore have three arguments. They may share the
+same participants, design records, outcome, and fitted model, but shared support
+does not make their obligations identical.
+
+### What becomes more demanding
+
+Four extensions matter in this chapter.
+
+First, **several questions require coordination**. A primary question may be
+prespecified, a secondary question may ask about effect variation, and an
+exploratory question may arise after evidence production has begun. Such a new
+question starts its own explicitly exploratory argument cycle; it is not added
+retrospectively to a planned cycle. Priorities and analytic status must remain
+visible. Study-level synthesis should integrate question-specific answers
+without turning them into a new unsupported conclusion.
+
+Second, **the evidence-generating process becomes less tidy**. Participants may
+enter through nonprobability recruitment, attend different amounts, miss an
+outcome, or be nested in sections. These features affect what counts as
+evidence, which estimand can be estimated, and how uncertainty should be calculated.
+
+Third, **the three uses remain ranked and distinct**. Reading the arguments is
+the primary use. Quality evaluation is the secondary use because it judges what
+reading first identifies. The construction workflow is the auxiliary use for
+researchers building the support. Stages and evaluation questions are not
+additional argument layers.
+
+Fourth, **regression can express several estimands in one mathematical language**.
+A group indicator can represent a randomized comparison; baseline variables can
+improve precision; an interaction can express effect variation. The equation
+does not supply design, measurement meaning, or substantive importance by
+itself.
+
+### Shared material, question-specific obligations
+
+Suppose two questions use the same delayed score. The score records are shared
+STAT-E. Yet the average-effect question and the effect-variation question use
+those records differently. The latter additionally requires adequate variation
+and overlap in baseline preparation, an interaction specification, and enough
+precision to distinguish meaningful patterns.
+
+Likewise, a common randomization record supports the assignment-effect question
+directly. It does not support a causal effect of attendance, because attendance
+occurs after assignment and is not itself randomized. The role and adequacy of
+support are always question-specific.
+
+The same discipline applies to conclusions. “Assignment improved performance
+on average” does not imply “the improvement was larger for lower-preparation
+students.” An inconclusive interaction is not evidence that effects are equal.
+A positive average effect and uncertain variation can coexist without
+contradiction.
+
+### One question can contain several statistical strands
+
+A different structure arises when several statistical estimands are jointly
+needed for one integrated substantive answer. Each estimand then has a
+**statistical strand** within the pair's one statistical layer:
+
+$$
+STAT\text{-}E_k + STAT\text{-}J_k \longrightarrow STAT\text{-}I_k
+\longrightarrow STAT\text{-}C_k.
+$$
+
+The strands feed one substantive layer and one question-facing answer. An estimand
+counts as a strand when it is subordinate to one prespecified integrated answer
+obligation and is not itself owed or interpreted as a standalone substantive
+conclusion. Separately owed conclusions form separate pairs. Independent
+answerability is a useful diagnostic, but the number of hypotheses,
+coefficients, tests, estimands, tables, or pooled estimates does not decide.
+A hypothesis is a proposition about one or more estimands, not itself an
+estimand. Neither hypothesis count nor estimand count mechanically determines
+the number of pairs or strands.
+Author wording and analytic status are cues to the intended obligations, not
+permission to merge conclusions that the study actually owes separately.
+The display may compress shared support as clarity permits; it cannot compress
+separately owed conclusions into strands.
+
+For a compact illustration, imagine that the upgraded study had asked one
+integrated decision question: **Did assignment meet the prespecified success
+criterion of a positive delayed-performance effect and no completion-rate
+reduction greater than five percentage points?** One
+strand addresses the score effect; the other addresses the completion-rate
+difference and its prespecified non-reduction margin. Nonsignificance or nearly
+equal observed rates alone would not establish non-reduction. The strands share
+an assignment-and-design core but retain estimand-specific evidence,
+justification, inferences, and statistical claims. SUB-I integrates the two
+results, and SUB-C says whether the single success criterion was met while
+preserving both sets of conditions and limitations. The two statistical claims
+must still be reported transparently, but here they are inputs to that one
+decision rather than standalone substantive conclusions. If the study instead
+owed a separate question-facing conclusion for either outcome, it would have
+separate pairs. The formulation is a granularity illustration, not a fourth
+worked question below.
+
+```{r}
+#| label: fig-statistical-strands
+#| fig-cap: "One question-level argument with two statistical strands and one substantive layer."
+#| fig-alt: "A statistical panel has shared Evidence and Justification across its width. Beneath them, a score strand and a completion strand form two columns, each moving from its own Inference to its own bounded statistical Claim. Ochre outlines group the two Inference boxes and the two Claim boxes; short horizontal arrows map each grouped component, as well as the shared Evidence and Justification, to one corresponding component in a single substantive layer. A note says this is one declared integrated question, not an omnibus argument across separate questions."
+#| fig-width: 6.4
+#| fig-height: 4.7
+#| fig-pos: H
+
+draw_statistical_strands()
+```
+
+Parallel strands need not be statistically independent. Their E and J content
+may have a shared core and estimand-specific additions, as the figure shows; a
+common documentary trace can serve both without becoming either component.
+Several estimators, checks, or sensitivity analyses for the same estimand also do
+not create additional strands. Chapters 3 and 4 develop the formal estimand and
+comparison distinctions.
+
+## The Upgraded Special-Practice Study
+
+### The study record
+
+The university now implements the study in four first-year course sections.
+Each section contains 80 consenting students. Within every section, 40 students
+are randomly assigned to Special Practice and 40 to Usual Practice, giving
+320 randomized participants in total.
+
+As in the basic tutorial, *Special Practice* is a neutral name for the
+hypothetical format rather than a conclusion about its quality.
+
+Before assignment, students complete a 0--40 baseline-preparation assessment.
+Both formats contain four scheduled sessions matched in duration and topic
+coverage. Attendance is recorded initially as implementation information, not
+as the focus of a research question. A 0--40 delayed assessment is scheduled
+two weeks after the final session.
+
+Unlike the basic example, not every participant attends most sessions or
+completes the delayed outcome.
+
+```{=latex}
+\Needspace{0.30\textheight}
+```
+
+| Feature | Special Practice | Usual Practice |
+|:--------|--------------------:|---------------:|
+| Assigned students | 160 | 160 |
+| Baseline score, M (SD) | 20.3 (5.6) | 19.9 (5.8) |
+| Attended at least three sessions, n (%) | 118 (73.8%) | 126 (78.8%) |
+| Delayed outcome observed, n (%) | 150 (93.8%) | 150 (93.8%) |
+| Observed delayed score, M (SD) | 27.2 (5.4) | 24.1 (4.6) |
+
+: *Descriptive record for the upgraded special-practice study.* {#tbl-upgraded-record tbl-colwidths="[52,24,24]"}
+
+The two observed-outcome means differ by 3.1 points. That difference describes
+the 300 observed outcomes. It is not automatically the primary answer for all
+320 randomized students because outcome missingness and the planned estimand
+must still be addressed.
+
+### Three question--answer pairs
+
+The study has three explicitly separated questions.
+
+**Primary, prespecified assignment question**
+
+> Among all 320 randomized participants, what was the average effect of
+> assignment to Special rather than Usual Practice on the delayed score?
+
+The estimand is the average assignment effect for all randomized participants.
+The analysis uses the prespecified multiple-imputation and standardization
+procedure described in @sec-advanced-missingness. It adjusts for baseline and
+section while retaining all 320 participants in the population named by the
+estimand. A
+two-point difference was identified prospectively as a potentially important
+benchmark.
+
+The estimated assignment effect is 2.9 points, 95% interval [1.9, 4.0]. The
+report gives a positive average assignment-effect answer under its stated
+conditions. Because the interval includes values just below and above two
+points, the reported answer does not claim that the effect exceeded the
+importance benchmark.
+
+**Secondary, prespecified effect-variation question**
+
+> How did the Special-minus-Usual assignment effect vary with baseline
+> preparation?
+
+The fitted interaction estimates that the assignment effect changes by -0.8
+points for each ten-point higher baseline score, 95% interval [-2.7, 1.1].
+The compatible values include a meaningfully decreasing pattern, little or no
+variation, and an increasing pattern. This analysis uses the same imputed
+datasets and the same 320-person target cohort as the primary analysis. The
+reported answer therefore does not resolve the direction or substantive size
+of effect variation.
+
+**Exploratory attendance question**
+
+After evidence production had begun, the researchers formulated a new
+attendance question. It therefore began a separate, explicitly exploratory
+argument cycle rather than being inserted into the prospectively coordinated
+cycles for Pairs 1 and 2. The new cycle reused attendance, assignment,
+baseline, section, and outcome records, but its question and analytical plan
+were retrospective to those already produced records.
+
+> After accounting for assignment, baseline preparation, and section, how was
+> the number of attended sessions associated with delayed score?
+
+The adjusted association is 0.3 points per additional session, 95% interval
+[-0.4, 0.9] among the 300 students with observed delayed outcomes. Modest
+negative and positive observed-case associations both remain compatible with
+the result, so it does not resolve direction. More importantly,
+attendance was not randomized, and this exploratory analysis does not address
+outcome missingness beyond restricting the analysis to observed cases. Even a
+precise positive association would not automatically estimate the causal effect
+of attending one more session.
+
+### A question-to-argument map
+
+| Pair | Estimand and status | Result | Reported answer and stated bounds |
+|:-----|:------------------|:-------|:---------------|
+| **1. Assignment effect** | Average effect of assignment among all 320 participants; primary and prespecified | 2.9 points, 95% interval [1.9, 4.0] | Positive average assignment effect under the missingness, implementation, and model conditions; exceeding two points remains uncertain |
+| **2. Effect variation** | Change in assignment effect per ten-point higher baseline score among all 320 participants; secondary and prespecified | -0.8 points, 95% interval [-2.7, 1.1] | The result does not resolve the direction or substantive size of effect variation |
+| **3. Attendance association** | Conditional association per additional attended session among 300 observed-outcome cases; exploratory | 0.3 points, 95% interval [-0.4, 0.9] | Modest negative and positive observed-case associations remain compatible; the analysis does not establish a causal effect of attendance |
+
+: *Three question--answer pairs and their distinct arguments.* {#tbl-question-argument-map tbl-colwidths="[18,32,23,27]"}
+
+The three arguments share recruitment, assignment, baseline, attendance, and
+outcome records. They do not share every justification. Random assignment
+supports Pair 1 and the assignment component of Pair 2. It does not randomize
+baseline preparation or attendance. Pair 2 needs interaction-specific support.
+Pair 3 needs an associational interpretation and explicit protection against
+causal wording.
+
+They are three pairs because the study owes a separately reportable,
+question-facing conclusion for each one, not simply because the estimands or
+analytic statuses differ. Independent answerability helps diagnose that
+structure, while the authors' labels help locate the obligations; neither is a
+mechanical counting rule.
+
+### The primary argument across both layers
+
+The primary question can be mapped without repeating the full eight-component
+table from the basic tutorial.
+
+**STAT-E** contains records for all 320 assignments, baseline scores, sections,
+attendance, outcome availability, delayed scores, implementation, and scoring.
+The 20 missing outcomes remain part of the evidence record even though their
+scores are unavailable.
+
+**STAT-J** records the study's offered reasons connecting the within-section
+randomization and all-randomized estimand to baseline and section adjustment,
+the prespecified multiple-imputation procedure, standardization,
+interval-combination method, and planned checks. Its force
+depends on implementation, absence of material interference, measurement
+comparability, and a plausible connection between observed information and
+missing outcomes.
+
+**STAT-I** brings together the 2.9-point standardized estimate, 95% interval
+[1.9, 4.0], the completed missingness stress test reported in
+@sec-advanced-missingness, model checks, confirmatory status, and the two-point
+benchmark. **STAT-C** states a positive average assignment contrast for the
+320-person estimand under those conditions while retaining uncertainty about
+whether the contrast exceeds two points.
+
+Across layers, **SUB-E** situates the records as students in four sections,
+assigned to two matched-time practice formats and assessed on a common delayed
+course measure. **SUB-J** augments and contextualizes the statistical
+justification with the intended educational meaning of the formats and
+assessment, implementation evidence, plausible alternatives, the importance
+benchmark, and limits on population transport.
+
+**SUB-I** interprets the 2.9-point estimate and interval on the 0--40 delayed
+assessment scale. It considers whether that magnitude is important without
+declaring the benchmark crossed. **SUB-C** records the study's participant- and
+implementation-bounded causal answer; Section 6 evaluates whether it is
+supported.
+
+This component map also shows why the observed-case difference of 3.1 and the
+primary estimate of 2.9 are not competing answers. They describe different
+analytical objects. One is a raw comparison among observed outcomes; the other
+addresses the all-randomized estimand through the prespecified adjusted and
+standardized procedure.
+
+### Study-level synthesis
+
+The report gives a study-level synthesis that integrates the three answers
+without erasing their differences:
+
+> Assignment to Special Practice improved delayed-assessment performance on
+> average in this implementation. The study does not establish that the average
+> improvement exceeded two points or that the assignment effect varied with
+> baseline preparation. The observed-case attendance association was
+> inconclusive, and the analysis does not establish that attending an additional
+> session caused better performance.
+
+The synthesis does not invent a fourth quantitative result. If the authors
+wished to claim that Special Practice works specifically by increasing
+attendance, that mechanism claim would require another question and argument.
+
+## Extending Evidence, Measurement, Estimands, and Missingness
+
+### Evidence is produced, not merely available
+
+Evidence is not a neutral table handed to a statistical method. It records who
+or what was observed, how observations were produced, which comparison the
+design created, and which intended cases are absent.
+
+For the upgraded study, STAT-E includes:
+
+- eligibility, consent, section, and assignment records for all 320 students;
+- baseline and delayed assessment scores and their scoring rules;
+- session schedules, delivery, and attendance;
+- the identities and timing of the 20 missing delayed outcomes; and
+- processing and inclusion decisions.
+
+The means and intervals are derived results in STAT-I, not the empirical
+evidence itself. This narrower use of *Evidence* keeps the inferential move
+visible even though everyday writing often calls results “evidence.”
+
+### Population, unit, case, and level
+
+The **target population or target set** contains the entities, settings, or
+occasions to which an intended answer refers. The **sampling frame** is the
+reachable set from which participants can arise. The **analytic records** are
+the cases and observations used by a stated procedure. These sets need not
+coincide.
+
+The direct target cohort for Pair 1 is the 320 consenting participants. The
+study does not use probability sampling from all first-year students. Random
+assignment can support a causal comparison for these participants while wider
+generalization remains uncertain.
+
+The **unit** is the entity about which the question is asked. Here the student
+is the unit of assignment and outcome measurement. Section is a randomization
+block and a contextual grouping. Repeated records for one student remain
+observations on one unit; they are not independent students.
+
+Level matters because a relationship among students does not automatically
+describe sections or institutions. Four sections also provide little direct
+evidence about variation across the larger population of possible sections.
+Including section indicators respects the blocked comparison but does not
+justify a general claim about all course contexts.
+
+### Estimands keep questions distinct
+
+Recall the Chapter 1 contrast: the **estimand** is what the study seeks to
+learn, whereas the **estimate** is the numerical result obtained from observed
+evidence. The advanced point is that an estimand can answer a question directly
+or contribute as one strand of an integrated answer. Defining estimands before
+choosing estimators helps connect substantive questions, design and assumptions,
+and empirical evidence [@lundberg2021].
+
+Pair 1 has an estimand of the average assignment effect for all 320
+participants. Pair 2 has an estimand describing variation in that assignment
+effect with baseline preparation. Pair 3 has an estimand of an observed
+conditional association with attendance. The same outcome
+and regression family neither make these one estimand nor decide the number of
+question--answer pairs.
+
+Variable roles also come from questions. Baseline preparation is a precision
+variable in Pair 1, a moderator in Pair 2, and an adjustment variable in Pair
+3. Attendance is an implementation record for Pair 1 and the focal explanatory
+variable in Pair 3. Its role cannot be inferred merely from its column position
+in a dataset.
+
+| Pair | Evidence and estimand obligation | Main vulnerability | Consequence for the claim |
+|:-----|:-------------------------------|:-------------------|:--------------------------|
+| **Assignment effect** | Preserve all 320 randomized participants in the target set and use baseline, section, implementation, and outcome records appropriately | Twenty delayed outcomes are missing; participation is from one university setting | The answer remains conditional on missingness handling and limited to this implementation and represented participants |
+| **Effect variation** | Retain the randomized contrast while estimating how it changes over the supported baseline range | Interaction form, limited precision, and sparse values near the baseline extremes | Do not claim a subgroup pattern from the negative point estimate |
+| **Attendance association** | Define attendance consistently and preserve its post-assignment timing | Motivation, difficulty, health, and other factors can affect both attendance and score | Report association only; do not inherit the causal support of assignment |
+
+: *Question-specific evidence and estimand obligations.* {#tbl-evidence-target-obligations tbl-colwidths="[18,34,24,24]"}
+
+### Observable measures still require interpretation
+
+Both assessments are directly recorded, but neither is theoretically
+transparent. Their meaning depends on content coverage, administration,
+scoring, reliability, and evidence supporting the intended interpretation
+[@aeraApaNcme2014; @kane2013].
+
+The delayed score is evidence about performance on a defined course assessment.
+It may support a bounded interpretation of delayed learning over the assessed
+content, but it does not measure every kind of knowledge, transfer, motivation,
+or long-term retention. Baseline preparation likewise represents performance
+on a particular instrument, not a complete amount of preparation possessed by
+each student.
+
+Measurement comparability matters across assignment groups and baseline
+levels. If one format teaches test-specific cues unavailable in the other, the
+observed score difference may still be real while its interpretation as broader
+learning becomes weaker. If the baseline scale behaves differently near its
+ends, the interaction may partly reflect measurement rather than genuine
+effect variation.
+
+### Missing outcomes are part of the evidence-generating process {#sec-advanced-missingness}
+
+Ten students in each assigned group lack the delayed outcome. Equal counts do
+not make missingness harmless. The reasons could differ by baseline
+preparation, section, attendance, assignment, or an unobserved outcome.
+
+The primary estimand remains the average assignment effect for all 320
+randomized participants. An analysis of only the 300 observed outcomes estimates
+an observed-case contrast; it does not by itself change the declared estimand.
+Without conditions connecting observed cases to all randomized cases, however,
+that analysis does not identify the declared estimand.
+
+The prespecified missing-outcome procedure uses assignment, section, baseline
+preparation, the assignment-by-baseline relationship, attendance, and available
+administrative information. It is designed to preserve the information needed
+for both the average-effect and effect-variation questions while keeping all
+320 randomized participants represented in those estimands. Attendance helps inform the
+missing outcomes; it neither defines the assignment estimand nor becomes a
+randomized exposure. Later chapters develop the imputation, model-fitting,
+standardization, and uncertainty-combination mechanics.
+
+This procedure assumes that, after accounting for the recorded predictors, the
+unobserved delayed score does not add further information about whether it is
+observed. That condition cannot be proved from observed data. Sensitivity
+analysis should vary plausible departures and carry consequential changes into
+STAT-C and SUB-C.
+
+One completed stress test subtracts four points from each imputed missing
+Special Practice outcome while leaving the Usual Practice imputations
+unchanged. The standardized estimate becomes 2.6 points, 95% interval
+[1.5, 3.7]. This deliberately unfavorable departure retains a positive
+direction while leaving the exact magnitude uncertain and whether the effect
+exceeds the two-point benchmark unresolved.
+The next question is a tipping-point or claim-change question: how different
+would plausible unobserved outcomes or assumptions need to be before the
+bounded answer changed direction, crossed the two-point benchmark, or otherwise
+changed materially? A departure that leaves materially important benefit and
+harm both compatible would require an inconclusive directional answer. That
+judgment depends on the question and meaningful benchmarks, not merely on
+whether an interval crosses zero. Sensitivity is not a competition to find a
+preferred result; it describes what the claim can withstand.
+
+### Documentary trace and status
+
+An argument component names a **logical function**; study-specific content
+fills that function, and documentary traces show where the content can be
+inspected. The components are not filing categories for documents. A shared
+protocol can trace several functions without establishing that every reported
+action was performed correctly or that every offered reason is sound.
+
+A reader uses Chapter 1's four **documentary statuses**--**stated in the
+paper**, **located in related materials**, **implicit but traceable**, and **not
+located**--for the most direct available trace of relevant component content.
+
+A contradiction across sources is a separate flag, not a fifth status. These
+statuses describe what can be inspected; they do not evaluate its quality. A
+protocol can establish that an estimand was prospectively stated without proving
+that it was well chosen, and a complete script can establish computational
+traceability without establishing measurement quality. Conversely, **not
+located** does not prove that an underlying action never occurred.
+
+Consider a deliberately mistaken alternative report, **not the upgraded
+study's actual account**: “Because practice-format assignment was randomized,
+we interpret the attendance association causally.” Reading records that
+offered reason in **STAT-J**, with **stated in the paper** as its documentary
+status. It remains an identifiable justification because that is the function
+the authors give it, even though the reason is mistaken. Evaluation separately
+finds that assignment to a format did not randomize attendance. Sharing the
+assignment record therefore does not supply the same justification for these
+different inferences.
+
+Subject expertise helps readers recognize an offered function and make a
+conventional implicit connection explicit when it is already traceable in the
+record. Recognizing that connection is distinct from deciding whether it is
+correct or sufficient. Expertise cannot supply an undocumented study-specific
+premise, such as assuming that attendance itself was randomized.
+
+A reader-added premise may be named during evaluation only as a proposed
+repair. It does not count as support in the argument currently being read. The
+word **proof** is therefore usually too strong: readers locate component
+content through documentary traces and then evaluate adequacy separately.
+
+## Research Design and the Claims It Can Support
+
+### Representation and comparison are different
+
+Research design makes an observed comparison informative. It supplies
+distinguishable support for representation, comparability, timing,
+measurement, and implementation. A study can be strong in one dimension and
+weak in another [@shadish2002].
+
+**Random sampling** primarily concerns who enters from a population and can
+support population generalization when selection probabilities and
+participation are handled appropriately. **Random assignment** concerns which
+condition participants receive and can support causal comparison within the
+study. One does not imply the other.
+
+The upgraded study uses nonprobability participation and random assignment.
+Its design can support an assignment-effect answer for the 320 participants,
+but extension to other students, courses, institutions, or implementations
+needs additional evidence.
+
+### Design families and intended claims
+
+An **observational study** observes conditions that arise without researcher
+assignment. It can directly support description, association, and prediction.
+Causal interpretation needs additional design-and-assumption support--often
+called **identification support** because it explains why the intended causal
+comparison can be learned from the observed comparison. Regression adjustment
+alone does not create it.
+
+A **randomized experiment** uses chance to assign conditions. Randomization
+supports a causal comparison of assigned conditions when implementation,
+outcome observation, interference, and analysis are handled appropriately.
+
+A **quasi-experiment** uses a threshold, timing change, policy rule, or
+comparison structure to approximate an experiment without random assignment.
+Its causal support comes from design-specific conditions rather than the word
+*quasi* or the presence of regression.
+
+The strongest claim mode follows the question and design, not the complexity of
+the model. Description, association, prediction, and causal comparison can all
+use simple or elaborate analyses.
+
+### Blocking, dependence, and interference
+
+Assignment in the upgraded study occurs separately within four sections, so
+section is a randomization block rather than the unit of assignment. The
+analysis and uncertainty procedure should respect the within-section
+comparison. A generic cluster correction based on only four sections is not an
+automatic substitute; later chapters develop the relevant methods.
+
+Students may interact within sections. **Interference** occurs when one
+student's assigned format affects another student's outcome. Separate sessions
+and monitoring may make material interference less plausible, but peer
+discussion outside sessions could remain. The estimand should name the
+assignment strategy actually implemented; the claim should retain any
+unresolved spillover reservation.
+
+### Assignment is not attendance
+
+Randomization most directly supports the effect of **assignment**. Attendance
+occurs after assignment and can be influenced by motivation, scheduling,
+difficulty, health, or early reactions to the format. Comparing students who
+attend different numbers of sessions generally loses randomization.
+
+The attendance association is still useful descriptively. It can identify an
+implementation pattern, motivate a future attendance intervention, or support
+prediction. It cannot be promoted to the effect of receiving an additional
+session without stronger assumptions and design.
+
+### Analytic status and multiplicity
+
+The primary and secondary questions were specified before outcomes were
+examined; the attendance question is exploratory. These statuses affect how the
+results should be calibrated but do not predetermine whether their answers are
+positive or inconclusive.
+
+Several outcomes, subgroups, interactions, and model variants create multiple
+opportunities to find an interesting result. Multiplicity can be addressed
+through priority, prespecification, adjusted uncertainty where appropriate,
+transparent reporting, and independent confirmation. It cannot be solved by
+reporting only the model that produced the most favourable estimate.
+
+### Inferential conditions belong to particular arguments
+
+Conditions should be linked to the inferential move they support rather than
+recited as one universal checklist.
+
+**Estimand and specification conditions** ask whether the population, contrast,
+scale, functional form, and variable roles match the question. Pair 1 requires
+an all-randomized average assignment estimand; Pair 2 additionally requires a
+defensible scale and form for effect variation.
+
+**Evidence-production conditions** concern recruitment, assignment, timing,
+measurement, implementation, and processing. Within-section randomization
+supports the assigned comparison, but only if the assignment record is
+preserved and the outcome has a comparable meaning across formats.
+
+**Uncertainty conditions** identify the variation represented by the interval.
+The procedure should respect blocked assignment and student-level units. An
+interval can be numerically narrow while referring to the wrong estimand or
+ignoring a dependency created by design.
+
+**Selection and missingness conditions** connect the observed records to the
+declared population. The primary argument needs an explicit reason why its
+missing-outcome procedure can address the all-randomized estimand and a
+sensitivity analysis for plausible departures.
+
+**Analytic-conduct conditions** concern priority, prospectiveness, model
+changes, multiplicity, and reuse of the same evidence. A secondary
+prespecified interaction and an exploratory attendance analysis should not be
+reported as if they had the same evidential status as the primary contrast.
+
+**Checking and sensitivity conditions** ask whether the main answer survives
+plausible alternatives. Diagnostics may reveal poor functional form or
+influential observations, but passing a small set of checks does not certify a
+model as true. The consequence of a material failure is a changed inference or
+claim, not merely an additional appendix figure.
+
+| Design feature | Support supplied | Remaining limitation |
+|:---------------|:-----------------|:----------------------|
+| **Within-section random assignment** | Average causal comparison of assigned formats for participants | Implementation, missing outcomes, interference, and transport |
+| **Nonprobability participation** | Direct evidence about consenting participants | Wider population representation requires additional support |
+| **Baseline measurement** | Precision adjustment and a moderator for a secondary question | It does not identify a causal effect of preparation |
+| **Attendance recording** | Implementation description and an exploratory association | Attendance is post-assignment and not randomized |
+| **Common delayed assessment** | Comparable observed outcome under stated scoring | Score meaning remains bounded to the assessment and conditions |
+| **Prospective priorities** | Distinguishes primary, secondary, and exploratory analyses | Prespecification does not guarantee adequate design or inference |
+
+: *Design support and remaining claim limits in the upgraded study.* {#tbl-design-claim-limits tbl-colwidths="[28,35,37]"}
+
+Statistical analysis can express these design-supported estimands and improve
+precision. It cannot manufacture probability sampling, randomization of
+attendance, absence of interference, comparable measurement, or prospective
+status.
+
+## Extending the Construction Workflow
+
+### A seven-stage extension
+
+The argument components describe what logically supports one answer. A
+**construction-workflow stage** describes an activity used to construct or
+revise that support. Components and stages therefore do different work.
+
+The seven stages below extend Chapter 1's six-stage workflow for studies with
+coordinated questions. The diagram compresses a coordinated set of
+question-level cycles; it does not create one omnibus argument cycle for the
+study. The extension covers much of the question-to-answer research process,
+but, as Chapter 1 notes, it is not a complete research-lifecycle model.
+
+Basic Stages 1--3 remain advanced Stages 1--3, with prospective
+cross-question alignment added to Stage 3. Basic Stages 4--6 remain advanced
+Stages 4--6. New Stage 7 gives every question an explicit outcome and
+synthesizes across those outcomes without merging their arguments.
+
+| Basic six-stage workflow | Advanced seven-stage extension |
+|:-------------------------|:--------------------------------|
+| **1. Review the problem, setting, and relevant literature** | **1. Review literature and the problem** for the coordinated question set |
+| **2. Frame the question and, where useful, a candidate answer** | **2. Frame questions and candidate answers**, priorities, and analytic status |
+| **3. Align design, measurement, estimand, evidence-production or acquisition plan, and inferential plan** | **3. Plan and align prospectively** across questions: design, measurement, estimands, evidence production or acquisition, stopping, inference, checking, uncertainty, and sensitivity |
+| **4. Produce or acquire, and document, empirical and contextual evidence** | **4. Produce or acquire and document** shared and question-specific empirical and contextual evidence |
+| **5. Estimate, check, and analyse** | **5. Estimate or predict, check, conduct sensitivity analysis, and reason statistically** for every question-specific estimand |
+| **6. Contextualize, interpret, and complete the bounded answer** | **6. Contextualize, justify, interpret, and complete** each bounded substantive answer |
+| **New for coordinated questions** | **7. Give every question an explicit outcome and synthesize** across questions |
+
+: *How the basic six-stage workflow extends to seven stages for coordinated questions.* {#tbl-basic-advanced-workflow tbl-colwidths="[43,57]"}
+
+The workflow adapts the iterative character of statistical enquiry emphasized
+by PPDAC and statistics-education guidance [@wild1999; @asa2016gaise].
+Iteration is confined to the phase currently under construction. Phase 1
+Stages 1--3 can iterate before a one-way handoff to Phase 2. Phase 2 Stages
+4--7 can then iterate while evidence is produced, analysed, interpreted, and
+synthesized. Preregistration or another time-stamped plan can strengthen the
+record of prospective decisions, but it does not guarantee that the question,
+design, or analysis is adequate [@nosek2018].
+
+| Phase and stage | Main activity | Application to the upgraded study |
+|:----------------|:--------------|:----------------------------------|
+| **Phase 1 -- 1. Review literature and the problem** | Develop prospective statistical and substantive justification | Examine relevant learning theory and prior evidence about attempted problem solving, feedback, delayed performance, assessment meaning, implementation, and likely moderators |
+| **Phase 1 -- 2. Frame questions and candidate answers** | Specify every question--answer obligation and its priority. Declare separate questions, priorities, and analytic statuses when conclusions will be reported separately; declare one question with jointly necessary estimands only when one integrated conclusion is owed. | In the initial coordinated cycles, declare the primary assignment question, secondary baseline-variation question, two-point benchmark, and candidate positive average effect |
+| **Phase 1 -- 3. Plan and align prospectively across questions** | Specify and align evidence production or acquisition, any stopping rule, estimands, design, measurement, inference, uncertainty, checking, missingness handling, sensitivity, and planned synthesis across pairs | Align the planned Pair 1 and Pair 2 cycles: randomize within section, stop recruitment after 320 participants are randomized without outcome-dependent stopping, measure baseline, define the delayed outcome, retain all participants in the population named by the primary estimand, and plan interaction and sensitivity analyses |
+| **Phase 2 -- 4. Produce or acquire and document evidence** | Produce STAT-E or obtain and designate question-specific analysis records; retain the contextual records needed for SUB-E | Record consent, assignment, delivery, attendance, baseline, outcomes, missingness reasons, and section context |
+| **Phase 2 -- 5. Estimate, check, and analyse** | Develop STAT-I and a provisional STAT-C for each pair | Estimate and check the assignment contrast and interaction; in the later exploratory attendance cycle, analyse the reused records only after separately framing its associational estimand |
+| **Phase 2 -- 6. Contextualize, justify, interpret, and complete each bounded substantive answer** | Complete the substantive reasoning and bounded answer for every pair | Complete the planned average-effect and effect-variation answers and the separate noncausal attendance answer with their distinct estimands, status, uncertainty, and limitations |
+| **Phase 2 -- 7. Give explicit outcomes and synthesize** | Record an explicit outcome for every question, then integrate those outcomes without erasing distinctions | Bring the completed cycles together: record a positive average assignment effect, inconclusive effect variation, and an inconclusive noncausal attendance association before writing the bounded study-level synthesis |
+
+: *The seven-stage extension applied to the upgraded special-practice study.* {#tbl-workflow-application tbl-colwidths="[25,31,44]"}
+
+For each question, Stages 1--6 constitute its own argument-construction cycle.
+The planned Pair 1 and Pair 2 cycles share activities and are aligned in Stage
+3. Once Stage 6 has completed their bounded answers, Stage 7 records their
+outcomes and coordinates the study-level synthesis. The attendance question,
+which arose after Phase 2 had begun, first requires a separate exploratory
+cycle before its answer may enter that synthesis. Stage 7 does not create a
+fourth argument or complete the three arguments a second time.
+
+The Phase 1 anchor for each cycle includes its question and mode, design,
+measurement, estimand, evidence-production or acquisition plan, stopping rule,
+and inferential plan. A prospectively documented candidate answer may be
+contradicted by the results without starting a new cycle. Stage 4 begins when
+evidence production starts or,
+for existing data, when the question-specific analysis records or extract are
+obtained or designated. First access to relevant outcomes or unblinding is a
+separate timing landmark: it may precede, coincide with, or follow that handoff.
+Prospectiveness is always a relation between a decision and the evidence
+relevant to that decision.
+
+@fig-research-workflow emphasizes iteration within each phase and a one-way
+handoff from Phase 1 to Phase 2.
+
+```{r}
+#| label: fig-research-workflow
+#| fig-cap: "A compressed seven-stage view of coordinated question-level cycles, with iteration confined to each phase."
+#| fig-alt: "Stages 1 through 3 run from left to right across Phase 1, with a dashed return arrow from Stage 3 to Stage 1. A solid downward arrow gives the one-way handoff from Stage 3 to Stage 4. Stages 4 through 7 then run from right to left across Phase 2. A dashed arrow from Stage 7 to Stage 4 reopens Phase 2 work only in affected question-level cycles. No arrow returns from Stage 7 or any other Phase 2 stage to Phase 1."
+#| fig-width: 7.4
+#| fig-height: 4.25
+#| fig-pos: H
+
+draw_workflow()
+```
+
+The dashed Stage 7-to-Stage 4 arrow means that synthesis may reveal a need to
+recheck evidence, analysis, or interpretation within Phase 2 of one or more
+affected question-level cycles. It does not send one merged study cycle back
+to Stage 4.
+
+::: {.callout-note title="Argument, cycle, and execution"}
+An **argument** is the logical support for one answer obligation. A **workflow
+cycle** is the documented sequence used to construct that argument. An
+**execution or data attempt** is one operational production or acquisition of
+evidence within the cycle.
+
+After an operational failure, evidence production or acquisition may be
+re-executed within the same cycle only when the Phase 1 anchor--including its
+acquisition plan and stopping rule--is unchanged, the reason is independent of
+the observed answer, and every attempt remains documented. Otherwise, the
+change requires an explicit outcome for the existing cycle and a new or revised
+cycle. Prospective status belongs to particular decisions relative to
+particular evidence; it is not inherited automatically.
+:::
+
+### Disciplined iteration
+
+Iteration is disciplined when it stays within the current phase, responds to a
+documented problem, and changes analytic status or claims transparently.
+
+Suppose a pilot reveals that reminder messages differ across formats and could
+affect attendance. Within Phase 1, before the focal study, the team can return
+from Stage 3 to Stages 1 and 2, clarify what belongs to each format, standardize
+reminders, and realign the coordinated question set within Stage 3.
+
+Suppose instead that one section experiences a scheduling disruption after
+implementation begins. Phase 2 has started, so the team cannot erase the
+disruption or treat the old plan as if implementation had not occurred. It
+should document the disruption in STAT-E, examine a prespecified or clearly
+labelled sensitivity analysis in STAT-I, and narrow the claim if the result
+depends on that section. These actions iterate within Stages 4--7.
+
+If Phase 2 reveals that a Phase 1 question, design, measurement, estimand,
+evidence-production or acquisition plan, stopping rule, or inferential plan
+must change, the same workflow cycle does not return to Phase 1. The team gives
+that cycle an explicit outcome and begins a new or revised argument cycle.
+Records, code, decisions, and other materials from the earlier cycle may be
+reused with their provenance and documentary status intact, but they do not
+automatically retain prospective status in the new cycle.
+
+Applied to the upgraded study, the planned delayed-score pair keeps its own
+bounded answer. If the team comes to prefer a newly introduced outcome after
+evidence production, that outcome requires a separate exploratory pair and
+cycle rather than becoming a replacement primary result. If the planned delayed
+assessment cannot answer the original question, the current attempt is **not answerable as planned**;
+a redesigned study begins a new or revised cycle while
+reusing suitable earlier material transparently.
+
+A within-phase return is not a licence to search until a desired answer
+appears. An apparently post hoc change can retain prospective status only when
+dated records show that it preceded the evidence relevant to that change. A
+question or plan chosen after inspecting existing relevant records is not
+prospective to those records; a plan fixed before genuinely new evidence may be
+prospective for that evidence while remaining explicitly prior-informed. The
+workflow makes within-phase revision and new-cycle replacement visible so both
+can be evaluated.
+
+### One stage can contribute to several components
+
+Stage 4 produces assignment and outcome records for STAT-E, but it also
+produces delivery and setting information needed for SUB-E. Stage 3 develops
+parts of STAT-J through the randomization and analysis plan while developing
+parts of SUB-J through measurement and implementation choices. Stage 6 does
+not manufacture substantive justification after seeing the result; it checks
+how the planned support fits what happened, interprets each result, and
+completes each bounded answer. Stage 7 then brings the completed
+question-level cycles together, gives every question an explicit outcome, and
+synthesizes across them without forming an omnibus argument.
+
+This many-to-many relationship is why workflow cannot replace the argument
+components. The stages describe work; the components describe logical roles in
+the support for a particular answer.
+
+### What readers can and cannot infer from the documented workflow
+
+A reader can usually trace the logical support more confidently than the
+historical workflow. A dated protocol can support the claim that a question,
+estimand, or analysis was prospective. Versioned code and deviation logs can show
+when changes occurred. A Methods section written after analysis cannot by
+itself establish timing.
+
+A documented-workflow trace should therefore use restrained timing
+descriptions:
+
+- **prospectively documented** when a dated record precedes the relevant
+  evidence;
+- **implemented as planned** when study records support correspondence between
+  plan and conduct;
+- **documented deviation** when the change and its timing are reported;
+- **retrospectively described** when the paper gives the decision but not its
+  timing; and
+- **timing not located** when the accessible record does not establish when the
+  decision occurred.
+
+These are workflow-timing descriptions, not the four documentary statuses and
+not quality-evaluation judgments. They prevent a polished narrative from being mistaken for a
+chronological record. They also prevent an absent protocol from being treated
+as proof of poor research. The reader states what can be established from the
+materials; quality evaluation may then conclude **insufficient information to
+judge** for a
+particular quality question when the missing timing matters.
+
+## Extending Quality Evaluation for Coordinated Questions
+
+### Responsibility and use
+
+As Chapter 1 explains, authors have the first responsibility to evaluate and
+document their arguments, while collaborators, supervisors, reviewers,
+editors, and readers independently evaluate them. Researchers can use the
+questions while planning, conducting, and reporting a study; readers and
+reviewers usually work from the accessible paper and related materials.
+
+A judgment under one quality-evaluation question may be **adequate for this
+purpose**, **needs revision**, **insufficient
+information to judge**, or **not applicable**. The output is a reasoned profile,
+not a summed score. One
+decisive weakness can require a claim to be withdrawn even when other features
+are strong.
+
+### The six basic questions plus Cross-question coherence
+
+Chapter 1 introduced six quality-evaluation questions. Coordinated questions
+require one addition. The seven questions can be remembered in four groups
+without renaming them:
+
+- **Alignment:** Question alignment.
+- **Support:** Evidence integrity, Justification adequacy, and Inferential
+  adequacy.
+- **Translation:** Transition fidelity and Claim calibration.
+- **Synthesis:** Cross-question coherence--do the question-specific arguments
+  remain coherent with one another, and is their study-level synthesis
+  warranted?
+
+When one argument contains statistical strands, **Inferential adequacy** asks
+whether the strands jointly support the intended statistical inference;
+this includes their analytic status, multiplicity, dependence, and uncertainty,
+because parallel strands need not be statistically independent.
+The same question also evaluates the reasoning that integrates their results
+within SUB-I; it is not restricted to statistical procedure.
+**Transition fidelity** asks whether SUB-I preserves each strand's result and
+uncertainty; and **Claim calibration** asks whether SUB-C retains the conditions
+and limitations of every contributing STAT-C. Relations among separate
+question--answer pairs belong instead to **Cross-question coherence**.
+
+Suppose a draft conclusion for the upgraded study states:
+
+> Special Practice produced an educationally important improvement,
+> especially for less-prepared students, and greater attendance increased the
+> benefit.
+
+The conclusion combines one supported result with three unsupported extensions:
+importance, effect variation, and attendance causality or mechanism.
+The evaluation profile identifies where the problems begin and what they require
+the writer to change.
+
+| Group and quality-evaluation question | Beginner question | Judgment and required response |
+|:--------------------------------------|:---------------|:-------------------------------|
+| **Alignment -- 1. Question alignment** | Do question, estimand, design, method, and intended answer agree? | **Needs revision.** The primary assignment question is aligned; the attendance sentence changes from association to causality and must be revised |
+| **Support -- 2. Evidence integrity** | What constitutes evidence, how was it produced, and what do missingness, dependence, and processing imply? | **Insufficient information to judge.** Records are largely adequate, but the missingness process is not fully documented, so support for inference to the all-randomized estimand remains conditional on the missingness analysis |
+| **Support -- 3. Justification adequacy** | Do design and statistical conditions support the statistical move, and do measurement and context support the substantive move? | **Needs revision.** Randomization supports assignment, not attendance; assessment meaning and one-setting scope remain bounded |
+| **Support -- 4. Inferential adequacy** | Do statistical procedure, uncertainty, checks, sensitivity, multiplicity, and substantive reasoning support the inferences within both layers? | **Needs revision.** The primary interval supports a positive effect but does not establish an effect above two points; the compatible interaction and attendance patterns do not resolve their directions |
+| **Translation -- 5. Transition fidelity** | Are magnitude, uncertainty, status, and reservations retained across layers? | **Needs revision.** The draft loses uncertainty and turns secondary point estimates into definite substantive patterns |
+| **Translation -- 6. Claim calibration** | Are claims no stronger than evidence, design, uncertainty, alternatives, and scope permit? | **Needs revision.** Replace “educationally important” with uncertainty about whether the effect exceeds the benchmark; remove subgroup and attendance causal claims |
+| **Synthesis -- 7. Cross-question coherence** | Are distinct estimands and outcomes preserved, and is synthesis transparent? | **Needs revision.** Keep the positive primary answer beside two inconclusive answers rather than making all three positive |
+
+: *Seven quality-evaluation questions applied to an overstrong synthesis.* {#tbl-quality-evaluation tbl-colwidths="[24,35,41]"}
+
+The repaired synthesis is:
+
+> Assignment to Special Practice improved mean delayed-assessment
+> performance for these participants under the stated conditions. Whether the
+> effect exceeded two points or varied with baseline preparation remains
+> uncertain. Among observed-outcome cases, the attendance association was
+> inconclusive; the exploratory analysis does not identify whether attending
+> more sessions caused better performance.
+
+Keep four outputs distinct. Reading records each **documentary status** and the
+authors' **reported answer**. Each quality question produces a judgment such as
+adequate for this purpose, needs revision, insufficient information to judge, or not
+applicable.
+Evaluation then states the **supported bounded answer** and one conclusion for
+each question--answer pair. The study-level synthesis is evaluated separately
+under Cross-question coherence.
+
+For the three correctly bounded pairs in the question map, the supported
+answers match what was reported, so each is **supported as stated**. The causal
+attendance clause in the overstrong synthesis creates a different implied pair;
+because the accessible design provides no defensible causal attendance answer,
+that implied pair is **not supported**. The synthesis itself **requires
+revision** under Cross-question coherence; it does not receive one of the four
+pair-level conclusions. **Not assessable from the accessible record** remains
+available when the record is insufficient to decide a pair-level conclusion.
+
+No total score is needed. The evaluation changes the answer directly without
+turning documentary presence into a quality judgment.
+
+### Locate the originating problem, then trace its consequences
+
+Do not count one weakness several times merely because it affects several parts
+of an argument. Locate the originating problem under the question whose primary
+object contains it, then trace its consequences. Here the attendance mechanism
+first fails Question alignment because it changes an associational estimand into
+a causal one, and it fails Justification adequacy because attendance was not
+randomized. The unsupported move then propagates to Transition fidelity, Claim
+calibration, and Cross-question coherence. Those later questions show what the
+final wording and synthesis must repair.
+
+Cross-question coherence is normally not applicable to a genuinely
+one-question study. If a conclusion introduces an unasked subgroup, mechanism,
+or prediction claim, however, the study now contains another implied
+question--answer pair that must be separated and evaluated. In a coordinated
+study, Cross-question coherence tracks priorities, shared evidence,
+multiplicity, tensions, and synthesis across those distinct pairs.
+
+## How Regression-Based Methods Develop and Instantiate the Approach
+
+Here **instantiate** means *put selected parts of the approach into practice*.
+Regression can express a declared comparison, help estimate its estimand,
+quantify uncertainty, organize checking, and support a bounded statistical
+claim. It does not define the research question or estimand and does not replace
+the full argument.
+
+### From a two-group comparison to adjustment
+
+Let $Y$ be delayed score and $Z$ indicate Special Practice assignment.
+A simple two-group regression is:
+
+$$
+E(Y\mid Z)=\beta_0+\beta_1 Z.
+$$
+
+Here $\beta_0$ represents the Usual Practice mean and $\beta_1$ represents
+the Special-minus-Usual mean difference for the analysed records. This is
+the same comparison that can be calculated directly from two group means.
+Regression provides a common language; it does not create a new question.
+
+For the primary analysis, baseline preparation $X$ and section indicators
+can improve precision and respect blocked assignment:
+
+$$
+E(Y\mid Z,X,S)=
+\beta_0+\beta_1 Z+\beta_2(X-20)+\gamma_S.
+$$
+
+The reported primary result is not simply whichever coefficient appears in the
+output. Regression standardization averages fitted assignment comparisons over
+the target group. In this additive linear model it reproduces the constant
+assignment coefficient; interactions or nonlinear models can make the averaged
+comparison differ, and neither is the crude 3.1-point observed-case difference.
+
+### An interaction represents a different question
+
+The secondary model adds an assignment-by-baseline product:
+
+$$
+E(Y\mid Z,X,S)=
+\beta_0+\beta_1 Z+\beta_2(X-20)+
+\beta_3 Z\{(X-20)/10\}+\gamma_S.
+$$
+
+Now $\beta_3$ represents how the assignment contrast changes per ten-point
+higher baseline score under the specified scale and functional form. It does
+not estimate the causal effect of baseline preparation. It also does not prove
+that effect variation is absent when its interval includes zero.
+
+Interaction is scale- and specification-dependent. A pattern on a mean-score
+scale can differ from a pattern on a probability or odds scale. Interpretation
+should stay within the supported baseline range and retain uncertainty.
+
+### Attendance uses the same language with different support
+
+A regression for Pair 3 includes attendance alongside assignment, baseline, and
+section to estimate a conditional attendance association among the 300
+observed-outcome cases. Attendance occurs after assignment. Conditioning on it
+can introduce post-assignment selection bias and can also change the
+interpretation of the assignment coefficient [@elwert2014]. Randomization
+supports the unconditioned or appropriately standardized assignment comparison;
+it does not automatically support either coefficient in an
+attendance-conditioned model.
+
+The regression is therefore used only for an exploratory association argument.
+It does not estimate a causal effect of attendance. Claim mode comes from the
+question and design, not the appearance of regression.
+
+| Regression move | Question-level role | Result in the upgraded study | What remains outside regression |
+|:----------------|:--------------------|:-----------------------------|:--------------------------------|
+| **Two-group indicator** | Expresses the assigned-format comparison | Observed-outcome difference of 3.1 points | Missing-outcome estimand and wider scope |
+| **Baseline and section adjustment** | Improves precision and respects blocked assignment while estimating the average estimand through standardization | Primary effect 2.9, 95% interval [1.9, 4.0] | Measurement meaning, missingness plausibility, implementation, and transport |
+| **Assignment-by-baseline interaction** | Expresses effect variation over the baseline scale | -0.8 per ten points, 95% interval [-2.7, 1.1] | Adequacy of the moderator measure, functional form, and substantive meaning |
+| **Post-assignment attendance association** | Expresses an observed-case conditional association | 0.3 per session, 95% interval [-0.4, 0.9] | Causal effect of attendance, missing outcomes, and unmeasured reasons for participation |
+
+: *How regression instantiates distinct parts of three arguments.* {#tbl-regression-instantiation tbl-colwidths="[22,30,25,23]"}
+
+### Where regression enters the statistical layer
+
+Regression implements different parts of the statistical reasoning, but it
+does not create the study's empirical evidence:
+
+- **STAT-E is the input.** The outcome, assignment, baseline, section,
+  attendance, missingness, and processing records must exist before the model is
+  fitted. The analysis must keep exclusions and transformations visible rather
+  than treating model-ready data as the original evidence.
+- In **STAT-J**, the model and estimator help connect a declared estimand to the
+  records through choices about functional form, adjustment, dependence,
+  missingness, uncertainty, and checking when the associated warrant is stated
+  or implicit but traceable. A fitted model does not show that those choices or
+  their conditions are adequate.
+- In **STAT-I**, fitting, checking, and sensitivity analysis produce estimates,
+  intervals, diagnostics, and comparisons that must be reasoned about for the
+  declared estimand.
+- In **STAT-C**, the study states its statistical conclusion about magnitude,
+  direction, uncertainty, and conditions; evaluation later judges its
+  calibration.
+
+The substantive layer still has to situate the evidence, augment and
+contextualize the statistical justification with reasons about measurement and
+design relevance, interpret magnitude, consider alternatives, and state the
+substantive answer with its bounds. Quality evaluation is a separate task.
+
+Regression cannot supply by itself:
+
+- population representation;
+- measurement validity;
+- causal identification;
+- a plausible missingness condition;
+- implementation fidelity;
+- practical or theoretical importance;
+- mechanism; or
+- transport to another setting.
+
+These are not afterthoughts called “limitations.” They help determine whether
+the coefficient answers the question.
+
+### Checking, sensitivity, and claim revision
+
+Regression makes several kinds of checking possible, but their role must remain
+bounded.
+
+A residual display can reveal tension with a linear mean pattern or constant
+spread. An influence analysis can show that an estimate depends heavily on a
+few observations. Comparing adjusted and unadjusted estimates can reveal how
+the chosen specification changes the estimate or precision, or whether the
+fitted procedure addresses a quantity different from the declared estimand.
+None of these checks proves that the model is true or that unmeasured problems
+are absent.
+
+For Pair 1, useful checks include whether the baseline relationship is
+reasonably represented over the observed range, whether section-specific
+contrasts point in compatible directions, and whether the standardized result
+depends strongly on the missingness procedure. A serious failure should enter
+STAT-I and change STAT-C.
+
+For Pair 2, plotting estimated contrasts over supported baseline values is more
+informative than announcing one interaction coefficient. Sparse data near the
+scale ends and alternative nonlinear forms can make an apparent subgroup
+pattern unstable. Because the interval includes materially decreasing,
+negligible, and increasing patterns, the reported answer remains inconclusive;
+width alone does not determine that conclusion. Exploratory alternatives should
+not be used to search for a preferred threshold.
+
+For Pair 3, no residual check can remove unmeasured reasons for attendance.
+Sensitivity can show how large an omitted association would need to be to
+change the estimate, but the result remains observational. Checking improves
+calibration; it does not upgrade design.
+
+This is why model checking belongs within inference rather than in a detached
+technical appendix. If a check matters, its consequence should be visible in
+the statistical claim and carried through the substantive layer.
+
+### Continuity with later chapters
+
+An intercept-only model represents a mean. A group indicator represents a mean
+difference. Continuous variables express slopes or curves. Additional variables
+define conditional or standardized comparisons, and product terms express
+variation in comparisons. Later chapters develop these methods in detail.
+
+The central discipline does not change: begin with a question, declare the
+estimand, preserve the design, make uncertainty and checking visible, interpret
+through the substantive layer, and end with a bounded answer, which may be
+inconclusive.
+
+## Transferring the Approach to a Published Study
+
+### The study and its materials
+
+Deslauriers and colleagues compared active and passive instruction in two
+large-enrolment introductory physics courses [@deslauriers2019]. The
+[open-access paper](https://doi.org/10.1073/pnas.1821936116) and
+[supporting appendix](https://www.pnas.org/doi/suppl/10.1073/pnas.1821936116/suppl_file/pnas.1821936116.sapp.pdf)
+provide a compact opportunity to transfer the approach from a designed
+hypothetical record to actual research reporting.
+
+The intervention occurred during two consecutive class meetings. Students were
+randomly assigned to two groups. In the first meeting, one group received
+active instruction on static equilibrium while the other received a passive
+lecture. In the second meeting, the instructional conditions were reversed for
+the fluids topic. The instructional condition therefore crossed over within two
+fixed group--instructor--room combinations. The study used both random
+assignment to group and a crossover of instructional condition.
+
+The groups received identical content and handouts. In the active condition,
+students attempted problems in small groups before receiving complete
+solutions. In the passive condition, the instructor presented the same
+material and solutions. Of 157 enrolled students, 149 participated; eight opted
+out or did not complete the study.
+
+After each class, students completed:
+
+- a 12-item test of learning (TOL); and
+- four feeling-of-learning (FOL) items, analysed using both a designated primary
+  item and a principal-component-weighted composite of all four.
+
+The tests were written from learning objectives by an author who did not see
+the course materials, and instructors did not see the tests. These design
+details contribute to measurement and comparison justification.
+
+### Two focal question--answer pairs
+
+The paper contains at least two focal pairs:
+
+1. What effect did active rather than passive instruction have on measured
+   learning?
+2. What effect did active rather than passive instruction have on students'
+   feeling of learning?
+
+The adjusted standardized regression results were:
+
+- active instruction was associated with a **0.46 standard-deviation higher**
+  TOL score than passive instruction; and
+- active instruction was associated with a **0.56 standard-deviation lower**
+  FOL score than passive instruction.
+
+For each outcome, the reported test used zero as the null target value for the
+adjusted active-minus-passive standardized contrast and had
+$p<.001$. These tests belong in STAT-I beside their respective 0.46- and
+-0.56-SD estimates. As Chapter 1's numerical-result safeguard emphasizes, a
+$p$-value alone supplies neither direction, magnitude, nor precision; an omnibus test might
+not even supply direction. Chapter 3 develops the calculation and fuller
+interpretation of tests, intervals, and inconclusive results. The point
+estimates changed little when student covariates were removed or student fixed
+effects were added. The paper also considered peer effects and provided study
+materials in its supporting appendix.
+
+The two results do not form one answer. They answer different questions with
+different outcomes and measurement meanings. Their study-level synthesis is
+that active instruction improved performance on the immediate tests while
+students felt that they learned less.
+
+### Tracing the supporting record
+
+| Pair and component | Documentary trace | Documentary status | Component content located |
+|:-------------------|:------------------|:-------------------|:--------------------------|
+| **TOL -- STAT-E** | Methods, assignment description, crossover table, participation information, 12-item tests | Stated in the paper; test material located in related materials | Group assignment, crossover, participation, and immediate test records; adjusted-model analytic N after missing pretests is not located in the compact result table |
+| **TOL -- STAT-J** | Design description, model specification, robustness descriptions, supplement | Stated in the paper; additional checks located in related materials | Randomized crossover warrant, adjustment strategy, and alternative specifications |
+| **TOL -- STAT-I** | Regression Table 3 and robustness descriptions | Stated in the paper | Standardized 0.46 active-minus-passive estimate, test of a zero adjusted difference with *p* < .001, and stability across selected specifications |
+| **TOL -- STAT-C** | Results text, Table 3, and Figure 2 | Stated in the paper | Reported positive adjusted comparison for immediate test performance |
+| **TOL -- SUB-E/J/I/C** | Learning objectives, course-material-blinded test preparation, matched content, Discussion | Stated in the paper; located in related materials (supplement) | Immediate topic-specific performance interpretation, instructional context, and reported scope |
+| **FOL -- STAT-E** | Four survey items, response scale, assignment and crossover records | Stated in the paper; item detail located in related materials | Immediate self-reported perceptions after each class |
+| **FOL -- STAT-J** | Composite description, model specification, and designated-item analysis | Stated in the paper | Composite warrant, adjustment strategy, and alternative item analysis |
+| **FOL -- STAT-I** | Regression Table 3 and designated-item analysis | Stated in the paper | Standardized -0.56 active-minus-passive estimate, test of a zero adjusted difference with *p* < .001, and consistency with the designated item |
+| **FOL -- STAT-C** | Results text, Table 3, and Figure 2 | Stated in the paper | Reported negative adjusted comparison for immediate feeling of learning |
+| **FOL -- SUB-E/J/I/C** | Survey wording, discussion of fluency and metacognition, interviews | Stated in the paper; interview detail located in related materials | Immediate perceived-learning interpretation and proposed mechanism context |
+| **Cross-question synthesis** | Abstract, Results, Discussion, figures | Stated in the paper | Higher measured performance and lower perceived learning are reported as distinct outcomes |
+| **Transport and mechanism context** | Discussion, interviews, semester intervention, supporting literature | Stated in the paper; further material located in related materials | Proposed cognitive-effort explanation and discussion of possible extension beyond the two class meetings |
+
+: *Documentary traceability for two arguments in a published randomized study.* {#tbl-published-trace tbl-colwidths="[21,27,21,31]"}
+
+### What is strongly supported
+
+Random assignment, the instructional-condition crossover within fixed
+group--instructor--room combinations, matched content, and common timing provide
+substantial support for comparing active with passive instruction in the
+implemented classes. The different directions for TOL and FOL are not a
+contradiction because the outcomes answer different questions.
+
+The crossover also creates obligations. Each student experienced two ordered
+class meetings on different topics, so readers should examine topic, period,
+instructional order, and possible carryover. Groups, instructors, and rooms
+remained fixed rather than being separately crossed. The randomized group
+assignment, instructional-condition crossover, and relevant indicators reduce
+some concerns, but they do not make those design conditions disappear.
+
+```{=latex}
+\Needspace{0.10\textheight}
+```
+
+The paper's use of student background measures, instructor and topic indicators,
+alternative specifications, and peer-effect discussion adds statistical
+justification. Course-material-blinded test preparation by a coauthor and the
+supplied materials make parts of the measurement support inspectable.
+
+### Where the answer should stop
+
+The direct study population consists of students in two Harvard introductory
+physics courses. The intervention lasted two class meetings, and the outcomes
+were measured immediately. The TOL therefore supports a bounded claim about
+short-term performance on topic-specific tests, not durable learning across
+disciplines. FOL is a self-reported perception measure, not learning itself.
+
+Under the crossover's topic, period, order, and carryover conditions, the
+randomized comparisons support effects of assigned instructional mode on TOL
+and FOL. They do not by themselves establish that increased cognitive effort
+caused the difference, that novice metacognition is the unique mechanism, or
+that the same effects will occur in every course. The interviews, literature,
+and later semester intervention provide relevant evidence, but those mechanism
+and transport claims require their own arguments.
+
+A calibrated synthesis is:
+
+> In two introductory physics courses, active rather than passive instruction
+> increased immediate topic-specific test performance while reducing students'
+> immediate reported feeling of learning under the implemented crossover
+> conditions. The study does not by itself establish long-term learning,
+> a unique psychological mechanism, or effects in other populations and
+> disciplines.
+
+This transfer example illustrates why the accessible record must be read by
+logical function rather than paper section. It also shows why one paper can
+contain several related but distinct arguments. For the bounded TOL and FOL
+answers stated above, the supported answers match the reported answers, so the
+pair-level conclusions are **supported as stated**. Stronger claims about a
+unique mechanism, durable learning, or all disciplines are **not supported** as
+answers to those additional implied questions by the two focal randomized
+comparisons alone.
+
+{{< pagebreak >}}
+
+## Summary and Reading Bridge
+
+### What the advanced unit adds
+
+A relatively complex study may coordinate several questions without collapsing
+them into one argument. Each question--answer pair keeps its own estimand,
+support, analytic status, reported answer with its bounds, and question-level
+construction cycle. When several estimands are jointly necessary for one
+integrated answer, they can instead form statistical strands inside that one
+argument. The seven-stage extension adds prospective cross-question alignment to
+Stage 3 and a new Stage 7 that brings completed cycles together for explicit
+question outcomes and study-level synthesis. The seventh
+quality-evaluation question checks the coherence of that synthesis. Regression
+can instantiate selected comparisons and
+inferential moves, but the complete reading must still trace design,
+measurement, context, uncertainty, and scope.
+
+### Further extension for latent-variable questions
+
+Observable scores already require measurement reasoning. When a question
+contains a latent variable or construct, the statistical part of its one
+question-level argument may be elaborated into linked measurement and
+structural layers rather than retained as one undifferentiated statistical
+layer.
+
+A **measurement layer** addresses what observed indicators support about a
+latent variable, score, or classification. A **structural layer** addresses
+relationships among latent variables or between latent and observed variables.
+Each layer can contain Evidence, Justification, Inference, and bounded Claim.
+
+Both layers elaborate the statistical layer and then connect to the substantive
+layer. This remains one argument for one question--answer pair, not separate
+measurement and structural arguments. Parallel component labels do not imply
+that every cross-layer operation is identical. The full architecture will be
+developed in the book's latent-variable part.
+
+\Needspace{0.55\textheight}
+
+### Intellectual and practical reading bridge
+
+The approach is a tutorial synthesis:
+
+- Toulmin emphasizes evidence, warrants, qualifications, and reservations
+  [@toulmin2003].
+- LeMire offers a narrower statistical argumentation precedent
+  [@lemire2010].
+- Kane and the testing standards organize support for score interpretations
+  and uses [@kane2013; @aeraApaNcme2014].
+- Estimand-first reasoning connects theoretical questions to estimands,
+  identification, and evidence [@lundberg2021].
+- PPDAC and GAISE emphasize iterative statistical enquiry, context, real data,
+  and conceptual understanding [@wild1999; @asa2016gaise].
+- Design principles explain why representation, assignment, measurement,
+  implementation, and transport bound claims [@shadish2002].
+- Preregistration and reporting standards can strengthen prospective
+  transparency and traceability without guaranteeing validity
+  [@nosek2018; @appelbaum2018].
+
+The approach is not offered as a complete new theory of inference. Its
+contribution is pedagogical integration: one argument for every
+question--answer pair, linked layers, a two-phase construction workflow with
+within-phase iteration, and quality-evaluation questions that lead directly to
+calibrated answers.
+
+{{< pagebreak >}}
+
+\Needspace{8\baselineskip}\phantomsection
+
+## Exercises {.unnumbered}
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E01 -->
+### Exercise 1: Separate the questions (Foundational) {.unnumbered #ex-ch01a-01}
+
+A study asks whether a mentoring program:
+
+1. changes average end-of-year score;
+2. works differently for students with different baseline scores;
+3. improves attendance; and
+4. predicts which students will leave the course.
+
+For each question, state:
+
+- its intended claim mode;
+- a plausible estimand;
+- whether random assignment to mentoring directly supports the answer; and
+- why it needs a distinct argument.
+
+<!-- END EX01-01 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E02 -->
+### Exercise 2: Identify shared and question-specific support (Foundational) {.unnumbered #ex-ch01a-02}
+
+For the upgraded special-practice study, classify the following as shared
+across all three arguments, shared across only Pairs 1 and 2, or primarily
+question-specific:
+
+- participant consent records;
+- within-section randomization;
+- baseline score;
+- session attendance;
+- delayed outcome;
+- missing-outcome condition;
+- assignment-by-baseline interaction;
+- attendance-confounding justification; and
+- two-point importance benchmark.
+
+Explain why “shared evidence” does not mean “identical adequacy.”
+
+Then consider the alternative integrated decision question, “Did assignment
+meet the prespecified success criterion of a positive delayed-performance
+effect and no completion-rate reduction greater than five percentage points?”
+Explain why its score and completion estimands can be two statistical strands of
+one argument, and what would have to change for them to become two separately
+owed question--answer pairs.
+
+<!-- END EX01-02 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E03 -->
+### Exercise 3: Diagnose an estimand--analysis mismatch (Foundational) {.unnumbered #ex-ch01a-03}
+
+An analyst reports the observed-case difference of 3.1 points as the average
+effect for all 320 randomized students. Explain:
+
+1. how the observed-case analysis and available evidence fail to match the
+   declared all-randomized estimand;
+2. which component or components are affected;
+3. what condition or method is needed to connect 300 observed outcomes to the
+   320-person estimand; and
+4. how the final claim should change if that connection is not defensible.
+
+<!-- END EX01-03 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E04 -->
+### Exercise 4: Map the construction workflow (Integrative) {.unnumbered #ex-ch01a-04}
+
+Use the seven-stage workflow: Stages 1--3 form Phase 1, and Stages 4--7 form
+Phase 2. Assign each event to one or more workflow stages:
+
+- reviewing evidence about delayed assessment;
+- declaring the two-point benchmark;
+- fixing the 320-participant evidence-production plan and stopping rule;
+- discovering a scheduling disruption;
+- discovering during Phase 2 that the delayed assessment cannot answer the
+  declared primary question;
+- formulating the exploratory attendance question after evidence production
+  had begun;
+- documenting session attendance;
+- revising a missingness sensitivity analysis;
+- interpreting the interaction interval;
+- integrating the three answer outcomes.
+
+Identify (a) one justified return within the current phase, (b) one Phase 2
+discovery that requires closing the current cycle and beginning a new or
+revised argument cycle, and (c) one new question whose timing requires a
+separate exploratory cycle.
+
+<!-- END EX01-04 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E05 -->
+### Exercise 5: Apply the seven quality-evaluation questions (Integrative) {.unnumbered #ex-ch01a-05}
+
+Evaluate this conclusion:
+
+> Special Practice is especially effective for less-prepared students and
+> works because it makes students attend more sessions.
+
+Give a judgment for all seven quality-evaluation questions. Use **adequate for this purpose**,
+**needs revision**, **insufficient information to judge**, or **not
+applicable**. Then write a
+replacement synthesis that preserves all three reported pair outcomes,
+including the inconclusive observed-case attendance association. State a
+supported bounded answer and pair-level evaluation conclusion for each original
+pair. Finally, identify the implied causal-attendance pair, give its pair-level
+conclusion, and say whether the study synthesis is coherent as written or
+requires revision.
+
+<!-- END EX01-05 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E06 -->
+### Exercise 6: Assignment versus attendance (Integrative) {.unnumbered #ex-ch01a-06}
+
+Draw two causal stories in words:
+
+1. assignment affects attendance, which affects score; and
+2. motivation affects both attendance and score.
+
+Explain why an association between attendance and score can arise in both
+stories and why random assignment to the practice format does not randomize
+attendance. Propose a future design that would answer a causal attendance
+question more directly.
+
+<!-- END EX01-06 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E07 -->
+### Exercise 7: Decode three regression estimands (Integrative) {.unnumbered #ex-ch01a-07}
+
+For each model below, identify the question, estimand, key justification, and
+strongest possible claim:
+
+1. delayed score regressed only on assigned format;
+2. delayed score regressed on assigned format, baseline score, and section; and
+3. delayed score regressed on assigned format, baseline score, section, and an
+   assignment-by-baseline interaction.
+
+State one condition under which the assigned-format coefficient would not
+equal the marginal average assignment effect without standardization.
+
+<!-- END EX01-07 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E08 -->
+### Exercise 8: Published-paper traceability (Integrative) {.unnumbered #ex-ch01a-08}
+
+Using the Deslauriers et al. paper and supporting appendix:
+
+1. locate the two focal questions;
+2. map one STAT component and one SUB component for each outcome;
+3. identify where the randomized crossover design is documented;
+4. compare the paper's direct numerical support for TOL and FOL;
+5. identify one mechanism claim that needs a separate argument; and
+6. rewrite one broad generalization as a bounded answer.
+
+For each located item, use **stated in the paper**, **located in related
+materials**, or **implicit but traceable**; use **not located** when appropriate
+and flag contradictions separately. Record documentary status separately from
+quality: an item can be stated in the paper yet inadequately justified.
+
+<!-- END EX01-08 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+<!-- prompt-id: CH01A-E09 -->
+### Exercise 9: Independent multi-question audit (Integrative) {.unnumbered #ex-ch01a-09}
+
+Choose a quantitative paper with at least two coordinated research questions
+whose estimands, evidence, models, priorities, or interpretations are connected,
+and at least one related material such as a protocol, supplement, code archive,
+or data dictionary. Produce:
+
+1. a question-to-argument map;
+2. one complete eight-component map;
+3. a shared-versus-question-specific support analysis;
+4. a documented-workflow trace, showing within-phase returns and marking the
+   start of a new cycle whenever Phase 2 work led to revision of a Phase 1
+   decision;
+5. a seven-question quality-evaluation profile;
+6. a study-level synthesis; and
+7. a list of component content that is **not located**, followed separately by
+   any whole-pair conclusion of **not assessable from the accessible record**.
+
+Do not infer that a decision was prospective solely because it appears in the
+Methods section.
+
+<!-- END EX01-09 PROMPT -->
+
+\Needspace{6\baselineskip}\phantomsection
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

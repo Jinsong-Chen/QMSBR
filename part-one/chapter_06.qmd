@@ -1,0 +1,1653 @@
+---
+title: "Basic Inferential Statistics with R"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-cap: true
+    tbl-cap: true
+    fig-align: center
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+if (knitr::is_latex_output()) knitr::opts_chunk$set(
+    dev = "cairo_pdf")
+options(digits = 4, width = 72)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+```
+
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**Central question:** How can we reproduce a basic estimate, confidence
+interval or statistical test in R and explain its estimand, assumptions
+and bounded interpretation?
+
+**Focal concepts:** Sampling and working models; reference distributions;
+SEs, intervals and tests for means, proportions and associations; paired
+and independent comparisons; one-way ANOVA and focused comparisons.
+
+**Main evidence:** Paired measurements for ten patients in `sleep` continue
+Chapter 5.
+`mtcars` and `ToothGrowth` provide separate basic-method examples, and a
+short declared Normal simulation makes sampling variability visible.
+
+**Scope:** Chapters 3-4 supply inferential foundations and Chapter 5 supplies
+descriptive calculations and simple R. Chapter 1 supplies the reading
+approach; Chapter 1a remains optional. Statistics organizes the route.
+Chapter 7 develops regression; optional appendices retain technical depth.
+:::
+
+**Core route.** Sections 1--3 carry the paired `sleep` example from its
+recorded differences to one inferential answer. Sections 4--5 then show how the
+same question--estimand--procedure discipline changes for other basic methods.
+Section 6 uses repeated sampling to check what an inferential procedure does,
+and Section 7 completes the bounded answer and bridges to regression. This
+route is complete without the appendices; they provide optional mathematical,
+computational, and design extensions.
+
+# From a Descriptive Result to an Inferential Question {#sec-ch6-question}
+
+Chapter 5 described ten people's drug-2-minus-drug-1 differences in extra
+sleep: a mean of 1.58 hours and an SD of 1.23 hours. The descriptive arithmetic
+concerns those recorded people. An interval concerns an additional estimand under
+a stated sampling or working model. A descriptive population question can
+therefore require inference; these are analytical roles, not competing
+question-mode labels.
+
+## Recall the paired observations
+
+The [sleep documentation](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/sleep.html)
+defines extra sleep relative to control under two drugs. `ID` identifies
+the person, `group` the condition and `extra` the hours. The conditions
+are not baseline and follow-up. Recreate the ten aligned pairs locally:
+
+```{r}
+#| label: ch6-retain
+#| echo: true
+sleep_wide <- tidyr::pivot_wider(sleep, id_cols = ID,
+  names_from = group, values_from = extra, names_prefix = "drug_")
+complete_pair <- complete.cases(sleep_wide[c("drug_1", "drug_2")])
+sleep_wide <- sleep_wide[complete_pair, ]
+difference <- sleep_wide$drug_2 - sleep_wide$drug_1
+c(n = length(difference), mean = mean(difference), SD = sd(difference))
+```
+
+All ten pairs are complete. Their mean is exactly calculable from the
+records. The working inferential question is: **What do these differences
+estimate about a process mean, if they behave as independent observations
+from the stated process?** The file does not itself establish a sampling,
+treatment-order or carryover protocol. Keep that provenance separate from
+the model supporting a reference distribution.
+
+## A declaration comes before a default
+
+A formula such as `score ~ group` names an outcome and grouping variable.
+It does not state whether observations are independent or paired. Begin
+with the question and dependence structure, then choose the calculation.
+
+| Question | Relevant quantity and calculation | Condition to establish |
+|:--|:--|:--|
+| Mean paired difference | Mean of within-person differences; paired or one-sample analysis | Correct pairs; independence between people for ordinary inference |
+| Mean difference between separate groups | Difference of means; Welch comparison | Independent observations within and across groups |
+| Fraction meeting a criterion | Proportion and suitable interval | Stated denominator and appropriate repeated-trial model |
+| Association between categories | Counts, association measure and reference test | Independent units; adequate reference conditions |
+| Differences across several groups | Group means, omnibus comparison or contrast | Stated design, variance and multiplicity conditions |
+
+: Questions guide the calculation. {#tbl-ch6-selection}
+
+This is an orientation, not an automatic selection algorithm. Sections 4
+and 5 work through the additional procedures. Functions return structured
+objects; their printed summaries are only one view. We will extract the
+quantities relevant to a question after understanding the calculation.
+
+# Probability and Reference Distributions {#sec-ch6-reference}
+
+A probability calculation describes a stipulated model. It supplies tail
+areas and critical values for an inferential procedure when that model is
+appropriate. Use direct R calls and read their statistical question before
+the function name. Sections 4-5 apply these references to additional records.
+
+\Needspace{12\baselineskip}
+
+## Four prefixes, four probability questions
+
+| Prefix | Returned quantity | Example |
+|:--|:--|:--|
+| `d` | Discrete probability mass or continuous density height | `dbinom()`, `dnorm()`, `dt()` |
+| `p` | Cumulative probability | `pbinom()`, `pnorm()`, `pt()` |
+| `q` | Quantile at a cumulative probability | `qbinom()`, `qnorm()`, `qt()` |
+| `r` | Random draws from the specified model | `rbinom()`, `rnorm()`, `rt()` |
+
+For $X\sim\operatorname{Binomial}(20,.30)$, the model describes 20
+independent trials with a common success probability .30. These are not
+20 observations discovered in either additional dataset.
+
+```{r}
+#| label: ch6app-a-distributions
+#| echo: true
+mass_at_4 <- dbinom(4, size = 20, prob = .30)
+cumulative_at_4 <- pbinom(4, size = 20, prob = .30)
+percentile_90 <- qbinom(.90, size = 20, prob = .30)
+c(mass = mass_at_4, cumulative = cumulative_at_4,
+  percentile = percentile_90)
+dnorm(0)
+pnorm(1) - pnorm(-1)
+qnorm(.975)
+```
+
+`dbinom(4, 20, .30)` is $P(X=4)$. For a continuous normal variable,
+`dnorm(0)` is a density height, not $P(X=0)$; the latter is zero.
+An interval probability is an area, here $\Phi(1)-\Phi(-1)\approx.6827$.
+A continuous density can exceed one without assigning a probability above
+one. The binomial quantile is the smallest integer whose cumulative
+probability reaches the requested level; discrete quantiles need not attain
+that probability exactly.
+
+## Normal, t, chi-square, and F references
+
+For an independent normal sample, replacing known $\sigma$ by its sample
+estimate in $(\bar Y-\mu)/(\sigma/\sqrt n)$ changes the exact reference
+from standard normal to $t_{n-1}$. The heavier t tails reflect this estimated
+scale. This is not a universal cutoff saying that every sample above some
+size is normal or independent.
+
+```{r}
+#| label: ch6app-a-reference-quantiles
+#| echo: true
+c(normal = qnorm(.975), t_5 = qt(.975, 5),
+  t_9 = qt(.975, 9), t_30 = qt(.975, 30))
+qchisq(.95, df = 4)
+qf(.95, df1 = 2, df2 = 40)
+pchisq(10, df = 4, lower.tail = FALSE)
+pf(4, df1 = 2, df2 = 40, lower.tail = FALSE)
+```
+
+A chi-square variable is a sum of squared independent standard normals.
+If $U\sim\chi^2_a$ and $V\sim\chi^2_b$ independently, then
+$(U/a)/(V/b)\sim F_{a,b}$. This explains the two degrees of freedom of an
+F reference. Pearson count discrepancies can have an approximate chi-square
+reference; normal linear-model mean-square comparisons can have an exact F
+reference. The same distribution name does not establish the same conditions
+for every statistic using it.
+
+```{r}
+#| label: fig-ch6app-a-normal-t
+#| echo: false
+#| fig-cap: "Standard normal and t densities. The heavier t tails produce larger finite-df critical values."
+#| fig-alt: "The t curve with five degrees of freedom is lower near zero and higher in the tails than the standard normal curve."
+ref_x <- seq(-4, 4, length.out = 801)
+ref <- rbind(
+  data.frame(x = ref_x, density = dnorm(ref_x),
+    Model = "Normal"),
+  data.frame(x = ref_x, density = dt(ref_x, 5),
+    Model = "t: 5 df")
+)
+ggplot2::ggplot(ref, ggplot2::aes(x, density,
+    linetype = Model)) +
+  ggplot2::geom_line(linewidth = .8) +
+  ggplot2::labs(x = "Reference statistic", y = "Density",
+    linetype = NULL)
+```
+
+# Estimate a Mean Difference and Its Uncertainty {#sec-ch6-uncertainty}
+
+## Introduce a different question when uncertainty is needed
+
+The ten-record mean is already known. For a **working-model question**,
+suppose the differences behave as independent draws from a stable process
+with mean $\mu_D$ and variance $\sigma_D^2$. What do these observations
+estimate about that process mean?
+
+This changes the estimand from the average of named records to a process
+parameter. The short historical data description does not itself establish
+random sampling, treatment order or absence of carryover. Keep those design
+questions separate from the following conditional calculation.
+
+For independent normally distributed differences, the one-sample $t$
+interval is exact under the model. For other independent distributions it
+is an approximation whose adequacy depends on shape and sample size.
+Here $n=10$, so normality is a consequential assumption. Pairing accounts
+for dependence within a person; independence concerns differences between
+people. It is the differences, not both marginal condition distributions,
+to which the normal model applies.
+
+## Execute the arithmetic before reading output
+
+The SD of differences is
+
+$$
+s_D=\sqrt{\frac{\sum_i(d_i-\bar d)^2}{n-1}}=1.2300.
+$$
+
+Under the independent-differences model,
+
+$$
+\widehat{SE}(\bar D)=\frac{s_D}{\sqrt n}
+=\frac{1.2300}{\sqrt{10}}=0.3890\text{ hours}.
+$$
+
+The 95% interval uses $t_{.975,9}=2.2622$:
+
+$$
+\bar d\pm t_{.975,9}\frac{s_D}{\sqrt n}
+=1.5800\pm2.2622(0.38896)
+=[0.7001,\ 2.4599]\text{ hours}.
+$$
+
+```{r}
+#| label: ch6-interval-arithmetic
+#| echo: true
+n <- length(difference)
+estimate <- mean(difference)
+s <- sd(difference)
+se <- s / sqrt(n)
+critical <- qt(.975, df = n - 1)
+interval <- estimate + c(-1, 1) * critical * se
+interval
+```
+
+The endpoint calculation uses unrounded values. For $H_0:\mu_D=0$,
+
+$$
+t=\frac{\bar d-0}{s_D/\sqrt n}
+=\frac{1.58}{0.38896}=4.0621,\qquad df=9.
+$$
+
+The two-sided $p$ value is about .00283 under the stated null model. It is
+the probability of a statistic at least as extreme under that model,
+not the probability that the null is true. The interval concerns a mean
+difference, not a range containing 95% of individual differences.
+
+```{r}
+#| label: ch6-paired-t
+#| echo: true
+result <- t.test(sleep_wide$drug_2, sleep_wide$drug_1,
+                 paired = TRUE, mu = 0, conf.level = .95)
+result$estimate
+result$stderr
+result$conf.int
+result$statistic
+result$parameter
+result$p.value
+```
+
+R subtracts the second vector from the first: drug 2 minus drug 1 here.
+`paired = TRUE` uses within-person differences, but does not match IDs
+for you. The preceding pivot provided that alignment.
+
+The one-sample call below gives the same estimate, interval and test:
+
+```{r}
+#| label: ch6-equivalence
+#| echo: true
+difference_result <- t.test(difference, mu = 0, conf.level = .95)
+difference_result$estimate
+difference_result$conf.int
+```
+
+This is a useful computational identity: a paired $t$ procedure is a
+one-sample procedure on differences. Agreement verifies the calculation,
+while its model and design still need their own justification.
+
+## Direction, confidence level and test sidedness
+
+Reversing the subtraction reverses the estimate and both interval endpoints;
+it does not change the two-sided p-value. A higher confidence level uses a
+larger critical value and gives a wider interval on the same data. The
+alternative hypothesis must be specified to match the question before
+examining the observed sign:
+
+```{r}
+#| label: ch6-sidedness
+#| echo: true
+t.test(difference, mu = 0, alternative = "greater")$p.value
+t.test(difference, mu = 0, conf.level = .99)$conf.int
+```
+
+For a positive t statistic and a symmetric reference, the upper-tail
+p-value is half the two-sided value. The lower-tail value is its complement.
+Halving is inappropriate for an alternative opposite to the observed sign.
+Nonrejection is not proof of equality; significance does not specify a
+practical threshold or establish a causal explanation.
+
+# Basic Procedures for Means and a Proportion {#sec-ch6-procedures}
+
+## Built-in records and explicit questions
+
+The later examples use data already installed with R. They are separate
+illustrations, each with its own row unit and question. No supporting
+script or download is needed.
+
+The [official `mtcars` documentation](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)
+describes 32 automobile models from 1973–74. `mpg` is miles per US gallon,
+`wt` is weight in thousands of pounds, and `am` codes automatic (0) or
+manual (1) transmission. These observational records are not a probability
+sample of all cars or a randomized transmission comparison.
+
+```{r}
+#| label: ch6-method-data
+#| echo: true
+cars <- mtcars
+cars$transmission <- factor(cars$am, levels = c(0, 1),
+                            labels = c("Automatic", "Manual"))
+cars$mpg20 <- factor(cars$mpg >= 20,
+                     levels = c(FALSE, TRUE),
+                     labels = c("Below 20", "At least 20"))
+mpg <- cars$mpg[!is.na(cars$mpg)]
+head(cars[c("mpg", "wt", "transmission", "mpg20")])
+c(observed = length(mpg), missing = sum(is.na(cars$mpg)))
+```
+
+The threshold 20 is a declared teaching definition, not a universal fuel
+standard. All 32 cars have the variables used here. Keeping an explicit
+missing-value check teaches how to retain the same denominator when another
+dataset is incomplete.
+
+The mean and proportions describe these records directly. An interval or
+reference test adds a working process model. For example, a model of
+independent car outcomes is an additional assumption; running a function
+does not establish how the cars entered the file.
+
+## Known-sigma z and one-sample t
+
+For independent normal outcomes with process mean $\mu$ and externally
+known SD $\sigma$, $SE(\bar Y)=\sigma/\sqrt n$ and
+$z=(\bar y-\mu_0)/SE$. Stipulate $\sigma=5$ mpg and $\mu_0=20$ mpg
+only for this hypothetical calculation:
+
+```{r}
+#| label: ch6-known-sd
+#| echo: true
+n_mpg <- length(mpg)
+estimate_mpg <- mean(mpg)
+z_se <- 5 / sqrt(n_mpg)
+z <- (estimate_mpg - 20) / z_se
+z_ci <- estimate_mpg + c(-1, 1) * qnorm(.975) * z_se
+c(mean = estimate_mpg, SE = z_se, z = z)
+z_ci
+```
+
+The recorded mean is 20.0906 mpg. The stipulated model gives SE .8839 and
+interval [18.3582, 21.8230] mpg. A known SD must come from an appropriate
+source; the observed file does not make 5 a known population SD.
+
+When SD is estimated, replace $\sigma$ by the sample SD $s$ and use the
+$t_{n-1}$ reference under the independent-normal model [@student1908].
+
+```{r}
+#| label: ch6-one-t
+#| echo: true
+mpg_se <- sd(mpg) / sqrt(n_mpg)
+mpg_ci <- estimate_mpg + c(-1, 1) * qt(.975, n_mpg - 1) * mpg_se
+one_t <- t.test(mpg, mu = 20)
+c(mean = estimate_mpg, SD = sd(mpg), SE = mpg_se)
+mpg_ci
+one_t$statistic
+one_t$p.value
+```
+
+Here $s=6.0269$, $SE=1.0654$, $t=.0851$, $df=31$, and the 95% interval
+is [17.9177, 22.2636] mpg. The two-sided $p$ value is .9328. This interval
+contains plausible process means under the model; it is not a range for
+individual cars. Its inclusion of 20 does not prove equality to 20.
+
+Exact $t$ calibration requires normal independent outcomes. Approximate
+use beyond that model depends on distribution shape, finite variance,
+influential values and the dependence structure, not a universal sample-size
+cutoff. The observed mean itself needs no such model to describe these cars.
+
+## Two independent means: Welch's comparison
+
+For independent groups, define $\Delta=\mu_A-\mu_M$, here automatic minus
+manual mean mpg. The estimate and its SE are
+
+$$
+\widehat\Delta=\bar y_A-\bar y_M,\qquad
+SE=\sqrt{s_A^2/n_A+s_M^2/n_M}.
+$$
+
+Writing $a=s_A^2/n_A$ and $b=s_M^2/n_M$, the Welch degrees of freedom are
+
+$$
+\nu=\frac{(a+b)^2}{a^2/(n_A-1)+b^2/(n_M-1)}.
+$$
+
+```{r}
+#| label: ch6-welch
+#| echo: true
+car_rows <- complete.cases(cars[c("mpg", "transmission")])
+car_groups <- cars[car_rows, ]
+auto <- car_groups$mpg[car_groups$transmission == "Automatic"]
+manual <- car_groups$mpg[car_groups$transmission == "Manual"]
+a <- var(auto) / length(auto)
+b <- var(manual) / length(manual)
+welch_se <- sqrt(a + b)
+welch_df <- (a + b)^2 /
+  (a^2 / (length(auto) - 1) + b^2 / (length(manual) - 1))
+welch <- t.test(auto, manual)
+c(n_auto = length(auto), n_manual = length(manual),
+  auto_mean = mean(auto), manual_mean = mean(manual),
+  difference = mean(auto) - mean(manual), SE = welch_se, df = welch_df)
+welch$conf.int
+welch$p.value
+```
+
+There are 19 automatic and 13 manual cars, with means 17.1474 and 24.3923
+mpg. Their difference is $-7.2449$ mpg, SE 1.9232, with approximate
+$df=18.3323$ and interval [$-11.2802,-3.2097$]. The two-sided $p$ value
+is .0014. The sign records the comparison's direction.
+
+Welch's reference is approximate even for unequal-variance normal groups
+[@welch1947]. It is the default two-sample `t.test()` calculation.
+`var.equal = TRUE` instead requests a pooled-variance procedure with
+$n_A+n_M-2$ degrees of freedom. Neither option resolves dependence or
+confounding: these car models also differ in weight, engine and other
+features. The observed mpg gap does not isolate the effect of transmission.
+
+The paired calculation in Section 3 instead uses within-person differences.
+Select paired or independent analysis from the design, not from which
+procedure gives a smaller p-value. Positive within-person covariance changes
+the variance of a difference, as Chapter 5 demonstrated.
+
+## One proportion: score test and Wilson interval
+
+For an independent-Bernoulli working process with probability $p$, the
+estimate is $\widehat p=s/n$. The score statistic for null $p_0$ is
+
+$$
+z=\frac{\widehat p-p_0}{\sqrt{p_0(1-p_0)/n}}.
+$$
+
+Inverting $|z(p_0)|\le z_{.975}$ gives the Wilson interval [@wilson1927]:
+
+$$
+\frac{\widehat p+z^2/(2n)}{1+z^2/n}
+\ \pm\ \frac{z}{1+z^2/n}
+\sqrt{\frac{\widehat p(1-\widehat p)}n+\frac{z^2}{4n^2}}.
+$$
+
+```{r}
+#| label: ch6-proportion
+#| echo: true
+successes <- sum(cars$mpg >= 20, na.rm = TRUE)
+trials <- sum(!is.na(cars$mpg))
+phat <- successes / trials
+p0 <- .5
+score_z <- (phat - p0) / sqrt(p0 * (1 - p0) / trials)
+zcrit <- qnorm(.975)
+wilson_center <- (phat + zcrit^2 / (2 * trials)) /
+  (1 + zcrit^2 / trials)
+wilson_half <- zcrit / (1 + zcrit^2 / trials) *
+  sqrt(phat * (1 - phat) / trials + zcrit^2 / (4 * trials^2))
+wilson_ci <- wilson_center + c(-1, 1) * wilson_half
+score <- prop.test(successes, trials, p = p0, correct = FALSE)
+c(successes = successes, trials = trials, proportion = phat, z = score_z)
+wilson_ci
+score$statistic
+score$p.value
+```
+
+Fourteen of 32 recorded cars meet the definition: $\widehat p=.4375$.
+The score statistic is $z=-.7071$; with continuity correction disabled,
+R reports $X^2=z^2=.5$, one df and $p=.4795$. The Wilson interval is
+[.2817, .6067]. The default continuity correction changes the statistic
+and interval, so declare the convention when reproducing a result.
+
+This approximate reference requires an appropriate independent-trial model
+and adequate expected successes and failures. The Bernoulli model and the
+.50 reference are additional teaching assumptions. They do not turn the
+32 recorded models into a random sample of all cars.
+
+# Association and Several Group Means {#sec-ch6-comparisons}
+
+Chapter 5 supplied descriptive tables, correlations and group summaries.
+Here a reference model adds uncertainty to an explicitly stated question.
+
+## Correlation inference uses a different process target
+
+Recreate the complete weight-mpg pairs introduced descriptively in Chapter 5:
+
+```{r}
+#| label: ch6-correlation-data
+#| echo: true
+car_pairs <- cars[complete.cases(cars[c("wt", "mpg")]), ]
+r <- cor(car_pairs$wt, car_pairs$mpg)
+r
+```
+
+The recorded $r=-.8677$ describes these 32 pairs. For an additional process
+correlation $\rho$, the zero-correlation statistic is
+
+$$
+t=r\sqrt{\frac{n-2}{1-r^2}},\qquad df=n-2.
+$$
+
+Its null reference is exact for independent bivariate-normal pairs. The
+approximate Fisher interval transforms $z_F=\operatorname{atanh}(r)$,
+uses $SE(z_F)=1/\sqrt{n-3}$ and transforms back:
+
+$$
+CI_\rho=\tanh\!\left(z_F\pm\frac{1.96}{\sqrt{n-3}}\right).
+$$
+
+```{r}
+#| label: ch6-correlation-test
+#| echo: true
+n_r <- nrow(car_pairs)
+fisher_ci <- tanh(atanh(r) + c(-1, 1) * qnorm(.975) / sqrt(n_r - 3))
+cor_test <- cor.test(car_pairs$wt, car_pairs$mpg)
+fisher_ci
+cor_test$statistic
+cor_test$p.value
+```
+
+The interval is [$-.9338,-.7441$], $t=-9.5590$ with 30 df, and
+$p\approx1.294\times10^{-10}$. These precise calculations do not verify
+bivariate normality, independent sampling or representation of all cars.
+When computing a whole covariance matrix, use a common row set: different
+pairwise missing-value subsets need not form a coherent joint covariance
+structure.
+
+## Categorical association: counts, residuals, and magnitude
+
+Does the fraction with at least 20 mpg differ between automatic and manual
+cars in this file? Fix the observed rows before counting.
+
+```{r}
+#| label: ch6-categorical
+#| echo: true
+categorical <- cars[complete.cases(cars[c("transmission", "mpg20")]), ]
+counts <- table(categorical$transmission, categorical$mpg20)
+counts
+rowSums(counts)
+prop.table(counts, margin = 1)
+chi_result <- chisq.test(counts, correct = FALSE)
+chi_result$expected
+chi_result$residuals
+chi_result$stdres
+chi_result$statistic
+chi_result$p.value
+cramers_v <- sqrt(as.numeric(chi_result$statistic) / sum(counts))
+cramers_v
+```
+
+Four of 19 automatic cars and ten of 13 manual cars meet the threshold:
+.2105 versus .7692. Under independence, the expected first-row/below-20
+count is $19(18)/32=10.6875$, compared with 15 observed.
+
+For cell counts $O_{jk}$, the fitted independence count, Pearson statistic,
+degrees of freedom and Cramér's magnitude measure are
+
+$$
+\begin{aligned}
+E_{jk}&=\frac{O_{j+}O_{+k}}N, &
+X^2&=\sum_{jk}\frac{(O_{jk}-E_{jk})^2}{E_{jk}},\\[2pt]
+df&=(J-1)(K-1), &
+V&=\sqrt{\frac{X^2}{N\min(J-1,K-1)}}.
+\end{aligned}
+$$
+
+Here $X^2=9.7906$, one df, $p=.0018$ and $V=.5531$ [@cramer1946].
+Pearson residuals are $(O-E)/\sqrt E$. Standardized residuals additionally
+account for fitting the margins; they locate departures but are not a set
+of independent confirmatory tests. Row proportions retain the denominators
+needed to interpret the association.
+
+The chi-square approximation needs independent units and adequate expected
+counts; the smallest expected cell here is 5.6875. The default two-by-two
+continuity correction is disabled explicitly. Fisher's alternative uses a
+conditional distribution given the margins under its null [@fisher1935]:
+
+```{r}
+#| label: ch6-fisher
+#| echo: true
+fisher <- fisher.test(counts)
+fisher$p.value
+```
+
+The Fisher $p$ value is .0033. Conditioning must fit the sampling or
+assignment question; Fisher's test is not a universal repair for dependence,
+selection or measurement problems. Neither result establishes that changing
+a car's transmission would cause it to cross the threshold.
+
+## Raw group means and one-way ANOVA
+
+The [official `ToothGrowth` documentation](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/ToothGrowth.html)
+describes measurements from 60 guinea pigs. Each animal received one of
+three vitamin-C doses, .5, 1 or 2 mg/day, delivered as orange juice (`OJ`)
+or ascorbic acid (`VC`). `len` records odontoblast length; the help page does
+not specify a length unit, so we report the recorded length scale. This is
+not a human outcome or a measured before/after change. The short help page
+does not itself document a randomization protocol.
+
+```{r}
+#| label: ch6-growth-data
+#| echo: true
+growth <- ToothGrowth
+growth$dose <- factor(growth$dose, levels = c(.5, 1, 2))
+growth$supp <- factor(growth$supp, levels = c("OJ", "VC"))
+table(growth$dose, growth$supp)
+dose_n <- table(growth$dose)
+dose_mean <- tapply(growth$len, growth$dose, mean)
+dose_sd <- tapply(growth$len, growth$dose, sd)
+data.frame(dose = names(dose_n), n = as.integer(dose_n),
+           mean = dose_mean, SD = dose_sd)
+```
+
+There are 20 animals per dose and ten per dose–supplement cell. The three
+raw dose means are 10.605, 19.735 and 26.100. Each averages equally across
+the two delivery methods. Treating `dose` as a factor fits separate means;
+it does not impose a linear dose–response relation.
+
+```{r}
+#| label: fig-ch6-dose
+#| echo: false
+#| fig-pos: H
+#| fig-cap: "Individual lengths and distributions for the three dose groups."
+#| fig-alt: "Boxplots and individual observations show progressively higher recorded lengths at doses 0.5, 1 and 2 mg/day."
+ggplot(growth, aes(dose, len)) + geom_boxplot(outlier.shape = NA) +
+  geom_point(position = position_jitter(width = .08, height = 0, seed = 606)) +
+  labs(x = "Vitamin-C dose (mg/day)", y = "Recorded odontoblast length")
+```
+
+For $k$ groups and $N$ records,
+
+$$
+SS_B=\sum_j n_j(\bar y_j-\bar y)^2,\quad
+SS_E=\sum_j\sum_i(y_{ij}-\bar y_j)^2,\quad
+F=\frac{SS_B/(k-1)}{SS_E/(N-k)}.
+$$
+
+The omnibus null is equality of the three process means. Its exact normal
+reference requires independent errors, normal outcomes within groups and
+one common error variance. It does not require a pooled histogram to be
+normal.
+
+```{r}
+#| label: ch6-dose-anova
+#| echo: true
+dose_aov <- aov(len ~ dose, data = growth)
+summary(dose_aov)
+dose_lm <- lm(len ~ dose, data = growth)
+SSB <- sum(dose_n * (dose_mean - mean(growth$len))^2)
+SSE <- sum(resid(dose_lm)^2)
+MSE <- SSE / df.residual(dose_lm)
+c(SSB = SSB, SSE = SSE, MSE = MSE)
+anova(dose_lm)
+oneway.test(len ~ dose, data = growth)
+```
+
+Here $F=(2426.4343/2)/(1025.775/57)=67.4157$, with $p<.001$ under
+that model. Welch's one-way extension gives $F=68.4010$ with approximate
+denominator df 37.7433; it relaxes common variance through an approximate
+reference. Neither omnibus result selects the scientifically important
+contrast or validates the treatment protocol. Omitted delivery-method
+variation is one reason to examine the adjusted extension in Appendix C.
+
+## Magnitude, planned contrasts, and multiple comparisons
+
+The one-way sample variation measures are
+
+$$
+\eta^2=\frac{SS_B}{SS_T},\qquad
+\widehat\omega^2=\frac{SS_B-(k-1)MSE}{SS_T+MSE},\qquad
+SS_T=SS_B+SS_E.
+$$
+
+The omega estimate can be negative through sampling variation; report any
+zero-truncation convention explicitly. Neither measure is automatically a
+causal proportion of an outcome or a substantive importance threshold.
+
+```{r}
+#| label: ch6-magnitude
+#| echo: true
+SST <- SSB + SSE
+eta <- SSB / SST
+omega <- (SSB - 2 * MSE) / (SST + MSE)
+c(eta_squared = eta, omega_squared = omega)
+```
+
+Here $\eta^2=.7029$ and $\widehat\omega^2=.6888$.
+
+Declare a focused dose contrast before examining its results:
+the 2 mg/day mean minus the equally weighted average of the .5 and 1 mg/day
+means. Its weights are $\mathbf c=(-.5,-.5,1)$.
+
+$$
+\widehat L=\sum_j c_j\bar y_j,\quad
+SE(\widehat L)=\sqrt{MSE\sum_jc_j^2/n_j},\quad
+CI=\widehat L\pm t_{.975,N-k}SE(\widehat L).
+$$
+
+```{r}
+#| label: ch6-contrast
+#| echo: true
+weights <- c(-.5, -.5, 1)
+contrast <- sum(weights * dose_mean)
+contrast_se <- sqrt(MSE * sum(weights^2 / dose_n))
+contrast_ci <- contrast + c(-1, 1) *
+  qt(.975, df.residual(dose_lm)) * contrast_se
+c(contrast = contrast, SE = contrast_se)
+contrast_ci
+TukeyHSD(dose_aov, "dose")
+```
+
+The contrast is $26.100-(10.605+19.735)/2=10.930$, SE 1.1618, with
+interval [8.6036, 13.2564] on the recorded length scale. Equal group sizes
+make the chosen average equal the pooled mean of the two lower-dose groups
+here; those targets would differ if their sizes were unequal.
+
+Tukey's output answers a different family: all three pairwise differences.
+Their estimates are 9.130, 15.495 and 6.365; the simultaneous intervals are
+[5.9018, 12.3582], [12.2668, 18.7232] and [3.1368, 9.5932]. Exact familywise
+coverage applies in the balanced normal common-variance case; `TukeyHSD()`
+uses an unequal-size adjustment otherwise. It does not account for searching
+across other outcomes or models. A numerical printed adjusted $p$ value of
+zero is rounding, not an event with literally zero probability.
+
+Keep the declared contrast and exploratory pairwise family distinct. Their
+positive findings concern these model-based comparisons; practical and
+causal interpretation also need the substantive measurement and design record.
+
+# Check Inference Through Repeated Sampling {#sec-ch6-repetition}
+
+## Check decisions, not only whether the function ran
+
+Inspect the IDs, measurement order and variables used to identify complete
+pairs. A wrong pairing changes the calculation. An unsupported independence
+assumption changes whether the SE has its proposed interpretation. A missing
+measurement restricts which people the description includes. Repeating a
+command cannot answer all three questions.
+
+For `sleep`, the table establishes ten complete recorded pairs, and the
+arithmetic establishes their mean difference. The independent normal model
+supplies a conditional reference for uncertainty. The computation does not
+verify an unrecorded sampling or treatment protocol.
+
+## Simulate a known process
+
+A simulation lets us choose the process and inspect its consequences.
+Generate independent normal differences with **known mean 1.5 hours** and
+**SD 1.2 hours**. Each generated study has $n=10$; repeat it $B=2000$ times.
+These are teaching constants, not estimated features or a reconstruction of
+the historical `sleep` study. The true mean is known in this experiment,
+so we can ask whether each generated interval contains it.
+
+First follow one generated study: draw ten values, estimate its mean and
+SE, and form one interval. Check whether the declared mean 1.5 is inside.
+
+```{r}
+#| label: ch6-one-generated-study
+#| echo: true
+set.seed(60610)
+one_sample <- rnorm(10, mean = 1.5, sd = 1.2)
+one_mean <- mean(one_sample)
+one_se <- sd(one_sample) / sqrt(10)
+one_interval <- one_mean + c(-1, 1) * qt(.975, 9) * one_se
+one_interval
+1.5 >= one_interval[1] & 1.5 <= one_interval[2]
+```
+
+The loop below repeats those same steps for fresh samples. Reset the seed
+before the full run so that its results do not depend on whether the
+one-study illustration was run first.
+
+```{r}
+#| label: ch6-simulation
+#| echo: true
+set.seed(60610)
+mu <- 1.5
+sigma <- 1.2
+n_sim <- 10
+B <- 2000
+sample_means <- numeric(B)
+covered <- logical(B)
+critical_sim <- qt(.975, df = n_sim - 1)
+for (b in seq_len(B)) {
+  sample_d <- rnorm(n_sim, mean = mu, sd = sigma)
+  sample_means[b] <- mean(sample_d)
+  sample_se <- sd(sample_d) / sqrt(n_sim)
+  margin <- critical_sim * sample_se
+  covered[b] <- abs(sample_means[b] - mu) <= margin
+}
+c(mean_of_means = mean(sample_means), empirical_SE = sd(sample_means),
+  theoretical_SE = sigma / sqrt(n_sim), coverage = mean(covered))
+```
+
+`numeric(B)` and `logical(B)` reserve one result per repetition. The loop
+draws a fresh sample, estimates its mean and SE, constructs its interval,
+then records whether it covers the known mean. A logical `TRUE` counts as
+one in `mean(covered)`. Repeating a calculation on one unchanged sample
+would not produce a sampling distribution.
+
+```{r}
+#| label: fig-ch6-repetition
+#| fig-cap: "Sample means from the declared independent normal-differences process."
+#| fig-alt: "Simulated means cluster around the known value 1.5 hours and vary much less than the individual differences."
+#| fig-width: 6.2
+#| fig-height: 3.4
+ggplot(data.frame(sample_means), aes(sample_means)) +
+  geom_histogram(bins = 25, fill = "grey80", colour = "white") +
+  geom_vline(xintercept = mu, linetype = 2) +
+  labs(x = "Mean difference in a generated study (hours)",
+       y = "Repetitions")
+```
+
+The distribution of 2,000 means approximates the **sampling distribution**
+under the chosen process. Its theoretical SE is $1.2/\sqrt{10}=.3795$
+hours. Normality makes the usual $t$ interval exact for this generated
+process. The observed coverage is `r sprintf("%.4f", mean(covered))`;
+finite simulations need not reproduce .9500 exactly.
+
+Increasing $n$ from 10 to 40 halves the theoretical SE to
+$1.2/\sqrt{40}=.1897$ hours. Increasing $B$ leaves each study's information
+unchanged; it improves the numerical approximation from the simulation.
+
+\Needspace{16\baselineskip}
+
+## Separate three kinds of variability
+
+| Quantity | What varies? | Illustrative scale |
+|:--|:--|:--|
+| Individual-difference SD | Observations within a generated study | 1.2 hours |
+| SE of the mean | Means across generated studies of size 10 | $1.2/\sqrt{10}=.3795$ hours |
+| Monte Carlo SE of coverage | Approximation from a finite number of simulations | About .0049 in probability units at $B=2000$ |
+
+: Study variation and simulation approximation are different. {#tbl-ch6-variability}
+
+If true coverage is $p=.95$, its Monte Carlo SE is
+
+$$
+MCSE=\sqrt{\frac{p(1-p)}B}
+=\sqrt{\frac{.95(.05)}{2000}}=.0049.
+$$
+
+For an unknown simulated probability, substitute the observed coverage.
+Increasing $B$ from 2,000 to 8,000 halves this numerical SE, not the study
+mean's SE. The average simulated mean also has Monte Carlo uncertainty:
+about $.3795/\sqrt{2000}=.0085$ hours. A seed makes results repeatable;
+it does not make generating assumptions true for an actual study.
+Appendix A retains exact probabilities, skewed processes and further
+sample-size experiments.
+
+# Read the Answer and Prepare for Regression {#sec-ch6-reading}
+
+## A compact computational record
+
+Read the calculation and its stated reasoning before evaluating a stronger
+claim. A concise report is:
+
+> The ten complete person pairs had a mean recorded drug-2-minus-drug-1
+> difference of 1.58 hours of extra sleep, with SD 1.23 hours. Under a
+> separately stated independent normal-differences model, the paired $t$
+> procedure gave SE .389 hours and a 95% interval [.700, 2.460] hours for
+> a process mean. The calculation does not itself establish the study's
+> sampling, treatment-order or carryover conditions.
+
+The inclusion code identifies the records, the dictionary explains the
+variables, and the returned object supplies the numerical quantities.
+The model declaration offers a reason for using the $t$ reference; locating
+that offered reason is separate from deciding whether it is adequate for
+the study. No full component map is needed for this computational lesson.
+
+**Separate quality check.** “Drug 2 causes everyone to sleep 1.58 hours
+longer” changes an observed mean into a universal causal effect. It fails
+**Question alignment** and **Claim calibration**. The recorded mean remains
+checkable, but a population or causal answer requires a corresponding
+question and additional design support. Positive interval endpoints alone
+cannot supply that support.
+
+## A short bridge from a mean to a fitted line
+
+For 2, 4 and 6, squared deviations total 8 around their mean of 4 and
+11 around either 3 or 5. The mean minimizes the sum of squared deviations.
+With group A values 2 and 4 and group B values 6 and 10, the group means
+are 3 and 8. A fitted expression $3+5D$, where $D=0$ for A and 1 for B,
+reproduces those means. The coefficient 5 is their observed difference.
+
+These identities connect simple descriptive calculations to regression.
+They do not require Normal observations to hold; uncertainty for a model
+coefficient adds assumptions. Chapter 7 develops least squares, slope
+uncertainty and diagnostics, and Chapter 8 develops indicators, adjustment
+and coordinated prediction questions. Appendix B retains optional criterion
+and optimization details; Appendix C retains adjusted and factorial examples.
+
+## Summary and Reading Bridge {#sec-ch6-summary}
+
+Name the estimand, relevant observations and dependence structure, then
+calculate an estimate, SE, interval or test under its stated reference.
+Read a returned number in that role. The same mean can be a fixed-record
+description or an estimate of a process parameter under an additional model.
+
+The core methods are direct R calculations of familiar statistics. Their
+assumptions and interpretation are part of the analytical result. A sampling
+simulation illustrates a chosen process; it does not validate that process
+for historical records. Increasing sample size and increasing simulation
+repetitions improve different quantities.
+
+The [R t-test reference](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html)
+and local help such as `?prop.test`, `?cor.test` and `?aov` document the
+returned procedures. Chapter 7 extends the descriptive/inferential distinction
+to regression and Chapter 8 to multiple questions and model comparisons.
+
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# Exercises {.unnumbered}
+
+Use the supplied summaries and reference values. Keep intermediate values
+unrounded; report SEs and intervals to three decimals and probabilities
+to four unless the question specifies otherwise.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E01 -->
+
+## Exercise 1: Preserve the pairs for inference (Foundational) {.unnumbered #ex-ch06-01}
+
+Four students' baseline scores are 40, 50, 60 and 70. Their corresponding
+follow-up scores are 46, 54, missing and 75. Calculate the complete-pair
+mean change and its sample SD. Under an independent normal-differences
+working model, calculate its estimated SE. Explain which observations
+the model concerns and why treating the measurements as independent groups
+would be a different calculation.
+
+<!-- END EX06-01 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E02 -->
+
+## Exercise 2: Reproduce an interval (Foundational) {.unnumbered #ex-ch06-02}
+
+Twenty-five independent paired differences have mean 3.0 and SD 5.0.
+Under the normal-difference working model, use $t_{.975,24}=2.064$.
+Calculate the estimated SE, the 95% interval and the standardized statistic
+for a zero process mean. Explain what the interval concerns and why it is
+not a range for individual differences.
+
+<!-- END EX06-02 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E03 -->
+
+## Exercise 3: Match the procedure and output to the question (Foundational) {.unnumbered #ex-ch06-03}
+
+Study A measures the same 20 people twice. Study B compares two independent
+groups of 20 and 25 people without an equal-variance assumption. Name the
+appropriate mean-comparison procedures. A paired analysis returns estimate
+2.4, SE 0.8, 95% interval [0.75,4.05] and $t=3.0$. Explain each quantity.
+Name two additional pieces of information needed to assess a claim that
+the result is practically important and causal.
+
+<!-- END EX06-03 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E04 -->
+
+## Exercise 4: More students or more simulations? (Foundational) {.unnumbered #ex-ch06-04}
+
+A simulation uses independent observations with SD 12, sample size 36
+and 1,000 repetitions. Calculate the theoretical SE of a sample mean.
+If coverage is .95, calculate the Monte Carlo SE of the estimated coverage.
+What changes if sample size becomes 144? What changes if only the number
+of repetitions becomes 4,000? Report probabilities to four decimal places.
+
+<!-- END EX06-04 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E05 -->
+
+## Exercise 5: Read a categorical comparison (Integrative) {.unnumbered #ex-ch06-05}
+
+Among 20 people in group A, 12 answer Yes and 8 No; among 20 in group B,
+6 answer Yes and 14 No. Calculate the A-minus-B percentage-point difference
+and the four expected counts under independence. An uncorrected Pearson
+test reports $X^2=3.6364$, $df=1$ and $p=.0565$. State the 5% decision
+and evaluate the statement "the groups have been proved identical."
+
+<!-- END EX06-05 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- prompt-id: CH06-E06 -->
+
+## Exercise 6: Separate an omnibus result from specific comparisons (Integrative) {.unnumbered #ex-ch06-06}
+
+A three-group ANOVA under an independent Normal common-variance model
+reports $F(2,27)=4.50$ and $p=.0206$. Two prespecified comparisons are
+B minus A and C minus A. Their simultaneous 95% intervals are [.2,3.8]
+and [-.1,6.1]. State what the omnibus result establishes at 5%. Does the
+evidence meet a rule requiring both comparisons to be positive? Explain
+why the second interval does not prove a zero difference.
+
+<!-- END EX06-06 PROMPT -->
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# Appendix A: Simulation Extensions {.unnumbered #sec-ch6-app-a}
+
+These optional examples deepen the distinction between study uncertainty and
+Monte Carlo approximation. Section 6 already supplies the chapter's essential
+simulation lesson.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Exact probabilities and Monte Carlo error {.unnumbered}
+
+Simulation approximates $p=P(X\le4)$ under the binomial model. Let
+$I_b=1$ when draw $b$ meets that event and 0 otherwise. The Monte Carlo
+estimate is $\widehat p_{MC}=B^{-1}\sum_b I_b$ with estimated numerical SE
+$\sqrt{\widehat p_{MC}(1-\widehat p_{MC})/B}$.
+
+```{r}
+#| label: ch6app-a-binomial-simulation
+#| echo: true
+set.seed(6062)
+B_binomial <- 20000
+binomial <- rbinom(B_binomial, size = 20, prob = .30)
+exact <- pbinom(4, size = 20, prob = .30)
+mc <- mean(binomial <= 4)
+mcse <- sqrt(mc * (1 - mc) / B_binomial)
+```
+
+```{=latex}
+\Needspace{9\baselineskip}
+```
+
+```{r}
+#| label: ch6app-a-binomial-simulation-display-1
+#| echo: false
+knitr::kable(data.frame(
+  Method = c("Exact model probability", "Monte Carlo approximation"),
+  Probability = c(exact, mc),
+  MC_SE = c(NA_real_, mcse)
+), digits = 5,
+  caption = paste(
+    "A simulated probability and its numerical uncertainty."
+  )
+)
+```
+
+
+The exact probability is `r sprintf("%.5f", exact)`; the Monte Carlo
+estimate is `r sprintf("%.5f", mc)`, with MC SE
+`r sprintf("%.5f", mcse)`. At $B=20{,}000$, the substitution is
+$\sqrt{\widehat p_{MC}(1-\widehat p_{MC})/20{,}000}$.
+Quadrupling $B$ approximately halves this numerical SE. It does not improve
+the study's sample size, measurement, assignment, or the truth of the
+binomial assumptions.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Helpers, `replicate()`, and sample-size comparisons {.unnumbered}
+
+A function can expose the sample size, repetition count, and generating rule
+as separate arguments. `replicate()` evaluates its expression repeatedly;
+the generator is called anew on every repetition, rather than taking the
+mean of one sample repeatedly.
+
+```{r}
+#| label: ch6app-a-sample-means
+#| echo: true
+simulate_means <- function(sample_size, repetitions,
+    generator) {
+  replicate(repetitions, mean(generator(sample_size)))
+}
+set.seed(6063)
+sizes <- c(5, 20, 80)
+sampling <- do.call(rbind, lapply(sizes,
+    function(n_now) {
+  data.frame(
+    n = n_now,
+    sample_mean = simulate_means(
+      n_now, 5000, function(n) rlnorm(n, meanlog = 0, sdlog = .8)
+    )
+  )
+}))
+population_mean <- exp(.8^2 / 2)
+population_sd <- sqrt((exp(.8^2) - 1) * exp(.8^2))
+sampling_summary <- do.call(rbind, lapply(sizes,
+    function(n_now) {
+  estimates <- sampling$sample_mean[
+    sampling$n == n_now]
+  data.frame(n = n_now, Mean_estimate = mean(estimates),
+             Empirical_SD = sd(estimates),
+             Theoretical_SD = population_sd / sqrt(n_now),
+             MC_SE_of_mean_estimate = sd(estimates) / sqrt(
+    length(estimates)))
+}))
+```
+
+```{r}
+#| label: ch6app-a-sample-means-display-1
+#| echo: false
+knitr::kable(sampling_summary, digits = 4,
+  col.names = c("n", "Mean estimate", "Empirical SD", "Theoretical SD", "MC SE"),
+               caption = paste(
+    "Observation variability, estimator variability, and",
+                 "Monte Carlo error."
+               )
+             )
+```
+
+
+The programmed lognormal population has mean $e^{.8^2/2}$ and variance
+$(e^{.8^2}-1)e^{.8^2}$. Its observation SD stays the same in all three
+conditions. The SD of its sample mean is $\sigma/\sqrt n$, so moving from
+$n=5$ to 20 halves it. The last column instead measures numerical precision
+in the average of 5,000 simulated estimates. Increasing $B$ improves that
+Monte Carlo approximation without making any individual simulated study
+more informative.
+
+```{r}
+#| label: fig-ch6app-a-sampling
+#| echo: false
+#| fig-cap: "Sample means from the same right-skewed lognormal process at three sample sizes."
+#| fig-alt: "Histograms at sample sizes five, twenty, and eighty become progressively narrower and more symmetric, although the generating observation distribution is unchanged."
+ggplot2::ggplot(sampling, ggplot2::aes(sample_mean)) +
+  ggplot2::geom_histogram(bins = 35, fill = "grey55",
+    colour = "white") +
+  ggplot2::facet_wrap(~n, ncol = 1, labeller = ggplot2::label_both) +
+  ggplot2::labs(x = "Sample mean", y = "Repetitions")
+```
+
+\clearpage
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# Appendix B: Estimation, Optimization, and Likelihood {.unnumbered #sec-ch6-app-b}
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## A criterion defines the estimate {.unnumbered}
+
+For values $y_i$, squared loss at candidate center $m$ is
+$L(m)=\sum_i(y_i-m)^2$. Expanding around the mean gives
+
+$$
+L(m)=\sum_i(y_i-\bar y)^2+n(m-\bar y)^2.
+$$
+
+The cross term vanishes because $\sum_i(y_i-\bar y)=0$. Thus $\bar y$ is
+the unique minimizer when $n>0$. Equivalently, $L'(m)=2n(m-\bar y)$ and
+$L''(m)=2n>0$. This identity does not require normality or sampling.
+
+```{r}
+#| label: ch6-loss-optimizer
+#| echo: true
+mpg <- mtcars$mpg
+squared_loss <- function(m, y) sum((y - m)^2)
+mean_fit <- optimize(squared_loss, interval = range(mpg), y = mpg)
+c(numerical = mean_fit$minimum, arithmetic = mean(mpg),
+  minimum_loss = mean_fit$objective)
+```
+
+The numerical minimum is 20.0906 mpg, matching the arithmetic mean; loss
+is 1126.0472 squared mpg. Moving one mpg away raises it by $32(1)^2=32$.
+The search interval must contain the relevant minimum. An optimizer cannot
+find a value excluded by its constraints.
+
+```{r}
+#| label: fig-ch6-loss
+#| echo: false
+#| fig-pos: H
+#| fig-cap: "Squared loss is minimized at the recorded mean mpg."
+#| fig-alt: "A convex squared-loss curve has its minimum at mean mpg 20.09."
+loss_grid <- data.frame(m = seq(10, 35, length.out = 100))
+loss_grid$loss <- sapply(loss_grid$m, squared_loss, y = mpg)
+ggplot(loss_grid, aes(m, loss)) + geom_line() +
+  geom_vline(xintercept = mean(mpg), linetype = 2) +
+  labs(x = "Candidate mean (mpg)", y = "Sum of squared deviations")
+```
+
+Chapter 7 extends squared loss to a fitted line. The criterion defines
+what the estimate optimizes; it does not establish representation or causality.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## A binomial likelihood and boundary solutions {.unnumbered}
+
+For $s$ successes in $n$ independent Bernoulli trials with probability $p$,
+
+$$
+L(p)={n\choose s}p^s(1-p)^{n-s},\qquad
+\ell(p)=\text{constant}+s\log p+(n-s)\log(1-p).
+$$
+
+For $0<s<n$, setting $s/p-(n-s)/(1-p)=0$ gives $\widehat p=s/n$.
+Use 14 of 32 cars reaching 20 mpg as an illustration of this separately
+stipulated likelihood. Counting those outcomes does not verify independent
+Bernoulli sampling.
+
+```{r}
+#| label: ch6-binomial-likelihood
+#| echo: true
+successes <- sum(mtcars$mpg >= 20)
+trials <- nrow(mtcars)
+binomial_nll <- function(p, successes, trials) {
+  -dbinom(successes, size = trials, prob = p, log = TRUE)
+}
+prop_fit <- optimize(binomial_nll, interval = c(0, 1),
+                     successes = successes, trials = trials)
+c(numerical = prop_fit$minimum, proportion = successes / trials)
+```
+
+Both values are .4375. The combinatorial term is included by `dbinom()`
+but does not affect which $p$ maximizes the likelihood. If $s=0$ or $s=n$,
+the maximum is at 0 or 1. Check endpoints explicitly in such cases; an
+interior-only search may omit the correct boundary solution. `log = TRUE`
+avoids taking the log of a probability that may already have underflowed.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Multiple parameters and convergence checks {.unnumbered}
+
+Under a hypothetical independent normal model,
+
+$$
+-\ell(\mu,\sigma)=\frac n2\log(2\pi)+n\log\sigma+
+\frac{\sum_i(y_i-\mu)^2}{2\sigma^2}.
+$$
+
+Parameterizing $\sigma=e^\eta$ lets an unconstrained optimizer search in
+$\eta$ while keeping scale positive. This illustrates likelihood fitting;
+it is not a claim that the recorded car outcomes follow that exact model.
+
+```{r}
+#| label: ch6-normal-likelihood
+#| echo: true
+normal_nll <- function(par, y) {
+  mu <- par[1]
+  sigma <- exp(par[2])
+  -sum(dnorm(y, mean = mu, sd = sigma, log = TRUE))
+}
+normal_fit <- optim(c(mean(mpg) - 1, log(sd(mpg))),
+                    normal_nll, y = mpg, method = "BFGS", hessian = TRUE)
+second_fit <- optim(c(mean(mpg) + 1, log(sd(mpg) / 2)),
+                    normal_nll, y = mpg, method = "BFGS")
+c(numerical_mean = normal_fit$par[1],
+  numerical_scale = exp(normal_fit$par[2]),
+  arithmetic_mean = mean(mpg),
+  closed_form_scale = sqrt(mean((mpg - mean(mpg))^2)))
+normal_fit$convergence
+normal_fit$value - second_fit$value
+eigen(normal_fit$hessian)$values
+```
+
+The mean is approximately 20.0906 and normal MLE scale 5.9320. The latter
+divides squared deviations by $n$, whereas `sd()` divides by $n-1$.
+The fits return convergence code zero and nearly identical objective values.
+A zero code reports an algorithm's stopping criterion. Compare starting
+values, the returned objective and an analytic answer where available.
+Positive Hessian eigenvalues support local curvature, not a universal proof
+of global identification or scientific model adequacy.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Extended practice: an estimand and its criterion (Integrative) {.unnumbered}
+
+Plot squared loss for a quantitative variable and compare its minimum with
+the arithmetic mean. Deliberately narrow the search interval to exclude the
+mean, then explain why the numerical result changes. For binomial counts,
+compare an interior case with zero successes and all successes, checking the
+boundary likelihoods. Distinguish the scientific question, chosen criterion
+and numerical search.
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# Appendix C: Adjusted and Factorial Model Extensions {.unnumbered #sec-ch6-app-c}
+
+These optional extensions develop the group comparisons in Section 5.
+They are useful when adjustment or effect variation belongs to the question;
+they are not prerequisites for the chapter's main paired-analysis route.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Indicator regression reproduces the same fitted group means {.unnumbered}
+
+With .5 mg/day as reference, the intercept is its mean; the other two
+coefficients are the 1-minus-.5 and 2-minus-.5 differences. Adding each
+coefficient to the intercept reconstructs its group mean.
+
+```{r}
+#| label: ch6-indicator-equivalence
+#| echo: true
+coef(dose_lm)
+dose_levels <- levels(growth$dose)
+new_doses <- data.frame(dose = factor(dose_levels, levels = dose_levels))
+predict(dose_lm, new_doses)
+```
+
+The coefficients are 10.605, 9.130 and 15.495, and the fitted group means
+are 10.605, 19.735 and 26.100. The intercept-plus-indicators model and
+one-way ANOVA fit the same space, so fitted values, residuals and the
+classical joint $F$ agree. This is a computational identity; it adds no
+new design evidence. Chapter 8 develops the regression algebra further.
+
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Adjustment and balanced comparisons {.unnumbered}
+
+In `ToothGrowth`, supplement is a second recorded treatment dimension,
+not a school block or a before/after occasion. An additive model assumes
+a common dose comparison within OJ and VC. A marginal dose mean instead
+averages over the supplements observed at that dose. Here the balanced
+cell counts give equal supplement weights at every dose. Consequently the
+raw and additive-model contrasts have the same point estimate; their SEs
+use different residual variances. This equality need not hold with unequal
+supplement compositions.
+
+```{r}
+#| label: ch6-adjusted-model
+#| echo: true
+growth <- ToothGrowth
+growth$dose <- factor(growth$dose, levels = c(.5, 1, 2))
+growth$supp <- factor(growth$supp, levels = c("OJ", "VC"))
+supp_fit <- lm(len ~ supp, data = growth)
+add_fit <- lm(len ~ supp + dose, data = growth)
+coef(add_fit)
+anova(supp_fit, add_fit)
+```
+
+The additive intercept is 12.455. The VC-minus-OJ coefficient is $-3.700$;
+dose coefficients are 9.130 and 15.495 relative to .5 mg/day. The dose
+block comparison gives $F(2,56)=82.8109$, $p<.001$. This is a joint test
+of dose terms, not the test of the single high-dose contrast.
+
+For the 2 mg/day mean minus the equally weighted average of .5 and 1,
+the coefficient weights are $(0,0,-.5,1)$ in the displayed order.
+
+```{r}
+#| label: ch6-adjusted-contrast
+#| echo: true
+L <- c(0, 0, -.5, 1)
+adjusted <- sum(L * coef(add_fit))
+adjusted_se <- sqrt(drop(t(L) %*% vcov(add_fit) %*% L))
+adjusted_ci <- adjusted + c(-1, 1) *
+  qt(.975, df.residual(add_fit)) * adjusted_se
+c(contrast = adjusted, SE = adjusted_se)
+adjusted_ci
+```
+
+The adjusted contrast is 10.9300, SE 1.0482, interval [8.8301, 13.0299].
+Compare the raw one-way SE 1.1618 and interval [8.6036, 13.2564]. The
+smaller residual variance after including supplement changes the precision
+under the additive model; the data have not gained more animals. With exact
+additivity, a common within-supplement dose contrast also equals a contrast
+standardized to any common supplement weights. Whether a common contrast
+is useful depends on how the comparison varies by supplement.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Six cells and explicit model comparisons {.unnumbered}
+
+Two supplements and three doses form six observed cells, with ten animals
+per cell. Inspect the counts and means before fitting an interaction:
+
+```{r}
+#| label: ch6-factorial-cells
+#| echo: true
+cell_n <- with(growth, table(supp, dose))
+cell_mean <- with(growth, tapply(len, list(supp, dose), mean))
+cell_n
+cell_mean
+```
+
+The OJ means are 13.23, 22.70 and 26.06; the VC means are 7.98, 16.77 and
+26.14. The high-minus-low dose difference is 12.83 under OJ and 18.16 under
+VC. Interaction concerns such variation in comparisons, not simply different
+cell means.
+
+```{r}
+#| label: fig-ch6-factorial
+#| echo: false
+#| fig-pos: H
+#| fig-cap: "Mean recorded lengths for the six dose–supplement combinations."
+#| fig-alt: "OJ and VC profiles rise with dose but converge at 2 mg/day, showing nonparallel dose comparisons."
+ggplot(growth, aes(dose, len, group = supp, linetype = supp, shape = supp)) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point") +
+  labs(x = "Dose (mg/day)", y = "Mean recorded length",
+       linetype = "Supplement", shape = "Supplement")
+```
+
+The additive model has four coefficients: intercept, one supplement and
+two dose terms. The full product model has six cell means, adding
+$(2-1)(3-1)=2$ interaction parameters and leaving $60-6=54$ residual df.
+
+For nested models, let $SS_{\text{added}}=RSS_R-RSS_F$ and let $q$ be the
+number of extra parameters. The ordinary nested-model statistic is
+
+$$
+F=\frac{SS_{\text{added}}/q}{RSS_F/df_F}.
+$$
+
+\Needspace{22\baselineskip}
+
+```{r}
+#| label: ch6-factorial-test
+#| echo: true
+full_fit <- lm(len ~ supp * dose, data = growth)
+anova(add_fit, full_fit)
+rss_add <- sum(resid(add_fit)^2)
+rss_full <- sum(resid(full_fit)^2)
+df_full <- df.residual(full_fit)
+interaction_F <- ((rss_add - rss_full) / 2) / (rss_full / df_full)
+interaction_p <- pf(interaction_F, 2, df_full, lower.tail = FALSE)
+c(F = interaction_F, p = interaction_p)
+```
+
+The extra SS is 108.319, full-model residual SS 712.106, and
+$F=(108.319/2)/(712.106/54)=4.1070$, $p=.0219$. Under the working model,
+this is evidence against the additive mean restriction. Interpret the dose
+profiles before deciding whether a single average comparison is adequate.
+The exact reference uses independent normal, common-variance errors and the
+specified nested mean spaces [@kutner2005].
+
+One can also report several components against a deliberately common
+full-model residual denominator. Name that choice explicitly:
+
+```{r}
+#| label: ch6-factorial-components
+#| echo: true
+dose_only <- lm(len ~ dose, data = growth)
+component_ss <- c(
+  sum(resid(dose_only)^2) - rss_add,
+  sum(resid(supp_fit)^2) - rss_add,
+  rss_add - rss_full
+)
+component_df <- c(1, 2, 2)
+component_F <- (component_ss / component_df) / (rss_full / df_full)
+data.frame(component = c("Supplement after dose", "Dose after supplement",
+                          "Interaction"),
+           df = component_df, SS = component_ss, F = component_F,
+           p = pf(component_F, component_df, df_full, lower.tail = FALSE))
+```
+
+The component $F$ values are 15.5720, 92.0000 and 4.1070. The first two
+use a denominator from the full product model; they therefore differ from
+ordinary comparisons ending at the additive model. Only the last is the
+same nested interaction test just shown. In this balanced design, supplement
+and dose terms are orthogonal. With unequal cells, sequential sums of squares
+can depend on term order, so name the compared spaces instead of treating any
+row labelled a main effect as interchangeable.
+
+None of these model identities supplies missing assignment documentation or
+extends animal results to people. Statistical fit, precision, substantive
+importance and causal interpretation remain separate questions.
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# Appendix D: Extended Practice and Synthesis {.unnumbered #sec-ch6-app-d}
+
+These optional tasks combine procedure selection, simulation, and bounded
+multi-procedure interpretation.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Extended practice: simulation questions (Foundational) {.unnumbered}
+
+Write distinct mass/density, cumulative-probability, quantile, and simulation
+questions for a binomial and a normal distribution. Approximate one exactly
+computable probability at two values of $B$ and report both MC SEs. Then
+compare means at two values of $n$ while holding the generator fixed. Explain
+separately what varies among observations, among study estimates, and because
+the simulation used finitely many repetitions. Do not describe this
+lognormal example as the source of the built-in observed records.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Extended practice: match procedure to target (Integrative) {.unnumbered}
+
+For a known-SD mean, unknown-SD mean, independent mean difference, paired
+difference, and one proportion, name the estimand and repeated world before
+the function. Reproduce estimate, SE, interval, and null standardization;
+state whether the reference is exact or approximate and which conditions
+make that statement true. Do not describe a stipulated SD as empirically known.
+
+For two quantitative variables, fix a complete-pair sample, plot it, and
+reproduce covariance, Pearson r, and the Fisher interval. For a two-way
+categorical table, show observed and expected counts, denominators,
+standardized residuals, chi-square, and Cramer's V. Explain when Fisher's
+conditional test addresses the same intended null and what neither test
+can say about design or causation.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## A bounded multi-procedure reading and extended practice (Integrative) {.unnumbered}
+
+An extended report might state: “In the 60 recorded guinea pigs, dose means
+were 10.605, 19.735 and 26.100 on the recorded length scale. The declared
+high-dose-minus-average-lower-dose contrast was 10.930, with a common-variance
+working-model interval [8.604, 13.256]. An additive supplement-adjusted model
+gave the same estimate and interval [8.830, 13.030]. The dose profiles differed
+by supplement; a nested interaction comparison gave $F(2,54)=4.107$.”
+
+Read each quantity with its question, denominator and working model. Equal
+raw and adjusted estimates here follow from balance, not a universal rule.
+The interaction result invites interpretation of conditional dose comparisons;
+it does not replace that interpretation with a significance label. The dataset
+help page does not supply a threshold of substantive importance or a complete
+randomization record.
+
+For practice, reproduce the raw means, one-way ANOVA, magnitude measures,
+declared contrast and Tukey family. Explain their different questions.
+Verify that indicator regression returns the same fitted means. Then reproduce
+the six cell means, additive contrast and nested interaction statistic. Compare
+the residual denominators used for the different reported $F$ values.
+
+Complete a short computational record using one actual built-in dataset or
+explicitly labelled supplied summary. State the question, row unit, variables,
+calculation, result, assumptions and bounded interpretation. Include one useful
+display or compact table. Read what the calculation establishes before judging
+one consequential limitation. Finish by explaining what a later regression
+model would add to the chosen question.
+
+\Needspace{8\baselineskip}
+\phantomsection
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

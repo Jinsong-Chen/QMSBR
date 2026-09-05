@@ -1,0 +1,1600 @@
+---
+title: "How to Read a Quantitative Study as an Argument"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-cap: true
+    tbl-cap: true
+    fig-align: center
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+if (knitr::is_latex_output()) {
+  knitr::opts_chunk$set(dev = "cairo_pdf")
+}
+
+draw_argument <- function() {
+  old <- par(mar = rep(0.15, 4), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 19.5), ylim = c(0, 9.8))
+
+  centres <- c(4.25, 8.15, 12.65, 17.05)
+  widths <- c(2.70, 3.05, 3.15, 3.25)
+  rows <- list(stat = c(7.05, 8.62), sub = c(0.75, 2.32))
+  fills <- c("#DCEAF3", "#DDEEDB", "#F8EDC7", "#F5D9C8")
+  labels <- list(
+    stat = c("Recorded\nevidence", "Statistical\njustification",
+             "Statistical\ninference", "Bounded\nstatistical claim"),
+    sub = c("Situated\nevidence", "Substantive\njustification",
+            "Substantive\ninference", "Bounded\nsubstantive claim")
+  )
+
+  component <- function(x, width, y, code, label, fill) {
+    rect(x - width / 2, y[1], x + width / 2, y[2],
+         col = fill, border = "#203744", lwd = 1.15)
+    text(x, mean(y) + 0.31, code, font = 2, cex = 0.92,
+         col = "#203744")
+    text(x, mean(y) - 0.31, label, cex = 0.67, col = "#29353B")
+  }
+
+  for (row_name in names(rows)) {
+    y <- rows[[row_name]]
+    prefix <- if (row_name == "stat") "STAT-" else "SUB-"
+    for (i in seq_along(centres)) {
+      component(
+        centres[i], widths[i], y,
+        paste0(prefix, c("E", "J", "I", "C")[i]),
+        labels[[row_name]][i], fills[i]
+      )
+    }
+    y_mid <- mean(y)
+    text(6.10, y_mid, "+", font = 2, cex = 1.22, col = "#344A55")
+    arrows(9.82, y_mid, 10.93, y_mid, length = 0.08,
+           lwd = 1.35, col = "#344A55")
+    arrows(14.37, y_mid, 15.28, y_mid, length = 0.08,
+           lwd = 1.35, col = "#344A55")
+  }
+
+  relations <- c(
+    "situates", "augments and\ncontextualizes",
+    "interprets", "bounds"
+  )
+  for (i in seq_along(centres)) {
+    segments(centres[i], rows$stat[1], centres[i], 5.45,
+             col = "#9A5A35", lwd = 1.05)
+    rect(centres[i] - 1.28, 4.28, centres[i] + 1.28, 5.43,
+         col = "white", border = "#C28C69", lwd = 0.85)
+    text(centres[i], 4.855, relations[i], cex = 0.68,
+         col = "#7A4B2A")
+    arrows(centres[i], 4.25, centres[i], rows$sub[2],
+           length = 0.075, col = "#9A5A35", lwd = 1.05)
+  }
+
+  text(0.15, mean(rows$stat), "STATISTICAL\nLAYER",
+       adj = c(0, 0.5), font = 2, cex = 0.66, col = "#244A63")
+  text(0.15, mean(rows$sub), "SUBSTANTIVE\nLAYER",
+       adj = c(0, 0.5), font = 2, cex = 0.66, col = "#244A63")
+  for (i in seq_along(centres)) {
+    text(
+      centres[i], 9.22,
+      c("EVIDENCE", "JUSTIFICATION", "INFERENCE", "CLAIM")[i],
+      font = 2, cex = 0.73, col = "#56656C"
+    )
+  }
+}
+
+draw_workflow <- function() {
+  old <- par(mar = rep(0.2, 4), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 14), ylim = c(0, 8))
+
+  rect(0.15, 4.15, 13.85, 7.60, col = "#EEF5F8", border = "#9BB6C4")
+  rect(0.15, 0.25, 13.85, 3.70, col = "#F1F6EF", border = "#A7BFA2")
+  text(0.38, 7.30, "PHASE 1 - UNDERSTAND AND PLAN | iterative Stages 1-3",
+       adj = 0, font = 2, cex = 0.67, col = "#244A63")
+  text(0.38, 3.40, "PHASE 2 - PRODUCE AND COMPLETE | iterative Stages 4-6",
+       adj = 0, font = 2, cex = 0.65, col = "#466B43")
+
+  x <- c(0.48, 5.05, 9.62)
+  width <- 3.88
+  labels <- c(
+    "Review problem\nand literature",
+    "Frame question and\ncandidate answer",
+    "Align design, measures,\nestimand, evidence,\nand inference plan",
+    "Produce or acquire\nand document evidence",
+    "Estimate, check,\nand analyse",
+    "Contextualize, interpret,\nand complete the\nbounded answer"
+  )
+
+  stage_box <- function(x0, y0, number, label) {
+    rect(x0, y0, x0 + width, y0 + 1.62, col = "white",
+         border = "#344A55", lwd = 1)
+    text(x0 + 0.18, y0 + 1.34, paste0("STAGE ", number), adj = 0,
+         font = 2, cex = 0.60, col = "#203744")
+    text(x0 + width / 2, y0 + 0.66, label, cex = 0.66,
+         col = "#29353B")
+  }
+
+  for (i in 1:3) stage_box(x[i], 4.65, i, labels[i])
+  bottom_stages <- c(6, 5, 4)
+  for (i in 1:3) {
+    stage_box(x[i], 0.75, bottom_stages[i], labels[bottom_stages[i]])
+  }
+
+  for (i in 1:2) {
+    arrows(x[i] + width + 0.02, 5.46, x[i + 1] - 0.02, 5.46,
+           length = 0.07, col = "#4F6875")
+  }
+  for (i in 3:2) {
+    arrows(x[i] - 0.02, 1.56, x[i - 1] + width + 0.02, 1.56,
+           length = 0.07, col = "#557052")
+  }
+
+  stage_right <- x[3] + width / 2
+  arrows(stage_right, 4.63, stage_right, 2.39, length = 0.07,
+         col = "#6B6B6B")
+  arrows(x[3] + width / 2, 6.58, x[1] + width / 2, 6.58,
+         length = 0.07, lty = 2, col = "#7A4B2A")
+  text(mean(c(x[1], x[3])) + width / 2, 6.84,
+       "revise and realign before evidence production",
+       cex = 0.65, col = "#7A4B2A")
+  arrows(x[1] + width / 2, 0.64, x[3] + width / 2, 0.64,
+         length = 0.07, lty = 2, col = "#7A4B2A")
+  text(mean(c(x[1], x[3])) + width / 2, 0.40,
+       "verify, reanalyse, and recalibrate within Phase 2",
+       cex = 0.65, col = "#7A4B2A")
+}
+```
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**Central question:** How can a reader identify and trace the support connecting
+one quantitative research question to the answer a study reports, together with
+its stated bounds?
+
+**Focal components:** One argument with linked statistical and substantive
+layers. Within each layer, Evidence and Justification support Inference, which
+supports a bounded Claim. The worked reading completes STAT-E through STAT-C
+and SUB-E through SUB-C for one question--answer pair. Six quality-evaluation
+questions help readers judge the resulting support, while a six-stage,
+two-phase workflow shows how researchers construct it.
+
+**Main evidence:** A hypothetical randomized special-practice study with 120
+consenting eligible students assigned 60 per format, complete outcome
+follow-up, a common 0--40 delayed assessment, an estimated 3.1-point mean
+difference, a 95% confidence interval from 0.9 to 5.3 points, and a documented,
+course-specific two-point benchmark for potential educational importance. The
+example is used first as a completed argument to read and then as an
+argument-construction cycle to follow.
+
+**Scope:** This basic tutorial is designed for a simple study with one
+primary quantitative question, or for several independent questions that can
+each be addressed as a separate question--answer pair. Reading quantitative
+studies is its primary use. Quality evaluation is a distinct secondary use,
+and the construction workflow is the auxiliary use for conducting research.
+Studies with coordinated questions whose estimands, methods, or
+interpretations interact are developed in *Extending the Argument-Based
+Approach to Quantitative Studies*.
+:::
+
+## A Quantitative Study as a Question--Answer Contract
+
+### From an empirical problem to a quantitative question
+
+Empirical research uses observations to address questions about the world.
+**Quantitative research** is the broader process of formulating questions,
+planning a study, producing or acquiring numerical observations, analysing
+them, and making bounded claims. A **quantitative study** is the particular
+inquiry that readers encounter through a report or paper and, where available,
+its protocol, appendices, data documentation, code, and other related
+materials.
+
+The distinction matters because a paper is a reorganized record rather than a
+diary of the research process. A decision described in the Methods section may
+have been made before data collection, during analysis, or during revision.
+Important support may appear in a protocol or supplement rather than the main
+paper. Reading well therefore requires recovering the reasoning across
+locations without mistaking manuscript order for research chronology.
+
+Consider a university that is choosing between two ways of helping students
+practise course material. Its practical concern might be expressed as:
+
+> Does a different kind of practice improve learning?
+
+This is not yet a sufficiently clear quantitative question. *Learning* might
+mean an immediate quiz, delayed performance, course completion, confidence, or
+something else. *Students* might mean volunteers in one class, all eligible
+students at one university, or students in a wider system. *Improve* might ask
+for a description, association, prediction, or causal comparison.
+
+A useful quantitative question identifies, in readable language:
+
+- whom or what the question concerns;
+- the outcome or phenomenon to be learned about;
+- the comparison or relationship of interest; and
+- the kind of answer sought.
+
+A fuller research specification can then record the unit, population, setting,
+period, variables, estimand, intended claim mode, and planned analysis.
+Keeping the main question readable while documenting this fuller specification
+prevents the statistical method from quietly becoming the research question.
+
+Four common question modes create different answer obligations. The mode comes
+from what the question asks, not from the name of the statistical procedure.
+
+| Mode | Beginner question form | Example estimand | Typical support question |
+|:-----|:-----------------------|:---------------|:-------------------------|
+| **Descriptive** | What is present, how much is there, or how is it distributed? | A mean or proportion for a named group, place, and period | Are the cases and measurements suitable for what is being described? |
+| **Associational** | How do measured variables differ or vary together? | A difference or relationship for named variables and cases | Does the comparison describe an association without implying causation? |
+| **Predictive** | How well can an outcome be predicted for new cases, settings, or times? | A specified performance measure for a stated prediction rule in a defined population of new cases, settings, or times | Was prediction checked on suitable observations not used to fit the procedure? |
+| **Causal** | What would differ under one intervention or exposure rather than another? | An average outcome contrast under two named alternatives | Do the design and assumptions permit the intended causal comparison? |
+
+: *Four question modes, example estimands, and support questions.* {#tbl-question-modes tbl-colwidths="[14,29,25,32]"}
+
+The intended claim mode should match the question mode. A causal question seeks
+a causal answer, for example, but causal wording is warranted only when the
+design and justification support it. If they do not, the study may provide a
+narrower causal answer that keeps the same mode and estimand, or an inconclusive
+answer to the causal question. An associational answer belongs to a different
+pair rather than quietly replacing the causal question.
+
+Mode is different from analytic status. A descriptive analysis can be primary
+or exploratory; a causal analysis can also be primary, secondary, or
+exploratory. These labels report how the analysis entered the study, not what
+kind of answer its evidence can support.
+
+Every mode also needs an **estimand**. It is a precisely specified target
+quantity: what the study seeks to learn for named units or a population,
+conditions or a comparison, an outcome, a summary, and a scope
+[@lundberg2021]. For a predictive question, the estimand may be a specified
+performance measure for a stated prediction rule in a defined population of
+new cases, settings, or times; an arbitrary prediction for one individual is
+not itself the estimand. An estimand may answer a question directly or
+contribute to its answer
+when several estimands are required. In the worked study, the estimand is the
+mean difference in delayed-assessment scores that would result for the
+participating students under assignment to Special rather than Usual Practice.
+The observed 3.1-point difference is an **estimate** obtained from the evidence
+for that estimand. Later chapters refine these terms for particular methods; the
+beginner's task is to distinguish what the study seeks from what it observed.
+
+### Questions, hypotheses, results, and answers
+
+A **research question** states what the study seeks to learn. A
+**hypothesis** is an optional prospective candidate answer. A **result** is a
+quantity produced by analysis, such as a mean, difference, interval, or
+prediction. A **claim** is a statement the researchers make after interpreting
+the result. These terms are related, but they are not interchangeable.
+
+The order of responsibility is:
+
+1. The question states the answer obligation.
+2. A hypothesis may record an expectation before the focal evidence is
+   examined.
+3. Analysis produces one or more results.
+4. Reasoning connects those results to an eventual bounded answer, which may
+   itself be inconclusive.
+
+A hypothesis is not required for every worthwhile study. Descriptive and
+exploratory questions can be valuable without one. A result contributes to an
+answer, but it does not determine that answer's meaning, support, or scope.
+
+Depending on the question and evidence, a reported answer may be positive,
+negative, close to no difference, conditional, or inconclusive. These are
+ordinary descriptions, not a second classification system. Whatever its
+direction, the answer should preserve magnitude, uncertainty, assumptions, and
+scope. A planned analysis can be inconclusive, and an exploratory analysis can
+still report a carefully bounded answer.
+
+The practical sequence is therefore not “question, calculation, conclusion.”
+It is question, documented support, analytical result, interpretation, and
+bounded answer. A reader who keeps these roles distinct is less likely to treat
+a hypothesis as a finding or a numerical result as a complete conclusion.
+
+### The question--answer contract
+
+A finalized quantitative study can be read as a
+**question--answer contract**:
+
+> Each stated quantitative question creates an obligation to provide a
+> traceable answer no stronger than the available evidence and justification
+> permit.
+
+The word *contract* is a metaphor. It is not a legal agreement, and it does not
+assume that every paper fulfils its obligations. A paper may report a positive,
+negative, close-to-no-difference, or inconclusive answer, or it may fail to
+provide one; Section 4 separately evaluates what answer the accessible support
+warrants.
+
+The unit of this contract is a **question--answer pair**: one research question
+together with one separately reportable question-facing answer obligation.
+Hypotheses, coefficients, tests, contrasts, and other results stay inside that
+pair's argument when they only help discharge the same obligation; a separately
+owed conclusion creates another pair, and several pairs require several
+arguments even when they share support. When a paper states an aim rather than
+an explicit question, the reader writes a question from the aim and headline
+result and marks it as reader-supplied rather than author-stated.
+
+This basic tutorial also applies when a study contains several **independent
+questions** that can be handled separately. Here, *independent* means separable
+for the purpose of reading their arguments: answering one question does not
+require another question's result to specify its estimand or interpret its
+claim.
+When questions must be coordinated--for example, when an interaction qualifies
+an average effect--cross-question alignment and synthesis are required. Those
+extensions belong to *Extending the Argument-Based Approach to Quantitative
+Studies*. The present worked example concentrates on one pair.
+
+The metaphor is deliberately demanding in two directions. It requires authors
+to make support visible, but it also requires readers to distinguish absence
+from the paper from absence in the research. A paper may omit information that
+exists in a protocol or supplement. Conversely, a sentence in a Methods
+section does not prove that the reported procedure was adequate or followed.
+
+### Reading Studies, Evaluating Quality, and Conducting Research
+
+The same question-to-answer support is encountered from different positions.
+
+**Reading studies** is the primary use. A reader identifies the question,
+locates the reported answer, and traces the support available in the accessible
+record. The reader should not assume that every relevant decision is visible or
+that every reported decision was prospective.
+
+**Evaluating quality** is the secondary use. It follows and depends on reading:
+after identifying the argument, an evaluator asks whether its question,
+evidence, justification, inference, transitions, and final answer remain
+aligned, adequate, faithful, and appropriately limited. Evaluation is not part
+of reading's definition. Section 4 introduces a small common set of questions
+for making those judgments.
+
+**The construction workflow** is the auxiliary use for conducting research. It
+is prospective and iterative. Researchers
+formulate questions, choose measures and comparisons, anticipate threats,
+produce evidence, analyse it, and revise what they can claim. The eventual
+argument is not normally written as eight labelled components during the
+study, but those logical obligations are being built throughout the work.
+Section 5 organizes much of that work in a six-stage construction workflow.
+
+Reporting matters because it makes the support inspectable, but it is not a
+fourth organizing activity here. A good report does more than state a result.
+It connects the question to the population, unit, design, measure, estimand,
+analysis, uncertainty, interpretation, and reservations. Related materials can
+strengthen this record by showing prospective plans, detailed measurement
+information, processing decisions, code, and sensitivity analyses.
+
+The approach is not a complete research-management or study-appraisal system.
+
+These activities create complementary responsibilities. Authors should make the
+support traceable without requiring readers to reverse-engineer every decision.
+Readers should examine the complete accessible record without assuming that a
+conventional heading guarantees a logical function. A tidy final paper can
+conceal an iterative process, while a careful process can be difficult to
+evaluate if reporting is incomplete.
+
+### Where the support may be found
+
+Conventional sections help navigation, but they are not the logical components
+of an argument. One justification may be distributed across an introduction,
+protocol, methods section, and supplement. One methods paragraph may contribute
+to several components. Reporting standards improve traceability, but readers
+still have to recover the function performed by each piece of information
+[@appelbaum2018].
+
+```{=latex}
+\Needspace{0.48\textheight}
+```
+
+| Logical role | Possible study location | Information a reader may seek |
+|:-------------|:------------------------|:------------------------------|
+| **Question and candidate answer** | Abstract, introduction, or protocol | Purpose, quantitative question, intended claim mode, hypothesis when present, and important planned choices |
+| **Evidence and its production** | Methods, participant flow, instrument documentation, data dictionary | Population and unit, recruitment, assignment or exposure, measurement, timing, implementation, exclusions, and completeness |
+| **Design and justification** | Protocol, Methods, analysis plan, supplement | Why the evidence, comparison, and uncertainty procedure can support the intended move |
+| **Analysis and inference** | Results, code, or analytical supplement | Group summaries, difference, uncertainty, and relevant checks |
+| **Bounded answer and reservations** | Discussion and conclusion | Substantive meaning, alternatives, scope, and unresolved reservations |
+
+: *Where support for a question--answer pair may appear.* {#tbl-study-locations tbl-colwidths="[25,31,44]"}
+
+Location is not logical role. A sample description, for example, helps identify
+the empirical evidence, may help justify reference to a target population, and should
+constrain the final claim. The argument-based approach asks what work the
+information does, wherever it appears.
+
+## One Argument with Linked Layers
+
+### One argument for one question--answer pair
+
+The argument-based approach reads the contract through one central rule:
+
+> Each question--answer pair has **one argument with linked layers**.
+
+For the observable-variable scope of this tutorial, the argument has two
+layers:
+
+- the **statistical layer (STAT)** concerns what the recorded observations
+  support about a defined estimand; and
+- the **substantive layer (SUB)** concerns what that statistical support means
+  for the people, practices, institutions, or other phenomena named in the
+  question.
+
+The statistical layer is the minimum. A purely statistical or methodological
+question may be answered there. A substantive empirical question requires the
+substantive layer even when the calculation is elementary. The need for the
+substantive layer depends on the question, not on whether the method appears
+simple or advanced.
+
+The layers belong to the same argument. They are parallel in form but distinct
+in function. The statistical layer does not determine substantive meaning. The
+substantive layer cannot erase uncertainty, unsupported conditions, or design
+limitations. A responsible answer must keep both forms of reasoning connected.
+
+### Four argument components
+
+An **argument component** names a logical function in the argument a study
+presents. Its **content** is the study-specific information or reasoning that
+performs that function; a **documentary trace** is the passage, table, protocol,
+or other accessible record through which we identify that content. For example,
+a Methods paragraph may document how participants were assigned and give a
+reason for comparing their outcomes. The paragraph can provide traces for two
+functions. Its location under Methods does not determine either function.
+
+Within each layer, four components perform different jobs:
+
+- **Evidence (E)** is what was observed together with relevant information
+  about how the observations were produced.
+- **Justification (J)** records the reasons the study offers for treating the
+  evidence and chosen method as support for the intended inference.
+- **Inference (I)** is the reasoned move that applies the justification to the
+  evidence by bringing together the estimand, result, uncertainty, relevant
+  checks, and analytic status.
+- **bounded Claim (C)** is the claim the study reports together with the bounds
+  it states. Whether those bounds are adequate is evaluated later.
+
+Calling something **Justification** identifies the role it plays, not whether
+it succeeds. A mistaken or incomplete reason still belongs in J when the study
+offers it to support an inference. Reading records that reason; evaluation
+judges its adequacy. Likewise, a trace of a reported action does not prove that
+the action occurred or was performed well. Justification can also invoke a
+principle or assumption, so it need not describe a research action at all.
+
+The word **bounded** names the component's intended function. Ideally, its force
+and scope retain the uncertainty, assumptions, design, alternatives, and
+population limits on which it depends. While reading, however, record the claim
+and whatever bounds the study actually states, even when they appear incomplete
+or too broad. Deciding whether they are responsible belongs to evaluation.
+
+**Bounded Claim** names an argument component; the **reported answer** is what
+the study says in response to the question. Evaluation may confirm that answer
+as the **supported bounded answer**, narrow it, replace it with an inconclusive
+answer, or find no supportable answer. For a substantive empirical question,
+the reported answer is normally expressed by SUB-C. *Worked* describes the
+example used to practise reading and is not another answer type.
+
+The four functions appear in both layers, producing eight components.
+
+| Code | Argument component | Core function |
+|:-----|:-------------------|:--------------|
+| **STAT-E** | Statistical-layer Evidence | Recorded observations plus information about recruitment, assignment or exposure, measurement, timing, implementation, exclusions, and completeness |
+| **STAT-J** | Statistical-layer Justification | Reasons the study offers for using its evidence, comparison, analytical procedure, and uncertainty method to support the statistical move |
+| **STAT-I** | Statistical-layer Inference | Estimand, result, uncertainty, and relevant checks brought together |
+| **STAT-C** | Statistical-layer bounded Claim | Statistical proposition the study reports, together with its stated conditions and uncertainty |
+| **SUB-E** | Substantive-layer Evidence | STAT-E situated as people or entities, variables, conditions, setting, implementation, and period |
+| **SUB-J** | Substantive-layer Justification | Substantive reasons the study offers to augment and contextualize STAT-J through literature, measurement meaning, implementation, alternatives, and scope |
+| **SUB-I** | Substantive-layer Inference | STAT-I interpreted through SUB-E and SUB-J in substantive units and context |
+| **SUB-C** | Substantive-layer bounded Claim | Question-facing claim and stated bounds; it normally expresses the reported answer and may be inconclusive |
+
+: *Argument components in the statistical and substantive layers.* {#tbl-argument-components tbl-colwidths="[13,30,57]"}
+
+STAT-E is not merely a spreadsheet of numbers. It also includes the information
+needed to understand how the numbers arose. Estimates, confidence intervals,
+tests, and diagnostics are derived through analysis; they belong within
+STAT-I rather than the empirical evidence itself.
+
+STAT-J is not a ritual list of assumptions. It contains the study's stated or
+implicit-but-traceable reasons connecting its evidence and estimand to the
+comparison, analytical procedure, and uncertainty calculation. For a causal
+question, this includes the study's reasons for treating its design and
+assumptions as a basis for the intended alternative-condition comparison. Some
+reasons may come from design, some from statistical conditions, and some from
+substantive knowledge.
+
+STAT-I is more than calculation. It connects the declared estimand to the
+estimate, interval, checks, and analytic status. STAT-C records the statistical
+proposition the study reports together with its stated conditions.
+
+SUB-E does not introduce a second dataset. It identifies what the recorded
+units, variables, conditions, setting, and period mean in the world named by
+the question. SUB-J then augments and contextualizes STAT-J with the study's
+substantive reasons concerning those meanings, implementation, alternatives,
+and scope. Evaluation later asks whether those reasons are adequate.
+
+SUB-I interprets the statistical result in meaningful units and considers
+alternatives. SUB-C records the question-facing answer the study reports and
+the limits it states. For a substantive question, the reported answer therefore
+appears at SUB-C, not in a numerical result alone.
+
+The mode-specific prompts introduced in @tbl-question-modes span the components
+rather than belonging to STAT-J alone. Representation engages E and J,
+predictive validation enters I, and avoiding causal overstatement also
+constrains C.
+
+**What function does a passage perform?** The special-practice study developed
+in Section 3 illustrates the distinction:
+
+| Information in the study | Contribution to the argument |
+|:-------------------------|:-----------------------------|
+| Participants were allocated to the two practice formats using a random sequence. | **STAT-E:** a reported feature of how the observations were produced. |
+| The study invokes randomized assignment as the basis for comparing outcomes under the assigned formats. | **STAT-J:** the reason offered for making that comparison. |
+| The study reports a mean difference and its uncertainty interval for the assigned-format contrast. | **STAT-I:** analytical results connected to the declared estimand and procedure. |
+
+: *Different functions of information about the same comparison.* {#tbl-function-traces tbl-colwidths="[51,49]"}
+
+These are function distinctions, not exclusive filing rules. The first
+statement may also provide an implicit trace of STAT-J when the comparison and
+the reason for invoking randomization are identifiable from the record. A
+sentence such as “We used SPSS” names software but, by itself, gives no reason
+why a particular comparison or uncertainty method supports the intended
+inference. STAT-J therefore does not collect every sentence about methods.
+
+The substantive distinction works similarly. An assessment guide's account of
+the course topics covered helps identify **SUB-E**, what the scores are about.
+The study's reasons for treating that coverage as evidence of delayed
+course-material performance contribute to **SUB-J**. Interpreting the
+estimated difference and its uncertainty in those terms belongs to **SUB-I**.
+Background literature belongs in SUB-J when it supplies a reason for the
+particular interpretation or scope, rather than merely discussing the topic.
+
+### Logical support is not a workflow
+
+Within either layer, the logical relationship is:
+
+$$
+E + J \longrightarrow I \longrightarrow C.
+$$
+
+Evidence and Justification work together to support Inference; Inference then
+supports the bounded Claim. This is a **logical support order**, not the order
+in which research activities must occur.
+
+The arrows show the support relation the study presents. They are not an
+evaluation verdict that the support is adequate.
+
+Justification may be developed before evidence is collected, and later checks
+may lead researchers to reconsider an analysis or narrow a claim. The logical
+diagram asks what supports what in the completed argument. It does not claim
+that research proceeds in a straight line from left to right. Section 5 returns
+to the activities and revisions involved in constructing the argument.
+
+This support order reinforces the earlier distinction between a result and an
+answer. Even a correctly calculated estimate contributes only part of STAT-I;
+it is not by itself STAT-C, SUB-I, or the final SUB-C.
+
+Likewise, a *p*-value alone supplies neither direction, magnitude, nor
+precision, and *nonsignificant* does not mean *no effect* [@wasserstein2016].
+Chapter 3 develops that reading.
+
+### How the two layers are linked
+
+@fig-core-argument displays one argument as two linked rows. The visual
+symmetry makes the common component pattern easy to see. The vertical
+connections, however, do different work.
+
+```{r}
+#| label: fig-core-argument
+#| fig-cap: "One argument with linked statistical and substantive layers."
+#| fig-alt: "Two aligned rows labeled statistical layer and substantive layer. In each row, Evidence plus Justification lead to Inference and then bounded Claim. Downward arrows are labeled situates, augments and contextualizes, interprets, and bounds."
+#| fig-width: 7.4
+#| fig-height: 4.7
+#| fig-pos: H
+
+draw_argument()
+```
+
+| Shared function | Cross-layer relation | What the relation does |
+|:----------------|:---------------------|:-----------------------|
+| **Evidence** | STAT-E to SUB-E **situates** | Identifies what the units, variables, conditions, setting, and period represent while retaining how the evidence was produced |
+| **Justification** | STAT-J to SUB-J **augments and contextualizes** | Retains statistical and design support while adding the study's substantive reasons about theory, measurement meaning, implementation, alternatives, benchmarks, and scope |
+| **Inference** | STAT-I to SUB-I **interprets** | Expresses the estimate or prediction, uncertainty, checks, and sensitivity in substantive units and context |
+| **Claim** | STAT-C to SUB-C **bounds** | Carries the statistical conditions and limitations into the study's substantive answer |
+
+: *Role-specific transitions across the linked layers.* {#tbl-cross-layer-relations tbl-colwidths="[18,26,56]"}
+
+The evidence transition **situates**. A row of scores becomes evidence about
+students completing a particular assessment under specified conditions.
+
+The justification transition **augments and contextualizes**. The substantive
+layer retains the statistical and design warrant while adding the study's
+reasons about measurement meaning, implementation, alternatives, benchmarks,
+and scope. Whether those reasons suffice is evaluated later.
+
+The inference transition **interprets**. A difference of 3.1 score points gains
+meaning only on a defined scale and in relation to uncertainty, setting, and
+possible alternatives.
+
+The claim transition **bounds**. It carries the conditions and limits of the
+statistical claim into the substantive answer rather than automatically turning
+a participant-specific comparison into a claim about every student, every
+implementation, or an unobserved construct called learning.
+
+While reading, trace whether magnitude, uncertainty, conditions, analytic
+status, and reservations remain visible across these connections. Section 4
+calls the corresponding quality-evaluation question **Transition fidelity**.
+Context may add meaning; it may not change what the statistical record says.
+
+The downward arrows in @fig-core-argument show how corresponding components
+are connected as readers trace the argument. They do not mean that
+substantive reasoning begins only after statistical analysis. The substantive
+question should shape the population, measures, design, and estimand
+from the beginning. Assessment meaning, for example, belongs in prospective
+planning as well as later interpretation.
+
+Nor is each vertical relation an automatic one-to-one conversion. One
+statistical component may need several kinds of substantive support, and one
+piece of contextual information may contribute to several components. The
+parallel layout is a memory aid for logical roles, not an algorithm that turns
+numbers into meaning.
+
+This tutorial synthesis is informed by Toulmin's warrants and qualified claims,
+LeMire's statistical-to-substantive reasoning, and Kane's linked inferential
+support, without reproducing any source as a one-to-one architecture or
+presenting the statistical and substantive layers as separate arguments
+[@toulmin2003; @lemire2010; @kane2013].
+
+## The Special-Practice Study: A Complete Worked Reading
+
+### The study record
+
+Consider a hypothetical study in one first-year course. The instructors have
+developed a four-session **Special Practice** format in which students work
+through carefully sequenced questions before seeing full solutions. The
+existing **Usual Practice** format uses the same subject matter and total study
+time but presents worked examples before students complete related questions.
+*Special* is only a neutral label for the hypothetical format; it does not
+assume that the format is better.
+
+One hundred and twenty consenting students who met the study's eligibility
+requirements are randomly assigned, 60 to each format. The formats use matched
+content and total study time, and every student completes the assigned
+four-session format. Two weeks after the final session, every participant
+completes the same 0--40 assessment under a common scoring procedure. The paper
+identifies the course as the participant source but does not report the size of
+the course roster, how many students were screened or invited, or how many were
+lost before consent.
+
+Assume that the accessible study record contains the paper, a protocol, an
+assessment-and-scoring guide, and a short implementation appendix. Before
+outcome access, the protocol labels the assignment question primary and
+specifies a two-point difference as potentially important for this course. It
+records the rationale: the assessment guide awards two points for one correctly
+completed application task, and the course team expected adopting Special
+Practice to require only modest additional preparation. This gives the
+benchmark a prospective, course-specific documentary trace; evaluation still
+asks whether the rationale is persuasive.
+
+The study asks:
+
+> Among the 120 participating students in this course, what difference in mean
+> delayed-assessment score would result from assignment to Special Practice
+> rather than Usual Practice?
+
+The question is causal but deliberately narrow. It concerns assignment, these
+participants, this course, this implementation, and a particular delayed
+assessment. It does not ask whether every form of special practice improves
+all aspects of learning for all students.
+
+The student is the unit of assignment, measurement, and analysis. The direct
+study population is the 120 consenting eligible participants. The estimand is
+their mean effect of assignment to Special rather than Usual Practice. The
+intended outcome is a bounded causal answer about these formats as implemented.
+Naming those features before viewing the result keeps the answer obligation
+stable.
+
+The paper reports that the Special Practice group has a mean score of 27.1 with a standard
+deviation of 6.0, while the Usual Practice group has a mean of 24.0 with a
+standard deviation of 6.4. The estimated difference is therefore 3.1 points.
+A two-sided 95% Welch two-sample *t* interval, rounded to one decimal place,
+runs from 0.9 to 5.3 points.
+
+The interval summarizes uncertainty about the mean assignment contrast under
+the stated method; it is not a range of individual student scores. Later
+chapters develop interval construction.
+
+The full interval is above zero, but it contains values below and above the
+prespecified two-point benchmark. Reading records both features: the authors
+report a positive assignment effect, while also saying that the result does not
+resolve whether the effect reaches their importance benchmark. Evaluation later
+asks whether that reported answer and benchmark are adequately supported.
+
+### Reading the statistical layer
+
+**STAT-E: What was recorded, and how was it produced?**
+
+The evidence includes more than 120 outcome scores. It includes the assignment
+record, group sizes, delivery records, assessment timing and scoring, consent,
+and complete follow-up. These details identify the comparison actually
+created.
+
+**STAT-J: What reasons does the study give for the statistical move?**
+
+Individual random assignment supports comparing the assigned groups for these
+participants. Matching total study time and subject matter helps define the
+difference between formats. Common assessment procedures support score
+comparability. Complete follow-up removes one important attrition concern.
+The interval additionally requires an uncertainty procedure appropriate to the
+randomized two-group comparison and the observed spread.
+
+Randomization does not solve every problem. It does not establish that the
+assessment measures every aspect of learning. It does not show that delivery
+was identical to the written guide. It does not make the volunteers
+representative of other courses.
+
+Randomization creates comparability in expectation rather than guaranteeing
+identical groups on every observed characteristic in this one realization.
+The causal support comes from the assignment mechanism.
+
+**STAT-I: How does the study connect the estimand, result, uncertainty, checks,
+and analytic status?**
+
+The observed assigned-group means are 27.1 and 24.0. Their estimated difference
+is 3.1 points, with a 95% confidence interval from 0.9 to 5.3. The protocol
+identifies this as the primary analysis and records the two-point benchmark.
+The direction is positive throughout the interval, while the magnitudes
+compatible with the data and method include values below and above that
+benchmark.
+
+Analysis computes the group summaries, difference, spread, and interval.
+STAT-I connects those results to the declared estimand, uncertainty procedure,
+relevant checks, and primary status; it is the inference rather than another
+numerical output.
+
+**STAT-C: What statistical claim does the study report, with what bounds?**
+
+> For these 120 randomized participants, Special-minus-Usual assignment is
+> estimated to increase the mean delayed-assessment score by 3.1 points, with a
+> 95% confidence interval from 0.9 to 5.3 points; whether the contrast reaches
+> the prespecified two-point importance benchmark remains unresolved.
+
+This statement retains the assigned comparison, participant group, magnitude,
+scale, and uncertainty. It remains a statistical claim because it does not yet
+establish what the score means educationally or how far the finding should
+travel.
+
+### Reading the substantive layer
+
+**SUB-E: What do the recorded observations represent?**
+
+The observations concern consenting students in one first-year course,
+assigned to two four-session practice formats, and assessed two weeks later on
+a 0--40 course-linked measure. The result represents performance on that
+assessment under this implementation. The study describes it as delayed
+course-material performance rather than every possible form of learning.
+
+**SUB-J: What substantive reasons augment and contextualize the statistical
+justification?**
+
+The study draws on the meaning of the two formats, the assessment blueprint,
+common administration and scoring, implementation records, and prior
+educational reasoning. These reasons augment and contextualize the statistical
+warrant by connecting the assigned comparison to delayed course-material
+performance under this implementation. The protocol also records the study's
+course-specific rationale for treating two points as a threshold of potential
+importance: the scoring guide awards two points for one correctly completed
+application task, and the course team expected only modest additional
+preparation. This does not make two points a universal threshold. Whether the
+rationale is adequate is asked only in Section 4.
+
+This justification also identifies limits. Consent and one course do not
+support broad population generalization. A delayed assessment is evidence about
+defined performance, not every possible form of learning. The assignment
+effect is not automatically the effect of attending every session.
+
+**SUB-I: What does the statistical result mean in context?**
+
+The estimate is 3.1 points on a 0--40 assessment scale. That scale gives the
+number a measurement context, but it does not determine practical importance.
+Educational importance also depends on assessment content, score consequences,
+feasible costs, and comparison with a benchmark specified independently of the
+observed result.
+
+**SUB-C: What answer does the study report, and what bounds does it state?**
+
+> Under the implemented formats and common assessment conditions, assignment
+> to Special rather than Usual Practice increased mean delayed-assessment
+> performance for these 120 participating students by an estimated 3.1 points
+> on the 0--40 scale, 95% CI [0.9, 5.3]. The result does not resolve whether the
+> effect reaches the prespecified two-point importance benchmark. The study does not by itself establish
+> the effect for other courses, other implementations, students who did not
+> participate, or broader forms of learning.
+
+### Reading the representation path
+
+STAT-E also records how units move from the group named in the question to the
+cases used in analysis:
+
+```text
+target population -> frame or source -> invited or eligible units
+                  -> observed or responding units -> analytic sample
+```
+
+- The **target population** is the group to which the question and proposed
+  answer refer: here, the 120 consenting eligible participants in this course.
+- The **frame or source** is the list, setting, or record system from which units
+  could enter: the paper identifies one course, but a complete roster or frame
+  is **not located**.
+- The **invited or eligible units** are those approached or meeting entry rules:
+  the 120 participants met the rules, but the numbers screened, invited, or
+  declining are **not located**.
+- The **observed or responding units** are those from whom the relevant
+  observations were obtained: all 120 randomized participants supplied delayed
+  scores.
+- The **analytic sample** is the set actually used for the result: the same 120
+  participants because follow-up is complete.
+
+Not every study has every step. Administrative data may begin with a source
+system, and a census may not use a sampling frame. Mark a genuinely inapplicable
+step **not applicable**; mark an applicable but unreported step **not located**.
+Neither label authorizes the reader to invent what happened.
+
+```{=latex}
+\Needspace{0.70\textheight}
+```
+
+### The eight components together
+
+| Component | Component content | Documentary trace(s) | Documentary status | Conflict flag |
+|:----------|:------------------|:---------------------|:-------------------|:--------------|
+| **STAT-E** | Assignment, delayed scores, scoring and timing, format delivery, consent, and complete follow-up for 120 participants | Paper Methods and Results; implementation appendix | Stated in the paper; delivery detail located in related materials | None located |
+| **STAT-J** | The study's reasons for using the randomized assigned-group comparison, matched conditions, common scoring, and Welch interval | Paper Methods; protocol; implementation appendix | Stated in the paper; interval method located in related materials | None located |
+| **STAT-I** | Primary estimand; means 27.1 and 24.0; estimate 3.1; 95% CI [0.9, 5.3]; two-point benchmark | Paper Results; protocol | Stated in the paper; status and benchmark located in related materials | None located |
+| **STAT-C** | Reported participant-specific assignment contrast, interval, and unresolved benchmark conclusion | Paper Results | Stated in the paper | None located |
+| **SUB-E** | Consenting eligible students in one course, two matched-time formats, and one delayed course assessment | Paper Methods; assessment guide | Stated in the paper; assessment detail located in related materials | None located |
+| **SUB-J** | The study's reasons connecting format content, implementation, assessment meaning, and the course-specific two-point benchmark to delayed course-material performance | Introduction; protocol; implementation appendix; assessment guide | Stated in the paper; benchmark rationale located in related materials | None located |
+| **SUB-I** | Interpretation of the estimate and interval on the 0--40 delayed-performance scale, including the benchmark | Discussion; protocol | Stated in the paper; benchmark located in related materials | None located |
+| **SUB-C** | Reported causal answer limited to participants, implementation, measure, interval, and unresolved importance | Abstract and Discussion | Stated in the paper | None located |
+
+: *Reading record for one special-practice argument.* {#tbl-special-components tbl-colwidths="[10,36,21,25,8]"}
+
+The table separates a component's logical function and study-specific content
+from the place where that content can be inspected. The same passage may trace
+several components, and one component may be distributed across sources. The
+four documentary statuses are **stated in the paper**, **located in related
+materials**, **implicit but traceable**, and **not located**. A contradiction
+across materials is recorded separately. These descriptions are not quality
+scores. If a needed reason is not found, write **not located** rather than
+*absent*; a premise supplied by the reader is only a proposed repair and does
+not become support in the argument being read.
+
+The same rule protects an unsuccessful justification from being misrecorded as
+missing. If the paper explicitly gives a reason that does not support its
+inference, its documentary status is still **stated in the paper**. Its
+adequacy is a separate judgment under Section 4's **Justification adequacy**.
+
+Recognizing a function requires statistical and substantive knowledge, which
+the rest of this course develops. During reading, that knowledge can make a
+conventional connection explicit when it is already traceable in the record.
+It cannot supply an undocumented study-specific premise, such as successful
+allocation concealment or complete attendance. Identifying the reason offered
+and deciding whether it is appropriate or sufficient are different tasks. A
+reader may notice a weakness immediately; keeping the two uses separate means
+recording that judgment separately, not postponing thought until a second pass.
+
+### Following the transitions
+
+The component pairs are related through four distinct moves:
+
+- **STAT-E to SUB-E situates:** “120 scores” becomes evidence about consenting
+  students, two practice formats, one course, and one delayed assessment.
+- **STAT-J to SUB-J augments and contextualizes:** the authors carry the
+  statistical and design warrant forward while adding reasons about assessment meaning,
+  implementation, prior reasoning, and scope.
+- **STAT-I to SUB-I interprets:** the 3.1-point contrast and interval are
+  expressed on the 0--40 scale and considered in relation to educational
+  benchmarks.
+- **STAT-C to SUB-C bounds:** the conditions and limitations of the
+  participant-specific assignment contrast remain attached to the educational
+  causal answer.
+
+The reported substantive answer retains the interval and does not expand the
+sample, while the authors treat educational importance as requiring contextual
+support beyond the statistical result. Section 4 evaluates whether each
+transition preserves both forms of discipline.
+
+### Locating the supporting record
+
+A reader should distinguish documentary presence from adequacy. Using the
+general locations in @tbl-study-locations, the worked study might place its
+question in an introduction or protocol; assignment, delivery, outcome, and
+completion records in Methods and related materials; its estimate and interval
+in Results; and the interpretation of meaning, alternatives, magnitude, and
+scope in the Discussion. Support for one component may span several locations.
+
+Use the four documentary statuses listed above and flag contradictions
+separately. It is better to seek a **documentary trace** than “proof of a
+component.” Presence in a document does not establish adequacy. Failure to
+locate a trace does not establish that the underlying work never occurred. The
+reader's question is narrower: what support can be found in the accessible
+study record?
+
+The completed reading therefore records the authors' reported causal answer
+with its participant, implementation, measurement, uncertainty, and benchmark
+bounds. It does not yet decide whether every part is warranted.
+
+## Evaluating the Quality of a Question-Level Argument
+
+Reading identifies the parts and traces their support. Quality evaluation asks
+how well those parts work together. It is the secondary use after reading, not
+another argument layer and not a numerical score.
+
+### Six questions focus the evaluation
+
+Six questions provide a common vocabulary for this chapter and the chapters
+that follow. The short family labels help memory; they do not replace the six
+question names.
+
+| Family | Quality-evaluation question | Primary object | Beginner question |
+|:-------|:----------------------------|:---------------|:------------------|
+| **Alignment** | **Question alignment** | Relations among the question, estimand, design, evidence, analysis, and intended answer | Do they remain directed at the same question? |
+| **Support** | **Evidence integrity** | Observations, contextual records, and how they were produced and represented | Are the records trustworthy, traceable, and represented appropriately? |
+| **Support** | **Justification adequacy** | Design, measurement, model, and contextual reasons | Do the stated reasons warrant the proposed moves? |
+| **Support** | **Inferential adequacy** | Inference in both layers: estimation or prediction, checking, uncertainty, sensitivity, and substantive interpretation | Do these support the statistical and substantive inferences? |
+| **Translation** | **Transition fidelity** | Links between the statistical and substantive layers | Does each transition preserve meaning, uncertainty, design status, and scope? |
+| **Translation** | **Claim calibration** | The bounded Claims, especially the final substantive answer | Is each claim no stronger or broader than its support? |
+
+: *Six questions for evaluating one question-level argument.* {#tbl-basic-evaluation tbl-colwidths="[15,25,31,29]"}
+
+The first question asks about alignment. The next three examine the support
+within and around the layers. The final two examine how faithfully that support
+travels into substantive meaning and the final answer. Inferential adequacy
+examines reasoning within either layer; Transition fidelity examines what is
+retained when moving between them; Claim calibration examines the strength and
+scope of the resulting answer. A problem can have
+downstream consequences under more than one question. The evaluator should
+identify where the problem originates, then explain those consequences rather
+than count the same weakness several times.
+
+### Applying all six questions
+
+The special-practice study provides a first complete application. The
+judgments below concern the hypothetical record as stated; a real study may
+provide insufficient information to judge some entries.
+
+| Quality-evaluation question | Application to the special-practice argument |
+|:----------------------------|:---------------------------------------------|
+| **Question alignment** | **Adequate for this purpose.** The participant-specific causal question, randomized assignment, delayed assessment, mean-difference estimand, primary analysis, two-point benchmark, and reported answer address the same comparison. |
+| **Evidence integrity** | **Adequate for this purpose.** Assignment, delivery, scoring, and complete outcomes are documented for 120 consenting students; the record does not establish representation beyond that group. |
+| **Justification adequacy** | **Adequate for this purpose.** Random assignment supports the narrow assignment comparison, and common assessment procedures support score comparability. The protocol's assessment-task and modest additional-preparation rationale gives the two-point benchmark a course-specific basis, but not universal authority. Assessment meaning and one-course recruitment limit wider interpretation [@aeraApaNcme2014; @kane2013]. |
+| **Inferential adequacy** | **Adequate for this purpose.** The primary estimate is accompanied by group spread and a Welch 95% interval; the interval supports direction but crosses the prespecified two-point benchmark. |
+| **Transition fidelity** | **Adequate for this purpose.** The substantive interpretation retains the 0--40 delayed-assessment scale, participant group, randomized assignment, estimate, interval, setting, and implementation. |
+| **Claim calibration** | **Adequate for this purpose.** The reported answer uses causal language about assignment for these participants, retains the interval and unresolved benchmark, and does not claim effects for every student, implementation, or form of learning. |
+
+: *Quality evaluation of the special-practice argument.* {#tbl-special-evaluation tbl-colwidths="[27,73]"}
+
+These judgments form a reasoned profile, not six independent grades. For
+example, weak measurement support originates under Justification adequacy. It
+can then damage Transition fidelity and require a narrower Claim. Recording
+that path is more useful than subtracting three points for one problem.
+
+Depending on the record and purpose, an evaluator may write **adequate for
+this purpose**, **needs revision**, **insufficient information to judge**, or **not
+applicable** beside an individual evaluation question. The third label marks
+missing support without implying that the underlying research activity never
+occurred. Reserve **not assessable from the accessible record** for the
+whole-pair conclusion introduced below.
+
+For this record, the **supported bounded answer** matches the reported answer:
+
+> Under the implemented formats and common assessment conditions, assignment
+> to Special rather than Usual Practice increased mean delayed-assessment
+> performance for these 120 participants by an estimated 3.1 points on the
+> 0--40 scale, 95% CI [0.9, 5.3]. Whether the effect reaches the prespecified
+> two-point importance benchmark remains unresolved.
+
+The whole-pair evaluation conclusion is therefore **supported as stated**. This
+conclusion is separate from the six question-level judgments and from the
+documentary statuses recorded during reading.
+
+### Evidence integrity includes representation
+
+Evidence integrity requires attention to whom or what the observations
+represent, not only whether values were entered correctly. Section 3 established
+that the study's course source is stated but its roster, invitation counts, and
+pre-consent losses are not located. Evaluation therefore supports the narrow
+participant-level estimand and scope but not an extension to all students in the course or
+university. At each applicable transition, ask who or what was lost, added, or
+excluded and how that change affects STAT-E and the scope of the answer.
+
+Random sampling and random assignment answer different questions. Random
+sampling primarily supports representation of a population. Random assignment
+primarily supports a causal comparison of assigned conditions for the study
+participants. A study can have one without the other. A narrow interval cannot
+repair a poorly represented target population.
+
+### Recurring constraints belong inside the answer
+
+The six questions repeatedly direct attention to four practical constraints.
+Readers should check:
+
+- whether the final answer stays with the people or entities, place, period,
+  and observations actually represented;
+- whether its substantive words match what the recorded measures can mean;
+- whether its verbs express only the interpretation supported by the design;
+  and
+- whether it retains relevant uncertainty, assumptions, alternatives, and
+  unresolved reservations.
+
+These constraints are not four additional questions and need not map
+one-to-one onto the six quality-evaluation questions. A single measurement problem, for
+example, may weaken justification, distort the substantive transition, and
+force a narrower claim.
+
+In the worked study, the point estimate is 3.1, but the interval ranges from
+0.9 to 5.3. “Exactly 3.1 points” ignores uncertainty, while “at least five
+points” conflicts with much of the interval. Calling the difference
+educationally important would additionally require a defensible benchmark.
+Reservations therefore belong in the reasoning and wording of the answer, not
+in a detached limitations paragraph.
+
+### Four evaluation conclusions
+
+Quality evaluation should lead to an explicit outcome rather than a vague list of
+strengths and weaknesses.
+
+An answer is **supported as stated** when the question, linked layers, and
+reported bounds are adequate for the question as stated. This does not mean the
+study is perfect; it means the supported bounded answer matches what was
+reported. A correctly reported inconclusive answer can therefore be supported
+as stated.
+
+An answer is **supported only after narrowing or revision** when a defensible
+revision still directly answers the same question without changing its mode or
+estimand. For example, random assignment among volunteers may support a causal
+assignment effect for participants while the paper concludes that the format
+works for all university students. Narrowing the population wording repairs the
+answer without changing the question.
+
+An answer is **not supported** when the accessible record supports no defensible
+answer to the original question. Changing a causal question into an
+associational one, or replacing its estimand, is not narrowing: it creates a
+different or revised question--answer pair and workflow cycle.
+
+An answer is **not assessable from the accessible record** when the record is
+insufficient to decide what answer the support warrants. This conclusion does
+not prove that the researchers never performed the work, and it should not be
+silently converted into either adequacy or failure.
+
+These outcomes keep criticism connected to the contract. The reader states not
+only what is missing or weak, but how that condition changes the strongest
+answer the accessible study can support.
+
+::: {.callout-note title="Same result, different design"}
+Suppose the means, 3.1-point difference, and interval are unchanged, but
+students chose their practice format instead of being randomly assigned. Hold
+the original causal question fixed. The observed comparison no longer supplies
+the design warrant needed for a causal answer, so that causal answer is **not
+supported** by the described record. Statistical adjustment alone would not
+restore the missing warrant.
+
+The same records may support a bounded association between chosen format and
+delayed score for these participants. That statement answers a separately
+stated **associational** question and therefore belongs to a different
+question--answer pair; it is not a weaker answer to the original causal
+question. A causal interpretation of an observational comparison would require
+defensible design-and-assumption support beyond statistical adjustment alone.
+:::
+
+Authors have the first responsibility to evaluate and document the quality of
+their argument. Collaborators and supervisors can test it while research is in
+progress; reviewers, editors, and readers test the accessible record
+independently. The six questions therefore support self-evaluation, but they
+are not only a self-evaluation tool.
+
+Chapter 1a retains these six questions and adds **Cross-question coherence**
+for studies whose separately owed answers must be coordinated.
+
+## Constructing the Argument: A Six-Stage Workflow
+
+### Components and stages do different work
+
+Argument components describe the logical roles that support an answer. A
+**workflow stage** describes an activity used to construct or revise that
+support. Components answer *what supports the claim?*; stages answer *how was
+that support built?* They have a many-to-many relationship: one stage can
+develop several components, and one component can depend on work performed
+across several stages.
+
+The six stages below organize much of the question-to-answer work within the
+broader quantitative research process. They do not exhaust ethics, governance,
+stakeholder engagement, project management, data stewardship, dissemination,
+or archiving. The cycle adapts the iterative character of established
+statistical-enquiry guidance [@wild1999; @asa2016gaise].
+
+### Six stages in two phases
+
+| Phase and stage | Main activity | Special-practice application |
+|:----------------|:--------------|:--------------------------------|
+| **Understand and plan -- 1. Review the problem, setting, and relevant literature** | Develop prospective statistical and substantive justification | Review prior evidence about special practice, delayed performance, assessment meaning, additional preparation, plausible alternatives, and defensible importance benchmarks |
+| **Understand and plan -- 2. Frame the question and, where useful, a candidate answer** | Declare the population, comparison, outcome, claim mode, and provisional limits on the claim | Ask the participant-specific assignment question and frame a candidate answer about delayed-assessment performance, not learning everywhere |
+| **Understand and plan -- 3. Align design, measurement, estimand, evidence-production or acquisition plan, and inferential plan** | Specify the design, measures, estimand, evidence-production or acquisition plan, any stopping rule, comparison, uncertainty, and checks | Plan random assignment of 120 participants, the common 0--40 delayed assessment, mean difference, Welch interval, course-specific two-point benchmark and rationale, delivery records, complete follow-up, and fixed sample size |
+| **Produce and complete -- 4. Produce or acquire, and document, empirical and contextual evidence** | Produce the planned evidence or obtain and designate the question-specific analysis records; preserve the context needed for SUB-E | Retain consent, assignment, delivery, scoring, outcome, follow-up, deviation, and setting records for the planned 120 participants |
+| **Produce and complete -- 5. Estimate, check, and analyse** | Develop STAT-I and STAT-C while checking the planned comparison and evidence record | Calculate the group means, 3.1-point contrast, 95% CI [0.9, 5.3], and relevant scoring, follow-up, and implementation checks |
+| **Produce and complete -- 6. Contextualize, interpret, and complete the bounded answer** | Complete or refine SUB-J, SUB-I, and SUB-C without inventing post hoc reasons | Use the study's substantive reasons, interpret the result on the delayed-assessment scale, retain uncertainty and design meaning, and state the participant- and implementation-specific answer |
+
+: *A six-stage construction cycle applied to the simple special-practice study.* {#tbl-basic-workflow tbl-colwidths="[28,31,41]"}
+
+The first phase makes the intended argument coherent before evidence production.
+The second phase produces the evidence, analyses it, and completes the bounded
+answer. In the advanced tutorial, prospective alignment and cross-question
+synthesis become separate stages because coordinated questions create further
+obligations.
+
+```{r}
+#| label: fig-basic-workflow
+#| fig-cap: "A six-stage, two-phase workflow cycle for constructing one question-level argument."
+#| fig-alt: "Stages 1 through 3 move from left to right in the understand-and-plan phase. A solid downward arrow connects Stage 3 to Stage 4. Stages 4 through 6 then move from right to left in the produce-and-complete phase. Dashed return arrows remain within their respective phases; no return arrow crosses from Phase 2 to Phase 1."
+#| fig-width: 7.4
+#| fig-height: 4.25
+#| fig-pos: H
+
+draw_workflow()
+```
+
+### Iteration stays within a phase
+
+Each argument is constructed within one documented workflow cycle. Iteration
+is permitted only within Phase 1, among Stages 1--3, and within Phase 2, among
+Stages 4--6. A Phase 1 return revises the prospective question, candidate
+answer, or plan before evidence production or question-specific acquisition
+begins. A Phase 2 return verifies or
+reworks evidence documentation, checking, analysis, and interpretation without
+pretending to redesign what has already happened. The handoff from Stage 3 to
+Stage 4 is therefore one-way within a cycle.
+
+The **Phase 1 anchor** comprises the question and its mode, design, measurement,
+estimand, evidence-production or acquisition plan, stopping rule, and inferential
+plan. A prospectively documented candidate answer may be contradicted by the
+result without starting a new cycle. For an existing data source, Stage 4 means
+obtaining or designating the question-specific analysis records or extract; it
+need not be the first time anyone accessed the source. First access to relevant
+outcomes may precede, coincide with, or follow that handoff. Whether a decision
+was prospective depends on whether it preceded the evidence relevant to that
+decision, not merely on its stage number.
+
+Three cases keep revision honest:
+
+1. **Normal completion:** the planned analysis produces a bounded answer,
+   including an inconclusive answer when appropriate, and the cycle closes.
+2. **Phase 2 repair:** an outcome-coding error may be checked and corrected, or
+   a prespecified sensitivity analysis run, while the Phase 1 anchor remains
+   unchanged.
+3. **Additional or revised cycle:** a late additional question begins its own
+   explicitly exploratory cycle. A newly preferred outcome selected after
+   relevant evidence has been examined also creates a separate exploratory
+   question--answer pair and cycle; it cannot silently replace the planned
+   pair. Changing an estimand, design, or inferential commitment gives the
+   original cycle an explicit outcome and begins a new or revised cycle.
+
+If the planned measure cannot answer the original question, record that cycle's
+outcome as **not answerable as planned** and begin the redesigned study as a new
+or revised cycle.
+
+A new cycle may reuse literature, measures, records, code, and lessons, but
+their provenance and timing remain visible. Reuse does not automatically make a
+new decision prospective, and the original cycle is not erased.
+
+::: {.callout-note title="Three different tasks"}
+**Reading** identifies and traces the argument the study presents. **Quality
+evaluation** judges that already-read argument when evaluation is wanted. The
+**construction workflow** shows how researchers build and revise its support.
+None is another argument layer.
+:::
+
+Researchers can use the six quality-evaluation questions while constructing an argument,
+but the questions are not additional workflow stages. They test the quality of
+what a stage produces rather than describe another activity in the sequence.
+
+## Summary and Reading Bridge
+
+### Read first; evaluate when needed
+
+Reading asks what argument the study presents. Identify the question, mode,
+estimand, answer obligation, and reported answer; identify the content performing
+the eight component functions; locate documentary traces and record their
+statuses and any conflicts; and follow logical support within and across the
+linked layers. Do not fill a documentary gap with a premise of your own.
+
+Quality evaluation is the separate secondary use. When it is needed, apply
+the six questions to the argument already read, state the supported bounded
+answer, and record one of four conclusions: **supported as stated**, **supported
+only after narrowing or revision**, **not supported**, or **not assessable from
+the accessible record**.
+
+The construction workflow is the auxiliary use for conducting research. The
+six-stage workflow helps researchers build and revise the support; it is not a
+reading procedure and does not recover the historical order merely from the
+finished paper.
+
+### Compact glossary
+
+**Question--answer contract.** The study's obligation to connect each
+quantitative question to a traceable reported outcome; the obligation may be
+met well, met by an inconclusive answer, or not met.
+
+**Question--answer pair.** One research question and one separately reportable
+question-facing answer obligation.
+
+**Question mode.** The kind of answer sought: descriptive, associational,
+predictive, or causal. Mode is not the same as analytic status.
+
+**Estimand and estimate.** The estimand specifies what the study seeks to
+learn; the estimate is the numerical result obtained from observed evidence
+for it. A question may require one or more estimands.
+
+**Argument and layer.** An argument is the complete question-level reasoning
+for one pair; a layer is a coordinated statistical or substantive part of that
+one argument.
+
+**Argument component.** Evidence, Justification, Inference, or bounded Claim as
+a logical function within a layer.
+
+**Bounded Claim and answers.** C records the study's claim and stated bounds.
+Reading records the reported answer; evaluation determines the supported
+bounded answer.
+
+**Documentary trace.** An inspectable passage, table, protocol, code file,
+record, or related material through which component content can be located.
+
+**Documentary status.** Stated in the paper, located in related materials,
+implicit but traceable, or not located; conflicts are flagged separately.
+
+**Representation path.** The applicable transitions from target population
+through a source or frame, eligible or invited units, observed or responding
+units, and the analytic sample.
+
+**Quality-evaluation question.** One of six named questions used to evaluate
+Question alignment, Evidence integrity, Justification adequacy, Inferential
+adequacy, Transition fidelity, or Claim calibration.
+
+### Reading bridge
+
+The argument-based approach is a tutorial synthesis rather than a new theory of
+statistical inference. Several sources deepen different parts of it:
+
+- Toulmin's *The Uses of Argument* explains why evidence needs warrants and why
+  claims retain qualifications and reservations [@toulmin2003].
+- LeMire offers a statistical precedent connecting parameter-level reasoning
+  with substantive interpretation [@lemire2010].
+- Kane and the *Standards for Educational and Psychological Testing* develop
+  argument-based reasoning for proposed score interpretations and uses
+  [@kane2013; @aeraApaNcme2014].
+- Lundberg, Johnson, and Stewart explain why defining an estimand helps
+  connect theory, evidence, design-based support, and estimation [@lundberg2021].
+- *Introduction to Modern Statistics* gives an accessible introduction to
+  cases, variables, populations, sampling, assignment, and study design
+  [@cetinkaya2024].
+- Reporting standards show why a paper and its related materials should make
+  design, analysis, interpretation, and limitations inspectable
+  [@appelbaum2018].
+
+Shadish, Cook, and Campbell's established validity terminology distinguishes
+statistical conclusion, internal, construct, and external validity, especially
+for causal studies [@shadish2002]. Those types illuminate several concerns in
+this chapter, but the six questions are organized for reading a question-level
+argument. They are not renamed validity types or a competing validity taxonomy.
+
+The next tutorial, *Extending the Argument-Based Approach to Quantitative
+Studies*, extends the six-stage cycle to seven stages for coordinated questions
+and develops the same six quality-evaluation questions plus Cross-question coherence,
+design complications, and
+regression-based methods. It is optional: Chapters 2--14 assume only the basic
+concepts taught in this chapter. Any later chapter that needs a method-specific
+refinement introduces it locally rather than sending readers backward to the
+advanced extension.
+
+```{=latex}
+\Needspace{8\baselineskip}
+\phantomsection
+```
+
+## Exercises {.unnumbered}
+
+These exercises form a modular bank. Each prompt contains the information
+needed for its task. Select the exercises that suit the class; the labels
+indicate the kind of thinking required rather than a fixed order.
+
+```{=latex}
+\Needspace{10\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH01-E01 -->
+### Exercise 1: Find the question--answer pair (Foundational) {.unnumbered #ex-ch01-01}
+
+A report states:
+
+> Researchers studied 100 students in one university course. They asked
+> whether assignment to weekly planning messages rather than usual course
+> messages would change the mean final-assessment score. The planning-message
+> group averaged 78 points and the usual-message group averaged 73 points on a
+> 100-point assessment. The report concluded, “Weekly planning messages
+> improve achievement for every university student.” The excerpt does not say
+> how students were assigned or report an interval for the difference.
+
+Complete the following tasks:
+
+1. Identify the research question, numerical result, and reported answer.
+2. Classify the question as descriptive, associational, predictive, or causal.
+3. State the estimand in ordinary language. Remember that the observed
+   five-point difference is an estimate, not the estimand itself.
+4. Name one design fact needed before treating the difference as an effect of
+   the messages.
+5. Identify one way the reported answer is broader than the study record.
+
+<!-- END EX01-01 PROMPT -->
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH01-E02 -->
+### Exercise 2: Distinguish component functions (Foundational) {.unnumbered #ex-ch01-02}
+
+The following statements come from the special-practice study. For each
+statement, first choose the **statistical (STAT)** or **substantive (SUB)**
+layer. Then choose its main function: **Evidence (E), Justification (J),
+Inference (I),** or **bounded Claim (C)**. Use each of the eight codes once.
+
+1. The records contain the assignment, delivery, scoring, and delayed scores
+   for all 120 participants.
+2. Random assignment and common scoring support comparing the two assigned
+   groups for these participants.
+3. For the protocol's primary participant-level assignment estimand, the group
+   means are 27.1 and 24.0; their estimated difference is 3.1 points, 95% CI
+   [0.9, 5.3], with the interval above zero but crossing the two-point benchmark.
+4. For the randomized participants, the estimated Special-minus-Usual mean
+   score difference is 3.1 points, 95% CI [0.9, 5.3].
+5. The records concern consenting students in one course who completed two
+   defined practice formats and a delayed 0--40 assessment.
+6. The assessment blueprint and implementation records support interpreting
+   the scores as delayed performance on the assessed course material and give
+   the two-point benchmark a course-specific rationale, not a universal
+   importance threshold.
+7. In course terms, the estimated assignment effect is a 3.1-point increase in
+   mean delayed-assessment performance, with compatible values from 0.9 to 5.3
+   points under the stated method.
+8. Under this implementation, assignment to Special Practice increased mean
+   delayed-assessment performance for these participants; effects on other
+   students or broader learning are not established.
+
+For one statement, briefly explain why its wording signals the function you
+selected. Then consider Statement 2: assume its randomization procedure appears
+in the protocol but not in the paper. Assign the documentary status and explain
+why the protocol is a trace rather than the component itself.
+
+<!-- END EX01-02 PROMPT -->
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH01-E03 -->
+### Exercise 3: Complete the linked layers (Integrative) {.unnumbered #ex-ch01-03}
+
+Suppose a randomized study conducted during one professional-development
+workshop reports the following:
+
+- 80 participants were assigned equally to two feedback formats;
+- at the end of the workshop, all completed the same immediate 20-point quiz;
+- the new-format mean was 15.2 and the usual-format mean was 14.1;
+- the estimated difference was 1.1 points, 95% CI [-0.2, 2.4];
+- assignment and scoring procedures were documented;
+- the planned interval procedure was used, with no consequential problem found
+  in the reported scoring, implementation, or analysis checks; and
+- a 1.5-point difference was prospectively identified as potentially
+  important.
+
+Using only the information provided, complete the linked-layer map:
+
+| Code | What belongs here? |
+|:-----|:-------------------|
+| STAT-E | |
+| STAT-J | |
+| STAT-I | |
+| STAT-C | |
+| SUB-E | |
+| SUB-J | |
+| SUB-I | |
+| SUB-C | |
+
+What directions and importance conclusions remain compatible with the interval
+from -0.2 to 2.4? Write STAT-C without saying either “the format worked” or
+“there was no effect.” In SUB-C, preserve the interval and distinguish immediate
+quiz performance from durable professional learning. Then apply **Inferential
+adequacy** to the reported inference and **Claim calibration** to your drafted
+claims, giving one short judgment for each.
+
+<!-- END EX01-03 PROMPT -->
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH01-E04 -->
+### Exercise 4: Evaluate and repair a conclusion (Integrative) {.unnumbered #ex-ch01-04}
+
+In one first-year course, 120 consenting students were randomly assigned to
+Special or Usual Practice. Everyone completed the same delayed 0--40
+assessment. The Special-minus-Usual difference in group means was 3.1 points,
+95% CI [0.9, 5.3]. Before outcome access, the protocol specified a two-point
+difference as potentially important because the scoring guide awarded two
+points for one correctly completed application task and adoption was expected
+to require only modest additional preparation. The abstract concludes:
+
+> Special Practice is an effective way to improve learning. Students gained
+> 3.1 points, proving that the method should replace usual practice in
+> universities.
+
+1. For each quality-evaluation question, record one short judgment about the
+   conclusion.
+
+| Quality-evaluation question | What do you notice? |
+|:----------------------------|:--------------------|
+| Question alignment | |
+| Evidence integrity | |
+| Justification adequacy | |
+| Inferential adequacy | |
+| Transition fidelity | |
+| Claim calibration | |
+
+2. Identify one problem where it first arises and one consequence it creates
+   later in the argument.
+3. Write a replacement conclusion of no more than two sentences. Retain the
+   supported causal comparison, but do not turn a difference between group
+   means into the gain experienced by every student.
+4. State the supported bounded answer and choose one overall evaluation
+   conclusion: **supported as stated**, **supported only after narrowing or
+   revision**, **not supported**, or **not assessable from the accessible
+   record**. Explain your choice in one sentence.
+
+<!-- END EX01-04 PROMPT -->
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH01-E05 -->
+### Exercise 5: Map and revise a workflow cycle (Integrative) {.unnumbered #ex-ch01-05}
+
+**Part A: Map the work.** Assign each activity to Stage 1--6 and identify its
+phase.
+
+A. Estimate the group difference and interval, then check the evidence record.
+B. Review the practical problem, setting, and relevant prior studies.
+C. Interpret the result in course context and complete the bounded answer.
+D. Frame the participant-specific question and a candidate answer.
+E. Produce or acquire the evidence and preserve assignment, delivery, scoring,
+   outcome, and follow-up records.
+F. Align random assignment, the delayed assessment, the mean-difference estimand,
+   evidence-production plan and fixed sample size, and the uncertainty plan.
+
+**Part B: Classify six cases.** For each case, choose **normal completion**,
+**iteration within Phase 1**, **iteration within Phase 2**, **an additional
+exploratory cycle**, or **a revised cycle**, and give one reason.
+
+1. Before recruitment, a pilot reveals that the practice instructions are
+   ambiguous.
+2. During analysis, the team discovers an outcome-coding error and verifies the
+   original records before recalculating the estimate.
+3. After examining the outcomes, the team adds a new attendance question while
+   retaining the original assignment question.
+4. After examining the outcomes, the team prefers a different outcome and
+   wants it to replace the planned primary outcome.
+5. The planned analysis is completed as specified, but its interval leaves both
+   benefit and harm compatible with the record; the team reports an
+   inconclusive answer.
+6. During Phase 2, the team discovers that the planned delayed assessment was
+   administered immediately instead. It cannot answer the original
+   delayed-performance question, so the team plans a redesigned study.
+
+For Cases 3, 4, and 6, state what the additional or revised cycle must make
+visible. Give one example of material that may be reused and one kind of status
+that does not transfer automatically.
+
+<!-- END EX01-05 PROMPT -->
+
+```{=latex}
+\Needspace{8\baselineskip}
+\phantomsection
+```
+
+## References {.unnumbered}
+
+\begingroup
+\footnotesize
+
+::: {#refs}
+:::
+
+\endgroup

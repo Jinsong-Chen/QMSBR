@@ -1,0 +1,94 @@
+# QMSBR website. Everything the site needs is in this one file.
+# To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/,
+# add it to `render:` and to the sidebar below, add a row to library.qmd, push.
+
+project:
+  type: website
+  output-dir: _site
+  render:
+    - index.qmd
+    - library.qmd
+    - about.qmd
+    - part-one/part_one_introduction.qmd
+    - part-one/chapter_01.qmd
+    - part-one/chapter_01a.qmd
+    - part-one/chapter_02.qmd
+    - part-one/chapter_03.qmd
+    - part-one/chapter_04.qmd
+    - part-one/chapter_05.qmd
+    - part-one/chapter_06.qmd
+    - part-one/chapter_07.qmd
+    - part-one/chapter_08.qmd
+    - part-two/part_two_introduction.qmd
+    - part-two/chapter_01.qmd
+    - part-two/chapter_02.qmd
+    - part-two/chapter_03.qmd
+    - part-two/chapter_04.qmd
+
+website:
+  title: "QMSBR"
+  description: "Quantitative Methods for Social and Behavioral Research"
+  site-url: "https://jinsong-chen.github.io/QMSBR/"
+  favicon: assets/favicon.svg
+  page-navigation: true
+  back-to-top-navigation: true
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: library.qmd
+        text: Library
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/Jinsong-Chen/QMSBR
+        aria-label: GitHub repository
+    search: true
+  sidebar:
+    style: floating
+    collapse-level: 2
+    contents:
+      - section: "Part One — Foundations and Regression"
+        contents:
+          - part-one/part_one_introduction.qmd
+          - part-one/chapter_01.qmd
+          - part-one/chapter_01a.qmd
+          - part-one/chapter_02.qmd
+          - part-one/chapter_03.qmd
+          - part-one/chapter_04.qmd
+          - part-one/chapter_05.qmd
+          - part-one/chapter_06.qmd
+          - part-one/chapter_07.qmd
+          - part-one/chapter_08.qmd
+      - section: "Part Two — Factor Analysis and SEM"
+        contents:
+          - part-two/part_two_introduction.qmd
+          - part-two/chapter_01.qmd
+          - part-two/chapter_02.qmd
+          - part-two/chapter_03.qmd
+          - part-two/chapter_04.qmd
+  page-footer:
+    left: "© 2026 Jinsong Chen · CC BY 4.0"
+    right:
+      - href: about.qmd#citation
+        text: Cite
+      - href: about.qmd#licences
+        text: Licence
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    anchor-sections: true
+    format-links: false
+
+execute:
+  freeze: auto
+
+lang: en

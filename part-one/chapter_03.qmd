@@ -1,0 +1,1895 @@
+---
+title: "Understanding Estimates, Uncertainty, and Statistical Tests"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-cap: true
+    tbl-cap: true
+    fig-align: center
+    include-in-header:
+      - file: ../supplement/pdf-graphics-compat.tex
+      - text: |
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \usepackage{caption}
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \usepackage{xcolor}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+if (knitr::is_latex_output()) {
+  knitr::opts_chunk$set(dev = "cairo_pdf")
+}
+
+# Fixed, transparent summaries for the hypothetical study.
+n_special <- 60
+n_usual <- 60
+mean_special <- 27.1
+mean_usual <- 24.0
+sd_special <- 6.0
+sd_usual <- 6.4
+estimate <- mean_special - mean_usual
+standard_error <- sqrt(
+  sd_special^2 / n_special + sd_usual^2 / n_usual
+)
+welch_df <-
+  (sd_special^2 / n_special + sd_usual^2 / n_usual)^2 /
+  ((sd_special^2 / n_special)^2 / (n_special - 1) +
+     (sd_usual^2 / n_usual)^2 / (n_usual - 1))
+test_statistic <- estimate / standard_error
+p_value <- 2 * pt(-abs(test_statistic), df = welch_df)
+confidence_interval <-
+  estimate + c(-1, 1) * qt(.975, df = welch_df) * standard_error
+
+ink <- "#243447"
+blue <- "#2B6F8A"
+blue_light <- "#DDECF2"
+gold <- "#B7791F"
+gold_light <- "#F5E8C8"
+red <- "#A23B3B"
+grey <- "#6B7280"
+grey_light <- "#EEF1F4"
+
+draw_result_anatomy <- function() {
+  old <- par(mar = c(0.4, 0.4, 0.6, 0.4), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 10), ylim = c(0, 10))
+  rect(0.4, 7.2, 9.6, 9.3, col = "#FBE4E4", border = red, lwd = 1.5)
+  text(0.8, 8.75, "INCOMPLETE", adj = 0, col = red, font = 2, cex = 0.9)
+  text(0.8, 8.0, "Special Practice worked, p < .05.", adj = 0,
+       col = ink, font = 2, cex = 1.05)
+
+  labels <- c("ESTIMAND", "ESTIMATE", "UNCERTAINTY", "DESIGN", "BOUNDS")
+  details <- c(
+    "assignment contrast\nfor 120 students",
+    "3.1 points\n(0-40 scale)",
+    "95% CI [0.9, 5.3]\np = .007",
+    "random assignment\nand full follow-up",
+    "course, format,\noutcome, time"
+  )
+  xs <- seq(1.25, 8.75, length.out = 5)
+  fills <- c(blue_light, gold_light, blue_light, gold_light, grey_light)
+  borders <- c(blue, gold, blue, gold, grey)
+  for (i in seq_along(xs)) {
+    rect(xs[i] - 0.78, 3.0, xs[i] + 0.78, 6.3,
+         col = fills[i], border = borders[i], lwd = 1.3)
+    text(xs[i], 5.75, labels[i], col = borders[i], font = 2, cex = 0.72)
+    text(xs[i], 4.55, details[i], col = ink, cex = 0.64)
+    if (i < length(xs)) {
+      arrows(xs[i] + 0.80, 4.65, xs[i + 1] - 0.82, 4.65,
+             length = 0.08, col = grey, lwd = 1.2)
+    }
+  }
+  text(0.5, 1.65,
+       "A result becomes readable when the number is reconnected to its",
+       adj = 0, col = ink, cex = 0.86)
+  text(0.5, 0.95,
+       "question, repeated-process uncertainty, design support, and scope.",
+       adj = 0, col = ink, cex = 0.86)
+}
+
+set.seed(30301)
+repeated_estimates <- rnorm(500, mean = estimate, sd = standard_error)
+
+draw_repeated_estimates <- function() {
+  old <- par(mar = c(4.1, 4.3, 1.0, 0.8))
+  on.exit(par(old))
+  hist(
+    repeated_estimates, breaks = 24, probability = TRUE,
+    col = blue_light, border = "white",
+    xlab = "Special-minus-Usual estimate (assessment points)",
+    ylab = "Density", main = "", col.axis = ink, col.lab = ink
+  )
+  abline(v = estimate, col = gold, lwd = 2.4)
+  arrows(
+    estimate - standard_error, 0.025,
+    estimate + standard_error, 0.025,
+    code = 3, angle = 90, length = 0.06, col = blue, lwd = 2
+  )
+  text(estimate, 0.355, "fixed estimand", col = gold, font = 2, cex = 0.8)
+  text(estimate, 0.045, "fixed estimand +/- 1 SE", col = blue, cex = 0.78, pos = 3)
+}
+
+set.seed(30306)
+coverage_estimate <- rnorm(40, mean = estimate, sd = standard_error)
+coverage_lower <-
+  coverage_estimate - qnorm(.975) * standard_error
+coverage_upper <-
+  coverage_estimate + qnorm(.975) * standard_error
+coverage_hit <-
+  coverage_lower <= estimate & estimate <= coverage_upper
+
+draw_coverage <- function() {
+  old <- par(mar = c(4.6, 4.6, 1.0, 0.8), mgp = c(2.8, 0.8, 0))
+  on.exit(par(old))
+  plot(
+    NA, xlim = range(c(coverage_lower, coverage_upper, estimate)),
+    ylim = c(0.5, 40.5), xlab = "Interval for the mean assignment contrast",
+    ylab = "Repeated study", yaxt = "n", col.axis = ink, col.lab = ink
+  )
+  abline(v = estimate, col = gold, lwd = 2)
+  for (i in seq_len(40)) {
+    colour <- if (coverage_hit[i]) blue else red
+    segments(coverage_lower[i], i, coverage_upper[i], i,
+             col = colour, lwd = 1.4)
+    points(coverage_estimate[i], i, pch = 16, col = colour, cex = 0.55)
+  }
+  axis(2, at = c(1, 10, 20, 30, 40), las = 1, col.axis = ink)
+  legend(
+    "topright", legend = c("covers estimand", "misses estimand"),
+    col = c(blue, red), lwd = 2, bty = "n", cex = 0.78
+  )
+}
+
+draw_test_and_interval <- function() {
+  old <- par(mfrow = c(1, 2), mar = c(4.0, 3.8, 2.2, 0.7))
+  on.exit(par(old))
+
+  x <- seq(-4.2, 4.2, length.out = 800)
+  y <- dt(x, df = welch_df)
+  plot(
+    x, y, type = "l", lwd = 2, col = ink,
+    xlab = "Test statistic under the null",
+    ylab = "Density", main = "Null-model reference"
+  )
+  right <- x[x >= abs(test_statistic)]
+  left <- x[x <= -abs(test_statistic)]
+  polygon(c(right, rev(right)),
+          c(dt(right, welch_df), rep(0, length(right))),
+          col = "#F4C7C7", border = NA)
+  polygon(c(left, rev(left)),
+          c(dt(left, welch_df), rep(0, length(left))),
+          col = "#F4C7C7", border = NA)
+  lines(x, y, lwd = 2, col = ink)
+  abline(v = c(-test_statistic, test_statistic), col = red, lwd = 1.7)
+  text(test_statistic, 0.12, "observed 2.74", pos = 2,
+       col = red, cex = 0.76)
+
+  plot(
+    NA, xlim = c(-1, 7), ylim = c(0.5, 1.5), yaxt = "n",
+    xlab = "Special-minus-Usual contrast (points)", ylab = "",
+    main = "Matching estimate and interval"
+  )
+  abline(v = 0, col = grey, lty = 2)
+  segments(confidence_interval[1], 1, confidence_interval[2], 1,
+           col = blue, lwd = 4)
+  points(estimate, 1, pch = 21, bg = gold, col = ink, cex = 1.5)
+  text(estimate, 1.20, "3.1", col = ink, cex = 0.8)
+  text(0, 0.72, "null = 0", col = grey, cex = 0.75)
+}
+
+draw_workflow <- function() {
+  old <- par(mar = c(0.3, 0.3, 0.5, 0.3), xpd = NA)
+  on.exit(par(old))
+  plot.new()
+  plot.window(xlim = c(0, 12), ylim = c(0, 7.3))
+
+  box_x <- c(2, 6, 10, 10, 6, 2)
+  box_y <- c(5.4, 5.4, 5.4, 1.8, 1.8, 1.8)
+  titles <- c(
+    "1  Review",
+    "2  Frame",
+    "3  Align",
+    "4  Conduct",
+    "5  Estimate",
+    "6  Complete"
+  )
+  details <- c(
+    "problem, setting,\nliterature",
+    "question and\ncandidate answer",
+    "design, measure,\nestimand, plan",
+    "produce or acquire,\ndocument evidence",
+    "check, analyse,\nquantify uncertainty",
+    "contextualize,\ninterpret, complete"
+  )
+  fills <- c(rep(blue_light, 3), rep(gold_light, 3))
+  borders <- c(rep(blue, 3), rep(gold, 3))
+  for (i in seq_len(6)) {
+    rect(box_x[i] - 1.35, box_y[i] - 0.82,
+         box_x[i] + 1.35, box_y[i] + 0.82,
+         col = fills[i], border = borders[i], lwd = 1.4)
+    text(box_x[i], box_y[i] + 0.31, titles[i],
+         font = 2, col = borders[i], cex = 0.82)
+    text(box_x[i], box_y[i] - 0.25, details[i],
+         col = ink, cex = 0.68)
+  }
+  arrows(3.4, 5.4, 4.55, 5.4, length = 0.08, col = ink, lwd = 1.4)
+  arrows(7.4, 5.4, 8.55, 5.4, length = 0.08, col = ink, lwd = 1.4)
+  arrows(10, 4.5, 10, 2.72, length = 0.08, col = ink, lwd = 1.5)
+  arrows(8.6, 1.8, 7.45, 1.8, length = 0.08, col = ink, lwd = 1.4)
+  arrows(4.6, 1.8, 3.45, 1.8, length = 0.08, col = ink, lwd = 1.4)
+
+  arrows(4.55, 6.45, 3.4, 6.45, length = 0.07,
+         col = grey, lty = 2)
+  arrows(8.55, 6.45, 7.4, 6.45, length = 0.07,
+         col = grey, lty = 2)
+  arrows(7.45, 0.75, 8.6, 0.75, length = 0.07,
+         col = grey, lty = 2)
+  arrows(3.45, 0.75, 4.6, 0.75, length = 0.07,
+         col = grey, lty = 2)
+
+  text(0.65, 6.8, "PHASE 1: UNDERSTAND AND PLAN",
+       adj = 0, col = blue, font = 2, cex = 0.82)
+  text(0.65, 3.25, "PHASE 2: PRODUCE AND COMPLETE",
+       adj = 0, col = gold, font = 2, cex = 0.82)
+}
+```
+
+{{< pagebreak >}}
+
+::: {.callout-tip title="Chapter box"}
+**Central question:** Among the 120 randomized participants, how did
+assignment to Special Practice rather than Usual Practice affect mean
+delayed-assessment score?
+
+**Focal concepts:** Estimand, estimator, estimation, estimate, parameter,
+statistic, standard error, confidence interval, hypothesis test, effect
+magnitude, importance, and a bounded inferential claim. The main reading route is **estimand → estimate →
+repeated-process uncertainty → interval → optional test → bounded answer**.
+
+**Main evidence:** A transparent hypothetical study from Chapter 1. Sixty
+students were randomly assigned to each of two four-session practice formats.
+All 120 completed the same delayed assessment scored from 0 to 40. The
+Special-minus-Usual mean difference was 3.1 points, 95% CI [0.9, 5.3].
+A documented, course-specific two-point benchmark for potential educational
+importance was specified before outcome access.
+
+**Uses and scope:** Reading inferential output within one argument is the
+primary use. Quality evaluation follows as a distinct secondary use.
+The construction workflow is the auxiliary use for conducting research. The
+example supports an assignment comparison for these participants under the
+stated design and analysis conditions. It does not automatically support claims
+about all students, attendance or adherence, mechanisms, durable learning, or
+every educational outcome. Chapter 1 supplies the shared argument-based
+prerequisite; Chapter 2 supplies the descriptive and sampling foundation.
+Chapter 1a is optional and not required.
+:::
+
+# From the Question to the Estimand and Estimate
+
+Suppose the first result sentence you encounter is:
+
+> Special Practice worked, *p* < .05.
+
+The sentence sounds decisive because it contains a condition name and a
+familiar threshold. Yet it is almost impossible to read responsibly. *Worked* does not
+name an outcome, magnitude, group, time, or comparison. The inequality does not
+tell us the exact result, the null proposition tested, or the uncertainty. It
+also turns a conditional calculation into a general verdict.
+
+This chapter repairs that sentence gradually. It does not begin by asking you
+to memorize a catalogue of tests. Instead, it asks what each reported number
+contributes to one question--answer pair.
+
+## The study record
+
+The hypothetical **special-practice study** continues the simple example from
+Chapter 1. A first-year course recruited 120 consenting students. The students
+were randomly assigned, 60 to Special Practice and 60 to Usual Practice. Both
+formats covered the same course content over four sessions. All students
+completed the same delayed assessment two weeks later. Scores could range from
+0 to 40. Before outcome access, the study record identified a two-point
+difference as potentially important for this course. The protocol records its
+rationale: the assessment guide awards two points for one correctly completed
+application task, and the course team expected adopting Special Practice to
+require only modest additional preparation. The rationale is prospective and
+course-specific; it does not make two points a universal threshold.
+
+The focal question was:
+
+> Among these randomized participants, how did assignment to Special Practice
+> rather than Usual Practice affect mean delayed-assessment score?
+
+The question already establishes important boundaries. It asks about
+**assignment**, not attendance at every session. It asks about the **mean**,
+not every student's response. It asks about one delayed-assessment score, not
+all forms of learning. It names these randomized participants rather than an
+unspecified population.
+
+\Needspace{29\baselineskip}
+
+**Table 3.1**
+
+*Study and output record for the hypothetical special-practice comparison*
+
+| Record | Special Practice | Usual Practice | Comparison or status |
+|:-------|-----------------:|---------------:|:---------------------|
+| Assigned students | 60 | 60 | Random assignment |
+| Primary outcomes observed | 60 | 60 | Complete follow-up |
+| Delayed-assessment mean | 27.1 | 24.0 | 3.1-point mean difference |
+| Delayed-assessment SD | 6.0 | 6.4 | Variation among student scores |
+| Standard error of mean difference | — | — | 1.13 points |
+| 95% confidence interval | — | — | [0.9, 5.3] points |
+| Matching two-sided test | — | — | *t*(117.51) = 2.74, *p* = .007 |
+| Potentially important difference | — | — | 2.0 points; rationale prespecified and course-specific |
+
+*Note.* The summary is constructed for teaching and does not describe a real
+study. The interval and test use the same two-group procedure. Rounded values
+are shown; calculations use the unrounded summaries.
+
+Do not try to explain every row at once. Begin with four orienting questions:
+
+1. What quantity was the study trying to learn?
+2. What did the observed data estimate?
+3. How uncertain is that estimate under the stated design and model?
+4. What answer remains after units, importance, and scope are retained?
+
+@fig-result-anatomy shows why the opening sentence is only a fragment. A useful result
+has to reconnect the statistical output to its estimand, design, and bounds.
+
+```{r}
+#| label: fig-result-anatomy
+#| fig-cap: "Anatomy of an incomplete result and the information needed to repair it."
+#| fig-alt: "The sentence Special Practice worked, p less than .05 appears above five linked boxes: estimand, estimate, uncertainty, design, and bounds. The boxes identify the participant assignment contrast, 3.1 points, the confidence interval and p-value, random assignment and complete follow-up, and the local scope."
+#| fig-width: 7.4
+#| fig-height: 4.8
+#| fig-pos: H
+
+draw_result_anatomy()
+```
+
+The route through the chapter is deliberately asymmetric. We read the estimate
+and interval first. A test is added only when the null-model question was
+planned and useful. The final answer must still retain design, measurement,
+importance, and scope.
+
+## Name the Inferential Objects Before Reading the Number
+
+A number cannot be interpreted until its role is named. An **estimand** is the
+precisely specified target quantity: what would answer the question if it could
+be known for the named units or population, conditions, outcome, summary, time,
+and scope. After that plain-language gloss, this chapter uses *estimand* as the
+working noun. A reader then asks: *What estimand is fixed, what rule is applied,
+what number appeared, and what repeated process gives that number its modeled
+uncertainty?*
+
+\Needspace{14\baselineskip}
+**Table 3.2**
+
+*Seven inferential terms in the special-practice study*
+
+| Object | Working definition | Entry in this study | Common reading error |
+|:-------|:-------------------|:--------------------|:---------------------|
+| **Estimand** | The precisely specified quantity the question seeks | Mean delayed-score difference caused by Special rather than Usual assignment among the 120 randomized participants | Naming only “the treatment effect” |
+| **Estimator** | The rule that would be applied in each admissible repetition | Special-group mean minus Usual-group mean | Treating the rule as the observed result |
+| **Estimation** | The process of applying and checking an estimator for the specified estimand and characterizing the estimate and uncertainty | Apply the mean-difference rule, verify its inputs and conditions, and quantify uncertainty | Treating estimation as another number |
+| **Estimate** | The number the estimator produced in this study | 27.1 − 24.0 = 3.1 points | Reporting a number without units or direction |
+| **Parameter** | The fixed feature named by the estimand under the chosen population or process interpretation | The participant-specific mean assignment contrast | Assuming it is the sample estimate or a universal truth |
+| **Statistic** | A numerical function of observed data | A group mean, the 3.1-point estimate, or the 2.74 test statistic | Assuming every statistic is an estimate of the same thing |
+| **Standard error** | The modeled spread of an estimator across the declared repetitions | 1.13 points for the mean-difference estimator | Calling it variation among students |
+
+*Note.* Standard error is previewed here and developed in Section 2. The same
+numerical statistic can serve different roles in different questions; its
+value alone does not establish its interpretation.
+
+**Estimand: specify what the question asks to know.** An estimand is more
+informative than a variable name. “Assessment score” is
+not an estimand. Neither is “the effect of practice.” For this study, a useful
+estimand names:
+
+- the **units**: the 120 consenting participants;
+- the **conditions**: assignment to Special versus Usual Practice;
+- the **outcome**: delayed-assessment score on the 0--40 scale;
+- the **time**: two weeks after the four-session formats;
+- the **summary**: a difference in means; and
+- the **direction**: Special minus Usual.
+
+Changing any of these features can change the estimand. The effect of attending
+all four sessions is not the effect of assignment. A pass-rate difference is
+not a mean-score difference. A six-month outcome is not the two-week outcome.
+A population-average effect for all first-year students is not automatically
+identified by a study of consenting students in one course.
+
+To write this same question mathematically, let $Y_i(1)$ be student $i$'s
+delayed score if assigned to Special Practice and $Y_i(0)$ the score if
+assigned to Usual Practice. These are **potential outcomes**: two possible
+outcomes under the specified formats, only one of which is observed for each
+student. The mean assignment effect for these 120 students is
+
+$$
+\tau_{120}=\frac{1}{120}\sum_{i=1}^{120}\{Y_i(1)-Y_i(0)\}.
+$$
+
+The sum adds the 120 individual assignment effects; dividing by 120 takes
+their mean. The subscript keeps the participant set visible. This notation
+does not introduce a new question or assume that every student has the same
+effect. We assume the formats are consistently implemented and one student's
+assignment does not change another student's outcome in a relevant way.
+
+**Estimator: the rule survives repetition.** The estimator is the instruction
+“subtract the Usual assigned-group mean from
+the Special assigned-group mean.” If the assignment were repeated, the
+students' outcomes and the group means could differ, but the rule would remain
+the same. Here the declared repetition assigns these **same 120 students**
+again, with exactly 60 in each format; it does not recruit a new population.
+Their potential outcomes remain fixed while their observed outcomes can change
+with assignment. This distinction matters because uncertainty describes the behavior
+of the rule across declared repetitions, not hesitation about which arithmetic
+was performed.
+
+**Estimation: a process, not another number.** It begins after the estimand is
+specified. It applies the estimator
+to the evidence, checks the relevant inputs and conditions, and characterizes
+the resulting estimate and uncertainty. The estimator is the rule; estimation
+is the process; the estimate is the realized number. Keeping the three words
+separate prevents an output from being mistaken for the reasoning that
+produced it.
+
+**Estimate: the realized numerical result.** The observed Special mean was 27.1 and the
+observed Usual mean was 24.0.
+Therefore:
+
+$$
+\widehat\tau=\bar Y_1-\bar Y_0=27.1-24.0=3.1\text{ assessment points}.
+$$
+
+The hat reminds us that 3.1 is an estimate. The sign and order matter:
+Special-minus-Usual is positive 3.1; reversing the order gives negative 3.1.
+The evidence has not changed, but the language must change with the direction.
+
+**Parameter: fixed does not mean universal.** Under the declared assignment
+interpretation, the parameter is the fixed mean
+contrast the study is trying to learn for these participants. We do not observe
+that feature directly because each student was assigned to only one format.
+Random assignment and an analysis model allow the observed group difference to
+inform it.
+
+Calling the parameter fixed does not make it universal. It is fixed *within
+the declared estimand*. A different participant set, implementation, outcome, or
+time can define a different parameter.
+
+## Description and inference are not interchangeable
+
+The 3.1-point difference exactly describes the two realized group means. That
+description requires no standard error. The inferential question goes further:
+what does this observed difference say about $\tau_{120}$ under possible
+repetitions of the random assignment for these participants?
+The confidence interval and test address that further question under stated
+conditions.
+
+Neither step makes the records themselves random after the fact. Nor does
+random assignment create population representation. Assignment supports the
+condition comparison for the randomized participants; recruitment and setting
+still govern how far the answer may travel.
+
+## Three qualities of an estimator
+
+Three ideas are enough for the main route:
+
+- **Bias** concerns whether an estimator is systematically displaced from its
+  estimand under the declared process.
+- **Variability** concerns how much its values differ across repetitions.
+- **Robustness** concerns how strongly its behavior changes when assumptions or
+  analytic choices are perturbed.
+
+A low-variability estimator aimed at the wrong estimand is not useful. An
+unbiased estimator can still be imprecise in a small study. A procedure that is
+reliable under one model may be fragile when outcomes are strongly dependent,
+missing, or miscoded. Fuller estimator theory belongs in the Reading Bridge;
+the reader's immediate job is to locate the estimand and the procedure's
+conditions.
+
+For this design, expectation means an average over all possible assignments:
+
+$$
+\operatorname{Bias}(\widehat\tau)
+=\mathbb E_{\mathrm{assign}}(\widehat\tau)-\tau_{120}=0.
+$$
+
+The final equality follows from complete random assignment and the stated
+potential-outcome conditions: each group mean is centered on the corresponding
+mean potential outcome. It is a property of the estimator, not a claim that
+this study's 3.1 equals the unknown effect. For example, an estimator averaging
+3.4 when its estimand is 3.0 would instead have bias $3.4-3.0=0.4$ points.
+
+# From Repeated Estimates to Confidence Intervals
+
+A **data distribution** describes observed values, such as the 120 student
+scores. A **sampling or randomization distribution** describes possible values
+of an estimator across a declared repetition process. This distinction is the
+bridge from description to uncertainty.
+
+The two observed standard deviations, 6.0 and 6.4 points, describe variation
+among students' assessment scores within the assigned groups. They do **not**
+describe how the estimated mean difference would vary across repetitions.
+That second spread is the standard error.
+
+For this estimator:
+
+$$
+SE(\widehat\tau)
+=SD(\widehat\tau\text{ across possible assignments}).
+$$
+
+The repetition must be named. Here it repeats the assignment mechanism for
+the same 120 participants. In a
+probability sample, we might imagine repeating the sample selection. In a
+model-based analysis, the repetition also depends on the assumed
+data-generating model. Different repetitions can yield different standard
+errors and different interpretations.
+
+## Understand and calculate standard error
+
+**One study gives one estimate; repetitions give a distribution.**
+@fig-repeated-estimates is a teaching simulation centered at 3.1 points with a
+spread of about 1.13 points. The center is set to 3.1 only to make the display
+concrete; it does not claim that the unknown estimand equals the observed
+estimate. Nor does the simulation invent 500 additional studies as evidence.
+It makes the repeated-process definition visible using a Normal approximation,
+not an enumeration of this study's actual randomization distribution. Each bar
+represents possible values of the **same estimator** in that illustration.
+
+```{r}
+#| label: fig-repeated-estimates
+#| fig-cap: "A teaching simulation of repeated Special-minus-Usual estimates. The estimand and estimator remain fixed; realized estimates vary, and their modeled spread is the standard error."
+#| fig-alt: "Histogram of 500 possible mean-difference estimates centered near 3.1 assessment points. A vertical line marks the fixed estimand. A horizontal arrow extends one standard error to each side of it, spanning two standard errors in total."
+#| fig-width: 7.1
+#| fig-height: 4.6
+#| fig-pos: H
+
+draw_repeated_estimates()
+```
+
+The observed estimate is not expected to equal the estimand in every repetition.
+What matters is whether the estimator is centered appropriately and whether
+its spread has been quantified under a defensible process.
+
+The contrast with standard deviation is simple but important. The SDs of 6.0
+and 6.4 points describe variation among observed student scores; the SE of 1.13
+points describes variation in the mean-difference estimator across the
+declared repetitions. Both retain assessment-point units here. Neither repairs
+poor design or measurement, and a larger effective sample size usually reduces
+the SE rather than the underlying individual-score SD.
+
+**Calculate the estimated standard error.** The reported calculation combines
+the observed group variances, allowing them
+to differ. Here $n_1=n_0=60$, $s_1=6.0$, and $s_0=6.4$:
+
+$$
+\begin{aligned}
+\widehat{SE}(\widehat\tau)
+&=\sqrt{\frac{s_1^2}{n_1}+\frac{s_0^2}{n_0}}\\
+&=\sqrt{\frac{36}{60}+\frac{40.96}{60}}\\
+&=\sqrt{0.6000+0.682666\ldots}\approx1.13255\text{ points}.
+\end{aligned}
+$$
+
+Each variance is in squared points. Dividing by its group size reduces its
+contribution to the uncertainty of a mean; taking the square root returns to
+points. Keep unrounded values in calculations and report 1.13 points.
+
+Why can this estimate be **conservative**? Across assignments of these same
+participants, the exact variance contains a subtraction for variation in
+individual assignment effects. We cannot recover that variation: no student
+reveals both potential outcomes. The calculation above omits the subtraction
+and estimates the remaining terms. Its square can therefore overstate the
+true variance *on average*, with equality when individual effects are
+constant. This does **not** imply that every realized SE is too large.
+
+The expression is familiar from the Welch two-group procedure. Here it is
+used with an **approximate working reference**, not an exact randomization
+distribution. Complete assignment of 60 out of 120 students does not make the
+two assigned-group means independent. The approximation needs adequate group
+information and no dominating observations; no universal sample-size cutoff
+establishes this. Appendix A gives the variance identity and distinguishes
+this design from an independent-sampling model.
+
+## Construct and read a confidence interval
+
+A confidence interval combines an estimate with procedure-based uncertainty.
+Many familiar two-sided intervals have the form:
+
+$$
+\text{estimate}
+\pm
+\text{critical value}\times\text{standard error}.
+$$
+
+For the special-practice comparison, the unrounded calculation gives an
+interval from about 0.86 to 5.34 points, reported as 95% CI [0.9, 5.3].
+The estimate, 3.1, is at the center because this familiar interval is
+symmetric on the raw-score scale.
+
+**Why a reference distribution is needed.** A standard error gives a scale;
+a reference distribution supplies cutoffs for the intended coverage. The
+standard Normal, or *z*, distribution is symmetric with center 0 and SD 1.
+A *t* distribution is also symmetric around 0 but has heavier tails,
+especially with few degrees of freedom. Those tails allow for uncertainty
+from estimating the spread. As degrees of freedom increase, the *t*
+distribution approaches the standard Normal.
+
+Estimated spread does not make every statistic exactly *t*-distributed. For
+one mean, the familiar exact *t* result requires independent Normal sampling.
+Welch's reference for the present comparison is an approximation under the
+previously stated conditions. Its fractional degrees of freedom describe that
+approximation; they are not a count of students.
+
+The supplied 95% Welch critical value is 1.98036, based on approximately
+117.51 degrees of freedom. A critical value sets the distance from the estimate
+to either endpoint in SE units. Thus the arithmetic is
+
+$$
+\begin{aligned}
+\widehat\tau\pm t_{.975,117.51}\widehat{SE}(\widehat\tau)
+&\approx3.1\pm1.98036(1.13255)\\
+&\approx3.1\pm2.24285\\
+&\approx[0.85715,\ 5.34285]\text{ points}.
+\end{aligned}
+$$
+
+The subscript .975 leaves .025 in each tail of the two-sided reference
+distribution. Appendix A shows how the degrees of freedom are calculated.
+A standard calculator is enough to check the interval once the critical
+value is supplied. Read the resulting interval in four moves.
+
+**1. Locate the estimate and units.** The estimate is a **3.1-point
+Special-minus-Usual mean assignment contrast**.
+An interval without the estimated direction and unit is incomplete.
+
+**2. Read the endpoints as compatible values under the procedure.** Under the
+stated design, model, and interval procedure, mean assignment
+contrasts from approximately 0.9 to 5.3 points remain compatible with the
+observed result at the 95% level. The interval says that the data do not
+pinpoint one effect size. Values near either endpoint remain part of the
+procedure's compatibility set.
+
+The entire interval is above zero, but it contains values below and above the
+prespecified two-point importance benchmark. Reading therefore records a
+positive estimated direction and an unresolved importance conclusion. Whether
+that reported interpretation is adequately supported is a later quality
+evaluation, not part of locating the output.
+
+This wording is not a claim that every value inside is equally plausible or
+that values just outside are impossible. A confidence interval has no natural
+cliff at its printed endpoints.
+
+**3. Identify the repetition that gives the interval meaning.** A nominal
+95% confidence procedure aims to cover the fixed estimand in about
+95% of repeated applications under its stated conditions. An exactly
+calibrated procedure achieves that rate; an approximate procedure need not do
+so in a finite study, and a conservative procedure can cover more often. The
+percentage describes the **procedure across repetitions**, not a guarantee
+that this approximate Welch interval has exactly 95% randomization coverage.
+
+It does not mean that 95% of the students lie in the interval. It does not mean
+that 95% of repeated estimates lie in this particular interval. In a
+frequentist reading, it also does not assign a 95% posterior probability to the
+fixed estimand after the interval has been computed.
+
+@fig-interval-coverage shows 40 applications of a simplified Normal procedure
+with a known SE and the matching 1.96 critical value. In that teaching model,
+95% coverage is exact. Most intervals cross the fixed estimand; a few miss.
+The picture explains coverage; it does not validate the Welch approximation
+for the actual 120-student assignment design.
+
+```{r}
+#| label: fig-interval-coverage
+#| fig-cap: "Forty intervals from one calibrated teaching procedure. The estimand remains fixed while estimates and intervals vary; occasional misses are compatible with 95% long-run coverage."
+#| fig-alt: "Forty horizontal confidence intervals are plotted against a vertical estimand line at 3.1 points. Most blue intervals cross the estimand; a small number of red intervals do not."
+#| fig-width: 7.1
+#| fig-height: 5.6
+#| fig-pos: H
+
+draw_coverage()
+```
+
+**4. Retain what the interval omits.** The interval quantifies uncertainty
+represented by its procedure. It does not
+incorporate every threat to the argument. That distinction matters when
+interpreting the precision of the result.
+
+## What precision depends on---and what it cannot repair
+
+All else equal, a higher confidence level produces a wider interval. More
+outcome variability tends to widen it. More effective information tends to
+narrow it. Dependence, unequal precision, and a complex design can change the
+relevant standard error. The choice of model and interval procedure matters as
+well.
+
+“More rows” is not always “more information.” Repeated observations from the
+same student, students nested in the same class, or duplicated records can be
+dependent. Treating them as independent may make an interval look too narrow.
+The precision gained from 120 individually randomized students can differ
+from that gained from 120 rows produced by 20 students, or from 120 students
+assigned together in four classrooms. Effective information, not merely the
+row count, matters.
+
+These relations do not justify a universal sample-size rule. A useful width is
+substantive: it depends on which raw-scale differences would lead to different
+interpretations or decisions. Planning for precision should therefore begin
+with a defensible estimand and a meaningful half-width, not with “large enough”
+as an abstract label.
+
+\Needspace{10\baselineskip}
+
+::: {.callout-warning title="An uncertainty interval is not an uncertainty inventory"}
+A smaller standard error or narrower interval does not repair a wrong
+estimand, selection bias, weak measurement, missing-outcome assumptions,
+unmodeled dependence, outcome-driven analytic choices, implementation
+differences, or unsupported causal interpretation and generalization.
+Precision is one property of a statistical procedure, not a general quality
+certificate for the study.
+:::
+
+# Read a Statistical Test as Conditional Evidence
+
+A statistical test asks a narrower question than “Did the program work?” For
+the focal contrast, suppose the planned null hypothesis was:
+
+$$
+H_0:\tau_{120}=0,
+$$
+
+with a two-sided alternative $H_A:\tau_{120}\ne0$. The null value is a mean
+assignment contrast of zero points for the declared estimand.
+
+Many familiar test statistics have the form:
+
+$$
+\text{test statistic}
+=
+\frac{\text{estimate}-\text{null value}}
+     {\text{standard error under the test procedure}}.
+$$
+
+Here the numerical substitution is
+
+$$
+t_{\mathrm{obs}}=\frac{3.1-0}{1.13255}\approx2.73719\approx2.74.
+$$
+
+The observed estimate is about 2.74 estimated-standard-error units from zero.
+Using the Welch reference with $\nu=117.5119$ gives
+
+$$
+p=2P(T_{117.5119}\ge 2.73719)
+\approx2(0.003580)=0.007160.
+$$
+
+$T_{117.5119}$ denotes a variable with the specified reference $t$
+distribution. The two-sided calculation adds both equally extreme tails;
+software or a reference table supplies their areas. The reported value is
+*p* = .007. This is an approximate tail calibration, not an exact
+randomization probability for the fixed-participant null.
+
+## Five objects in a test
+
+1. The **null and alternative hypotheses** refer to a declared estimand.
+2. The **test statistic** expresses distance from the null value on an
+   uncertainty scale.
+3. The **reference distribution** describes possible test statistics under
+   the null model, design, and analysis conditions.
+4. The **p-value** is the probability, under those conditions, of a result at
+   least as incompatible with the null as the observed one.
+5. The **analytic status** records whether the test and decision rule were
+   prespecified, exploratory, or unclear.
+
+A **hypothesis** is a proposition about an estimand, a **test** is a procedure
+for assessing compatibility with that proposition under stated conditions, and
+a **test result** is the observed output. None is interchangeable with the
+others. The test statistic and p-value belong in STAT-I with their null
+proposition; they are not raw empirical evidence and do not form a separate
+argument.
+
+For the special-practice summaries, the matching two-sided result is
+*t*(117.51) = 2.74, *p* = .007. If the null model and procedure are adequate,
+a result at least this incompatible with a zero mean assignment contrast would
+occur with probability about .007.
+
+That sentence is conditional. It begins with the null model and ends with data
+incompatibility. It does not reverse the conditioning to calculate the
+probability that the null is true.
+
+A p-value alone supplies no direction, magnitude, or precision. A joint or
+omnibus test can concern several restrictions at once; its small p-value does
+not identify which particular contrast differs. The estimate, tested
+proposition, and procedure are needed to interpret either kind of result.
+
+## A matched interval and test tell compatible stories
+
+@fig-test-interval connects the two views. The left panel locates the observed test
+statistic in the reference distribution under a zero contrast. The shaded
+tails form the two-sided p-value. The right panel shows the estimate and
+matching 95% interval. Zero lies outside that interval.
+
+```{r}
+#| label: fig-test-interval
+#| fig-cap: "The matching two-sided test and 95% interval for the same contrast. The null value, standard error, model, and analysis family remain aligned."
+#| fig-alt: "Two panels. The first shows a t reference distribution with red tails beyond plus and minus 2.74. The second shows a 3.1-point estimate and a 95 percent interval from about 0.9 to 5.3; the zero null value lies outside."
+#| fig-width: 7.4
+#| fig-height: 4.4
+#| fig-pos: H
+
+draw_test_and_interval()
+```
+
+When a two-sided level-.05 test and a 95% interval use the same reference
+distribution, standard error, and analysis family, their calculations agree:
+the interval excludes zero exactly when the matching test gives $p<.05$.
+This algebraic correspondence does not make either calculation's calibration
+exact under the assignment design. This is not a reason to discard one of them. The estimate and interval
+display magnitude and precision; the p-value summarizes compatibility with a
+specific null.
+
+The interval foregrounds the estimate, direction, and compatible values; the
+test foregrounds compatibility with a declared null value. Both require a
+named estimand, procedure, repetition logic, design, and scope. Neither can
+establish practical importance or repair an unsupported design.
+
+\Needspace{12\baselineskip}
+
+## Interpret p-values and decision rules
+
+**Table 3.3**
+
+*Common p-value mistranslations and defensible repairs*
+
+| Mistranslation | Why it fails | Repair |
+|:---------------|:-------------|:-------|
+| “There is a 0.7% chance the null is true.” | The p-value conditions on the null; it does not assign probability to it | Under the zero-contrast null and procedure, results at least this incompatible have probability .007 |
+| “There is a 0.7% chance the result happened by chance.” | Chance is not a complete model; the result already happened | Name the null, design, statistic, and reference process |
+| “The study has a 99.3% chance of replicating.” | Replication depends on the effect, design, sample, and analysis | Report the current estimate and uncertainty; discuss replication separately |
+| “The effect is large or important because *p* = .007.” | A p-value is not an effect-size or importance measure | Interpret 3.1 points and its interval against a defensible benchmark |
+| “The study's false-positive probability is 0.7%.” | A long-run error rule and a data-dependent p-value differ | State any prespecified decision rule; avoid a posterior error claim |
+| “The p-value keeps its usual meaning after this outcome or model was selected from inspected results.” | The search and selection rule is part of the procedure and can alter calibration | Report the analysis family and prespecified or exploratory status; interpret the selected result accordingly |
+
+*Note.* The repairs follow the ASA principle that statistical significance does
+not measure effect size, importance, or the probability that a hypothesis is
+true [@wasserstein2016].
+
+**Selection is part of the procedure.** A p-value calibrated for one
+prespecified test does not describe an undisclosed search that reports only a
+favorable outcome, subgroup, exclusion rule, stopping point, or model. The
+mathematical tail area can still be calculated, but its evidential use must
+reflect the full analysis family and status. Appendix B develops the
+consequences for estimates, intervals, and p-values [@simmons2011].
+
+**The p-value is not the decision threshold.** The observed *p* = .007 is a
+data-dependent tail area. A significance level, $\alpha$, is a threshold
+chosen for a decision rule before inspecting the result. If a study declared
+a level-.05 test of the focal null, its rule rejects when $p<.05$; .007 meets
+that rule. It is not a .7% probability of making a wrong decision.
+
+Two possible decision errors concern repeated use of that rule:
+
+- **Type I error:** rejecting the null when it is true. A calibrated
+  level-.05 rule aims to limit this error rate to .05 under its null
+  conditions; approximate and conservative procedures need not achieve
+  exactly .05 in a finite study.
+- **Type II error:** failing to reject when a specified alternative is true.
+  If its probability is $\beta$, **power** is $1-\beta$, the probability of
+  rejecting under that alternative. For example, power .80 at a stated
+  effect means a .20 probability of failing to reject there, not an 80%
+  probability that this observed result will replicate.
+
+Power depends on the effect, variability, effective information, design,
+test, sidedness, and decision rule. It is not one fixed property of a study
+and cannot be read from its observed p-value. Appendix B develops planning
+and selection consequences.
+
+**Decision language is optional.** Use **reject** or **fail to reject** only
+when the study has a declared decision
+rule that makes those actions relevant. A routine reading can instead say that
+the data are more or less compatible with a specified null under the analysis
+conditions.
+
+Avoid **accept the null**, **prove**, **trend toward significance**, and
+**almost significant**. A large p-value does not establish equality. A small
+p-value does not validate the design. A value on one side of an arbitrary
+threshold is not categorically different from a nearly identical value on the
+other side.
+
+**Choose sidedness before seeing the result.** The focal test is two-sided:
+both positive and negative departures from $\tau_{120}=0$ count. A one-sided
+alternative such as $\tau_{120}>0$ asks a different, directional question;
+a large negative result does not support it. Selecting the favorable tail
+after seeing the estimate changes the procedure and its error calibration.
+A one-sided test needs a matching one-sided confidence bound, not a relabelled
+two-sided interval. Appendix A gives the conditional tail-area shortcut and
+its limits; the reported special-practice analysis remains two-sided.
+
+## Transfer the logic to a mean or paired change
+
+The same estimate--uncertainty--test structure applies to other questions,
+but the estimand and repetition must be named anew. These two short examples
+are **separate illustrative sampling questions**, not new interpretations of
+the 120-participant assignment effect.
+
+**One mean.** Suppose an independent sample has $n=25$, mean $\bar X=52$,
+and SD $s=5$ points. To estimate its population mean $\mu$, use
+
+$$
+\widehat{SE}(\bar X)=\frac{5}{\sqrt{25}}=1\text{ point}.
+$$
+
+With the supplied 95% critical value $t_{.975,24}=2.064$, the interval is
+$52\pm2.064(1)=[49.936,54.064]$. For $H_0:\mu=50$, the test statistic is
+$(52-50)/1=2$. The interval includes 50, so its matching two-sided level-.05
+test does not reject that null. This is not proof that the population mean
+equals 50. The exact *t* reference requires independent Normal sampling;
+using an approximation requires its own justification.
+
+**A paired change.** For before-and-after observations, the basic value is
+each person's change, not two unrelated scores. Suppose both marginal SDs
+are 4 points, their within-person covariance is 12 squared points, and there
+are 25 independent pairs. The variance of a change is
+$4^2+4^2-2(12)=8$ squared points, so its mean has SE
+$\sqrt{8/25}=0.566$ points. Ignoring pairing would instead give
+$\sqrt{16/25+16/25}=1.131$ points. That is not merely a different software
+choice: it discards dependence built into the design. With other covariance
+patterns the error can go in the other direction. Appendix A gives the
+general paired-mean formulas.
+
+# From Statistical Inference to One Bounded Answer
+
+The output is now readable, but it is not yet a complete answer. Four questions
+must be kept separate:
+
+1. **Magnitude:** What contrast was estimated in meaningful units?
+2. **Precision:** Which values remain compatible under the interval procedure?
+3. **Statistical evidence:** How incompatible is the estimate with a stated
+   null model, if that question was planned and relevant?
+4. **Importance:** Which compatible values would matter educationally or
+   practically, and why?
+
+For the special-practice study, magnitude is 3.1 points on a 0--40 assessment.
+Precision is represented by the interval from 0.9 to 5.3 points. The matching
+null-model evidence is *p* = .007. The interval contains values below and above
+the prespecified, course-specific two-point benchmark. The protocol grounds
+that benchmark in the score for one application task and a modest expected
+preparation burden; it does not establish two points as a universal threshold.
+The estimated direction is positive, while whether the effect reaches that
+importance benchmark remains **inconclusive**. Here *inconclusive* means that materially
+different importance answers remain compatible after the benchmark, interval,
+design, and model are considered. It is not a synonym for *p* > .05 or for an
+interval crossing zero.
+
+## Interpret the result and complete its bounded answer
+
+**Raw units before standardized units.** The raw contrast is easy to connect
+to the assessment: 3.1 of 40 possible
+points. A standardized mean difference would divide by a chosen standard
+deviation. That transformation may help comparisons across measures, but it
+changes the scale and depends on a denominator. It does not create a universal
+measure of educational importance. Appendix A develops this bridge.
+
+\Needspace{12\baselineskip}
+
+**Table 3.4**
+
+*What reported quantities contribute and cannot establish alone*
+
+| Reported quantity | Contribution to the argument | What it cannot establish by itself |
+|:------------------|:-----------------|:-----------------------------------|
+| Means 27.1 and 24.0 | Description of the realized assigned groups | Causal attribution, population generalization, or precision |
+| Difference 3.1 points | Direction and magnitude on the stated scale | Importance, mechanism, or universality |
+| SDs 6.0 and 6.4 | Within-group variation among observed scores | Repeated-estimate uncertainty |
+| SE 1.13 points | Modeled spread of the estimator under the procedure | Measurement validity or design quality |
+| 95% CI [0.9, 5.3] | Procedure-based compatible values for the estimand | Every source of uncertainty or 95% posterior probability |
+| *p* = .007 | Incompatibility with the stated zero-contrast null under conditions | Probability the null is true, magnitude, or importance |
+| Two-point benchmark | Prospectively documented, course-specific reference for potential importance | Universal educational importance or evidence that the effect clears the benchmark |
+| Random assignment | Causal interpretation of assignment for participants, subject to implementation and analysis | Effect of adherence or representation of all students |
+| Complete primary follow-up | Removes one major missing-outcome concern for this endpoint | Valid measurement or generalization beyond the setting |
+
+**Repair the opening sentence.** A compact results paragraph can now say:
+
+> In the prespecified primary comparison of all 120 randomized participants,
+> the Special Practice group had a higher mean delayed-assessment score
+> (*M* = 27.1, *SD* = 6.0) than the Usual Practice group (*M* = 24.0,
+> *SD* = 6.4). The estimated Special-minus-Usual assignment contrast was
+> 3.1 points on the 0--40 scale; the approximate Welch procedure gave
+> 95% CI [0.9, 5.3],
+> *t*(117.51) = 2.74, *p* = .007. Random assignment and complete primary
+> follow-up support a causal interpretation of assignment for these
+> participants under the implemented formats. Because the interval spans the
+> prespecified, course-specific two-point benchmark, the importance
+> conclusion remains inconclusive. The study alone does not
+> establish effects for other courses, other implementations, attendance,
+> broader learning, or longer time points.
+
+This paragraph is longer than “worked,” but each addition has a job. It
+recovers the question, analysis population, estimate, units, uncertainty,
+status, design interpretation, importance status, and bounds. It reports a
+conclusion without pretending that the study answered more than it did.
+
+## Read the argument (primary use)
+
+Chapter 1 described one question--answer pair as **one argument with linked
+statistical and substantive layers**. Within each layer:
+
+$$
+E+J\longrightarrow I\longrightarrow C.
+$$
+
+Evidence plus Justification support an Inference, which supports a bounded
+Claim. The table identifies the component content in the accessible teaching
+record. Components are logical roles, not required headings in a paper, and
+their documentary status is not a quality score.
+
+**Table 3.5**
+
+*Eight argument components and their documentary statuses*
+
+| Code | Content in this study | Documentary trace | Documentary status |
+|:-----|:----------------------|:------------------|:-------------------|
+| **STAT-E** | Assignment records; condition labels; delayed scores; scoring, timing, consent, implementation, and complete-follow-up records for 120 participants | Paper Methods and Results; flow record | Stated in the paper |
+| **STAT-J** | The stated warrant links complete random assignment, the assigned-group estimator, common administration, complete follow-up, and an approximate Welch reference to the fixed-participant mean assignment effect | Paper Methods; analysis plan | Stated in the paper; analysis plan located in related materials |
+| **STAT-I** | Primary estimand $\tau_{120}$; group means 27.1 and 24.0; estimate 3.1 points; *SE* 1.13; 95% CI [0.9, 5.3]; *t*(117.51) = 2.74 and approximate *p* = .007 for $H_0:\tau_{120}=0$; checks and analytic status | Paper Results; analysis output; protocol | Stated in the paper; status and null proposition located in related materials |
+| **STAT-C** | For these randomized participants, the reported Special-minus-Usual mean assignment contrast is 3.1 points, with compatible values from 0.9 to 5.3 under the procedure | Paper Results | Stated in the paper |
+| **SUB-E** | Consenting students in one first-year course completed assigned four-session formats with equal study time and a common 0--40 assessment two weeks later | Paper Methods; implementation record | Stated in the paper; implementation record located in related materials |
+| **SUB-J** | The study's contextual warrant augments and contextualizes the statistical justification through assignment meaning, delivery, assessment interpretation, alternatives, the course-specific benchmark rationale, and the limits of one course and one measure | Introduction, Methods, and Discussion; protocol, assessment guide, and implementation record | Stated in the paper; benchmark rationale located in related materials |
+| **SUB-I** | The authors interpret 3.1 points and [0.9, 5.3] on the assessment scale, separate the null-model result from importance, and note that the interval spans the two-point benchmark | Results and Discussion; protocol | Stated in the paper; benchmark located in related materials |
+| **SUB-C** | The reported answer attributes higher mean delayed performance to assignment for these participants and implementation, while leaving importance inconclusive and limiting broader populations, adherence, mechanisms, outcomes, and times | Abstract and Discussion | Stated in the paper |
+
+: {tbl-colwidths="[12,39,24,25]"}
+
+*Note.* STAT = statistical layer; SUB = substantive layer; E = Evidence;
+J = Justification; I = Inference; C = bounded Claim.
+
+The four same-role transitions remain distinct:
+
+- STAT-E to SUB-E **situates** what the records represent.
+- STAT-J to SUB-J **augments and contextualizes** the statistical justification with
+  measurement, theory, alternatives, and scope.
+- STAT-I to SUB-I **interprets** magnitude and uncertainty in context.
+- STAT-C to SUB-C **bounds** the final answer.
+
+Context adds meaning. It cannot make the evidence stronger than it is.
+
+At the end of this primary reading, the reader records the authors' reported
+bounded answer and its documentation. Whether that answer is warranted belongs
+to the separate quality evaluation that follows.
+
+## Evaluate quality (secondary use)
+
+Quality evaluation follows and depends on reading. The six questions from
+Chapter 1 challenge the support; they do not create a score and they do not
+replace the argument components.
+
+\Needspace{12\baselineskip}
+**Table 3.6**
+
+*Quality evaluation of the special-practice argument*
+
+| Family | Evaluation question | Reasoned judgment |
+|:-------|:--------------------|:------------------|
+| **Alignment** | **Question alignment:** Do the estimand and procedure address the stated question? | **Adequate for this purpose.** The participant set, assignment contrast, delayed-score mean, direction, time, and primary status remain aligned. |
+| **Support** | **Evidence integrity:** Are the analysis sample, values, exclusions, and reported results trustworthy and traceable? | **Adequate for this purpose.** The accessible record reports 60 participants per group, complete follow-up, scoring, summaries, and reproducible calculations. Pre-consent flow is not located and limits recruitment claims. |
+| **Support** | **Justification adequacy:** Do design, measurement, repetition model, and procedure warrant the comparison? | **Adequate for this purpose.** Randomization, equal study time, common administration, complete follow-up, and the matched procedure supply the participant assignment-comparison warrant. The assessment-task and modest additional-preparation rationale gives the two-point benchmark a course-specific basis, not universal authority; broader representation is not established. |
+| **Support** | **Inferential adequacy:** Is the reasoning from evidence and justification to the claim appropriate within each layer? | **Adequate for this purpose.** STAT-I integrates the estimate, uncertainty, null, checks, and primary status without hiding approximate calibration. SUB-I connects delayed scores to the stated performance question and treats the two-point importance benchmark as unresolved. |
+| **Translation** | **Transition fidelity:** Are magnitude, uncertainty, design, and scope preserved in the substantive interpretation? | **Adequate for this purpose.** The interpretation keeps 3.1 points, [0.9, 5.3], assignment, participant scope, one assessment, and the unresolved two-point benchmark. |
+| **Translation** | **Claim calibration:** Is the final answer no stronger or broader than the support? | **Adequate for this purpose.** The explicit bounds avoid claims about all students, adherence, mechanisms, every outcome, or durable learning. |
+
+: {tbl-colwidths="[17,34,49]"}
+
+*Note.* The judgment **Insufficient information to judge** is available for any
+individual question when the record is silent. It differs from **not located**,
+which is a documentary status used during reading.
+
+Comparing the reported answer with the supported bounded answer gives the
+pair-level conclusion **supported as stated**. The benchmark conclusion is
+properly inconclusive, not unsupported. Other possible whole-pair conclusions
+are **supported only after narrowing or revision**, **not supported**, and **not
+assessable from the accessible record**.
+
+## Use the construction workflow (auxiliary use)
+
+Argument components describe **what supports the answer**. Workflow stages
+describe activities used to construct it. This auxiliary use helps researchers
+conduct a study and covers most question-level research processes. A completed
+paper may contain traces of those activities, but the historical sequence
+cannot be recovered when it is undocumented.
+
+\Needspace{12\baselineskip}
+**Table 3.7**
+
+*Six-stage construction workflow applied to the special-practice argument*
+
+| Phase and stage | Action | Application and likely trace |
+|:----------------|:-------|:-----------------------------|
+| **Understand and plan — 1** | **Review the problem, setting, and relevant literature.** Develop prospective justification. | Prior studies, course context, assessment meaning, preparation burden, and importance rationale; review notes or protocol |
+| **Understand and plan — 2** | **Frame the question and, where useful, a candidate answer.** Declare comparison, outcome, estimand, mode, and provisional bounds. | Participant assignment question and candidate answer about delayed performance; protocol |
+| **Understand and plan — 3** | **Align design, measurement, estimand, evidence-production or acquisition plan, and inferential plan.** Specify the estimator, uncertainty, checks, stopping rule, and analytic status. | Random assignment; common 0--40 assessment; mean difference; Welch interval/test; complete follow-up; fixed sample; course-specific benchmark and rationale; protocol, analysis plan, assessment guide, and implementation plan |
+| **Produce and complete — 4** | **Produce or acquire, and document, empirical and contextual evidence.** Preserve the statistical and contextual record. | Consent, assignment, delivery, study time, scoring, outcomes, follow-up, deviations, and setting; flow, data, and implementation records |
+| **Produce and complete — 5** | **Estimate, check, and analyse.** Calculate the result and inspect its conditions. | Means, SDs, contrast, SE, interval, test, coding, and implementation checks; analysis output and audit trail |
+| **Produce and complete — 6** | **Contextualize, interpret, and complete the bounded answer.** | Assessment-scale meaning, interval spanning the benchmark, and participant and implementation scope; results, discussion, and limitations |
+
+: {tbl-colwidths="[22,34,44]"}
+
+@fig-six-stage-workflow displays the cycle. The lower row runs in reverse visual order so
+the one-way handoff from Stage 3 to Stage 4 is adjacent. Dashed arrows indicate
+possible iteration **within** a phase. There is no Phase-2-to-Phase-1 return
+arrow.
+
+```{r}
+#| label: fig-six-stage-workflow
+#| fig-cap: "A six-stage, two-phase workflow for one question-level argument. Iteration stays within each phase; the handoff from prospective alignment to evidence production is one-way within a cycle."
+#| fig-alt: "Three blue boxes for Stages 1 to 3 run left to right across Phase 1. A solid arrow descends from Stage 3 to Stage 4. Three gold boxes for Stages 4 to 6 run right to left across Phase 2. Dashed return arrows remain within each row, and no dashed arrow crosses phases."
+#| fig-width: 7.4
+#| fig-height: 4.6
+#| fig-pos: H
+
+draw_workflow()
+```
+
+Iteration within Phase 1 can revise the question or plan before evidence
+production. Iteration within Phase 2 can verify records, correct coding,
+perform prespecified checks, or refine wording without pretending to redesign
+what has already occurred.
+
+If results viewed in Phase 2 lead researchers to change an anchored Phase 1
+commitment, the existing cycle no longer governs that choice; an **additional
+or revised cycle** begins. Defensible literature, measures, records, and code
+may be reused with provenance and timing visible. A newly preferred outcome is
+a separate exploratory question--answer pair and cycle; reuse cannot make it
+the original prespecified result.
+
+\Needspace{12\baselineskip}
+
+# Summary and Reading Bridge
+
+## A compact reading route and its supporting uses
+
+When a report presents an estimate, interval, or p-value, use this route:
+
+1. Recover the question and write the estimand precisely.
+2. Locate the estimate, direction, and units.
+3. Identify the repeated process represented by the standard error.
+4. Read the interval as estimate plus modeled uncertainty.
+5. Read a p-value only within its null model, design, analysis family, and
+   prespecified or exploratory status.
+6. Separate magnitude, precision, statistical compatibility, and importance.
+7. Locate the eight component contents and their documentary traces.
+8. Record documentary statuses and state the authors' reported bounded answer.
+
+The order matters pedagogically. An estimate without an estimand is an orphan
+number. A p-value before magnitude and uncertainty invites a verdict. A
+substantive claim without design and scope travels farther than its support.
+
+Quality evaluation is the **secondary use**: only after reading should the
+six quality-evaluation questions be applied.
+They compare the reported answer with the strongest supported bounded answer
+and lead to one pair-level conclusion. Documentary absence can limit a
+judgment, but it is not itself proof of poor quality.
+
+The construction workflow is the **auxiliary use**. Its six stages help
+researchers construct and document a question-level
+argument. They are not a second reading method and cannot reveal undocumented
+history in a completed paper.
+
+## Compact glossary
+
+**Estimand.** The precisely defined quantity the question seeks.
+
+**Estimator.** The rule applied to data in each admissible repetition.
+
+**Estimation.** The process of applying and checking an estimator for a
+specified estimand and characterizing the estimate and uncertainty.
+
+**Estimate.** The realized numerical value produced by the estimator.
+
+**Statistic.** A numerical function of observed data; estimates and test
+statistics are statistics with different roles.
+
+**Parameter.** The fixed feature named by the estimand under the chosen
+population or process interpretation.
+
+**Standard deviation.** Variation among observed values.
+
+**Standard error.** Modeled variation of an estimator across a declared
+repeated process.
+
+**Confidence interval.** A set of values produced by a procedure with stated
+repeated-use calibration under its conditions.
+
+**Null hypothesis.** A specific claim about the estimand used to generate a
+reference distribution.
+
+**p-value.** Under a stated null model and procedure, the probability of a
+result at least as incompatible with the null as the observed result.
+
+**Practical or substantive importance.** The meaning and consequence of an
+effect relative to defensible, context-specific benchmarks.
+
+**Bounded claim.** The study's claim with its stated limits on magnitude,
+uncertainty, assumptions, analytic status, alternatives, and scope. Quality
+evaluation determines the strongest supported bounded answer.
+
+## Where to read next
+
+This chapter is a reading tutorial, not a new theory of inference.
+*Introduction to Modern Statistics* develops estimation, simulation,
+confidence intervals, and hypothesis tests through accessible examples
+[@cetinkaya2024]. The ASA statement provides concise principles for
+interpreting p-values without turning them into truth or importance measures
+[@wasserstein2016]. The interactive
+[Seeing Theory](https://seeing-theory.brown.edu/) site makes repeated sampling
+and frequentist inference visible. APA reporting standards explain why design,
+analysis, results, and limitations must remain inspectable in quantitative
+reports [@appelbaum2018].
+
+Group-comparison methods can instantiate this grammar with one or several
+estimands while retaining one argument for each separately owed conclusion.
+Later regression chapters express familiar comparisons as model coefficients.
+Appendix A below preserves procedure-specific and computational bridges, while
+Appendix B preserves planning extensions; neither is a prerequisite for the
+main route.
+
+{{< pagebreak >}}
+
+\phantomsection
+
+# Exercises {.unnumbered}
+
+The exercises have two levels. **Foundational** exercises isolate a reading
+move. **Integrative** exercises combine the moves in a bounded answer. Use only
+the information supplied unless a prompt explicitly directs you to a source.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-01 PROMPT -->
+<!-- prompt-id: CH03-E01 -->
+## Exercise 1: Name the inferential objects (Foundational) {.unnumbered #ex-ch03-01}
+
+A report states:
+
+> The estimand was the mean Special-minus-Usual assignment contrast in
+> delayed-assessment score among the 120 randomized participants. In every
+> admissible repetition, the analyst would subtract the Usual assigned-group
+> mean from the Special assigned-group mean. The observed difference was
+> 3.1 points, with an estimated standard error of 1.13 points.
+
+Identify:
+
+1. the estimand;
+2. the estimator;
+3. the estimation process;
+4. the estimate and one statistic used in obtaining it;
+5. the standard error and what varies in its repeated-process interpretation;
+6. the parameter; and
+7. two bounds that must remain in the answer.
+
+Explain why the estimate and the parameter should not be given the same label.
+<!-- END EX03-01 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-02 PROMPT -->
+<!-- prompt-id: CH03-E02 -->
+## Exercise 2: Calculate SE and distinguish it from SD (Foundational) {.unnumbered #ex-ch03-02}
+
+The Special and Usual Practice groups each contain 60 students. Their
+respective delayed-score SDs are 6.0 and 6.4 points. The reported uncertainty
+calculation is
+
+$$
+\widehat{SE}=\sqrt{\frac{s_1^2}{n_1}+\frac{s_0^2}{n_0}}.
+$$
+
+1. Substitute the group sizes and SDs to check the reported SE of 1.13 points.
+2. Which quantities describe variation among scores, and which describes
+   estimated variation of the mean difference across possible assignments?
+3. Why does the SE retain assessment-point units?
+4. If effective information increased while the design and score variation
+   remained comparable, would the SD or SE usually become smaller?
+5. Name two defects that a smaller standard error would not repair.
+6. Does random assignment make the Welch reference an exact randomization
+   distribution? Explain briefly.
+<!-- END EX03-02 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-03 PROMPT -->
+<!-- prompt-id: CH03-E03 -->
+## Exercise 3: Interpret interval coverage (Foundational) {.unnumbered #ex-ch03-03}
+
+A student writes:
+
+> The 95% confidence interval [0.9, 5.3] means there is a 95% probability that
+> the true mean assignment effect lies between 0.9 and 5.3 points. If the
+> method is valid, every 95% interval should contain the true effect.
+
+Rewrite the statement using repeated-procedure language. Then explain:
+
+1. why some intervals from a valid 95% procedure miss the fixed estimand;
+2. what the endpoints contribute to reading this study; and
+3. three sources of uncertainty or bias that the conventional interval may
+   omit.
+<!-- END EX03-03 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-04 PROMPT -->
+<!-- prompt-id: CH03-E04 -->
+## Exercise 4: Translate a p-value (Foundational) {.unnumbered #ex-ch03-04}
+
+For the matching two-sided zero-contrast test, *t*(117.51) = 2.74 and
+*p* = .007. Consider four interpretations:
+
+A. There is a 0.7% probability that the null hypothesis is true.
+
+B. There is a 99.3% probability that Special Practice will work again.
+
+C. Under the zero-contrast null model and the stated procedure, results at
+least as incompatible as the observed one have probability about .007.
+
+D. The 3.1-point effect is educationally important because *p* = .007.
+
+Choose the defensible interpretation and diagnose each rejected one. Then use
+an estimate of 3.1, an SE of 1.13255, and a supplied 95% critical value of
+1.98036 to:
+
+1. check $t=(3.1-0)/1.13255$;
+2. calculate $3.1\pm1.98036(1.13255)$ and round the endpoints to one decimal;
+3. explain why exclusion of zero agrees with the matching two-sided *p* < .05
+   result, without implying exact randomization calibration; and
+4. write one sentence reporting estimate, interval, and p-value without using
+   **prove**, **accept**, or **worked**.
+
+The reference tail area is supplied as *p* = .007; you do not need to
+calculate a *t*-distribution probability by hand.
+<!-- END EX03-04 PROMPT -->
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-05 PROMPT -->
+<!-- prompt-id: CH03-E05 -->
+## Exercise 5: Read, then evaluate, one authentic result (Integrative) {.unnumbered #ex-ch03-05}
+
+Deslauriers et al. (2019) used a randomized crossover study in introductory
+college physics. In a regression model, performance on a test of learning was
+0.46 SD higher under active instruction than under passive instruction,
+*p* < .001. The brief result supplied here does not report a confidence
+interval [@deslauriers2019].
+
+First **read** the supplied record without judging quality:
+
+1. mark the participant set, condition contrast, outcome, estimate, units,
+   p-value, and design;
+2. place the estimate and p-value in the appropriate argument component;
+3. record what is stated and what is not located in this excerpt; and
+4. state a bounded one-sentence version of the reported answer.
+
+Then **evaluate** it: apply Inferential adequacy and Claim calibration. State
+what further information you would seek in the Methods or supplement and name
+one broader claim this excerpt cannot support.
+<!-- END EX03-05 PROMPT -->
+
+{{< pagebreak >}}
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+<!-- BEGIN EX03-06 PROMPT -->
+<!-- prompt-id: CH03-E06 -->
+## Exercise 6: Repair the claim and classify the cycle (Integrative) {.unnumbered #ex-ch03-06}
+
+Rewrite:
+
+> Special Practice worked, *p* < .05.
+
+Use this study record (the same one summarized in Table 3.1 of the chapter):
+120 consenting students in one course were randomly assigned, 60 per group,
+to four sessions of Special or Usual Practice with equal total study time.
+All completed a common 0--40 assessment two weeks later. Special had mean
+27.1 (SD 6.0), and Usual had mean 24.0 (SD 6.4). The prespecified primary
+comparison gave 3.1 points, 95% CI [0.9, 5.3], approximate Welch
+*t*(117.51) = 2.74, *p* = .007. Before outcome access, the protocol specified
+the two-point benchmark as potentially important because the scoring guide
+awarded two points for one correctly completed application task and adoption
+was expected to require only modest additional preparation. Your revision must
+retain:
+
+1. the participant set and assignment comparison;
+2. the outcome, time, direction, and raw units;
+3. the estimate and 95% interval;
+4. the reported numerical p-value only after the estimate and interval;
+5. the prespecified primary status;
+6. what random assignment and complete follow-up support;
+7. the interval's relation to the prespecified, course-specific two-point
+   benchmark for potential importance;
+   and
+8. at least three scope boundaries.
+
+After the rewrite, choose three phrases and explain what each repairs in the
+original sentence.
+
+After viewing the outcomes, the researchers decide that a different assessment
+should replace the planned assessment as primary because it gives a larger
+difference. Decide whether this is a Phase 2 repair or requires an additional
+or revised cycle and a separate exploratory question--answer pair. State what
+material may be reused, what prospective status cannot be claimed, and why the
+new assessment's p-value cannot be read as if that assessment had been
+prespecified.
+<!-- END EX03-06 PROMPT -->
+
+{{< pagebreak >}}
+
+\phantomsection
+
+# Appendix A: Common Procedures and Computational Bridges {#app-procedures .unnumbered}
+
+These optional details support the main chapter's worked examples. They do
+not change its fixed-participant estimand or turn its approximate reference
+into an exact one.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Variance, dependence, and reference calibration {.unnumbered}
+
+**The same participants: why the variance can be conservative.** Write
+$N=120$, $n_1=n_0=60$, and let $S_1^2$ and $S_0^2$ be the variances
+of the $N$ potential scores under the two assignments, using denominator
+$N-1$. Let $S_\tau^2$ be the variance of the $N$ individual effects
+$Y_i(1)-Y_i(0)$. Under complete random assignment and the stated
+potential-outcome conditions,
+
+$$
+\operatorname{Var}_{\mathrm{assign}}(\widehat\tau)
+=\frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\tau^2}{N}.
+$$
+
+This is the variance over possible assignments of these same participants.
+It is not derived by treating their two assigned-group means as independent.
+The difference between this expression and the familiar two-group formula is
+the last term: variation in individual effects. Since each student supplies
+only one observed potential outcome, that variation is not identified from
+the observed experiment. Dropping the nonnegative subtraction and estimating
+the remaining variances gives
+
+$$
+\widehat V=\frac{s_1^2}{n_1}+\frac{s_0^2}{n_0},
+\qquad
+\mathbb E_{\mathrm{assign}}(\widehat V)
+=\operatorname{Var}_{\mathrm{assign}}(\widehat\tau)+\frac{S_\tau^2}{N}.
+$$
+
+Thus $\widehat V$ estimates an upper bound in expectation, with equality when
+individual effects are constant. It need not exceed the true variance in
+every realized assignment. Under suitable large-population conditions
+(adequate groups, nondegenerate variation, and no dominating participant),
+Normal-based intervals using this estimate can be conservative. No automatic
+sample-size cutoff establishes those conditions [@bai2024].
+
+The finite Welch-$t$ reference used in the worked report is an approximation,
+not an exact distribution over these assignments. A zero **average** effect
+also differs from the **sharp null** that every student's effect is zero;
+the latter permits a different, exact randomization construction. Changing to
+that null would change what is tested, even if the same observed difference
+were used. Neither calculation creates population representation.
+
+\Needspace{8\baselineskip}
+
+**Welch degrees of freedom and reference calibration.** The Welch--Satterthwaite
+calculation combines the two estimated variance
+contributions:
+
+$$
+\nu=\frac{(s_1^2/n_1+s_0^2/n_0)^2}
+{(s_1^2/n_1)^2/(n_1-1)+(s_0^2/n_0)^2/(n_0-1)}.
+$$
+
+Substituting $36/60=0.6000$ and $40.96/60=0.6826667$ gives
+$\nu\approx117.5119$. The reference quantile is
+$t_{.975,\nu}\approx1.98036$. These values reproduce the reported interval
+and test; they do not certify the reference as exact. In contrast, the
+one-sample statistic $(\bar X-\mu_0)/(s/\sqrt n)$ has exactly a $t_{n-1}$
+distribution under independent Normal sampling with a common mean and
+variance. The different assumptions matter, not merely the test name
+[@welch1947].
+
+For a compact formal description of coverage, let $C(D)$ be the interval rule
+applied to a possible data record $D$. Then
+$P\{\tau_{120}\in C(D)\}$ means the probability that the rule covers the
+fixed effect across the declared repetitions. Exact 95% coverage makes this
+probability .95 under the stated assumptions; approximate coverage approaches
+the nominal behavior under suitable conditions; conservative coverage is at
+least nominal. This notation does not provide a probability distribution for
+the unknown effect after observing the data.
+
+**Independent-sampling algebra and paired differences.** The following is a
+**different illustrative sampling model**, not a
+replacement for the special-practice question. Suppose two independent random
+samples have means $\bar X_1,\bar X_0$, sizes $n_1,n_0$, and within-group
+variances $\sigma_1^2,\sigma_0^2$. For any two random variables,
+
+$$
+\operatorname{Var}(U-V)=\operatorname{Var}(U)+\operatorname{Var}(V)
+-2\operatorname{Cov}(U,V).
+$$
+
+Independence of these *sample means* makes their covariance zero. Thus
+$\operatorname{Var}(\bar X_1-\bar X_0)=\sigma_1^2/n_1+\sigma_0^2/n_0$,
+and estimating the variances gives the familiar Welch SE expression. The
+formula looks the same as the conservative randomization estimate above, but
+the repetition and exact variance rationale differ.
+
+For paired before-and-after observations, retain the covariance term. That
+identity gives the 8-squared-point change variance in Section 3's paired
+example. Independence is required *between pairs*, not between the two
+measurements within each pair.
+
+**Bias and variance together: an optional accuracy comparison.** For an
+estimator of $\theta$, mean squared error averages squared estimation
+errors across its declared repetitions:
+
+$$
+\operatorname{MSE}(\widehat\theta)
+=\mathbb E[(\widehat\theta-\theta)^2]
+=\operatorname{Var}(\widehat\theta)+\operatorname{Bias}(\widehat\theta)^2.
+$$
+
+An unbiased estimator with SD 2 has MSE $2^2+0^2=4$. Another estimator with
+SD 1 and bias 1.5 has MSE $1^2+1.5^2=3.25$. The second has lower MSE in this
+illustration despite bias; that comparison depends on the chosen estimand,
+repetition, and squared-error criterion. A low SE alone cannot establish
+accuracy or validate an argument.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Common procedures and their conditions {.unnumbered}
+
+Begin with the estimand and dependence structure; formulas come afterward.
+
+\Needspace{8\baselineskip}
+
+**Two general forms.** An interval usually takes:
+
+$$
+\widehat{\theta}\pm
+(\text{critical value})SE(\widehat{\theta}).
+$$
+
+A test statistic usually takes:
+
+$$
+\frac{\widehat{\theta}-\theta_0}
+     {SE_0(\widehat{\theta})}.
+$$
+
+The subscript on $SE_0$ reminds us that some tests calculate uncertainty under
+the null. A matching interval and test must use compatible assumptions and
+procedures.
+
+**Table A.1**
+
+*Estimands and uncertainty logic for common introductory structures*
+
+| Structure | Estimand and estimate | Standard-error logic | Main reading checks |
+|:----------|:----------------------|:---------------------|:--------------------|
+| One quantitative sample | Population mean $\mu$; sample mean $\bar{x}$ | Estimated score spread divided by square root of effective sample size | Sampling or target population, independence, unusual values, measurement |
+| One binary outcome | Population proportion $p$; sample proportion $\widehat{p}$ | Binomial or design-based variability | Denominator, coding, independent units, boundary values |
+| Two independent quantitative groups | Difference $\mu_1-\mu_0$; $\bar{x}_1-\bar{x}_0$ | Combine uncertainty from the two group means | Group order, independence across units, assignment or selection, unequal spread |
+| Two independent proportions | Difference $p_1-p_0$; $\widehat{p}_1-\widehat{p}_0$ | Combine binomial or design-based uncertainty from both groups | Denominators, coding, sparse cells, assignment or sampling |
+| Paired quantitative observations | Mean within-pair difference $\mu_D$; $\bar{D}$ | Use variation among pair differences | Correct pairing, direction, missing pairs, dependence across pairs |
+
+*Note.* Population-mean rows describe their own sampling models, not a new
+population for the fixed-participant special-practice question.
+
+For an independent quantitative sample, the estimated SE of its mean is
+$s/\sqrt n$. A two-sided interval is $\bar X\pm t_{1-\alpha/2,n-1}s/\sqrt n$;
+the null statistic is $(\bar X-\mu_0)/(s/\sqrt n)$. These general formulas
+produce the one-mean calculation in Section 3.
+
+For $n$ independent pairs, replace $X$ by the within-pair difference $D$:
+the estimated SE is $s_D/\sqrt n$, the interval is
+$\bar D\pm t_{1-\alpha/2,n-1}s_D/\sqrt n$, and the null statistic is
+$(\bar D-\mu_{D,0})/(s_D/\sqrt n)$. Normality concerns the differences, not
+two unrelated marginal score distributions. For two independent samples, use
+the two-group SE and Welch reference described above.
+
+For $n$ independent binary observations with common success probability $p$,
+$SE(\widehat p)=\sqrt{p(1-p)/n}$. The plug-in estimate replaces $p$ by
+$\widehat p$. This variance formula does not guarantee that the simple
+estimate-plus-or-minus Wald interval has good coverage near zero or one.
+
+**Normal and t references.** If a population standard deviation were
+externally known and the relevant
+model justified it, a Normal or *z* reference could be used for a mean.
+Applied social research rarely knows that population spread independently of
+the study. Section 2 explains why estimating spread motivates *t* reasoning.
+For two independent means, Welch's procedure permits unequal variances
+[@welch1947]; its familiar name does not verify the design or approximation.
+
+**Proportions need careful intervals.** The familiar Wald interval
+$\widehat{p}\pm z^*SE(\widehat{p})$ can perform poorly with small
+samples or proportions near zero or one. The Wilson score interval has better
+coverage behavior in many such settings [@wilson1927]. Chapter 4 develops the
+reading of proportions and contingency tables. Here the important lesson is
+that “estimate plus or minus” is a structure, not permission to use any
+standard error in any dataset.
+
+**One-sided tail calculations.** The direction and decision rule must satisfy
+the prospective requirement in
+Section 3 before using the following shortcut.
+
+For a continuous, symmetric $t$ or $z$ reference and the usual two-sided
+tail-area definition, let $p_2$ denote the two-sided p-value. When the observed
+statistic points in the prespecified alternative's direction, the one-sided
+p-value is $p_2/2$. When it points in the opposite direction, it is
+$1-p_2/2$, not $p_2/2$. For the positive special-practice statistic,
+$p_2\approx.007160$ gives approximately .003580 for the positive alternative
+and .996420 for the negative alternative. These are illustrative tail
+calculations; the study's reported primary procedure remains two-sided.
+
+The halving shortcut is not universal for asymmetric or discrete tests. Check
+the actual statistic, reference distribution, tail convention, and prespecified
+question. For a one-sided level-.05 test, the matched confidence bound is
+one-sided 95%; its cutoff differs from a two-sided 95% interval. Sidedness
+does not repair weak design or establish evidence of no effect.
+
+**Conditions are argument support.** Condition checks are not ceremonial
+boxes attached to a test name. They
+provide part of STAT-J:
+
+- Does the estimator match the estimand?
+- Are the independent units identified correctly?
+- Is pairing, clustering, or repeated measurement represented?
+- Is the outcome coding and denominator correct?
+- Are distributional approximations adequate for the estimator?
+- Were exclusions, transformations, and sidedness prespecified or disclosed?
+
+When a condition is weak, the response may be a different procedure, a
+sensitivity analysis, a narrower estimand, or a less certain claim. Software
+cannot choose among those repairs without substantive and design information.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Resampling, effect scales, and regression links {.unnumbered}
+
+**Bootstrap and null distributions answer different questions.** A
+**bootstrap distribution** approximates estimator variability by repeatedly
+resampling the declared observational units from the observed data. Its center
+is usually near the observed estimate. It can support a standard error or
+confidence interval. The bootstrap SE is the ordinary sample SD of the
+repeated bootstrap estimates, not the SD of the original observations.
+
+A **null distribution** describes the test statistic under specified null
+restrictions and other analysis conditions. Its location depends on the
+statistic: a centered $t$ statistic has a zero-centered reference, whereas an
+$F$ or chi-square statistic does not. It supports a p-value or decision rule.
+Bootstrap and null distributions may be generated by superficially similar
+simulation steps, but their inferential aims differ.
+
+A short case-resampling algorithm is:
+
+1. identify the independent resampling unit;
+2. sample those units with replacement to the original effective size;
+3. apply the same estimator;
+4. repeat many times; and
+5. summarize the resulting estimator distribution.
+
+If students are clustered in classes, resampling rows as if every student were
+independent may be wrong. If observations are paired, resample pairs or
+within-pair differences as the design requires. Resampling does not repair
+biased selection, invalid measurement, missing cases, unrecorded clustering, or
+a wrong estimand.
+
+\Needspace{8\baselineskip}
+
+**Standardized effects require a named denominator.** For two independent
+groups, one familiar standardized mean difference is:
+
+$$
+d=\frac{\bar{x}_1-\bar{x}_0}{s_{\mathrm{pooled}}}.
+$$
+
+Hedges' $g$ multiplies this quantity by a small-sample correction
+[@lakens2013]. The denominator must be named because different denominators
+answer different comparative questions. A within-person standardized change
+can use the SD of change scores, a pretest SD, or another reference spread;
+these quantities are not interchangeable.
+
+Standardization may support comparison across measures, but it also removes
+the original unit. Labels such as small, medium, and large are not universal
+importance standards. Whenever possible, interpret the raw contrast and its
+consequences first.
+
+**Familiar tests as regression models.** Several introductory comparisons
+can be written as simple regression models:
+
+- a one-sample mean is the intercept in an intercept-only model;
+- a paired mean change is the intercept in a model of within-pair differences;
+- a two-group mean difference is the coefficient of a group indicator.
+
+For the special-practice study, let $X_i=1$ for Special assignment and $0$ for
+Usual assignment:
+
+$$
+Y_i=\beta_0+\beta_1X_i+\varepsilon_i.
+$$
+
+Fitting this equation by ordinary least squares makes $\widehat\beta_0$ the
+observed Usual group mean and $\widehat\beta_1$ the observed Special-minus-Usual
+mean difference. It is an algebraic equality of fitted coefficients, not a new
+superpopulation interpretation or a claim that all individual effects equal
+$\beta_1$. This equivalence is a bridge, not yet a
+regression lesson. Later chapters add covariates, interactions, nonlinear
+outcomes, and design-aware uncertainty while retaining the same estimand →
+estimate → uncertainty → bounded-answer route.
+
+\Needspace{10\baselineskip}
+\phantomsection
+
+# Appendix B: Power, Selection, Multiplicity, and Planning {.unnumbered}
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Planning assumptions behind power {.unnumbered}
+
+Section 3 defines Type I and Type II errors and power. To use power in
+planning, name the alternative effect, outcome variability, assignment or
+sampling design, effective sample size, attrition, test, sidedness, and
+threshold. Changing any of these can change the calculated power. Report a
+range of plausible planning assumptions rather than treating one optimistic
+calculation as a guarantee.
+
+“The study has 80% power” is incomplete without those assumptions and the
+relevant effect. A conventional percentage is not a context-free quality
+standard, and power against one specified alternative is not the probability
+that a completed study's conclusion is correct.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Selection on significance changes what is observed {.unnumbered}
+
+Even when an estimator behaves well before selection, retaining only results
+with small p-values changes the selected set. Among selected results:
+
+- magnitudes may be exaggerated, especially in noisy studies;
+- directions can sometimes be wrong when true effects are small;
+- interval and p-value interpretation is altered by the selection rule; and
+- the published record may no longer represent all analyses conducted.
+
+These are reasons to disclose the full planned analysis family, distinguish
+confirmatory and exploratory work, and interpret a selected result more
+cautiously. A small p-value does not reveal how many other outcomes, subgroups,
+transformations, exclusions, or model choices were tried.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Multiplicity is broader than many tests in one table {.unnumbered}
+
+Multiplicity can arise from:
+
+- several outcomes or time points;
+- subgroup searches;
+- alternative transformations or coding rules;
+- optional stopping or repeated looks;
+- exclusion choices;
+- multiple model specifications; and
+- selective reporting across studies.
+
+Adjustment is one possible response, but the first reading task is documentary:
+what was the analysis family, which choices were prospective, which were
+exploratory, and what was reported? Without that record, parts of
+Justification adequacy and Inferential adequacy may receive **insufficient
+information to judge**.
+
+One numerical illustration explains why the family matters. If five tests
+are independent and each has false-rejection probability .05 under its null,
+the probability of at least one false rejection when all five nulls hold is
+$1-(1-.05)^5=1-.95^5\approx.226$. Independence is essential to that product
+calculation; it is not a universal formula for a study's error rate.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+## Plan precision from meaningful raw units {.unnumbered}
+
+For estimation, a useful planning question is:
+
+> How narrow must the interval be to distinguish substantively different
+> answers on the original scale?
+
+That question requires a target half-width and plausible outcome variability.
+It also requires sensitivity to retention, clustering, unequal allocation, and
+the analysis actually planned. If an educational decision would differ between
+a 1-point and a 5-point effect, an interval spanning both may be too imprecise
+even if its p-value is below a familiar threshold.
+
+For a **separate independent-sampling planning model** with equally sized
+groups, a common planning SD $\sigma$, and Normal critical value $z^*$,
+
+$$
+n_{\mathrm{per\ group}}\approx2\left(\frac{z^*\sigma}{h}\right)^2,
+$$
+
+where $h$ is the desired half-width. If $\sigma=6.2$, $h=2$, and
+$z^*=1.96$, this gives $2(1.96\times6.2/2)^2\approx73.84$, or 74 per
+group after rounding up. This is an initial approximation, not a redesign of
+the fixed 120-student example. Estimated variance, finite-$t$ critical values,
+attrition, unequal allocation, or clustering can require further adjustment.
+
+Prospective precision planning does not guarantee a successful study. It makes
+one design obligation explicit and allows assumptions to be challenged before
+evidence production begins.
+
+\Needspace{6\baselineskip}
+\phantomsection
+
+# References {.unnumbered}

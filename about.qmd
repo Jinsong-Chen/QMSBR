@@ -1,0 +1,124 @@
+---
+title: "About QMSBR"
+subtitle: "A reading-first approach to quantitative studies"
+description: "The purpose, argument-based approach, authorship, citation, licensing, and accessibility commitments of QMSBR."
+---
+
+QMSBR—*Quantitative Methods for Social and Behavioral Research*—is a modular
+collection of chapters designed to support more than one quantitative-methods
+course. Its primary purpose is to help applied researchers read quantitative
+studies; evaluating a study and learning how to conduct a clearer one are
+secondary benefits. The collection is maintained as one canonical library so a
+correction can improve every course route that uses it.
+
+<span id="the-framework"></span>
+
+## The argument-based approach {#the-approach}
+
+A finalized quantitative study can be read as a **question--answer contract**.
+The research question declares what answer is owed. Methods, results,
+supplemental materials, and reservations provide the record from which a reader
+decides whether the final answer is warranted.
+
+The basic rule is deliberately simple: **one question--answer pair has one
+argument**. That argument has linked statistical and substantive layers. A
+study with several separable questions needs several arguments; shared data do
+not erase question-specific obligations.
+
+| Component | Statistical layer | Substantive layer |
+|---|---|---|
+| **Evidence (E)** | Recorded observations and how they were produced | What those records represent in their setting, population, and period |
+| **Justification (J)** | Why the design, measurement, and procedure can address the statistical target | Why the contextualized evidence bears on the substantive question |
+| **Inference (I)** | Estimate or prediction, uncertainty, checking, sensitivity, and analytic status | Meaning, magnitude, importance, alternatives, and scope |
+| **Bounded Claim (C)** | A qualified statistical result | The final bounded answer, including reservations |
+
+Within each layer, Evidence and Justification jointly support Inference, which
+supports a bounded Claim: **E + J → I → C**. Across layers, the substantive
+components situate, evaluate, interpret, and bound their statistical
+counterparts. The statistical layer is therefore not a second argument, and a
+software result is not the whole inference.
+
+The basic chapter also introduces two supporting extensions. A six-stage,
+two-phase **construction workflow** describes how one simple argument may be
+built. Iteration stays within its current phase; changing a Phase 1 commitment
+after Phase 2 has begun starts a new or revised cycle, although valid work may be
+reused. Six **evaluation questions** test question alignment, evidence integrity,
+justification adequacy, inferential adequacy, transition fidelity, and claim
+calibration. Authors evaluate first, but collaborators, reviewers, editors, and
+readers also have independent responsibility; the questions produce a reasoned
+profile, not a mechanical score.
+
+Chapter 1 is the sole common prerequisite for the series. The optional Chapter
+1a extends the approach to coordinated questions, an eight-stage workflow,
+cross-question coherence, and regression-based methods. Regression can
+instantiate targets, estimates, contrasts, and checks, but it cannot by itself
+supply construct meaning, representative evidence, or a causal design.
+
+The approach is **Toulmin-informed**: it retains evidence, justified inferential
+bridges, qualified claims, and explicit reservations without treating the eight
+components as one-to-one replacements for Toulmin's roles. LeMire (2010)
+provides a related statistical precedent focused on null-hypothesis testing.
+
+## Scope
+
+Part One focuses mainly on observable variables and foundational statistical
+reasoning. Chapters 1--4 keep the learner route code-independent; later chapters
+introduce reproducible computing and regression when those tools serve a clear
+reading or research purpose. Factor analysis and latent-variable modelling are
+reserved for Part Two; multilevel and longitudinal models are reserved for Part
+Three. Study design is addressed wherever it controls interpretation, but a
+named statistical procedure never creates a causal claim.
+
+## Author
+
+**Jinsong Chen**  
+Faculty of Education, The University of Hong Kong  
+[jinsong.chen@live.com](mailto:jinsong.chen@live.com)
+
+This is an independently maintained educational resource. The affiliation
+identifies the author; QMSBR is not presented as an official HKU website, and
+no HKU logo or institutional endorsement is implied.
+
+## Citation {#citation}
+
+> Chen, J. (2026). *QMSBR: Quantitative Methods for Social and Behavioral
+> Research*. https://jinsong-chen.github.io/QMSBR/
+
+Also cite the original datasets, software, and studies used by an analysis.
+
+## Licences {#licences}
+
+Chapter text, figures, and site prose are licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Original R code is
+licensed under the MIT License. Data generated by QMSBR simulations is
+dedicated under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+
+Two third-party items ship with this site and keep their own terms:
+`supplement/student_performance.csv` is derived from the UCI Student
+Performance dataset (Cortez, 2008) under CC BY 4.0, and `apa.csl` comes from
+the CSL styles collection under CC BY-SA 3.0. Package datasets used in examples
+are loaded from their R packages and are not redistributed here.
+
+Full terms are in [LICENSE](https://github.com/Jinsong-Chen/QMSBR/blob/main/LICENSE).
+
+## Using QMSBR in a course {#courses}
+
+QMSBR is a source library, not a syllabus. Keep chapter identities stable and
+let each course choose its own sequence and assessed work.
+
+| QMSBR website | Your course space |
+|---|---|
+| Canonical current chapters | The term sequence and weekly instructions |
+| Stable public links | Announcements and deadlines |
+| Answer-free chapter exercises | Assessment, feedback, and answer keys |
+
+Link to the website so students receive corrections automatically. Lecture
+notes, solutions, and assessments stay in your own course space.
+
+## Accessibility
+
+HTML is the preferred reading format: it provides responsive layout, headings,
+search, link text, and selectable code. Downloadable PDFs are retained for
+printing and annotation and are checked for reading order, document language,
+bookmarks, metadata, and visual integrity. Accessibility problems can be
+reported through the repository issue tracker or by email.

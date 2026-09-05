@@ -1,53 +1,49 @@
-# QMSBR website
+# QMSBR
 
-This repository contains only the public website shell, publication tooling,
-tests, and legal metadata for **QMSBR: Quantitative Methods for Social and
-Behavioral Research**. Canonical chapters, PDFs, lecture notes, data, and
-supplements live in the private sibling `materials/` repository.
+**Quantitative Methods for Social and Behavioral Research** — a modular
+collection of chapters on reading and producing quantitative research.
 
-Release 2026.1 publishes exactly Chapters 01–04 as HTML and reviewed PDFs, plus
-the reviewed Chapter 01 classroom-note PDF. It publishes no standalone script,
-syntax, dataset, lab, exercise, project, documentation, or ZIP resource.
+Site: <https://jinsong-chen.github.io/QMSBR/>
 
-## Local workflow
+## What is here
 
-One-time setup requires Python, R 4.5.1, and network access. From this directory:
+- `part-one/` — Foundations, regression, and generalized linear models
+  (introduction + Chapters 1, 1a, 2–8)
+- `part-two/` — Factor analysis and structural equation modeling
+  (introduction + Chapters 1–4), with the R companions and data they use
+- `supplement/` — shared render inputs used by the chapters
+- `_quarto.yml` — the only configuration file
+- `index.qmd`, `library.qmd`, `about.qmd` — the three site pages
 
-```powershell
-python -m pip install --require-hashes -r requirements-release.txt
-Push-Location ../materials
-Rscript --vanilla -e "source('renv/activate.R'); renv::restore(prompt = FALSE)"
-Pop-Location
-python tools/manage.py bootstrap-quarto
+Each chapter has a `.qmd` source and a reviewed `.pdf` beside it. The site
+renders the HTML; the PDF is offered as a download.
+
+## Building locally
+
+Requires [Quarto](https://quarto.org) 1.8 or later and R with the packages the
+Part Two chapters use (`lavaan`, `psych`, `GPArotation`, `DiagrammeR`,
+`DiagrammeRsvg`, `rsvg`, `digest`).
+
+```bash
+quarto render --to html     # builds the site into _site/
+quarto preview              # local preview with live reload
 ```
 
-The Python command installs the exact checked PyYAML release, `renv::restore()`
-recreates the private R library from `../materials/renv.lock`, and the final
-command installs the pinned portable Quarto under ignored local state. Then:
+Always render with `--to html`. A bare `quarto render` would also fire the
+`pdf` and `docx` formats that individual chapters declare.
 
-```powershell
-python tools/manage.py sync
-python tools/manage.py check
-python tools/manage.py build
-python tools/manage.py serve
-```
+## Adding or updating a chapter
 
-The default materials location is the sibling `../materials`. Override it with
-`--materials-root C:\path\to\materials` or `QMSBR_MATERIALS_ROOT` when the two
-repositories are checked out elsewhere. Disposable staging and rendered output
-are kept under the ignored `website/.qmsbr/` directory.
+1. Put the `.qmd` and its `.pdf` in `part-one/` or `part-two/`.
+2. Add the `.qmd` to `render:` and to the sidebar in `_quarto.yml`.
+3. Add one row to the table in `library.qmd`.
+4. `quarto render --to html` and check the page locally.
+5. Commit and push — GitHub Actions publishes the site.
 
-`sync` derives the exact private publication manifest from the catalogue and
-approval record. `check` verifies the split source boundary and every approved
-hash. `build` assembles an empty, allowlisted Quarto project, renders with the
-pinned Quarto version, validates output and links, then promotes the result to
-`.qmsbr/site`. Nothing is published or pushed by these commands.
+## Licence
 
-The ordinary `build` command always produces a **nondeployable local preview**;
-it never creates a release, tag, push, or deployment. Official releases run
-only through the manually dispatched GitHub Pages workflow on the public
-repository and read the approved private commit through a repository-specific,
-read-only deploy key.
+CC BY 4.0 for text and figures, MIT for original code, CC0 1.0 for simulated
+data. Two third-party items keep their own terms. See [LICENSE](LICENSE).
 
-- Public source: <https://github.com/Jinsong-Chen/QMSBR>
-- Published site: <https://jinsong-chen.github.io/QMSBR/>
+Maintained by Jinsong Chen, Faculty of Education, The University of Hong Kong.
+QMSBR is not an official University service.

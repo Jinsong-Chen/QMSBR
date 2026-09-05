@@ -1,0 +1,272 @@
+---
+title: "Part One: Foundations, Regression, and Generalized Linear Models"
+subtitle: "An Introduction to the Chapters and How They Fit Together"
+author: "Jinsong Chen"
+
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-cap: true
+    tbl-cap: true
+    fig-align: center
+    include-in-header:
+      - text: |
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+## What Part One Is
+
+*Quantitative Methods for Social and Behavioral Research with R* is written
+for postgraduate students and applied researchers who read empirical studies,
+judge whether their conclusions hold, and increasingly conduct quantitative
+research themselves. It is not organized as a software-command manual or a
+specialist statistical reference. Questions, evidence, reasoning, and bounded
+answers come before procedures and output.
+
+Part One contains fourteen numbered chapters. Chapters 2--6 build statistical
+and computational foundations. Chapters 7--9 develop the linear model;
+Chapters 10--12 extend regression to binary, categorical, and count outcomes;
+Chapter 13 focuses on prediction and validation; and Chapter 14 brings major
+threats to credibility to bear on complete quantitative arguments. The
+sequence therefore builds toward regression as its principal modelling family
+without treating every earlier method as regression.
+
+**What is assumed.** Readers should have some introductory familiarity with
+statistics and algebra. Calculus and proof-based mathematical statistics are
+not assumed. Each chapter refreshes the notation and statistical ideas it
+actually needs at their point of use.
+
+**How to use this map.** This introduction maps Chapters 1--8, the foundation
+and regression sequence developed here. Chapters 9--14 are the planned
+continuation described below. Chapter 1a, *Extending the Argument-Based
+Approach to Quantitative Studies*, is optional enrichment and is never a
+prerequisite for a numbered chapter.
+
+## The Argument-Based Approach at a Glance
+
+Chapter 1 develops the approach in full. This preview supplies only the map a
+reader needs to understand the sequence.
+
+A quantitative study can be read as a **question--answer contract**. One
+question--answer pair is one argument, even when several arguments share data,
+records, or a fitted model. Each argument has linked **statistical** and
+**substantive** layers. Within each layer, documentary content performs four
+functions: Evidence and Justification support Inference, which supports a
+bounded Claim:
+
+$$
+E+J\longrightarrow I\longrightarrow C.
+$$
+
+The components are functions performed by material in the accessible record,
+not containers tied to particular section headings. Statistical content
+concerns observations, quantities, procedures, uncertainty, and checks.
+Substantive content situates those observations in the people or entities,
+conditions, setting, period, measurement meaning, and alternatives named by
+the question. Across layers, Evidence **situates**, Justification **augments
+and contextualizes**, Inference **interprets**, and Claim **bounds**. Reasons
+may be stated directly, located in related materials, or implicit but
+traceable; locating a reason does not establish that it is adequate.
+
+The four functions in two layers give eight components, and the codes are used
+throughout Part One.
+
+| | Evidence (E) | Justification (J) | Inference (I) | bounded Claim (C) |
+|:--|:--|:--|:--|:--|
+| **Statistical** | **STAT-E** observations and how they were produced | **STAT-J** stated reasons for the comparison, procedure, and uncertainty | **STAT-I** estimand, result, uncertainty, and checks | **STAT-C** the statistical proposition and its conditions |
+| **Substantive** | **SUB-E** those observations as people, conditions, setting, and period | **SUB-J** theory, measurement meaning, implementation, alternatives, and scope | **SUB-I** the result read in substantive units and context | **SUB-C** the question-facing answer and its bounds |
+
+: *The eight argument components.* {#tbl-intro-components tbl-colwidths="[11,22,23,21,23]"}
+
+One question can require several statistical estimands. They form parallel
+statistical strands within one argument only when they are jointly necessary
+for one integrated substantive answer. If the study owes separate answers, it
+owes separate question--answer pairs and arguments.
+
+Where estimation or inference is involved, the **estimand** names the target
+quantity before the estimate is interpreted. A fixed-record descriptive
+summary may instead be a quantity known for the specified observations.
+Questions and claims can be descriptive, associational, predictive, or causal;
+the mode belongs to the question and supporting design, not to the software.
+
+The approach has three ranked uses. **Reading** is primary: identify the pair,
+recover its component functions and documentary traces, and understand the
+reported bounded answer. **Evaluating quality** is a dependent secondary use
+that begins only after reading. **Constructing** an argument is an auxiliary
+use for researchers conducting a study. Chapter 1 introduces six
+quality-evaluation questions and a six-stage, two-phase construction workflow;
+later chapters use only the parts needed for their own reading problem. A
+reader records **not located** when support cannot be found and does not turn
+that documentary status into a claim that the work was absent.
+
+The six quality-evaluation questions are **Question alignment**, **Evidence
+integrity**, **Justification adequacy**, **Inferential adequacy**, **Transition
+fidelity**, and **Claim calibration**. Each yields one of four outputs:
+*adequate for this purpose*, *needs revision*, *insufficient information to
+judge*, or *not applicable*. The question--answer pair as a whole then receives
+one of four conclusions: *supported as stated*, *supported only after narrowing
+or revision*, *not supported*, or *not assessable from the accessible record*.
+Chapters apply the questions their own reading problem needs, and they differ
+in how far they carry the verdicts: some grade every question with an output,
+others apply the questions in prose. *Not located* is a documentary status
+about the record, never an evaluation conclusion.
+
+## How Chapters 1--8 Progress
+
+The first eight chapters make five moves:
+
+1. establish a common method for reading quantitative studies;
+2. develop data, description, sampling, and inferential foundations without
+   requiring R;
+3. make those foundations executable through plain, reproducible R;
+4. build simple and multiple regression from the earlier ideas; and
+5. coordinate several distinct questions without merging their answers.
+
+| Chapter | Main responsibility | How it connects |
+|:--|:--|:--|
+| **1. How to Read a Quantitative Study as an Argument** | Connect the question, evidence, justification, statistical result, and bounded substantive answer; distinguish reading from quality evaluation | Supplies the common approach used throughout Part One |
+| **2. Understanding Data, Variation, and Sampling** | Understand observations, variables, distributions, summaries, association, representation, and repeated-sampling variation | Supplies descriptive and sampling foundations for Chapters 3 and 5--7 |
+| **3. Understanding Estimates, Uncertainty, and Statistical Tests** | Understand estimands, estimates, standard errors, intervals, tests, assumptions, and bounded answers | Supplies the inferential foundations implemented in Chapter 6 and extended in regression |
+| **4. Reading Group Comparisons: Categorical Outcomes and Mean Outcomes** | Read categorical and mean comparisons, omnibus tests, specific contrasts, and parallel strands serving one integrated answer | Supplies comparison structures for Chapter 6 and later indicator-variable models |
+| **5. Descriptive Statistics with R** | Prepare and inspect records, calculate descriptive quantities, produce appropriate displays, and report what the specified observations show | Makes Chapter 2's descriptive reasoning executable and prepares the records used later |
+| **6. Basic Inferential Statistics with R** | Reproduce estimates, intervals, and tests; connect calculations to estimands, assumptions, and interpretations | Makes Chapters 3--4 executable and establishes the computational treatment of uncertainty used in regression |
+| **7. Reading a Simple Linear Regression** | Develop one-predictor fitting, interpretation, uncertainty, diagnostics, and the distinction among fixed-record slopes, model-based slopes, and new-case predictions | Integrates Chapters 2--6 in a one-predictor setting and prepares multiple regression |
+| **8. Reading Multiple Regression Across Coordinated Questions** | Develop adjustment, indicators, model comparison, fitted quantities, and prediction assessment while keeping separately owed answers distinct | Integrates the earlier foundations in an occupation study and transfers the reasoning to a randomized Project STAR application |
+
+: *Chapters 1--8: responsibilities and dependencies.* {#tbl-intro-ch1-8 tbl-colwidths="[26,37,37]"}
+
+## Conceptual and Computational Foundations
+
+Chapters 2--4 and Chapters 5--6 form connected conceptual and computational
+foundations. The first group develops understanding through explanation,
+worked mathematics, and supplied results without requiring R. The second makes
+selected ideas executable through observation selection, transparent
+calculation, and interpretation. When an example returns, it returns to make a
+new step in the reasoning visible rather than merely repeating an earlier
+result.
+
+Chapter 5 describes the records actually included. Chapter 6 introduces
+uncertainty about a stated estimand under sampling, assignment, or model
+assumptions. This is an analytical distinction, not a replacement for the four
+question modes: a descriptive population question may require statistical
+inference, while a regression can be descriptive, associational, predictive,
+or causal depending on the question and its justification. Running a
+calculation in R supplies no design warrant.
+
+Three mathematical threads connect the chapters:
+
+- covariance and correlation become a slope in Chapters 2, 5, and 7;
+- standard errors and intervals for means become standard errors and intervals
+  for a slope in Chapters 3, 6, and 7; and
+- group comparisons become indicator-variable models in Chapters 4, 6, and 8.
+
+The mathematics needed to understand a chapter's principal results remains in
+its numbered route. Fuller derivations, specialized comparisons, simulations,
+and computational variants may appear in signposted appendices.
+
+## What Follows After Chapter 8
+
+The remaining chapters extend the regression sequence along the form of a
+relationship, the type of outcome, and the purpose of a model. Chapter 9 adds
+interaction and moderation. Chapters 10--12 address binary, nominal or
+ordinal, and count or rate outcomes. Chapter 13 develops predictive estimands,
+cross-validation, and regularization. Chapter 14 examines confounding
+structures, missingness, measurement problems, and selective reporting in a
+full credibility audit.
+
+These chapters reuse the same reading discipline: name the question and
+estimand, interpret the result on a meaningful scale, attach uncertainty where
+appropriate, inspect the support and assumptions, and complete a bounded
+answer. More complex methods do not relax those obligations.
+
+\clearpage
+
+## Routes and Commitments
+
+**A taught course** can follow Chapters 1--8 in order, pairing Chapter 2 with
+Chapter 5 and Chapters 3--4 with Chapter 6 when the calendar allows. Chapters
+7--8 are the regression destination toward which those foundations build.
+
+**A reader working alone** should begin with Chapter 1 and may read Chapters 5
+and 6 alongside Chapters 2--4 when learning through computation helps.
+
+**A reader consulting one method** should still read its opening question and
+closing bounded answer, not fitted output alone.
+
+Across these routes, five commitments remain constant:
+
+1. **Method follows question.** A procedure must help answer, qualify, or
+   evaluate a declared question.
+2. **Reading precedes evaluation.** The reader first records what the study
+   reports, including reasons that may later prove inadequate.
+3. **Interpretation does not repair support.** Substantive language cannot
+   erase statistical, design, measurement, or scope limitations.
+4. **The minimum computational route stays plain.** Chapters 5 onward use
+   mostly base R and a few named packages. Optional extensions may use compact
+   helper functions for repeated calculations.
+5. **Required support remains in the numbered route.** Appendices may add
+   depth, but the chapter's bounded answer must remain understandable without
+   them.
+
+Each numbered teaching route closes with a **Summary and Reading Bridge**,
+followed by unnumbered exercises. Optional appendices and references may
+follow.
