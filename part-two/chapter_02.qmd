@@ -425,7 +425,11 @@ pt2_resid_col  <- "#596b75"
 .pt2_label <- function(x) {
   if (is.expression(x) || is.language(x)) return(x)
   if (!nzchar(x)) return("")
-  if (grepl("^[-.0-9]", x)) x else parse(text = x)
+  if (grepl("^[-.0-9]", x)) return(x)
+  # Plotmath where the label parses (eta[1], phi[12]); literal text otherwise,
+  # so that factor names such as "School support" render as written.
+  out <- tryCatch(parse(text = x), error = function(e) NULL)
+  if (is.null(out)) x else out
 }
 
 .pt2_arrow <- function(x0, y0, x1, y1, dashed = FALSE, both = FALSE,
@@ -700,57 +704,44 @@ retention <- efa_retention_survey(z)
 {{< pagebreak >}}
 
 ::: {.callout-tip title="Chapter box"}
-**What this chapter is for.** Chapter 1 built a common-factor model from
-declared parameters. This chapter reverses the direction: it starts from a
-sample correlation matrix that no simple model reproduces exactly, and works
-back toward a defensible low-dimensional representation. It is the
-exploratory chapter, conceptual and practical, and it ends by freezing a
-precise candidate for the confirmatory work of Chapters 3 and 4.
+**Five themes.**
 
-**Guiding question.** Given an item set and a development sample, how can an
-exploratory factor analysis establish a defensible dimensional
-representation — and what does retaining a factor count establish about the
-attributes the factors are named for?
+*The direction of work reverses.* The preceding chapter built a covariance
+matrix from declared parameters. Here a sample correlation matrix comes
+first, and no simple model reproduces it exactly.
 
-**Provisional answer.** Extraction, retention, rotation and interpretation
-are linked decisions, each comparing the data against a stated reference.
-When matched diagnostics agree, they support a *candidate* worth taking
-forward. They do not establish that a construct has that many dimensions:
-the coordinates are not unique, the item set and population are fixed by
-the design, and a sample used to make these decisions cannot also confirm
-them. Separating development from confirmation is what keeps the later
-claim available.
+*Every diagnostic compares against a reference.* Extraction, retention and
+rotation each state what the data are being held up against. Naming the
+reference is what makes a result interpretable, and what makes two
+procedures with the same name different.
+
+*Coordinates are chosen, not found.* Rotation changes the loading display
+without changing the fitted covariance, so pattern coefficients, structure
+correlations and factor correlations are three different quantities that
+must be read together.
+
+*Discrepancy has a location.* A residual correlation matrix says where a
+retained solution strains; an average residual cannot.
+
+*A development sample cannot confirm what it was used to develop.* The
+analysis produces a candidate whose restrictions are stated explicitly, and
+the evidence for it has to come from records not yet inspected.
 
 **Prerequisites.** Sample covariance and correlation, elementary matrix
-algebra, and Chapter 1's common-factor model, communalities, uniquenesses,
-and coordinate indeterminacies. Basic R helps reproduction; the printed
-matrices, equations, and output support the reasoning without running it.
+algebra, and the common-factor model, communalities, uniquenesses and
+coordinate indeterminacies developed in the preceding chapter. Basic R helps
+reproduction; the printed matrices, equations and output support the
+reasoning without running it.
 
-**Record.** Sample A contains 360 complete, simulated continuous records
-on twelve Student Learning Experiences indicators. No observations concern
-actual students. Samples B and C are not analyzed in this chapter.
-
-**By the end you should be able to:**
-
-- say which matrix is being decomposed, and which covariance structure each
-  extraction method approximates;
-- read a parallel analysis against a matched permutation reference, and
-  state what that reference does and does not compare;
-- count effective parameters and candidate degrees of freedom for an
-  unrestricted $m$-factor solution, and explain the rotational subtraction;
-- rotate to oblique coordinates and read pattern coefficients, structure
-  correlations and factor correlations as three different quantities;
-- locate local discrepancy in a residual correlation matrix rather than
-  relying on a single summary; and
-- convert an exploratory interpretation into explicit fixed, free and
-  constrained restrictions, and say what the development sample cannot
-  establish.
+**Record.** Sample A contains 360 complete, simulated continuous records on
+twelve Student Learning Experiences indicators. No observations concern
+actual students. Samples B and C are not analysed here.
 
 **Scope.** We develop a candidate measurement model on Sample A and stop
-there. No confirmation sample is opened, no restricted model is estimated, and
-no fit index is interpreted as evidence for a construct. Indicators are
-continuous throughout Part Two. This is model development, not instrument
-validation or individual scoring.
+there. No confirmation sample is opened, no restricted model is estimated,
+and no fit index is interpreted as evidence for a construct. Indicators are
+treated as continuous throughout Part Two. This is model development, not
+instrument validation or individual scoring.
 :::
 
 # Define the exploratory measurement problem {#sec-efa-problem}

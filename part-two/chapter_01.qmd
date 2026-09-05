@@ -148,7 +148,11 @@ pt2_resid_col  <- "#596b75"
 .pt2_label <- function(x) {
   if (is.expression(x) || is.language(x)) return(x)
   if (!nzchar(x)) return("")
-  if (grepl("^[-.0-9]", x)) x else parse(text = x)
+  if (grepl("^[-.0-9]", x)) return(x)
+  # Plotmath where the label parses (eta[1], phi[12]); literal text otherwise,
+  # so that factor names such as "School support" render as written.
+  out <- tryCatch(parse(text = x), error = function(e) NULL)
+  if (is.null(out)) x else out
 }
 
 .pt2_arrow <- function(x0, y0, x1, y1, dashed = FALSE, both = FALSE,
