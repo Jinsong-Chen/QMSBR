@@ -145,14 +145,29 @@ pt2_resid_col  <- "#596b75"
 
 # Render a label that may be plain text (".70", "0") or a plotmath
 # expression string ("lambda[11]", "eta[1]").
+pt2_greek <- c("alpha","beta","gamma","delta","epsilon","zeta","eta","theta",
+  "iota","kappa","lambda","mu","nu","xi","pi","rho","sigma","tau","upsilon",
+  "phi","chi","psi","omega","Gamma","Delta","Theta","Lambda","Xi","Pi",
+  "Sigma","Phi","Psi","Omega")
+
+# Render as plotmath only where the label is meant as notation: a subscripted
+# token such as eta[1] or Planning[s], or a bare Greek name. Everything else is
+# literal, so a factor named "Self-efficacy" is not parsed as a subtraction.
 .pt2_label <- function(x) {
   if (is.expression(x) || is.language(x)) return(x)
   if (!nzchar(x)) return("")
   if (grepl("^[-.0-9]", x)) return(x)
-  # Plotmath where the label parses (eta[1], phi[12]); literal text otherwise,
-  # so that factor names such as "School support" render as written.
+  notation <- grepl("^[A-Za-z]+\\[[A-Za-z0-9]+\\]$", x) || x %in% pt2_greek
+  if (!notation) return(x)
   out <- tryCatch(parse(text = x), error = function(e) NULL)
   if (is.null(out)) x else out
+}
+
+# Half-width of a factor node. Long substantive names get an ellipse rather
+# than spilling out of a fixed circle, following the reference decks.
+.pt2_frx <- function(label, r = .55) {
+  n <- nchar(gsub("\\[|\\]", "", as.character(label)))
+  max(r, .105 * n + .22)
 }
 
 .pt2_arrow <- function(x0, y0, x1, y1, dashed = FALSE, both = FALSE,
@@ -169,9 +184,11 @@ pt2_resid_col  <- "#596b75"
 }
 
 .pt2_circle <- function(x, y, label, r = .55) {
-  symbols(x, y, circles = r, inches = FALSE, add = TRUE,
-          bg = pt2_circ_fill, fg = pt2_ink, lwd = 1.35)
-  text(x, y, .pt2_label(label), cex = .95)
+  rx <- .pt2_frx(label, r)
+  tt <- seq(0, 2 * pi, length.out = 96)
+  polygon(x + rx * cos(tt), y + r * sin(tt), col = pt2_circ_fill,
+          border = pt2_ink, lwd = 1.35)
+  text(x, y, .pt2_label(label), cex = .92)
 }
 
 # Draw a label at a fraction along a path, nudged perpendicular to it.
@@ -195,6 +212,25 @@ pt2_resid_col  <- "#596b75"
   .pt2_arrow(xs[n - 1], ys[n - 1], xs[n], ys[n], col = pt2_cov_col, lwd = 1.4)
   if (!is.null(label) && nzchar(label))
     text(x - bulge - .14, ym, .pt2_label(label), adj = 1, cex = .82)
+  invisible(NULL)
+}
+
+# Draw a double-headed arc for every distinct factor pair. Wider separations
+# bow further out so that the arcs nest instead of overlapping, matching the
+# reference decks' one-sided layout for three or more factors.
+.pt2_cov_pairs <- function(x, yf, labels = NULL) {
+  m <- length(yf)
+  if (m < 2) return(invisible(NULL))
+  pairs <- which(upper.tri(matrix(0, m, m)), arr.ind = TRUE)
+  span <- pairs[, 2] - pairs[, 1]
+  ord <- order(span, pairs[, 1])
+  pairs <- pairs[ord, , drop = FALSE]; span <- span[ord]
+  labels <- if (is.null(labels)) rep("", nrow(pairs)) else
+    rep_len(labels, nrow(pairs))
+  bulge <- if (m == 2) .80 else .50 + 1.10 * (span - 1) / (m - 2)
+  for (i in seq_len(nrow(pairs)))
+    .pt2_cov_arc(x, yf[pairs[i, 1]], yf[pairs[i, 2]], labels[i],
+                 bulge = bulge[i])
   invisible(NULL)
 }
 
@@ -240,28 +276,23 @@ pt2_fa_diagram <- function(assign, m = NULL, cross = NULL,
   yf <- if (m == 1) mean(range(yi)) else
     seq(max(yi) - .9, min(yi) + .9, length.out = m)
   x_resid <- x_indicator + 3.0
-  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  op <- .pt2_canvas(c(-.7, x_resid + 1.0), c(.3, 8.2))
   on.exit(par(op))
 
-  # factor covariances: adjacent pairs, arcs on the left
-  if (m > 1 && !is.null(factor_cov_labels)) {
-    if (length(factor_cov_labels) == 1L && m > 2)
-      factor_cov_labels <- rep(factor_cov_labels, m - 1)
-    for (k in seq_len(m - 1))
-      .pt2_cov_arc(x_factor - .55, yf[k], yf[k + 1],
-                   factor_cov_labels[k],
-                   bulge = .70 + .30 * (k %% 2))
-  }
+  # every factor pair is drawn, nested on the left
+  if (m > 1 && !is.null(factor_cov_labels))
+    .pt2_cov_pairs(x_factor - .55, yf, factor_cov_labels)
 
   for (j in seq_len(p)) for (k in seq_len(m)) {
     is_cross <- isTRUE(cross[j, k])
     if (!isTRUE(primary[j, k]) && !is_cross) next
-    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j],
-               dashed = is_cross,
+    .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+               x_indicator - .74, yi[j], dashed = is_cross,
                col = if (is_cross) pt2_cross_col else pt2_path_col,
                lwd = if (is_cross) 1.1 else 1.35)
     if (!is.null(loading_labels))
-      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+                      x_indicator - .74, yi[j],
                       loading_labels[j, k], nudge = if (is_cross) -.16 else .16,
                       col = if (is_cross) pt2_cross_col else pt2_ink)
   }
@@ -299,9 +330,11 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
   on.exit(par(op))
 
   for (k in seq_len(m)) {
-    .pt2_arrow(x_high + .55, yh, x_factor - .55, yf[k])
+    .pt2_arrow(x_high + .pt2_frx(higher_label), yh,
+               x_factor - .pt2_frx(factor_labels[k]), yf[k])
     if (!is.null(gamma_labels))
-      .pt2_path_label(x_high + .55, yh, x_factor - .55, yf[k],
+      .pt2_path_label(x_high + .pt2_frx(higher_label), yh,
+                      x_factor - .pt2_frx(factor_labels[k]), yf[k],
                       gamma_labels[k], at = .55, nudge = .17)
     if (show_disturbances) {
       .pt2_arrow(x_factor, yf[k] + 1.05, x_factor, yf[k] + .55,
@@ -312,9 +345,11 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
   }
   for (j in seq_len(p)) {
     k <- assign[j]
-    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j])
+    .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+               x_indicator - .74, yi[j])
     if (!is.null(loading_labels))
-      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+                      x_indicator - .74, yi[j],
                       loading_labels[j], nudge = .16)
     .pt2_box(x_indicator, yi[j], indicator_labels[j])
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
@@ -349,18 +384,21 @@ pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
   # general factor reaches every indicator; drawn first and lighter so the
   # group structure stays readable
   for (j in seq_len(p)) {
-    .pt2_arrow(x_gen + .55, ygen, x_indicator - .74, yi[j],
-               col = pt2_cross_col, lwd = 1.0)
+    .pt2_arrow(x_gen + .pt2_frx(general_label), ygen,
+               x_indicator - .74, yi[j], col = pt2_cross_col, lwd = 1.0)
     if (!is.null(general_loadings))
-      .pt2_path_label(x_gen + .55, ygen, x_indicator - .74, yi[j],
+      .pt2_path_label(x_gen + .pt2_frx(general_label), ygen,
+                      x_indicator - .74, yi[j],
                       general_loadings[j], at = .30, nudge = .15,
                       col = pt2_cross_col, cex = .64)
   }
   for (j in seq_len(p)) {
     k <- assign[j]
-    .pt2_arrow(x_group + .55, yg[k], x_indicator - .74, yi[j])
+    .pt2_arrow(x_group + .pt2_frx(group_labels[k]), yg[k],
+               x_indicator - .74, yi[j])
     if (!is.null(group_loadings))
-      .pt2_path_label(x_group + .55, yg[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_group + .pt2_frx(group_labels[k]), yg[k],
+                      x_indicator - .74, yi[j],
                       group_loadings[j], nudge = .16)
     .pt2_box(x_indicator, yi[j], indicator_labels[j])
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
@@ -390,8 +428,8 @@ as scalar equations, as matrices, as a path diagram, and as a sentence.
 The four must agree, and moving between them is how a specification is
 checked.
 
-*Latent coordinates carry no units.* A factor has no inherited scale, sign,
-or location. Conventions supply them, and several coordinate systems
+*A factor has no scale of its own.* Units, sign and origin are not inherited
+from anything; conventions supply them, and several different metrics
 describe the same observed covariance equally well.
 
 *Covariance splits into two parts.* The model implies
@@ -412,7 +450,7 @@ the collection's general reading method; no argument framework vocabulary is
 required for the core chapter.
 
 **Scope.** We formulate, translate and interrogate a common-factor model
-using exact teaching records. No data are estimated and no learner-facing
+using exact teaching matrices. No data are estimated and no learner-facing
 software is used. Indicators are treated as continuous throughout Part Two;
 methods for ordered-categorical indicators belong elsewhere and receive one
 short scope note.
@@ -507,7 +545,7 @@ not the reverse. That is a modeling choice with real consequences, and
 it is the choice this book makes throughout. It is not, by itself,
 evidence that the factor causes the responses. A diagram is a compact
 statement of a model; establishing that a latent attribute produces
-observed behaviour requires theory about the response process and a
+observed behavior requires theory about the response process and a
 design capable of supporting the claim. Model fit does not supply either.
 
 Two inferential links are easy to conflate. First, relations among
@@ -515,7 +553,7 @@ predictors, exposures and outcomes require a design capable of supporting
 causal interpretation; sampling units from a target population bears mainly
 on population generalization. Second, relating a proposed construct to a set
 of indicators requires defensible coverage of the construct's content or
-behavioural domain. This second task is often called **domain sampling**,
+behavioral domain. This second task is often called **domain sampling**,
 although indicator selection is commonly systematic and theory-guided rather
 than a literal probability sample.
 
@@ -526,6 +564,19 @@ as a statistical device - for example, as a method factor - without being
 interpreted as the construct itself. Likewise, drawing an arrow from a factor
 to an indicator states the model's reflective direction; neither domain
 coverage nor the arrow alone establishes a causal effect.
+
+Two matters here remain genuinely contested, and it is worth knowing that
+before the algebra makes them invisible. The first is what a latent variable
+*is*: whether it should be treated as a real attribute that produces the
+responses, as a summary construction with no existence beyond the model, or as
+shorthand for the measuring operations themselves [@borsboom2003]. The algebra
+below is compatible with all three readings and settles none of them. The
+second is the direction just described. For some constructs - socioeconomic
+status is the standard example - the indicators arguably *produce* the
+construct rather than express it, and under that formative reading internal
+consistency stops being a virtue and the common-factor model no longer applies
+[@bollenLennox1991; @edwardsBagozzi2000]. This book takes the reflective
+direction throughout, which is a choice rather than a discovery.
 
 Why introduce something that is not observed? Because the model has
 consequences for quantities that are. Under assumptions developed below,
@@ -542,7 +593,7 @@ the reader to accept this preview.
 
 Only after the model and its terms are clear will we ask it to reproduce
 particular numerical patterns. The two six-indicator matrices in
-@sec-records are constructed, known-value teaching records. They are not
+@sec-numbers are constructed, known-value teaching matrices. They are not
 sample correlations or evidence that particular constructs exist.
 
 ## Classical test theory and the common-factor model {#sec-ctt}
@@ -583,7 +634,7 @@ responses follows a one-factor model.
 That is a difference in scope, not a ranking. Classical test theory
 answers questions about a score and its replication conditions with very
 few assumptions, and it remains the right tool for many of them.
-Common-factor models, item-response models and the neighbouring
+Common-factor models, item-response models and the neighboring
 families add structure to the joint distribution of responses, and buy
 item-level and multidimensional statements at the price of stronger
 assumptions and larger samples. A residual in a factor model is also not
@@ -628,7 +679,7 @@ declared in advance.
 
 An **exploratory** analysis ordinarily lets every indicator relate to
 every retained factor and uses rotation or equivalent constraints to
-choose interpretable coordinates. It suits situations where a construct
+choose an interpretable orientation. It suits situations where a construct
 exists conceptually but its dimensionality is unsettled. A
 **confirmatory** analysis fixes or constrains loadings and residual
 relations according to a specification stated before the focal analysis,
@@ -896,14 +947,7 @@ different things, and a diagram alone does not distinguish them.
 
 \Needspace{0.22\textheight}
 
-# Coordinates without units {#sec-coordinates}
-
-**Question.** If a factor is never observed, what determines its units, sign,
-and zero?
-
-**Short answer.** The observed moments do not determine them uniquely.
-Explicit constraints choose a coordinate system, while invariant combinations
-preserve the same observable implications.
+# The factor scale {#sec-factor-scale}
 
 An observed variable arrives with a scale: if height is recorded in
 centimetres, a one-unit change means something definite. An unobserved
@@ -936,12 +980,12 @@ Concretely, with $\lambda_j = .80$ and $\phi = 1$, setting $a = 2$ gives
 a loading of $.40$ and a factor variance of $4$; the common contribution
 to the indicator's variance is $.40^{2}(4) = .64$ either way. Everything
 else — $\nu_j$, $\epsilon_{ij}$, $\theta_{jk}$ — is untouched, because
-the transformation acts only on the factor's coordinates. The observed
+the transformation acts only on the factor's own metric. The observed
 data cannot choose between these descriptions, because they imply
 exactly the same observed moments.
 
-@tbl-scaling contrasts two conventions in general use. Both simply pick a
-coordinate system.
+@tbl-scaling contrasts two conventions in general use. Both simply fix a
+metric.
 
 | Convention | What is fixed | What is estimated |
 |:--|:--|:--|
@@ -953,11 +997,11 @@ coordinate system.
 Neither is superior. Unstandardized loadings and factor variances differ
 between them; the implied covariance among the indicators does not.
 
-With several factors, the coordinate freedom is wider than changing one
-scale at a time. A nonsingular transformation can mix or rotate the
+With several factors, the freedom is wider than changing one scale at a
+time. A nonsingular transformation can mix or rotate the
 factor axes while corresponding changes to the loading and
 factor-covariance matrices leave the observed covariance unchanged. The
-new loading coordinates can look quite different even though they
+new loadings can look quite different even though they
 represent the same common covariance. @sec-argument works one orthogonal
 example numerically; the general transformation belongs with rotation,
 where the freedom is used deliberately for interpretation.
@@ -1005,7 +1049,7 @@ is indeterminate here; the information is the same information in a
 different metric.
 
 The distinction matters because the two are easy to conflate. Choosing a
-factor's scale is choosing coordinates for something that has none.
+factor's scale is supplying a metric to something that has none.
 Changing an indicator's units is re-expressing something that already
 had them. The same distinction governs the relationship between analysing
 a covariance matrix and analysing a correlation matrix.
@@ -1195,17 +1239,69 @@ much later. It is shown because it uses only @eq-matrix and
 @eq-mean, with the loadings fixed to substantively chosen values rather
 than estimated — a possibility @tbl-families raised and this makes real.
 
-Finally, a note on what a restriction buys. Six indicators have
-$6(7)/2 = 21$ distinct variances and covariances. A model with fewer
-free parameters than that makes claims about the 21 numbers which could
-turn out to be false — which is exactly what makes it worth testing.
-Counting moments against free parameters is the systematic form of this
-observation.
+## What a restriction buys {#sec-counting}
 
-# Reading the records {#sec-records}
+A model that could not be wrong is not worth testing, so it is worth asking
+what a set of restrictions actually commits us to. The question is settled by
+counting, and the count has three ingredients.
 
-We can now put numbers into the representation. Both records in this
-section are constructed: the parameters came first and the correlations
+The first is how much distinct information the observed variables supply. For
+$p$ indicators the covariance matrix is symmetric, so its distinct entries
+number
+
+$$
+u=\frac{p(p+1)}{2},
+$$ {#eq-moments}
+
+which is $21$ for the six indicators used here. These are the *distinct
+moments*: 21 numbers, not 21 observations. Collecting more respondents
+estimates the same 21 quantities more precisely; it never creates a
+twenty-second.
+
+The second is how many quantities the model leaves free. Here @sec-factor-scale
+matters directly. A factor has no scale of its own, so a model that left both
+the loadings and the factor variance free would be asking the data to
+determine something they cannot: infinitely many pairs give identical implied
+moments. A scaling convention removes that indeterminacy, and in doing so
+removes a parameter from the free count. Restrictions of every kind - a
+cross-loading fixed at zero, a residual covariance forbidden, two loadings
+constrained equal - do the same arithmetic.
+
+The third is the difference between them,
+
+$$
+df=u-t,
+$$ {#eq-df}
+
+with $t$ the number of free parameters. For the two-factor simple-structure
+model of @sec-scenario-two, with the factor variances fixed at one, $t$ counts
+six loadings, one factor correlation and six residual variances: $t=13$ and
+$df=21-13=8$. The one-factor model of @sec-scenario-one has six loadings and
+six residual variances, so $t=12$ and $df=9$.
+
+Those nine degrees of freedom are the sense in which the one-factor model
+*forbids* something, and @sec-tetrad makes one of the prohibitions visible: a
+single factor with uncorrelated residuals requires every tetrad to vanish, and
+a matrix in which one does not cannot be reproduced. A model with $df<0$ asks
+the data for more than they contain. A model with $df=0$ has used up its
+budget without spending any on restrictions, so it cannot be contradicted by
+the *count*; whether it can reproduce a given matrix is a further question
+about that particular parameterization, since equality constraints, fixed
+values and the requirement that variances stay nonnegative can all keep a
+just-identified model from reaching every covariance matrix of its size.
+
+Two cautions belong with the count, because it is easy to ask more of it than
+it can deliver. A nonnegative $df$ does not establish that the parameters can
+be recovered at all: whether the moments determine the parameters uniquely is
+a separate question - **identification** - which counting can rule out but
+never confirm. And a positive $df$ says the model is refutable, not that it is
+true. Both questions are taken up systematically once models are estimated, where
+the count becomes a routine check rather than a passing observation.
+
+# Reading the numbers {#sec-numbers}
+
+We can now put numbers into the representation. Both correlation matrices in
+this section are constructed: the parameters came first and the correlations
 were computed from them. That is deliberate. Because the values are
 exact, any disagreement is an arithmetic error rather than sampling
 variation. They are ideal for learning the algebra and useless as
@@ -1213,7 +1309,7 @@ evidence about any real population.
 
 ## One common factor {#sec-scenario-one}
 
-The first record, shown in @tbl-record-one, has the same $.49$ correlation for
+The first matrix, shown in @tbl-record-one, has the same $.49$ correlation for
 every distinct pair.
 
 \Needspace{0.30\textheight}
@@ -1227,7 +1323,7 @@ every distinct pair.
 | $Y_5$ | .49 | .49 | .49 | .49 | 1.00 | |
 | $Y_6$ | .49 | .49 | .49 | .49 | .49 | 1.00 |
 
-: *A constructed one-factor correlation record.* {#tbl-record-one}
+: *A constructed one-factor correlation matrix.* {#tbl-record-one}
 
 The repeated value suggests a single common contribution shared evenly
 across all six indicators. Let us check that representation rather than
@@ -1249,7 +1345,7 @@ $$
 ```{r}
 #| label: fig-onefactor
 #| fig-cap: "The one-factor model that reproduces the first record. Every loading is .70."
-#| fig-alt: "One factor points to six indicators, with every loading labelled point 70 and a separate residual for every indicator."
+#| fig-alt: "One factor points to six indicators, with every loading labeled point 70 and a separate residual for every indicator."
 #| fig-width: 6.5
 #| fig-height: 6.3
 #| out-width: "64%"
@@ -1280,7 +1376,7 @@ has to be named; the habit starts here.
 
 ## Two orthogonal factors {#sec-scenario-two}
 
-The second record in @tbl-record-two has two blocks: correlations are $.64$
+The second matrix in @tbl-record-two has two blocks: correlations are $.64$
 within the first three indicators, $.36$ within the last three, and zero
 across blocks.
 
@@ -1293,9 +1389,9 @@ across blocks.
 | $Y_5$ | .00 | .00 | .00 | .36 | 1.00 | |
 | $Y_6$ | .00 | .00 | .00 | .36 | .36 | 1.00 |
 
-: *A constructed two-factor correlation record.* {#tbl-record-two}
+: *A constructed two-factor correlation matrix.* {#tbl-record-two}
 
-For the second record, let the first three indicators relate to $\eta_1$
+For the second matrix, let the first three indicators relate to $\eta_1$
 with loading $.80$ and the last three to $\eta_2$ with loading $.60$,
 with the factors uncorrelated:
 
@@ -1353,7 +1449,7 @@ not a general property of two-factor models.
 
 ## Why one factor will not do {#sec-tetrad}
 
-The first record yielded to a single factor; the second did not. It is
+The first matrix yielded to a single factor; the second did not. It is
 worth seeing that this is a fact about the numbers, not an impression
 from the layout.
 
@@ -1381,11 +1477,11 @@ $$
 $$
 
 so no one-factor model with uncorrelated residuals can reproduce that
-record exactly, whatever values its loadings take. The result concerns
+matrix exactly, whatever values its loadings take. The result concerns
 exact reproduction of this known-value matrix; approximate fit to a
 sample covariance matrix is a different question. This is the first
 genuine model comparison in the book: a restriction with observable
-consequences, and a record that violates it. Degrees of freedom are a
+consequences, and a set of numbers that violates it. Degrees of freedom are a
 systematic count of restrictions of exactly this kind.
 
 ## Letting the factors correlate {#sec-correlated}
@@ -1423,14 +1519,11 @@ way to estimation, uncertainty, and model evaluation. No empirical result
 is smuggled
 into the present known-value demonstration.
 
-## Neighbouring objects {#sec-objects}
+## Neighboring objects {#sec-objects}
 
-**Question.** Is a factor the construct, the item total, a principal
-component, or the score estimated for a respondent?
-
-**Short answer.** None of these objects is interchangeable with another.
-@tbl-objects separates them before we compare factor-score estimates and
-principal components more closely.
+Several things get loosely called a dimension or a score, and none of them is
+interchangeable with another. @tbl-objects separates them before we compare
+factor-score estimates and principal components more closely.
 
 | Object | What it is | Recorded for unit $i$? |
 |:--|:--|:--|
@@ -1466,7 +1559,7 @@ declares in advance and what it asks the analysis to choose.
 
 | Approach | What is declared in advance | What the analysis chooses |
 |:--|:--|:--|
-| **Exploratory** | The items, the range of factor counts considered, and the estimation and rotation choices | The number of factors, and the loading pattern within an equivalent family of coordinates |
+| **Exploratory** | The items, the range of factor counts considered, and the estimation and rotation choices | The number of factors, and the loading pattern within an equivalent family of orientations |
 | **Confirmatory** | The number of factors, the loading pattern, factor relations and residual structure | Parameter values, and whether the declared restrictions are compatible with the evidence |
 | **Hybrid or partial** | Some relations prespecified, others left free | Depends on the exact parameterization, which must be stated |
 
@@ -1497,13 +1590,16 @@ The two orientations are most often used in sequence, and the sequence has a
 structural requirement that is easy to state and easy to violate. An
 exploratory analysis chooses a factor count, a loading pattern and a set of
 interpretations *by consulting the data*. A confirmatory analysis asks
-whether a stated pattern is compatible with the data. If both consult the
-same records, the second analysis cannot fail in any way the first did not
-already rule out: its restrictions were chosen because they fit those very
-numbers. Nothing has been confirmed except the analyst's arithmetic.
+whether a stated pattern is compatible with the data. If both consult the same
+data, the second analysis can still fail - it imposes exact zeros and other
+restrictions the exploratory solution never contained, and those can be
+contradicted. What it cannot do is provide *independent* support, because the
+restrictions were selected for their agreement with these very numbers. The
+result is a test whose apparent evidential value has been inflated by the
+selection that preceded it, not a test that is guaranteed to pass.
 
 The remedy is to give the two stages different evidence. In practice this
-means splitting the available records into at least two parts before the
+means splitting the available data into at least two parts before the
 exploratory work begins - one part to develop on, one held back - or
 collecting a second sample. The split must be declared in advance and made
 without reference to the outcome; a split chosen after seeing which half
@@ -1519,8 +1615,8 @@ not an alternative is to run both stages on one sample and describe the
 second as confirmation.
 
 Passing a model from one stage to the other requires more than a factor
-count. @tbl-handoff lists what has to be fixed in writing before the held-back
-records are opened, because each of these is a decision the exploratory stage
+count. @tbl-transition lists what has to be fixed in writing before the held-back
+data are opened, because each of these is a decision the exploratory stage
 made and the confirmatory stage must not remake.
 
 | What is transferred | Why it must be fixed in advance |
@@ -1532,7 +1628,7 @@ made and the confirmatory stage must not remake.
 | The residual structure | A residual covariance freed after inspecting fit is a revision, not a confirmation |
 | Named rival models | Comparisons decided in advance are interpretable; comparisons invented afterwards are selected on the same evidence |
 
-: *What an exploratory-to-confirmatory handoff has to declare.* {#tbl-handoff}
+: *What the transition from exploratory to confirmatory work has to declare.* {#tbl-transition}
 
 A revision discovered while examining the held-back sample is a legitimate and
 often necessary thing to do. It simply changes the status of that sample: it
@@ -1548,14 +1644,6 @@ evidence never supplied - a trade whose merits are still actively argued.
 
 ## A note on response scales {#sec-response}
 
-**Question.** What changes when indicators are ordered categories rather than
-genuinely continuous measurements?
-
-**Short answer.** Treating them as continuous becomes an explicit
-approximation; an underlying-response model introduces thresholds and changes
-estimation and interpretation. Part Two keeps the continuous treatment so
-that categorical-indicator methods can be taught elsewhere.
-
 The indicators here are treated as continuous, and Part Two keeps that
 treatment throughout. Many questionnaire items are recorded on ordered
 categories, and treating such responses as continuous is a modeling
@@ -1567,81 +1655,19 @@ changes the estimator and the interpretation of the parameters. That
 route belongs to a different course. What matters here is that the
 choice be made deliberately and stated, not made by default.
 
-# Six commitments {#sec-commitments}
-
-The material above is enough to state the working commitments that govern the
-rest of Part Two. They are not slogans: each one is a consequence of something
-this chapter has already established, and each rules out a specific move that
-is easy to make by accident.
-
-**1. The model agrees across representations.** @sec-four-ways set out four
-ways of writing one model - scalar equations, matrices, a diagram, and a
-sentence - and required them to agree. This is worth treating as a routine
-check rather than a stylistic preference. A path missing from a diagram but
-free in a matrix is not a drawing slip; it is two different models, and the
-one that gets estimated is whichever the software was given. When syntax and
-output enter later, they join the same obligation: everything that describes
-the model must describe the *same* restrictions.
-
-**2. Exploration and confirmation are historical roles.** @sec-workflow argued
-that what separates them is when a decision was made and on what evidence, not
-which procedure was run. Nothing in a fitted object records this. A model
-specified in advance and the identical model arrived at by inspecting the data
-produce the same coefficients, the same fit, and the same printout; the
-difference lives only in the analytic history, which is why that history has to
-be written down rather than reconstructed afterwards.
-
-**3. A fitted solution is read in stages.** The stages are ordered by
-dependence, not by preference. Whether the parameters are recoverable at all is
-prior to estimating them; whether an estimator converged is prior to reading
-what it produced; whether the solution is admissible - no negative variance, no
-correlation outside its bounds - is prior to interpreting a coefficient; and
-all of that is prior to asking how well the model reproduces the observed
-moments. A summary computed from an inadmissible solution is arithmetic
-performed on an impossibility. @sec-coordinates and @sec-implied supply the
-first two stages; the later ones need data this chapter does not use.
-
-**4. Comparison requires eligibility.** @sec-tetrad made the first genuine
-comparison in this book: a restriction with an observable consequence, and a
-record that violates it. That is what makes comparison possible - a difference
-in what two models forbid. Two models that forbid nothing different cannot be
-distinguished by any amount of evidence, and @sec-argument shows the sharpest
-version of this, where an orthogonal rotation leaves every implied moment
-unchanged. Having fewer parameters is not the same as being nested, and
-appearing in adjacent rows of a table is not a test.
-
-**5. Computation reproduces rather than justifies.** This chapter's own code
-checks its arithmetic; it settles nothing else. Code can verify that a
-constructed matrix really does follow from the parameters claimed to generate
-it, and it can preserve a record another analyst can re-run. It cannot supply a
-design that was never conducted, an item set that covers the domain, or a
-reason to interpret a factor as an attribute. A calculation that runs without
-error has demonstrated that it runs without error.
-
-**6. Claims remain bounded.** Reproducing a covariance record establishes
-compatibility between that record and the model, and stops there. It does not
-by itself establish how many dimensions an attribute has, that the factors are
-the constructs they are named for, that a score is valid or comparable across
-groups, or that any arrow represents a causal effect. Each of those requires
-its own evidence, and none of it is contained in the fit.
-
-The sixth commitment is the one the rest of the chapter has been building
-toward, and the optional section that follows works it through on a case where
-the arithmetic is exact and the conclusion still fails.
-
 # Applying the argument-based approach to latent variables (Optional) {#sec-argument}
 
 This optional section returns to the Chapter Box using the argument
 vocabulary of Part One Chapters 1 and 1a. It may be skipped without loss.
 
-## Can covariance select unique factor coordinates?
+## Can covariance select a unique set of factor axes?
 
 Sections 2 to 6 established the statistical account. Here we ask whether
-covariance selects unique latent coordinates.
+covariance selects a unique set of latent axes.
 
 > **Operational question.** Do the original and a rotated two-factor
 > description imply the same six-indicator covariance, and which parts
-> of their interpretation survive the coordinate change?
+> of their interpretation survive the change of axes?
 
 Using the constructed record in @tbl-record-two, begin with
 $\boldsymbol{\Lambda}_2$ and $\boldsymbol{\Phi}_2=\mathbf I_2$ from
@@ -1691,39 +1717,39 @@ $\boldsymbol{\Lambda}_2^*\boldsymbol{\Phi}_2^*
 =\boldsymbol{\Lambda}_2\boldsymbol{\Phi}_2
 \boldsymbol{\Lambda}_2^{\mathsf T}$. Indicator communalities therefore
 stay at $.64$ for $Y_1$ to $Y_3$ and $.36$ for $Y_4$ to $Y_6$. What
-changes is the allocation to the two columns, as @tbl-coordinate-ss shows:
+changes is the allocation to the two columns, as @tbl-axis-ss shows:
 
-| Coordinates | SS loading 1 | SS loading 2 | Total common variance |
+| Axes | SS loading 1 | SS loading 2 | Total common variance |
 |:--|--:|--:|--:|
 | Original | 1.92 | 1.08 | 3.00 |
 | Rotated | 1.50 | 1.50 | 3.00 |
 
-: *Factor-specific allocations change while their total is invariant.* {#tbl-coordinate-ss}
+: *Factor-specific allocations change while their total is invariant.* {#tbl-axis-ss}
 
 ## Does exact reproduction confirm two constructs?
 
 Suppose a results section uses the original simple axes and states:
 
-> "Because the two-factor model reproduces the six-indicator record exactly,
+> "Because the two-factor model reproduces the six-indicator matrix exactly,
 > the analysis confirms that Planning and Strategy are two distinct
 > psychological constructs."
 
 The arithmetic in the first clause is correct. The conclusion is not. The
-same covariance record admits the rotated description, whose columns no
+same covariance matrix admits the rotated description, whose columns no
 longer preserve the proposed Planning and Strategy partition. The four
 argument roles make the break visible.
 
-**Evidence.** The evidence is the declared correlation record together
+**Evidence.** The evidence is the declared correlation matrix together
 with the original and rotated numerical representations. Its provenance
-matters: the record was constructed from parameters, not estimated from
+matters: the matrix was constructed from parameters, not estimated from
 respondents. Exact arithmetic is therefore available, but sampling and
 generalization claims are not.
 
 **Justification.** The common-factor covariance equation
 @eq-implied, the unchanged residual covariance matrix, and the
 orthogonality of $\mathbf Q$ connect the two loading matrices to the same
-observable covariance. The choice of axes belongs here as a coordinate
-convention; it is not an observed finding.
+observable covariance. The choice of axes belongs here as a convention;
+it is not an observed finding.
 
 **Inference.** Substitution gives the same implied covariance,
 communalities, and total common variance of $3.00$. The displayed
@@ -1733,33 +1759,33 @@ $1.92$ and $1.08$ to $1.50$ and $1.50$.
 
 **Claim.** The quoted claim moves from exact reproduction to distinct
 psychological constructs. That transition requires a substantive warrant
-about indicator content and response processes which the constructed record
+about indicator content and response processes which the constructed matrix
 does not provide.
 
-## Audit the claim
+## Evaluate the claim
 
-@tbl-coordinate-verdicts applies the six evaluation questions to the quoted
+@tbl-transition-verdicts applies the six evaluation questions to the quoted
 claim. The mixed verdicts matter: correct arithmetic at one stage does not
 repair an unsupported transition at a later one.
 
 \Needspace{0.72\textheight}
 
-| Evaluation question | Verdict | Reason in this record |
+| Evaluation question | Verdict | Reason in these numbers |
 |:--|:--|:--|
 | Question alignment | Satisfied | The sentence addresses whether the proposed factors may be interpreted as distinct constructs. |
-| Evidence integrity | Satisfied within the declared record | All numbers come from the two stated parameterizations of one constructed matrix. |
+| Evidence integrity | Satisfied within the declared matrix | All numbers come from the two stated parameterizations of one constructed matrix. |
 | Justification adequacy | Partly satisfied | Orthogonality and @eq-implied license covariance reproduction and equivalence, not the construct labels. |
-| Inferential adequacy | Not satisfied | The equivalent rotation prevents the record from selecting the original pair of axes uniquely. |
+| Inferential adequacy | Not satisfied | The equivalent rotation prevents these numbers from selecting the original pair of axes uniquely. |
 | Transition fidelity | Not satisfied | The sentence moves from a statistical representation to psychological entities without a domain or response-process warrant. |
 | Claim calibration | **Not satisfied** | Exact reproduction cannot by itself confirm that Planning and Strategy are distinct psychological constructs. |
 
-: *Six applied evaluation verdicts for an overclaim based on the coordinate comparison.* {#tbl-coordinate-verdicts}
+: *Six applied evaluation verdicts for an overclaim based on the comparison of axes.* {#tbl-transition-verdicts}
 
 ## Repair the claim
 
 A calibrated replacement is:
 
-> "The record is compatible with the displayed two-factor parameterization,
+> "The matrix is compatible with the displayed two-factor parameterization,
 > but the equivalent rotated description shows that covariance reproduction
 > does not uniquely identify Planning and Strategy axes. Interpreting those
 > axes as distinct constructs requires theory, defensible domain coverage,
@@ -1767,9 +1793,8 @@ A calibrated replacement is:
 
 **Answer returned to the opening pair.** The two descriptions imply the
 same indicator covariance, communalities, and total common variance of
-$3.00$. Their loading coordinates and factor-specific SS allocations
-differ. Thus the covariance representation survives the coordinate
-change, whereas the convenience and factor-specific allocation of the
+$3.00$. Their loadings and factor-specific SS allocations
+differ. Thus the covariance representation survives the change of axes, whereas the convenience and factor-specific allocation of the
 original simple axes do not. The rotated description is outside the
 original fixed-zero CFA class: equivalence in the broader factor
 representation does not imply that an identified restricted CFA lacks a
@@ -1788,7 +1813,7 @@ bounded interpretation.
 ```{r}
 #| label: fig-chapter-route
 #| fig-cap: "The chapter's route from observed covariance to a calibrated conclusion."
-#| fig-alt: "A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying latent coordinates, and deriving implied moments and restrictions, to calibrating the substantive claim."
+#| fig-alt: "A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim."
 #| fig-width: 7
 #| fig-height: 6.5
 #| out-width: "78%"
@@ -1797,7 +1822,7 @@ route_labels <- c(
   "Observed indicators\ncovary",
   "Propose factors\nand residuals",
   "Translate the model:\nequations, matrix,\ndiagram and prose",
-  "Supply latent\ncoordinates",
+  "Supply the\nfactor scale",
   "Derive implied moments\nand test restrictions",
   "Calibrate the\nsubstantive claim"
 )
@@ -1834,16 +1859,15 @@ $$
 $$
 
 Its loadings, factor covariances and residual covariances jointly
-determine the observed moments. Its latent coordinates have no inherited
-scale, sign or location, and several coordinate systems describe the
-same observed covariance. Communality and uniqueness are conditional on
+determine the observed moments. Its factors have no inherited scale, sign or
+location, and several metrics describe the same observed covariance. Communality and uniqueness are conditional on
 the declared model. A diagonal residual covariance matrix does not by
 itself establish local independence.
 
 What this chapter could not do is the point of the next one. Every
-numerical record here was exact by construction. Given a sample
+number here was exact by construction. Given a sample
 correlation matrix that no simple model reproduces exactly, how many
-factors should be retained, how should the coordinates be chosen, and
+factors should be retained, how should the axes be chosen, and
 how much residual discrepancy is tolerable? Chapter 2 takes those
 questions up as an exploratory analysis, with the retention decision —
 the one this chapter supplied by construction — treated as the
@@ -1855,47 +1879,12 @@ covariance-structure modeling, see @bartholomewKnott1999, @mulaik2010,
 shared vocabulary selectively and leaves estimation and model evaluation
 to later chapters.
 
-## Questions this chapter leaves open {#sec-open}
-
-The following are not exercises with reference answers. Each names a
-disagreement that is still live among competent methodologists, and each
-bears directly on how the algebra above should be read. They suit seminar
-discussion or a short written position; the citations are starting points.
-
-1. **Is a latent variable discovered or introduced?** @borsboom2003
-   distinguish treating it as a real attribute that causes the responses, as
-   a summary construction, and as shorthand for the measurement operations.
-   Which does this chapter presuppose - and does the algebra require any of
-   them?
-2. **Which way should the arrows point?** For constructs such as
-   socioeconomic status, indicators arguably *produce* the construct rather
-   than express it, in which case internal consistency stops being a virtue
-   and the common-factor model no longer applies [@bollenLennox1991;
-   @edwardsBagozzi2000]. Name a construct in your field where the direction
-   is genuinely arguable, and say what could settle it.
-3. **Are construct, factor, composite and score kept apart in practice?**
-   Using @tbl-objects, find one paper in your area that treats two of them
-   as interchangeable, and say what follows.
-4. **Is forcing cross-loadings to zero honest or convenient?** Exploratory
-   structural equation modeling retains rotational freedom inside a larger
-   model [@asparouhovMuthen2009; @marsh2014]; critics reply that a
-   specification forbidding nothing is harder to refute. Which risk concerns
-   you more?
-5. **When is splitting the sample the wrong call?** @sec-workflow required
-   separate evidence for development and confirmation, but splitting halves
-   the information available to each stage and factor analyses are often run
-   on samples already too small [@fabrigar1999]. Where would you draw the
-   line?
-6. **On what basis is a coordinate system chosen?** @sec-argument showed the
-   data cannot choose. Is "interpretability" a scientific criterion, a
-   convention, or a theoretical commitment in disguise?
-
-# Exercises {.unnumbered .unlisted}
+# Exercises {.unnumbered}
 
 Show your assumptions and arithmetic, and end every numerical answer
 with a sentence of interpretation. None of these requires software.
 
-## Foundational 1 - Classify the quantities {.unnumbered .unlisted}
+## Exercise 1 - Classify the quantities {.unnumbered .unlisted}
 
 For each item below, say whether it is an observed variable, a latent
 random variable, an unknown fixed parameter, or a residual random
@@ -1908,10 +1897,10 @@ lost if every unobserved quantity is simply called "latent".
 4. The part of Item 4 not represented by the declared factors.
 5. The population covariance between the two factors.
 
-## Foundational 2 - Place the model {.unnumbered .unlisted}
+## Exercise 2 - Place the model {.unnumbered .unlisted}
 
 1. Using @tbl-map, say which family fits each of: a five-category
-   attitude scale analysed with a continuous latent trait; a set of
+   attitude scale analyzed with a continuous latent trait; a set of
    continuous school-performance measures thought to identify unobserved
    groups of schools; six continuous items thought to reflect two
    continuous attributes.
@@ -1923,7 +1912,7 @@ lost if every unobserved quantity is simply called "latent".
    orientation suits, and one that a confirmatory orientation suits.
    Explain what makes each appropriate.
 
-## Foundational 3 - Translate between representations {.unnumbered .unlisted}
+## Exercise 3 - Translate between representations {.unnumbered .unlisted}
 
 Consider a two-factor model in which $Y_1, Y_2, Y_3$ relate only to
 $\eta_1$, $Y_4, Y_5, Y_6$ relate only to $\eta_2$, the factors may
@@ -1938,22 +1927,7 @@ correlate, and all residual covariances are zero.
    in your paragraph is visible in all three of the other
    representations.
 
-## Foundational 4 - Follow the independence ladder {.unnumbered .unlisted}
-
-Let $U\sim N(0,1)$, $\epsilon_1=U$, and $\epsilon_2=U^2-1$. Use $E(U^2)=1$,
-$E(U^3)=0$, and $E(U^4)=3$.
-
-1. Show that both residuals have mean zero.
-2. Compute $\operatorname{Var}(\epsilon_1)$,
-   $\operatorname{Var}(\epsilon_2)$, and
-   $\operatorname{Cov}(\epsilon_1,\epsilon_2)$.
-3. Show that the residuals are nevertheless dependent, first from their
-   deterministic relation and then by calculating
-   $\operatorname{Cov}(\epsilon_1^2,\epsilon_2)$.
-4. Explain what this example shows about a diagonal $\boldsymbol\Theta$,
-   residual independence, and local independence conditional on the factors.
-
-## Foundational 5 - Reconstruct and perturb {.unnumbered .unlisted}
+## Exercise 4 - Reconstruct and perturb {.unnumbered .unlisted}
 
 1. For the model of @sec-scenario-one, recompute one diagonal and one
    off-diagonal entry of the implied correlation matrix, the communality
@@ -1970,7 +1944,7 @@ $E(U^3)=0$, and $E(U^4)=3$.
    $\theta_{14} = .05$ is permitted. Which entries change now? Explain
    why these two modifications are not interchangeable.
 
-## Foundational 6 - Coordinates and conventions {.unnumbered .unlisted}
+## Exercise 5 - Scale and conventions {.unnumbered .unlisted}
 
 Begin with a standardized one-factor indicator having $\lambda = .80$,
 $\phi = 1$ and $\theta = .36$.
@@ -1985,25 +1959,7 @@ $\phi = 1$ and $\theta = .36$.
 4. In a single-group model the factor mean is usually fixed at zero.
    Using @eq-location, explain why some such convention is unavoidable.
 
-## Integrative 7 - Test an exact restriction, then bound the claim {.unnumbered .unlisted}
-
-A colleague reports that six items "clearly measure a single underlying
-trait", offering @tbl-record-two as support and noting that all six
-items are positively worded.
-
-1. Compute the tetrad $\sigma_{13}\sigma_{46} - \sigma_{16}\sigma_{34}$
-   for @tbl-record-two. What does a one-factor model require of it?
-2. State, with your calculation, whether a one-factor model with
-   uncorrelated residuals can reproduce this constructed record exactly.
-   Why is that narrower than deciding whether six real items measure one
-   trait?
-3. Suppose a sample covariance matrix yields the corresponding tetrad
-   $.0402$ rather than the model-imposed value zero. Explain why a
-   nonzero sample tetrad is not by itself a population-model refutation.
-   What sampling information or fitted-model assessment would you need?
-4. Suppose a two-factor model does reproduce a record exactly. Write two
-   sentences stating what that establishes, and two stating what it does
-   not.
+# References {.unnumbered}
 
 ::: {#refs}
 :::

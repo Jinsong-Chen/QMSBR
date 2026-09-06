@@ -50,7 +50,7 @@ options(digits=3,width=80)
 # This chapter is self-contained. The SLE population is declared below and the
 # development records are simulated in memory from a fixed seed, so the QMD
 # needs no external script and no data file. The same declarations and seeds
-# produce the distributed sle_continuous.csv, so the records analysed here are
+# produce the distributed sle_continuous.csv, so the records analyzed here are
 # the ones the later chapters use.
 for (p in c("psych","GPArotation"))
   if (!requireNamespace(p,quietly=TRUE)) stop("Required package: ",p)
@@ -421,14 +421,29 @@ pt2_resid_col  <- "#596b75"
 
 # Render a label that may be plain text (".70", "0") or a plotmath
 # expression string ("lambda[11]", "eta[1]").
+pt2_greek <- c("alpha","beta","gamma","delta","epsilon","zeta","eta","theta",
+  "iota","kappa","lambda","mu","nu","xi","pi","rho","sigma","tau","upsilon",
+  "phi","chi","psi","omega","Gamma","Delta","Theta","Lambda","Xi","Pi",
+  "Sigma","Phi","Psi","Omega")
+
+# Render as plotmath only where the label is meant as notation: a subscripted
+# token such as eta[1] or Planning[s], or a bare Greek name. Everything else is
+# literal, so a factor named "Self-efficacy" is not parsed as a subtraction.
 .pt2_label <- function(x) {
   if (is.expression(x) || is.language(x)) return(x)
   if (!nzchar(x)) return("")
   if (grepl("^[-.0-9]", x)) return(x)
-  # Plotmath where the label parses (eta[1], phi[12]); literal text otherwise,
-  # so that factor names such as "School support" render as written.
+  notation <- grepl("^[A-Za-z]+\\[[A-Za-z0-9]+\\]$", x) || x %in% pt2_greek
+  if (!notation) return(x)
   out <- tryCatch(parse(text = x), error = function(e) NULL)
   if (is.null(out)) x else out
+}
+
+# Half-width of a factor node. Long substantive names get an ellipse rather
+# than spilling out of a fixed circle, following the reference decks.
+.pt2_frx <- function(label, r = .55) {
+  n <- nchar(gsub("\\[|\\]", "", as.character(label)))
+  max(r, .105 * n + .22)
 }
 
 .pt2_arrow <- function(x0, y0, x1, y1, dashed = FALSE, both = FALSE,
@@ -445,9 +460,11 @@ pt2_resid_col  <- "#596b75"
 }
 
 .pt2_circle <- function(x, y, label, r = .55) {
-  symbols(x, y, circles = r, inches = FALSE, add = TRUE,
-          bg = pt2_circ_fill, fg = pt2_ink, lwd = 1.35)
-  text(x, y, .pt2_label(label), cex = .95)
+  rx <- .pt2_frx(label, r)
+  tt <- seq(0, 2 * pi, length.out = 96)
+  polygon(x + rx * cos(tt), y + r * sin(tt), col = pt2_circ_fill,
+          border = pt2_ink, lwd = 1.35)
+  text(x, y, .pt2_label(label), cex = .92)
 }
 
 # Draw a label at a fraction along a path, nudged perpendicular to it.
@@ -471,6 +488,25 @@ pt2_resid_col  <- "#596b75"
   .pt2_arrow(xs[n - 1], ys[n - 1], xs[n], ys[n], col = pt2_cov_col, lwd = 1.4)
   if (!is.null(label) && nzchar(label))
     text(x - bulge - .14, ym, .pt2_label(label), adj = 1, cex = .82)
+  invisible(NULL)
+}
+
+# Draw a double-headed arc for every distinct factor pair. Wider separations
+# bow further out so that the arcs nest instead of overlapping, matching the
+# reference decks' one-sided layout for three or more factors.
+.pt2_cov_pairs <- function(x, yf, labels = NULL) {
+  m <- length(yf)
+  if (m < 2) return(invisible(NULL))
+  pairs <- which(upper.tri(matrix(0, m, m)), arr.ind = TRUE)
+  span <- pairs[, 2] - pairs[, 1]
+  ord <- order(span, pairs[, 1])
+  pairs <- pairs[ord, , drop = FALSE]; span <- span[ord]
+  labels <- if (is.null(labels)) rep("", nrow(pairs)) else
+    rep_len(labels, nrow(pairs))
+  bulge <- if (m == 2) .80 else .50 + 1.10 * (span - 1) / (m - 2)
+  for (i in seq_len(nrow(pairs)))
+    .pt2_cov_arc(x, yf[pairs[i, 1]], yf[pairs[i, 2]], labels[i],
+                 bulge = bulge[i])
   invisible(NULL)
 }
 
@@ -516,28 +552,23 @@ pt2_fa_diagram <- function(assign, m = NULL, cross = NULL,
   yf <- if (m == 1) mean(range(yi)) else
     seq(max(yi) - .9, min(yi) + .9, length.out = m)
   x_resid <- x_indicator + 3.0
-  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  op <- .pt2_canvas(c(-.7, x_resid + 1.0), c(.3, 8.2))
   on.exit(par(op))
 
-  # factor covariances: adjacent pairs, arcs on the left
-  if (m > 1 && !is.null(factor_cov_labels)) {
-    if (length(factor_cov_labels) == 1L && m > 2)
-      factor_cov_labels <- rep(factor_cov_labels, m - 1)
-    for (k in seq_len(m - 1))
-      .pt2_cov_arc(x_factor - .55, yf[k], yf[k + 1],
-                   factor_cov_labels[k],
-                   bulge = .70 + .30 * (k %% 2))
-  }
+  # every factor pair is drawn, nested on the left
+  if (m > 1 && !is.null(factor_cov_labels))
+    .pt2_cov_pairs(x_factor - .55, yf, factor_cov_labels)
 
   for (j in seq_len(p)) for (k in seq_len(m)) {
     is_cross <- isTRUE(cross[j, k])
     if (!isTRUE(primary[j, k]) && !is_cross) next
-    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j],
-               dashed = is_cross,
+    .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+               x_indicator - .74, yi[j], dashed = is_cross,
                col = if (is_cross) pt2_cross_col else pt2_path_col,
                lwd = if (is_cross) 1.1 else 1.35)
     if (!is.null(loading_labels))
-      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+                      x_indicator - .74, yi[j],
                       loading_labels[j, k], nudge = if (is_cross) -.16 else .16,
                       col = if (is_cross) pt2_cross_col else pt2_ink)
   }
@@ -575,9 +606,11 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
   on.exit(par(op))
 
   for (k in seq_len(m)) {
-    .pt2_arrow(x_high + .55, yh, x_factor - .55, yf[k])
+    .pt2_arrow(x_high + .pt2_frx(higher_label), yh,
+               x_factor - .pt2_frx(factor_labels[k]), yf[k])
     if (!is.null(gamma_labels))
-      .pt2_path_label(x_high + .55, yh, x_factor - .55, yf[k],
+      .pt2_path_label(x_high + .pt2_frx(higher_label), yh,
+                      x_factor - .pt2_frx(factor_labels[k]), yf[k],
                       gamma_labels[k], at = .55, nudge = .17)
     if (show_disturbances) {
       .pt2_arrow(x_factor, yf[k] + 1.05, x_factor, yf[k] + .55,
@@ -588,9 +621,11 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
   }
   for (j in seq_len(p)) {
     k <- assign[j]
-    .pt2_arrow(x_factor + .55, yf[k], x_indicator - .74, yi[j])
+    .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+               x_indicator - .74, yi[j])
     if (!is.null(loading_labels))
-      .pt2_path_label(x_factor + .55, yf[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+                      x_indicator - .74, yi[j],
                       loading_labels[j], nudge = .16)
     .pt2_box(x_indicator, yi[j], indicator_labels[j])
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
@@ -625,18 +660,21 @@ pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
   # general factor reaches every indicator; drawn first and lighter so the
   # group structure stays readable
   for (j in seq_len(p)) {
-    .pt2_arrow(x_gen + .55, ygen, x_indicator - .74, yi[j],
-               col = pt2_cross_col, lwd = 1.0)
+    .pt2_arrow(x_gen + .pt2_frx(general_label), ygen,
+               x_indicator - .74, yi[j], col = pt2_cross_col, lwd = 1.0)
     if (!is.null(general_loadings))
-      .pt2_path_label(x_gen + .55, ygen, x_indicator - .74, yi[j],
+      .pt2_path_label(x_gen + .pt2_frx(general_label), ygen,
+                      x_indicator - .74, yi[j],
                       general_loadings[j], at = .30, nudge = .15,
                       col = pt2_cross_col, cex = .64)
   }
   for (j in seq_len(p)) {
     k <- assign[j]
-    .pt2_arrow(x_group + .55, yg[k], x_indicator - .74, yi[j])
+    .pt2_arrow(x_group + .pt2_frx(group_labels[k]), yg[k],
+               x_indicator - .74, yi[j])
     if (!is.null(group_loadings))
-      .pt2_path_label(x_group + .55, yg[k], x_indicator - .74, yi[j],
+      .pt2_path_label(x_group + .pt2_frx(group_labels[k]), yg[k],
+                      x_indicator - .74, yi[j],
                       group_loadings[j], nudge = .16)
     .pt2_box(x_indicator, yi[j], indicator_labels[j])
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
@@ -714,7 +752,7 @@ rotation each state what the data are being held up against. Naming the
 reference is what makes a result interpretable, and what makes two
 procedures with the same name different.
 
-*Coordinates are chosen, not found.* Rotation changes the loading display
+*Axes are chosen, not found.* Rotation changes the loading display
 without changing the fitted covariance, so pattern coefficients, structure
 correlations and factor correlations are three different quantities that
 must be read together.
@@ -728,13 +766,13 @@ the evidence for it has to come from records not yet inspected.
 
 **Prerequisites.** Sample covariance and correlation, elementary matrix
 algebra, and the common-factor model, communalities, uniquenesses and
-coordinate indeterminacies developed in the preceding chapter. Basic R helps
+scale and rotational indeterminacies developed in the preceding chapter. Basic R helps
 reproduction; the printed matrices, equations and output support the
 reasoning without running it.
 
 **Record.** Sample A contains 360 complete, simulated continuous records on
 twelve Student Learning Experiences indicators. No observations concern
-actual students. Samples B and C are not analysed here.
+actual students. Samples B and C are not analyzed here.
 
 **Scope.** We develop a candidate measurement model on Sample A and stop
 there. No confirmation sample is opened, no restricted model is estimated,
@@ -795,7 +833,7 @@ two-factor and a three-factor EFA are different covariance models.
 Scale restrictions are also necessary. One convenient extraction
 representation uses unit-variance, uncorrelated factors; a subsequent
 oblique transformation expresses the same common covariance using
-correlated coordinates. Orthogonality at this computational stage does
+correlated axes. Orthogonality at this computational stage does
 not establish independence of substantively named attributes.
 
 The latent intercept $\boldsymbol\alpha$ equals the factor mean in
@@ -847,9 +885,9 @@ reasoning from Sample A. No empirical
 summary, correlation, factor solution, or fit statistic from B or C
 has been used to make the decisions reported here.
 
-## Audit before interpreting correlations
+## Check the indicators before interpreting correlations
 
-Data auditing is part of defining the statistical input. An unintended
+Data examining is part of defining the statistical input. An unintended
 reverse code can change signs. A nearly constant indicator can make a
 correlation unstable. Duplicate records alter the apparent amount of
 information. Pairwise deletion can produce different effective samples
@@ -986,7 +1024,7 @@ The two summaries can differ because their objectives differ, even
 when their broad dimensional patterns look similar.
 
 PCA may be appropriate when compact prediction, compression, or a
-descriptive coordinate system is the objective. The problem is not
+descriptive orientation is the objective. The problem is not
 using PCA; it is interpreting its output as if a common-factor
 measurement model had been estimated. A method should be judged
 against the task it actually solves.
@@ -1403,36 +1441,94 @@ pt2_table(data.frame(Factors=m,Moments=78,
   Candidate_df=z$candidates$df),digits=0)
 ```
 
-The nonnegative-df condition also yields the familiar upper counting
-bound
+The nonnegative-df condition also yields the **Ledermann bound**, the largest
+factor count the moments can generically support:
 
 $$
-m\leq\frac{2p+1-\sqrt{8p+1}}2.
-$$
+m\leq\frac{2p+1-\sqrt{8p+1}}2 ,
+\qquad\text{equivalently}\qquad
+(p-m)^{2}\ \geq\ p+m .
+$$ {#eq-ledermann}
 
-For $p=12$, the right side is about 7.58, so the integer count allows at
-most seven factors. This bound is not a recommendation to extract seven,
-a count of positive eigenvalues, or a proof of identification. Particular
-loading patterns can be deficient, and a solution can be weakly determined
-even when the generic count looks comfortable. Chapter 3 examines these
-distinctions directly.
+The two forms state the same condition, and the second shows what it is doing:
+the supply of distinct moments has to keep pace with the demand for
+parameters. For $p=12$ the bound is about $7.58$, so at most seven factors,
+and the accounting above passes through zero exactly there - three degrees of
+freedom at seven factors, $-2$ at eight. The bound is not a recommendation to
+extract seven, a count of positive eigenvalues, or a proof of identification.
+
+## What the count leaves undetermined {#sec-efa-identification}
+
+Chapter 1 separated counting from **identification**: counting can rule a model
+out, but a nonnegative $df$ never establishes that the moments determine the
+parameters. Exploratory analysis is the clearest illustration, because an
+unrestricted factor model is *by construction* unidentified, in three distinct
+ways.
+
+**Rotational indeterminacy** is the substantial one. For any nonsingular
+$m\times m$ matrix $\mathbf T$,
+
+$$
+\boldsymbol\Lambda^{*}=\boldsymbol\Lambda\mathbf T^{-1},
+\qquad
+\boldsymbol\Phi^{*}=\mathbf T\boldsymbol\Phi\mathbf T^{\mathsf T}
+$$ {#eq-efa-rotation}
+
+leaves $\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}$
+unchanged, so a continuous family of loading matrices reproduces the observed
+covariance identically. Restricting $\mathbf T$ to be orthogonal leaves a
+family of dimension $m(m-1)/2$ - precisely the quantity subtracted in the
+parameter count above. The count has therefore already paid for this freedom;
+it has not removed it.
+
+**Sign indeterminacy** and **column indeterminacy** are the discrete
+remainders. Reversing the sign of an entire loading column together with its
+factor changes nothing observable, so $2^{m}$ sign patterns are equivalent;
+and the factors carry no intrinsic order, so any of the $m!$ permutations of
+the columns describes the same model. Neither costs a degree of freedom,
+because neither is a continuous direction, which is why $df$ is silent about
+them. They are still real. Two runs of the same routine on the same data can
+return one solution with a column negated or two columns exchanged, and
+comparing the two naively would suggest a difference that does not exist. It
+is why the sensitivity comparisons later in this chapter align column order
+and sign before anything is compared.
+
+What an exploratory analysis identifies is therefore the *common space* the
+factors span, together with the communalities and residual variances - not the
+particular axes that get printed. Rotation does not resolve the
+indeterminacy; it selects one member of the family on stated grounds, which is
+exactly why the criterion has to be declared rather than accepted as a
+default. A confirmatory model takes the other route, fixing enough loadings in
+advance that no nontrivial $\mathbf T$ preserves the pattern - at which point
+identification stops being automatic and has to be argued.
 
 ## Fit one through five; inspect two, three, and four closely
 
 We estimate normal-theory ML common-factor models for one through five
 factors. Each fit uses the same Pearson matrix, $n=360$, SMC starts,
 and the same uniqueness-bound convention. The primary extraction is
-unrotated; rotation is a subsequent coordinate choice. The printed code
+unrotated; rotation is a subsequent choice of axes. The printed code
 shows the essential calls, while the shared script records convergence
 checks and full settings.
 
 ```r
-fit3 <- psych::fa(R, nfactors = 3, n.obs = nrow(x),
+fit3 <- psych::fa(R, nfactors = 3, n.obs = nrow(X),
                   fm = "ml", rotate = "none", SMC = TRUE,
-                  min.err = 1e-8, max.iter = 1000,
                   smooth = FALSE, scores = "none")
 A <- unclass(fit3$loadings)
 ```
+
+Two details about this call repay attention, because both are easy to
+misread. `psych::fa()` accepts `min.err` and `max.iter`, and it is tempting to
+present them as convergence controls for every extraction method. Under
+`fm = "ml"` in the installed version they do not govern the optimizer: the
+same solution is returned whether they are set tightly or loosely. They
+control the iterative principal-axis path instead. Second, the smallest
+uniqueness this implementation will return under ML is bounded below at
+$.005$, which is why the four- and five-factor solutions in the table below
+report a minimum uniqueness at exactly that value rather than at zero. Neither
+fact is a defect; both are reasons to read a function's documentation for the
+method actually being used rather than for the function as a whole.
 
 The implemented analysis also checks the ML objective using
 `stats::factanal()` with five starting values. Agreement of independently
@@ -1527,7 +1623,7 @@ $$
 =\mathbf A\mathbf A^{\mathsf T}.
 $$
 
-The rows of $\mathbf P$ locate the indicators in a rotated coordinate
+The rows of $\mathbf P$ locate the indicators in a rotated axis
 system. The reproduced covariance, communalities, uniquenesses, and
 extraction discrepancy are unchanged. The individual loading coefficients
 change because they refer to different axes.
@@ -1556,7 +1652,7 @@ If the transformed factor variances are subsequently rescaled to one,
 the loading columns must be rescaled correspondingly. Multiplying the
 loadings by an arbitrary matrix while leaving $\boldsymbol\Phi$
 unchanged is not an equivalent oblique rotation. This inverse-paired
-transformation is the same coordinate principle introduced in Chapter 1.
+transformation is the same principle introduced in Chapter 1.
 
 ```{r}
 #| label: fig-efa-rotation
@@ -1615,7 +1711,7 @@ Multiple starts reduce dependence on a single starting orientation but
 do not prove that a global optimum was found. Signs and column order are
 also arbitrary. Our reported solution aligns columns with the first
 three content anchors in each domain and makes their summed primary
-loadings positive. This is a labelling convention applied after fitting;
+loadings positive. This is a labeling convention applied after fitting;
 it is not an extra model restriction.
 
 ## Why the oblique solution is primary here
@@ -1630,10 +1726,10 @@ pt2_table(data.frame(Factor=rownames(Phi),Phi,check.names=FALSE))
 ```
 
 These are estimated relations between the chosen common-factor
-coordinates. They are not causal paths, observed scale correlations, or
+axes. They are not causal paths, observed scale correlations, or
 proof that the same orientation would be uniquely recovered in another
 sample. Varimax provides a useful comparison precisely because it
-represents the same common covariance with orthogonal coordinates.
+represents the same common covariance with orthogonal axes.
 The maximum absolute difference in reproduced common covariance between
 the reported oblimin and varimax solutions is
 `r format(max(abs(z$common-z$varimax$P%*%z$varimax$Phi%*%t(z$varimax$P))),scientific=TRUE,digits=2)`.
@@ -1728,7 +1824,7 @@ The cross-products are part of the common variance. Summing squared
 pattern coefficients alone drops them. For P4, the row sum of squared
 pattern coefficients is `r pt2_num(sum(P["P4",]^2))`, whereas the
 communality is `r pt2_num(z$h2["P4"])`. Neither number should be
-labelled the variance uniquely explained by Planning.
+labeled the variance uniquely explained by Planning.
 
 ```{r}
 #| label: tbl-efa-communalities
@@ -1822,7 +1918,7 @@ can be concealed by averaging many small residuals.
 #| fig-width: 6.3
 #| fig-height: 5.5
 #| fig-cap: "Observed minus reproduced correlations for the three-factor ML solution. The scale is centered on zero."
-#| fig-alt: "A labelled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell."
+#| fig-alt: "A labeled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell."
 pt2_heatmap(z$residual,"Three-factor correlation residuals",limit=.05,digits=2,cex=.64)
 ```
 
@@ -1928,7 +2024,7 @@ EFA is a sequence of linked decisions. The input matrix establishes the
 observed metric. Extraction states which covariance structure is being
 approximated and how discrepancies are weighted. Retention selects a
 plausible dimension using matched reference comparisons, content, and
-neighboring solutions. Rotation chooses interpretable coordinates
+neighboring solutions. Rotation chooses interpretable axes
 without changing the fitted covariance. Interpretation then requires
 pattern, structure, factor correlations, and the quadratic-form
 communality to be read together.
@@ -1946,6 +2042,27 @@ fixed at zero in a restricted version of this model. That specification, and
 the stricter simple-structure alternative that fixes both secondary loadings
 to zero, are what a confirmatory analysis on unused data would have to test.
 
+Naming those alternatives now is part of the transition, because a comparison
+decided in advance is interpretable and one invented after seeing the
+confirmation data is not. Five models are therefore fixed here, before any
+further data are opened:
+
+| Label | Specification | Free covariance parameters | Candidate df |
+|:--|:--|--:|--:|
+| **M1-cross** | The primary candidate: three correlated factors, P4 also on Strategy, S4 also on Belonging | 29 | 49 |
+| **M0-simple** | Both secondary loadings fixed at zero | 27 | 51 |
+| **M2-orthogonal** | All three factor correlations fixed at zero | 26 | 52 |
+| **M3-equal** | The raw P1 and P2 Planning loadings constrained equal | 28 | 50 |
+| **M4-one** | A single common factor for all twelve indicators | 24 | 54 |
+
+: *The five models fixed before confirmation data are opened.* {#tbl-efa-rivals}
+
+All five use the same twelve indicators in codebook order, fixed-factor
+scaling, and no residual covariances. M0, M2 and M3 are restrictions of
+M1-cross; M4-one is a broader dimensional rival whose relation to a correlated
+three-factor model is not an ordinary nested comparison, for reasons taken up
+where models are compared.
+
 A compact report could read:
 
 > We analyzed Pearson correlations for 12 complete continuous indicators
@@ -1956,7 +2073,7 @@ A compact report could read:
 > fits reached uniqueness bounds. Direct oblimin with stated settings
 > produced interpretable correlated domains. Geomin and minres checks
 > gave closely aligned patterns. A 12-indicator CFA candidate with two
-> content-motivated secondary loadings was frozen for independent-sample
+> content-motivated secondary loadings was fixed for independent-sample
 > estimation; this development analysis is not itself confirmation.
 
 For mathematical background, connect the common-factor representation
@@ -1967,7 +2084,7 @@ rotation literature includes @jennrichSampson1966. Software documentation
 is indispensable for implementation details, especially distinctions
 between simulation, resampling, and permutation.
 
-Chapter 3 now changes the question: **given the frozen zero, free, and
+Chapter 3 now changes the question: **given the fixed zero, free, and
 equality restrictions, can a CFA be specified, identified, and estimated
 coherently?** An exploratory orientation becomes a confirmatory model
 only when its restrictions and analytic history are made explicit.
@@ -1977,58 +2094,38 @@ only when its restrictions and analytic history are made explicit.
 The following exercises are answer-free. Use the printed tables where
 possible; code is optional unless a prompt explicitly asks for it.
 
-1. **Foundational -- identify the target.** An analyst extracts principal
+1. **Identify the target.** An analyst extracts principal
    components from $\mathbf R$ and calls the discarded component variance
    “measurement error.” Explain the missing common-factor assumptions.
    For $\mathbf R=\begin{bmatrix}1&.6\\.6&1\end{bmatrix}$, obtain its
    eigenvalues and the variance represented by the first component.
-2. **Foundational -- update a diagonal.** For the three-variable matrix
+2. **Update a diagonal.** For the three-variable matrix
    $\mathbf R=\begin{bmatrix}1&.5&.4\\.5&1&.3\\.4&.3&1\end{bmatrix}$,
    calculate the SMCs using $1-1/(\mathbf R^{-1})_{jj}$. Form the reduced
    matrix and describe one principal-axis update. Explain why a negative
    reduced-matrix eigenvalue is not automatically a negative variance.
-3. **Foundational -- audit the count.** Derive the effective parameter
+3. **Examine the count.** Derive the effective parameter
    counts and candidate df for $p=8$, $m=1,2,3$. Explain the rotational
    subtraction and why a nonnegative count does not prove identification.
-4. **Foundational -- match the null.** At ranks 1--4, observed roots are
+4. **Match the null.** At ranks 1--4, observed roots are
    $3.8,1.5,.9,.2$, and matching permutation 95th percentiles are
    $.5,.3,.2,.1$. Determine the leading crossing count. Explain why this
    table cannot be interpreted without knowing which matrix generated
    the roots, and why a full-matrix reference cannot replace a reduced one.
-5. **Foundational -- verify a coordinate change.** Let
-   $\mathbf A=\begin{bmatrix}.8&.1\\.2&.7\\.5&.4\end{bmatrix}$ and
-   $\mathbf T=\begin{bmatrix}1&.3\\0&1\end{bmatrix}$. Calculate
-   $\mathbf P=\mathbf A\mathbf T^{-1}$ and
-   $\boldsymbol\Phi^*=\mathbf T\mathbf T^{\mathsf T}$, and verify the
-   common-covariance identity. Is $\boldsymbol\Phi^*$ already a
-   correlation matrix?
-6. **Foundational -- read an oblique row.** For pattern row $(.6,.3)$ and
+5. **Read an oblique row.** For pattern row $(.6,.3)$ and
    factor correlation .4, compute the two structure correlations,
    communality, and uniqueness of a standardized indicator. Explain why
    the sum of squared pattern coefficients gives a different result.
-7. **Foundational -- reconstruct a pair.** Take pattern rows $(.7,.1)$
-   and $(.2,.6)$ with factor correlation .35. Compute their reproduced
-   correlation. If the observed correlation is .45, calculate the signed
-   residual and explain what it does and does not diagnose.
-8. **Integrative -- compare dimensions.** Using the one-to-five-factor
+6. **Compare dimensions.** Using the one-to-five-factor
    table and neighboring-pattern figure, recommend a dimension for further
    study. Discuss the uniqueness boundary and explain why neither the
    smallest discrepancy nor the largest conventional $p$ value is a
    sufficient decision rule.
-9. **Integrative -- evaluate an item.** Contrast P4 and B4 using wording,
+7. **Evaluate an item.** Contrast P4 and B4 using wording,
    pattern, structure, and communalities. Propose what additional evidence
    would be needed before deleting either. Do not use a loading cutoff
    as the complete rationale.
-10. **Integrative -- audit sensitivity.** Explain what is held constant
-    in the ML/geomin and minres/oblimin comparisons. Why must factor
-    order and sign be aligned? Identify one question these comparisons
-    cannot answer about sampling uncertainty.
-11. **Integrative -- reproduce the contract.** Write plain R code to read
-    Sample A, select the codebook item order, check completeness, and
-    compute the Pearson matrix. Then specify how to generate an exact
-    column-permutation reference with a fixed seed. Explain why resampling
-    with replacement is a different reference procedure.
-12. **Integrative -- state the handoff.** Write the free/fixed relation
+8. **State the transition.** Write the free/fixed relation
     ledger for two restricted models: the three-factor candidate that keeps the
     P4 and S4 secondary loadings free, and the stricter version that fixes both
     at zero. Give the free-parameter count and candidate df for each against
