@@ -73,6 +73,15 @@ format:
           \fi
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
           \usepackage{booktabs}
           \usepackage{longtable}
           \usepackage{array}
@@ -395,10 +404,6 @@ unspecified population.
 
 \Needspace{29\baselineskip}
 
-**Table 3.1**
-
-*Study and output record for the hypothetical special-practice comparison*
-
 | Record | Special Practice | Usual Practice | Comparison or status |
 |:-------|-----------------:|---------------:|:---------------------|
 | Assigned students | 60 | 60 | Random assignment |
@@ -409,6 +414,8 @@ unspecified population.
 | 95% confidence interval | — | — | [0.9, 5.3] points |
 | Matching two-sided test | — | — | *t*(117.51) = 2.74, *p* = .007 |
 | Potentially important difference | — | — | 2.0 points; rationale prespecified and course-specific |
+
+: *Study and output record for the hypothetical special-practice comparison.* {#tbl-study-output-record}
 
 *Note.* The summary is constructed for teaching and does not describe a real
 study. The interval and test use the same two-group procedure. Rounded values
@@ -451,10 +458,6 @@ what number appeared, and what repeated process gives that number its modeled
 uncertainty?*
 
 \Needspace{14\baselineskip}
-**Table 3.2**
-
-*Seven inferential terms in the special-practice study*
-
 | Object | Working definition | Entry in this study | Common reading error |
 |:-------|:-------------------|:--------------------|:---------------------|
 | **Estimand** | The precisely specified quantity the question seeks | Mean delayed-score difference caused by Special rather than Usual assignment among the 120 randomized participants | Naming only “the treatment effect” |
@@ -464,6 +467,8 @@ uncertainty?*
 | **Parameter** | The fixed feature named by the estimand under the chosen population or process interpretation | The participant-specific mean assignment contrast | Assuming it is the sample estimate or a universal truth |
 | **Statistic** | A numerical function of observed data | A group mean, the 3.1-point estimate, or the 2.74 test statistic | Assuming every statistic is an estimate of the same thing |
 | **Standard error** | The modeled spread of an estimator across the declared repetitions | 1.13 points for the mean-difference estimator | Calling it variation among students |
+
+: *Seven inferential terms in the special-practice study.* {#tbl-inferential-terms}
 
 *Note.* Standard error is previewed here and developed in Section 2. The same
 numerical statistic can serve different roles in different questions; its
@@ -927,10 +932,6 @@ establish practical importance or repair an unsupported design.
 
 ## Interpret p-values and decision rules
 
-**Table 3.3**
-
-*Common p-value mistranslations and defensible repairs*
-
 | Mistranslation | Why it fails | Repair |
 |:---------------|:-------------|:-------|
 | “There is a 0.7% chance the null is true.” | The p-value conditions on the null; it does not assign probability to it | Under the zero-contrast null and procedure, results at least this incompatible have probability .007 |
@@ -939,6 +940,8 @@ establish practical importance or repair an unsupported design.
 | “The effect is large or important because *p* = .007.” | A p-value is not an effect-size or importance measure | Interpret 3.1 points and its interval against a defensible benchmark |
 | “The study's false-positive probability is 0.7%.” | A long-run error rule and a data-dependent p-value differ | State any prespecified decision rule; avoid a posterior error claim |
 | “The p-value keeps its usual meaning after this outcome or model was selected from inspected results.” | The search and selection rule is part of the procedure and can alter calibration | Report the analysis family and prespecified or exploratory status; interpret the selected result accordingly |
+
+: *Common p-value mistranslations and defensible repairs.* {#tbl-p-value-mistranslations}
 
 *Note.* The repairs follow the ASA principle that statistical significance does
 not measure effect size, importance, or the probability that a hypothesis is
@@ -1062,10 +1065,6 @@ measure of educational importance. Appendix A develops this bridge.
 
 \Needspace{12\baselineskip}
 
-**Table 3.4**
-
-*What reported quantities contribute and cannot establish alone*
-
 | Reported quantity | Contribution to the argument | What it cannot establish by itself |
 |:------------------|:-----------------|:-----------------------------------|
 | Means 27.1 and 24.0 | Description of the realized assigned groups | Causal attribution, population generalization, or precision |
@@ -1077,6 +1076,8 @@ measure of educational importance. Appendix A develops this bridge.
 | Two-point benchmark | Prospectively documented, course-specific reference for potential importance | Universal educational importance or evidence that the effect clears the benchmark |
 | Random assignment | Causal interpretation of assignment for participants, subject to implementation and analysis | Effect of adherence or representation of all students |
 | Complete primary follow-up | Removes one major missing-outcome concern for this endpoint | Valid measurement or generalization beyond the setting |
+
+: *What reported quantities contribute and cannot establish alone.* {#tbl-quantity-contributions}
 
 **Repair the opening sentence.** A compact results paragraph can now say:
 
@@ -1113,10 +1114,6 @@ Claim. The table identifies the component content in the accessible teaching
 record. Components are logical roles, not required headings in a paper, and
 their documentary status is not a quality score.
 
-**Table 3.5**
-
-*Eight argument components and their documentary statuses*
-
 | Code | Content in this study | Documentary trace | Documentary status |
 |:-----|:----------------------|:------------------|:-------------------|
 | **STAT-E** | Assignment records; condition labels; delayed scores; scoring, timing, consent, implementation, and complete-follow-up records for 120 participants | Paper Methods and Results; flow record | Stated in the paper |
@@ -1128,7 +1125,7 @@ their documentary status is not a quality score.
 | **SUB-I** | The authors interpret 3.1 points and [0.9, 5.3] on the assessment scale, separate the null-model result from importance, and note that the interval spans the two-point benchmark | Results and Discussion; protocol | Stated in the paper; benchmark located in related materials |
 | **SUB-C** | The reported answer attributes higher mean delayed performance to assignment for these participants and implementation, while leaving importance inconclusive and limiting broader populations, adherence, mechanisms, outcomes, and times | Abstract and Discussion | Stated in the paper |
 
-: {tbl-colwidths="[12,39,24,25]"}
+: *Eight argument components and their documentary statuses.* {#tbl-component-statuses tbl-colwidths="[12,39,24,25]"}
 
 *Note.* STAT = statistical layer; SUB = substantive layer; E = Evidence;
 J = Justification; I = Inference; C = bounded Claim.
@@ -1154,10 +1151,6 @@ Chapter 1 challenge the support; they do not create a score and they do not
 replace the argument components.
 
 \Needspace{12\baselineskip}
-**Table 3.6**
-
-*Quality evaluation of the special-practice argument*
-
 | Family | Evaluation question | Reasoned judgment |
 |:-------|:--------------------|:------------------|
 | **Alignment** | **Question alignment:** Do the estimand and procedure address the stated question? | **Adequate for this purpose.** The participant set, assignment contrast, delayed-score mean, direction, time, and primary status remain aligned. |
@@ -1167,7 +1160,7 @@ replace the argument components.
 | **Translation** | **Transition fidelity:** Are magnitude, uncertainty, design, and scope preserved in the substantive interpretation? | **Adequate for this purpose.** The interpretation keeps 3.1 points, [0.9, 5.3], assignment, participant scope, one assessment, and the unresolved two-point benchmark. |
 | **Translation** | **Claim calibration:** Is the final answer no stronger or broader than the support? | **Adequate for this purpose.** The explicit bounds avoid claims about all students, adherence, mechanisms, every outcome, or durable learning. |
 
-: {tbl-colwidths="[17,34,49]"}
+: *Quality evaluation of the special-practice argument.* {#tbl-quality-evaluation tbl-colwidths="[17,34,49]"}
 
 *Note.* The judgment **Insufficient information to judge** is available for any
 individual question when the record is silent. It differs from **not located**,
@@ -1188,10 +1181,6 @@ paper may contain traces of those activities, but the historical sequence
 cannot be recovered when it is undocumented.
 
 \Needspace{12\baselineskip}
-**Table 3.7**
-
-*Six-stage construction workflow applied to the special-practice argument*
-
 | Phase and stage | Action | Application and likely trace |
 |:----------------|:-------|:-----------------------------|
 | **Understand and plan — 1** | **Review the problem, setting, and relevant literature.** Develop prospective justification. | Prior studies, course context, assessment meaning, preparation burden, and importance rationale; review notes or protocol |
@@ -1201,7 +1190,7 @@ cannot be recovered when it is undocumented.
 | **Produce and complete — 5** | **Estimate, check, and analyse.** Calculate the result and inspect its conditions. | Means, SDs, contrast, SE, interval, test, coding, and implementation checks; analysis output and audit trail |
 | **Produce and complete — 6** | **Contextualize, interpret, and complete the bounded answer.** | Assessment-scale meaning, interval spanning the benchmark, and participant and implementation scope; results, discussion, and limitations |
 
-: {tbl-colwidths="[22,34,44]"}
+: *Six-stage construction workflow applied to the special-practice argument.* {#tbl-workflow-applied tbl-colwidths="[22,34,44]"}
 
 @fig-six-stage-workflow displays the cycle. The lower row runs in reverse visual order so
 the one-way handoff from Stage 3 to Stage 4 is adjacent. Dashed arrows indicate
@@ -1480,7 +1469,8 @@ Rewrite:
 
 > Special Practice worked, *p* < .05.
 
-Use this study record (the same one summarized in Table 3.1 of the chapter):
+Use this study record (the same one summarized in the chapter's study and
+output record table):
 120 consenting students in one course were randomly assigned, 60 per group,
 to four sessions of Special or Usual Practice with equal total study time.
 All completed a common 0--40 assessment two weeks later. Special had mean
@@ -1665,10 +1655,6 @@ The subscript on $SE_0$ reminds us that some tests calculate uncertainty under
 the null. A matching interval and test must use compatible assumptions and
 procedures.
 
-**Table A.1**
-
-*Estimands and uncertainty logic for common introductory structures*
-
 | Structure | Estimand and estimate | Standard-error logic | Main reading checks |
 |:----------|:----------------------|:---------------------|:--------------------|
 | One quantitative sample | Population mean $\mu$; sample mean $\bar{x}$ | Estimated score spread divided by square root of effective sample size | Sampling or target population, independence, unusual values, measurement |
@@ -1676,6 +1662,8 @@ procedures.
 | Two independent quantitative groups | Difference $\mu_1-\mu_0$; $\bar{x}_1-\bar{x}_0$ | Combine uncertainty from the two group means | Group order, independence across units, assignment or selection, unequal spread |
 | Two independent proportions | Difference $p_1-p_0$; $\widehat{p}_1-\widehat{p}_0$ | Combine binomial or design-based uncertainty from both groups | Denominators, coding, sparse cells, assignment or sampling |
 | Paired quantitative observations | Mean within-pair difference $\mu_D$; $\bar{D}$ | Use variation among pair differences | Correct pairing, direction, missing pairs, dependence across pairs |
+
+: *Estimands and uncertainty logic for common introductory structures.* {#tbl-estimand-logic}
 
 *Note.* Population-mean rows describe their own sampling models, not a new
 population for the fixed-participant special-practice question.

@@ -23,6 +23,30 @@ format:
     fig-align: center
     include-in-header:
       - text: |
+          % Keep an imported figure's own transparency group and the driver's group on
+          % separate Form XObjects, so no object carries two /Group keys. Adapted from
+          % latex3/graphics-def PR 48 (Joseph Wright); LPPL 1.3c or later. The exact-token
+          % patches fail loudly on an unexpected driver rather than silently doing nothing.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected the LuaTeX graphics driver this book was built against.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
           \setlength{\parindent}{0pt}
           \usepackage{float}
           \usepackage{needspace}
@@ -958,8 +982,10 @@ No variable is replaced by an ordinal score or a new construct along
 the way.
 
 ```r
-# The development sample is simulated from the declared population, so this
-# runs without any data file. Appendix A gives the population and seeds.
+# The development sample is simulated from the population printed in
+# Appendix A, so this runs without any data file. `sle_simulate()` draws one
+# sample from that population for a stated role; its definition is in the
+# chapter source, and Appendix A gives everything needed to rewrite it.
 X <- sle_simulate("development")$x
 S <- cov(X)
 R <- cor(X)
@@ -1273,7 +1299,7 @@ reference_95 <- apply(null_roots, 1, quantile, probs = .95, type = 7)
 ```
 
 This code exposes the resampling rule instead of hiding it behind a
-function name. It is illustrative; the canonical companion also checks
+function name. It is illustrative; the version actually run also checks
 positive definiteness and computes the two targets in the same loop.
 There were zero failures among the 1,000 reference replications. No
 null matrix was repaired and no replicate was dropped from a quantile.
@@ -1508,8 +1534,8 @@ We estimate normal-theory ML common-factor models for one through five
 factors. Each fit uses the same Pearson matrix, $n=360$, SMC starts,
 and the same uniqueness-bound convention. The primary extraction is
 unrotated; rotation is a subsequent choice of axes. The printed code
-shows the essential calls, while the shared script records convergence
-checks and full settings.
+shows the essential calls; the chapter source carries the convergence checks
+and the full settings.
 
 ```r
 fit3 <- psych::fa(R, nfactors = 3, n.obs = nrow(X),
@@ -2195,6 +2221,40 @@ pt2_sle_appendix_table(data.frame(
 ```{=latex}
 \Needspace{14\baselineskip}
 ```
+
+## Population parameters {.unnumbered}
+
+The three samples are drawn from the population in @tbl-sle-population, using
+the seeds in @tbl-sle-manifest below. Standardized loadings and factor
+correlations are given; residual variances are whatever makes each
+standardized indicator variance one, apart from the single residual
+covariance shown. Indicator means and scale factors convert the standardized
+system to the recorded units. Together with the seeds and the random-number
+convention, these values are the whole specification: any reader can
+regenerate all three samples from this table without obtaining a data file.
+
+```{r}
+#| label: tbl-sle-population
+#| tbl-cap: "The generating population. Loadings are standardized; a blank means the loading is fixed at zero."
+pop <- sle_population()
+Lz <- pop$Lambda_z
+blank <- function(v) ifelse(abs(v) < 1e-12, "", pt2_num(v, 2))
+pt2_sle_appendix_table(data.frame(
+  Item = rownames(Lz),
+  Planning = blank(Lz[,1]), Strategy = blank(Lz[,2]),
+  Belonging = blank(Lz[,3]),
+  Intercept = pt2_num(pop$nu, 0), Scale = pt2_num(pop$scale, 0),
+  check.names = FALSE), c(.12,.16,.16,.18,.19,.19))
+```
+
+Factor correlations are
+$\phi_{12}=`r pt2_num(pop$Phi[1,2],2)`$,
+$\phi_{13}=`r pt2_num(pop$Phi[1,3],2)`$ and
+$\phi_{23}=`r pt2_num(pop$Phi[2,3],2)`$, with all three factor variances
+fixed at one. One residual covariance is nonzero,
+$\theta_{\mathrm{B1,B2}}=`r pt2_num(pop$Theta_z[9,10],2)`$ on the
+standardized scale, representing shared peer context that the three broad
+factors do not capture. Every other residual covariance is zero.
 
 ## Sample manifest {.unnumbered}
 
