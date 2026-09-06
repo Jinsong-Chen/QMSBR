@@ -1567,6 +1567,68 @@ changes the estimator and the interpretation of the parameters. That
 route belongs to a different course. What matters here is that the
 choice be made deliberately and stated, not made by default.
 
+# Six commitments {#sec-commitments}
+
+The material above is enough to state the working commitments that govern the
+rest of Part Two. They are not slogans: each one is a consequence of something
+this chapter has already established, and each rules out a specific move that
+is easy to make by accident.
+
+**1. The model agrees across representations.** @sec-four-ways set out four
+ways of writing one model - scalar equations, matrices, a diagram, and a
+sentence - and required them to agree. This is worth treating as a routine
+check rather than a stylistic preference. A path missing from a diagram but
+free in a matrix is not a drawing slip; it is two different models, and the
+one that gets estimated is whichever the software was given. When syntax and
+output enter later, they join the same obligation: everything that describes
+the model must describe the *same* restrictions.
+
+**2. Exploration and confirmation are historical roles.** @sec-workflow argued
+that what separates them is when a decision was made and on what evidence, not
+which procedure was run. Nothing in a fitted object records this. A model
+specified in advance and the identical model arrived at by inspecting the data
+produce the same coefficients, the same fit, and the same printout; the
+difference lives only in the analytic history, which is why that history has to
+be written down rather than reconstructed afterwards.
+
+**3. A fitted solution is read in stages.** The stages are ordered by
+dependence, not by preference. Whether the parameters are recoverable at all is
+prior to estimating them; whether an estimator converged is prior to reading
+what it produced; whether the solution is admissible - no negative variance, no
+correlation outside its bounds - is prior to interpreting a coefficient; and
+all of that is prior to asking how well the model reproduces the observed
+moments. A summary computed from an inadmissible solution is arithmetic
+performed on an impossibility. @sec-coordinates and @sec-implied supply the
+first two stages; the later ones need data this chapter does not use.
+
+**4. Comparison requires eligibility.** @sec-tetrad made the first genuine
+comparison in this book: a restriction with an observable consequence, and a
+record that violates it. That is what makes comparison possible - a difference
+in what two models forbid. Two models that forbid nothing different cannot be
+distinguished by any amount of evidence, and @sec-argument shows the sharpest
+version of this, where an orthogonal rotation leaves every implied moment
+unchanged. Having fewer parameters is not the same as being nested, and
+appearing in adjacent rows of a table is not a test.
+
+**5. Computation reproduces rather than justifies.** This chapter's own code
+checks its arithmetic; it settles nothing else. Code can verify that a
+constructed matrix really does follow from the parameters claimed to generate
+it, and it can preserve a record another analyst can re-run. It cannot supply a
+design that was never conducted, an item set that covers the domain, or a
+reason to interpret a factor as an attribute. A calculation that runs without
+error has demonstrated that it runs without error.
+
+**6. Claims remain bounded.** Reproducing a covariance record establishes
+compatibility between that record and the model, and stops there. It does not
+by itself establish how many dimensions an attribute has, that the factors are
+the constructs they are named for, that a score is valid or comparable across
+groups, or that any arrow represents a causal effect. Each of those requires
+its own evidence, and none of it is contained in the fit.
+
+The sixth commitment is the one the rest of the chapter has been building
+toward, and the optional section that follows works it through on a case where
+the arithmetic is exact and the conclusion still fails.
+
 # Applying the argument-based approach to latent variables (Optional) {#sec-argument}
 
 This optional section returns to the Chapter Box using the argument

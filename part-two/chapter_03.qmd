@@ -21,7 +21,6 @@ format:
     toc: true
     toc-depth: 2
     include-in-header:
-      - file: ../supplement/pdf-graphics-compat.tex
       - text: |
           \setlength{\parindent}{0pt}
           \usepackage{float}
@@ -1479,12 +1478,9 @@ $\phi_{12}\ne0$; the argument degenerates when that connection is zero.
 #|   - "Connected correlated blocks"
 #| fig-cap: "Two-indicator blocks can have the same whole-model count but different recoverability because the covariance edge changes which moments carry loading information."
 #| fig-alt: "The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors."
-op <- par(mfrow=c(1,2)); on.exit(par(op))
 pt2_groups_diagram(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),correlated=FALSE)
-title("Isolated blocks",line=-1.4,cex.main=.95)
 pt2_groups_diagram(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),correlated=TRUE,
   factor_cov_labels="phi[12]")
-title("Connected by a factor covariance",line=-1.4,cex.main=.95)
 ```
 
 ## Structural, weak, and numerical problems

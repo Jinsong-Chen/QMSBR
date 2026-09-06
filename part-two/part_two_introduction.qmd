@@ -115,37 +115,31 @@ draw_part_two_route <- function() {
 ## What Part Two Is
 
 Part Two of *Quantitative Methods for Social and Behavioral Research with R*
-introduces latent-variable modeling through factor analysis and then prepares
-the transition to structural equation modeling. It is written for
-postgraduate students and applied researchers who need to understand what a
+introduces latent-variable modeling through factor analysis and prepares the
+transition to structural equation modeling. It is written for postgraduate
+students and applied researchers who need to understand what a
 latent-variable model asserts, how its parameters are estimated, and how far
-its results can support a substantive interpretation.
+its results support a substantive interpretation.
 
 The first four chapters form one measurement-model sequence. Chapter 1
 introduces the common-factor model and its representations. Chapter 2 develops
 an exploratory factor model. Chapter 3 turns the resulting proposal into a
 restricted confirmatory model and estimates it. Chapter 4 evaluates that fit,
-compares planned rivals, studies a frozen revision, fits higher-order and
-bifactor representations, and closes with a retrospective known-population
-audit. The sequence is cumulative: later chapters assume the model, notation,
-and analytic history established earlier.
+compares planned rivals, studies a revision, and introduces advanced
+measurement structures. The sequence is cumulative: later chapters assume the
+model, notation, and analytic history established earlier.
 
 This is not a catalogue of software commands or fit-index cutoffs. Equations,
 matrices, diagrams, prose, and code are treated as different representations
-of the same model. Software makes the calculations reproducible; it does not
-choose the research question, justify a construct label, or turn an
-exploratory decision into an independently confirmed result.
+of one model. Software makes the calculations reproducible; it does not choose
+the research question, justify a construct label, or turn an exploratory
+decision into an independently confirmed result.
 
-**What is assumed.** Readers should understand variance, covariance,
-correlation, sampling uncertainty, and elementary regression notation at the
-level developed in Part One. Basic matrix multiplication is helpful, but the
-dimensions and operations needed for each model are explained where they are
-used. Calculus and proof-based mathematical statistics are not prerequisites.
-
-**How to use this map.** This introduction explains why Chapters 1--4 appear
-in their present order, how their evidence roles differ, and what they hand to
-the later structural-modeling sequence. It is an orientation document, not a
-substitute for any chapter.
+**What is assumed.** Variance, covariance, correlation, sampling uncertainty,
+and elementary regression notation at the level developed in Part One. Basic
+matrix multiplication helps, but the operations each model needs are explained
+where they are used. Calculus and proof-based mathematical statistics are not
+prerequisites.
 
 ## The Measurement Problem at a Glance
 
@@ -167,53 +161,38 @@ E(\mathbf y_i)
 \end{aligned}
 $$
 
-Here $\mathbf y_i$ contains observed indicators,
-$\boldsymbol\eta_i$ contains unobserved factors,
-$\boldsymbol\Lambda$ contains loadings, and $\boldsymbol\epsilon_i$ contains
-what the declared factors leave unexplained. The vectors $\boldsymbol\nu$ and
-$\boldsymbol\alpha$ are indicator and latent intercepts; with no structural
-regressions in this measurement-only model,
-$\boldsymbol\alpha=E(\boldsymbol\eta_i)$. Under
-$E(\boldsymbol\epsilon_i)=\mathbf 0$ and
-$\operatorname{Cov}(\boldsymbol\eta_i,\boldsymbol\epsilon_i)=\mathbf 0$,
-$\boldsymbol\Phi=\operatorname{Var}(\boldsymbol\eta_i)$ and
-$\boldsymbol\Theta=\operatorname{Var}(\boldsymbol\epsilon_i)$ produce the
-displayed moments; $\boldsymbol\vartheta$ collects the model's free
-parameters. The covariance equation divides observed variation into a common
-part and a residual part. It also gives the model observable consequences:
+Here $\mathbf y_i$ contains observed indicators, $\boldsymbol\eta_i$ unobserved
+factors, $\boldsymbol\Lambda$ loadings, and $\boldsymbol\epsilon_i$ what the
+declared factors leave unexplained; $\boldsymbol\nu$ and $\boldsymbol\alpha$
+are indicator and latent intercepts, and $\boldsymbol\vartheta$ collects the
+free parameters. The covariance equation divides observed variation into a
+common part and a residual part, and gives the model observable consequences:
 proposed loadings, factor relations, and residual restrictions imply a
 particular covariance matrix.
 
 The equation does not make a factor identical to the construct used to name
-it. A factor is an unobserved random variable within a statistical model. A
+it. A factor is an unobserved random variable inside a statistical model; a
 construct is a substantive concept whose interpretation also depends on the
 indicator domain, response process, population, design, and intended use.
-Likewise, a factor-to-indicator arrow states the direction of representation;
-by itself it does not establish that the factor causally produces a response.
-Good covariance fit can support a statistical representation without proving
-that a latent entity exists exactly as named.
+Likewise, a factor-to-indicator arrow states the direction of representation,
+not that the factor causally produces a response. Good covariance fit can
+support a statistical representation without showing that a latent entity
+exists as named.
 
-Part One's question--answer discipline remains in the background: a method
+Part One's question--answer discipline stays in the background: a method
 should answer a declared question, and the conclusion should not outrun its
-evidence and justification. Part Two does not repeat the complete
-argument-based framework. Chapter 1 contains one optional late application to
-the latent-variable context; Chapters 2--4 concentrate on the statistical
-work needed to develop, estimate, and evaluate measurement models.
+evidence. Chapter 1 contains one optional application of that vocabulary to
+the latent-variable case; Chapters 2--4 concentrate on the statistical work.
 
 ## How Chapters 1--4 Progress
 
-The four chapters make four connected moves:
-
-1. **Represent:** state what factors and residuals mean and derive the moments
-   implied by a common-factor model.
-2. **Explore and develop:** use a development record to investigate
-   dimensionality, orientation, interpretation, and sensitivity, then freeze
-   a candidate.
-3. **Specify and estimate:** express that candidate as explicit restrictions,
-   establish recoverability, fit it to unused data, and audit the solution.
-4. **Evaluate, compare, and extend:** assess global and local discrepancy,
-   compare eligible rivals, study revisions honestly, and examine advanced
-   measurement representations.
+The four chapters make four connected moves: **represent** a common-factor
+model and derive its implied moments; **explore** a development record to
+settle dimensionality, orientation and interpretation; **specify and
+estimate** the resulting proposal as explicit restrictions on unused data;
+and **evaluate, compare and extend** the fitted model. The covariance
+equation is the same throughout; what changes is the responsibility assigned
+to it.
 
 @fig-part-two-route makes the architecture explicit. Each stage changes the
 question and evidence role while retaining the same common-factor foundation.
@@ -242,58 +221,29 @@ chapter.
 : *The four-chapter measurement-model sequence.* {#tbl-part-two-sequence tbl-colwidths="[27,38,35]"}
 
 The stopping points are deliberate. Chapter 2 does not relabel a developed
-pattern as confirmation. Chapter 3 does not treat convergence as adequate fit.
+pattern as confirmation; Chapter 3 does not treat convergence as adequate fit;
 Chapter 4 does not treat favorable fit as construct validation. Each chapter
-completes one responsibility before transferring a clearly defined record to
-the next.
+completes one responsibility before transferring a defined record to the next.
 
-The diagrams also form a deliberate progression. Chapter 3 reads the same
-visual grammar across a two-factor algebra model, the three-factor SLE model,
-and a published four-factor transfer, then uses small paired diagrams to make
-identification and equivalence visible. Chapter 4 carries that grammar into
-the three-factor higher-order and bifactor alternatives. The diagrams, syntax,
-and parameter counts are generated from matching structural ledgers rather
-than treated as independent illustrations.
-
-## One Model Family, Several Responsibilities
-
-The common-factor covariance equation remains the mathematical backbone of
-all four chapters. What changes is the analytical responsibility assigned to
-it. Chapter 1 works forward from known parameters to implied moments. Chapter
-2 works from sample associations toward a provisional low-dimensional
-representation. Chapter 3 asks whether a prespecified parameterization can be
-recovered and estimated. Chapter 4 asks how much discrepancy remains, where it
-is located, and which comparisons are warranted.
-
-Four mathematical threads connect the sequence:
+Four mathematical threads run through the sequence:
 
 - **Common and residual variation.** Scalar covariance expansions become the
-  matrix decomposition
-  $\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}
-  +\boldsymbol\Theta$, then become fitted residuals and local diagnostics.
-- **Coordinates and restrictions.** Scale, sign, and rotational freedom lead
-  to EFA rotation, CFA scaling constraints, identification checks, and the
-  distinction between equivalent and testably different models.
-- **Information and estimation.** Sample means and covariances become targets
-  for a restricted model; the number of distinct moments, free coordinates,
-  and candidate degrees of freedom is counted consistently before numerical
-  output is interpreted.
+  matrix decomposition $\boldsymbol\Lambda\boldsymbol\Phi
+  \boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta$, then fitted residuals.
+- **Coordinates and restrictions.** Scale, sign and rotational freedom lead to
+  rotation, scaling constraints, identification, and the distinction between
+  equivalent and testably different models.
+- **Information and estimation.** Distinct moments, free coordinates and
+  candidate degrees of freedom are counted consistently before any numerical
+  output is read.
 - **Evaluation and use.** Parameter uncertainty, global fit, local residuals,
-  planned comparisons, reliability, and scores answer different questions.
-  None is a universal pass--fail certificate for the model or construct.
+  planned comparisons, reliability and scores answer different questions, and
+  none is a pass--fail certificate for a model or a construct.
 
-The statistical level is intentionally higher than an introductory survey.
-Core derivations remain in the chapters and are explained in words rather
-than removed. The lecture decks stage the same ideas across shorter teaching
-steps; exercises require calculations and interpretations; and the R labs
-make selected analyses executable without turning the chapter into a command
-reference.
-
-Chapter 1's main route requires no student software. Chapter 2 introduces the
-`psych` and `GPArotation` workflow for EFA. Chapters 3--4 use `lavaan` for CFA
-estimation and evaluation. In every case the printed chapter supplies enough
-information to understand the model and the conclusion even when the reader
-does not run the code.
+Chapter 1 needs no student software. Chapter 2 introduces the `psych` and
+`GPArotation` workflow; Chapters 3--4 use `lavaan`. In every case the printed
+chapter supplies enough to follow the model and the conclusion without running
+the code.
 
 ## Evidence Roles Across the Sequence
 
@@ -314,98 +264,43 @@ favorable story. @tbl-part-two-evidence gives the principal roles.
 : *Records keep distinct analytical roles even when they illustrate the same model family.* {#tbl-part-two-evidence tbl-colwidths="[27,36,37]"}
 
 The Student Learning Experiences (SLE) records are synthetic continuous data,
-not observations from actual students. One file, `sle_continuous.csv`, stores
-1,080 rows across three independent samples of 360 cases and twelve indicators:
-four proposed Planning indicators, four Strategy indicators, and four
-Belonging indicators. A `sample` column identifies A, B, or C, and the Chapter
-2 appendix supplies the codebook and manifest. The samples are selected for
-their declared roles, never pooled to manufacture a larger analysis. A record
-that becomes exploratory through revision does not recover confirmatory
-status merely because the next command calls the model CFA.
+not observations from actual students: three independent samples of 360 cases
+on twelve indicators -- four Planning, four Strategy and four Belonging. Each
+chapter simulates the sample it is entitled to from a declared population and
+a fixed seed, and the Chapter 2 appendix supplies the codebook and manifest.
+The samples are never pooled to manufacture a larger analysis, and a record
+that becomes exploratory through revision does not recover confirmatory status
+because the next command is called CFA.
 
-Two numerical roles are kept separate in Chapter 4. Its extension fits use
-the factor correlations estimated from Sample B. Only afterward does the
-retrospective audit reveal the generating correlation triplet
-$(.42,.30,.35)$ and its exact higher-order coordinates
-$(.60,.70,.50)$. Those known values sharpen the teaching comparison; they are
-not Sample-B estimates and were not evidence used to develop or revise the
-candidate.
-
-This separation is also a teaching device. It lets readers see that a model
-can be technically coherent, reproducible, and even apparently well fitting
-while still owing a narrower conclusion than its name might suggest.
+The separation is a teaching device as much as a discipline. It lets readers
+see that a model can be coherent, reproducible and apparently well fitting
+while still owing a narrower conclusion than its name suggests.
 
 ## Boundaries and What Follows
 
-The initial Part Two sequence treats indicators as continuous and keeps one
-coherent continuous-ML lineage. Ordered categorical indicators, thresholds,
-polychoric correlations, and their estimator-specific testing conventions are
-signposted but taught elsewhere. This boundary does not exclude categorical
-grouping variables or coded predictors: later multigroup, invariance, and
-structural models may use them while retaining continuous indicators.
+Part Two treats indicators as continuous and keeps one coherent continuous-ML
+lineage. Ordered categorical indicators, thresholds, polychoric correlations
+and their estimator-specific conventions are signposted but taught elsewhere.
+The boundary does not exclude categorical grouping variables or coded
+predictors, which later multigroup and structural models may use while
+retaining continuous indicators.
 
-The four-chapter architecture focuses on reflective common-factor measurement
-models. It does not make a factor score an error-free observation, equate fit
-with validity, or establish causality from a path diagram. Within that
-architecture, Chapter 4 treats higher-order and bifactor models as rival
-measurement representations, not automatic remedies for a weak core model.
-Specialized topics such as item-response theory,
-mixture models, multilevel factor analysis, and a full treatment of
-categorical indicators belong to other courses or later series.
+The architecture covers reflective common-factor measurement models. It does
+not make a factor score an error-free observation, equate fit with validity,
+or establish causality from a path diagram; higher-order and bifactor models
+appear as rival representations, not as remedies for a weak core model.
+Item-response theory, mixture models, multilevel factor analysis and a full
+treatment of categorical indicators belong elsewhere.
 
 After Chapter 4, Part Two turns from relations between factors and indicators
-to relations among variables in a structural system. Observed-variable path
-analysis prepares directed systems; general structural equation modeling
-combines structural relations with measurement models; measurement invariance
-supports comparisons across groups or occasions; and latent growth models
-represent both average trajectories and variation in change. Multilevel
-growth belongs to Part Three.
-
-The notation is chosen to survive that transition. In particular, a latent
-intercept is not generally the same as the marginal latent mean once
-structural regressions are introduced. The later chapters extend the model
+to relations among variables in a structural system: path analysis, general
+structural equation modeling, measurement invariance, and latent growth.
+Multilevel growth belongs to Part Three. The notation is chosen to survive
+that transition -- a latent intercept is not generally the marginal latent
+mean once structural regressions enter -- so later chapters extend the model
 rather than quietly changing what its symbols mean.
 
-## Routes and Commitments
-
-**A taught course** should follow Chapters 1--4 in order. The lecture for each
-chapter covers most of its conceptual and mathematical route; the exercise
-companion supplies worked reference answers; and the R lab offers in-class
-practice. In Chapters 3--4 these companions carry the same diagram-reading,
-extension, and audit distinctions as the public chapters while keeping R-lab
-datasets in their separate practice role. Homework extends the same
-responsibilities. Part Two quizzes are not yet part of the teaching package.
-
-**A reader working alone** should begin with Chapter 1, then keep Chapters
-2--4 in sequence so that the exploratory candidate, confirmatory restrictions,
-fitted object, and evaluation history remain intelligible. The labs may be run
-alongside the chapters but are not prerequisites for the mathematical route.
-
-**A reader consulting one method** should read the chapter's opening question,
-record and destination before jumping to an output table. A fit index, loading,
-modification index, or reliability estimate has meaning only within the model,
-metric, evidence role, and intended use that produced it.
-
-Across these routes, six commitments remain constant:
-
-1. **The model agrees across representations.** Prose, equations, matrices,
-   diagrams, syntax, and output must describe the same restrictions.
-2. **Exploration and confirmation are historical roles.** They depend on when
-   a decision was made and which evidence informed it, not on a function name.
-3. **A fitted solution is read in stages.** Identification, numerical
-   convergence, admissibility, uncertainty, global fit, and local fit are
-   connected but not interchangeable checks.
-4. **Comparison requires eligibility.** Nested tests and information criteria
-   apply only when their assumptions and data-likelihood bases make the
-   comparison meaningful.
-5. **Computation reproduces rather than justifies.** Code can verify arithmetic
-   and preserve an analysis record; it cannot supply missing design,
-   measurement, or substantive warrants.
-6. **Claims remain bounded.** Covariance compatibility does not by itself prove
-   dimensionality, construct reality, validity, invariance, score fitness, or
-   causal direction.
-
-Each numbered chapter closes with a **Summary and reading bridge**, followed
-by unnumbered exercises. Appendices may add derivations or software details,
-but the principal question and its calibrated answer remain understandable
-from the numbered route.
+Each numbered chapter closes with a **Summary and reading bridge**, followed by
+unnumbered exercises. Appendices may add derivations or software details, but
+the principal question and its calibrated answer remain understandable from the
+numbered route.
