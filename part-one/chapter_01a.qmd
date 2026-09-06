@@ -420,12 +420,15 @@ STAT\text{-}E_k + STAT\text{-}J_k \longrightarrow STAT\text{-}I_k
 \longrightarrow STAT\text{-}C_k.
 $$
 
-The strands feed one substantive layer and one question-facing answer. An estimand
-counts as a strand when it is subordinate to one prespecified integrated answer
-obligation and is not itself owed or interpreted as a standalone substantive
-conclusion. Separately owed conclusions form separate pairs. Independent
-answerability is a useful diagnostic, but the number of hypotheses,
-coefficients, tests, estimands, tables, or pooled estimates does not decide.
+The strands feed one substantive layer and one question-facing answer. An
+estimand counts as a strand when it is subordinate to one declared integrated
+answer obligation and is not itself owed or interpreted as a standalone
+substantive conclusion. Whether the obligation is primary or secondary, and
+whether it is prospectively specified, exploratory, or revised, are recorded
+separately; neither determines strand membership. Separately owed conclusions
+form separate pairs. Independent answerability is a useful diagnostic, but the
+number of hypotheses, coefficients, tests, estimands, tables, or pooled
+estimates does not decide.
 A hypothesis is a proposition about one or more estimands, not itself an
 estimand. Neither hypothesis count nor estimand count mechanically determines
 the number of pairs or strands.
@@ -767,9 +770,9 @@ standardization, and uncertainty-combination mechanics.
 
 This procedure assumes that, after accounting for the recorded predictors, the
 unobserved delayed score does not add further information about whether it is
-observed. That condition cannot be proved from observed data. Sensitivity
-analysis should vary plausible departures and carry consequential changes into
-STAT-C and SUB-C.
+observed [@littlerubin2019]. That condition cannot be proved from observed
+data. Sensitivity analysis should vary plausible departures and carry
+consequential changes into STAT-C and SUB-C [@nrc2010].
 
 One completed stress test subtracts four points from each imputed missing
 Special Practice outcome while leaving the Usual Practice imputations
@@ -777,7 +780,8 @@ unchanged. The standardized estimate becomes 2.6 points, 95% interval
 [1.5, 3.7]. This deliberately unfavorable departure retains a positive
 direction while leaving the exact magnitude uncertain and whether the effect
 exceeds the two-point benchmark unresolved.
-The next question is a tipping-point or claim-change question: how different
+The next question is a tipping-point or claim-change question [@nrc2010]: how
+different
 would plausible unobserved outcomes or assumptions need to be before the
 bounded answer changed direction, crossed the two-point benchmark, or otherwise
 changed materially? A departure that leaves materially important benefit and
@@ -1468,7 +1472,9 @@ details contribute to measurement and comparison justification.
 
 ### Two focal question--answer pairs
 
-The paper contains at least two focal pairs:
+The paper states aims, a comparison, and outcomes rather than printing
+interrogative questions. Reading recovers at least two focal pairs from that
+material; the questions below are reader-supplied:
 
 1. What effect did active rather than passive instruction have on measured
    learning?
@@ -1508,16 +1514,21 @@ students felt that they learned less.
 | **TOL -- STAT-J** | Design description, model specification, robustness descriptions, supplement | Stated in the paper; additional checks located in related materials | Randomized crossover warrant, adjustment strategy, and alternative specifications |
 | **TOL -- STAT-I** | Regression Table 3 and robustness descriptions | Stated in the paper | Standardized 0.46 active-minus-passive estimate, test of a zero adjusted difference with *p* < .001, and stability across selected specifications |
 | **TOL -- STAT-C** | Results text, Table 3, and Figure 2 | Stated in the paper | Reported positive adjusted comparison for immediate test performance |
-| **TOL -- SUB-E/J/I/C** | Learning objectives, course-material-blinded test preparation, matched content, Discussion | Stated in the paper; located in related materials (supplement) | Immediate topic-specific performance interpretation, instructional context, and reported scope |
+| **TOL -- SUB-E/J/I/C** | SUB-E: matched content across the two conditions; SUB-J: learning objectives and course-material-blinded test preparation; SUB-I and SUB-C: Discussion | Stated in the paper; located in related materials (supplement) | SUB-E: instructional context; SUB-J: grounds for reading the test as topic-specific performance; SUB-I: immediate topic-specific performance interpretation; SUB-C: higher immediate topic-specific test performance under active instruction in these classes |
 | **FOL -- STAT-E** | Four survey items, response scale, assignment and crossover records | Stated in the paper; item detail located in related materials | Immediate self-reported perceptions after each class |
 | **FOL -- STAT-J** | Composite description, model specification, and designated-item analysis | Stated in the paper | Composite warrant, adjustment strategy, and alternative item analysis |
 | **FOL -- STAT-I** | Regression Table 3 and designated-item analysis | Stated in the paper | Standardized -0.56 active-minus-passive estimate, test of a zero adjusted difference with *p* < .001, and consistency with the designated item |
 | **FOL -- STAT-C** | Results text, Table 3, and Figure 2 | Stated in the paper | Reported negative adjusted comparison for immediate feeling of learning |
-| **FOL -- SUB-E/J/I/C** | Survey wording, discussion of fluency and metacognition, interviews | Stated in the paper; interview detail located in related materials | Immediate perceived-learning interpretation and proposed mechanism context |
+| **FOL -- SUB-E/J/I/C** | SUB-E: the crossover participation record above; SUB-J: survey wording and the fluency and metacognition discussion; SUB-I and SUB-C: Discussion, with interviews in related materials | Stated in the paper; interview detail located in related materials | SUB-E: who answered and under which condition; SUB-J: grounds for reading the composite as perceived learning; SUB-I: immediate perceived-learning interpretation; SUB-C: lower immediate self-reported feeling of learning under active instruction in these classes |
 | **Cross-question synthesis** | Abstract, Results, Discussion, figures | Stated in the paper | Higher measured performance and lower perceived learning are reported as distinct outcomes |
 | **Transport and mechanism context** | Discussion, interviews, semester intervention, supporting literature | Stated in the paper; further material located in related materials | Proposed cognitive-effort explanation and discussion of possible extension beyond the two class meetings |
 
 : *Documentary traceability for two arguments in a published randomized study.* {#tbl-published-trace tbl-colwidths="[21,27,21,31]"}
+
+The two substantive rows list four functions each because the same passage can
+perform more than one. Tagging them inside the row keeps the components
+functional trace labels rather than document bins: SUB-J is not whatever is
+left over once SUB-E is assigned.
 
 ### What is strongly supported
 
@@ -1809,7 +1820,8 @@ equal the marginal average assignment effect without standardization.
 
 Using the Deslauriers et al. paper and supporting appendix:
 
-1. locate the two focal questions;
+1. formulate the two reader-supplied focal questions from the stated aims
+   and outcomes;
 2. map one STAT component and one SUB component for each outcome;
 3. identify where the randomized crossover design is documented;
 4. compare the paper's direct numerical support for TOL and FOL;

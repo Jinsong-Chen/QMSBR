@@ -22,15 +22,26 @@ format:
     toc-depth: 2
     include-in-header:
       - text: |
-          % Keep an imported figure's own transparency group and the driver's group on
-          % separate Form XObjects, so no object carries two /Group keys. Adapted from
-          % latex3/graphics-def PR 48 (Joseph Wright); LPPL 1.3c or later. The exact-token
-          % patches fail loudly on an unexpected driver rather than silently doing nothing.
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
           \usepackage{etoolbox}
           \makeatletter
           \newcommand{\QMSBRgraphicsPatchError}[1]{%
             \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
-              {Expected the LuaTeX graphics driver this book was built against.}}
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
           \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
           \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
           \patchcmd{\Gread@@pdftex}
@@ -72,8 +83,9 @@ if (!requireNamespace("lavaan", quietly = TRUE))
 
 # ---- SLE population and in-memory samples ---------------------------------
 # The population is declared here and every sample is simulated from a fixed
-# seed, so this chapter reads no data file and sources no script. These are the
-# declarations and seeds that produced the distributed sle_continuous.csv.
+# seed, and sources no script. The released sle_continuous.csv is read only by
+# the provenance check below, which confirms that the regenerated records match
+# the file readers download.
 
 sle_population <- function() {
   items <- c(paste0("P", 1:4), paste0("S", 1:4), paste0("B", 1:4))
@@ -215,7 +227,7 @@ pt3_microcase <- function(cross=0) {
 }
 
 # Simulated in memory from its declared population and seed; the distributed
-# CSV holds the same 500 records.
+# separate from the twelve-indicator samples and not part of that file.
 pt3_donor <- function() {
   pop <- pt3_microcase(cross = .25)
   RNGkind("Mersenne-Twister", "Inversion", "Rejection"); set.seed(20260930L)
@@ -276,8 +288,29 @@ pt3_audit <- function(record,items=NULL) {
     matrices=est,Sigma=Sigma,vcov=lavaan::vcov(fit))
 }
 
+sle_verify_release <- function(path = "sle_continuous.csv") {
+  if (!file.exists(path))
+    stop("Released file ", path, " not found; it is part of this chapter.")
+  released <- read.csv(path, stringsAsFactors = FALSE)
+  manifest <- sle_manifest()
+  items <- sle_population()$items
+  stopifnot(identical(names(released), c("sample", "id", items)),
+            nrow(released) == sum(manifest$n),
+            identical(sort(unique(released$sample)), sort(manifest$sample)))
+  for (role in manifest$role) {
+    row <- manifest[manifest$role == role, , drop = FALSE]
+    got <- sle_simulate(role)
+    ref <- released[released$sample == row$sample, , drop = FALSE]
+    stopifnot(nrow(ref) == row$n,
+              identical(ref$id, got$ids),
+              max(abs(as.matrix(ref[items]) - as.matrix(got$x))) < 1e-8)
+  }
+  TRUE
+}
+
 pt3_build <- function() {
   candidate <- sle_candidate()
+  sle_verify_release()
   input <- sle_simulate("confirmation")
   primary <- pt3_fit(candidate$syntax, input$x)
   audit <- pt3_audit(primary, candidate$active_items)
@@ -322,7 +355,7 @@ pt3_build <- function() {
       lavaan = as.character(packageVersion("lavaan")),
       sample = "B", role = "confirmation",
       status = "Estimation only; this chapter does not assess model adequacy.",
-      sample_C = "Not read in this chapter."))
+      sample_C = "Not used in any model fit or diagnostic in this chapter."))
 }
 
 pt3_estimation_plot <- function() {
@@ -800,7 +833,7 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
                                      loading_labels = NULL,
                                      factor_labels = NULL,
                                      indicator_labels = NULL,
-                                     higher_label = "xi",
+                                     higher_label = "xi", cross = NULL,
                                      show_disturbances = TRUE) {
   p <- length(assign); if (is.null(m)) m <- max(assign)
   if (is.null(factor_labels)) factor_labels <- paste0("eta[", seq_len(m), "]")
@@ -808,9 +841,12 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
   x_high <- 1.0; x_factor <- 4.0; x_indicator <- 8.0; x_resid <- 10.8
 
   yi <- .pt2_indicator_y(p)
+  hh <- if (p > 1) min(.30, .40 * abs(yi[1] - yi[2])) else .30
   yf <- seq(max(yi) - .9, min(yi) + .9, length.out = m)
   yh <- mean(range(yf))
-  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  # leave room for the widest node on each side so nothing is clipped
+  left <- min(0, x_high - .pt2_frx(higher_label) - .35)
+  op <- .pt2_canvas(c(left, x_resid + .9), c(.3, 8.2))
   on.exit(par(op))
 
   for (k in seq_len(m)) {
@@ -827,6 +863,13 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
            .pt2_label(paste0("zeta[", k, "]")), cex = .82)
     }
   }
+  if (!is.null(cross) && nrow(cross)) for (i in seq_len(nrow(cross))) {
+    k <- match(cross$factor[i], factor_labels)
+    j <- match(cross$item[i], indicator_labels)
+    .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
+               x_indicator - .74, yi[j], dashed = TRUE,
+               col = pt2_cov_col, lwd = 1.3)
+  }
   for (j in seq_len(p)) {
     k <- assign[j]
     .pt2_arrow(x_factor + .pt2_frx(factor_labels[k]), yf[k],
@@ -835,7 +878,7 @@ pt2_higher_order_diagram <- function(assign, m = NULL, gamma_labels = NULL,
       .pt2_path_label(x_factor + .pt2_frx(factor_labels[k]), yf[k],
                       x_indicator - .74, yi[j],
                       loading_labels[j], nudge = .16)
-    .pt2_box(x_indicator, yi[j], indicator_labels[j])
+    .pt2_box(x_indicator, yi[j], indicator_labels[j], hh = hh)
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
                col = pt2_resid_col, lwd = 1.15)
     text(x_resid, yi[j], .pt2_label(paste0("epsilon[", j, "]")), cex = .85)
@@ -860,9 +903,11 @@ pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
   x_gen <- 1.0; x_group <- 4.2; x_indicator <- 8.0; x_resid <- 10.8
 
   yi <- .pt2_indicator_y(p)
+  hh <- if (p > 1) min(.30, .40 * abs(yi[1] - yi[2])) else .30
   yg <- seq(max(yi) - .8, min(yi) + .8, length.out = m)
   ygen <- mean(range(yi))
-  op <- .pt2_canvas(c(0, x_resid + 1.0), c(.3, 8.2))
+  left <- min(0, x_gen - .pt2_frx(general_label) - .35)
+  op <- .pt2_canvas(c(left, x_resid + .9), c(.3, 8.2))
   on.exit(par(op))
 
   # general factor reaches every indicator; drawn first and lighter so the
@@ -884,7 +929,7 @@ pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
       .pt2_path_label(x_group + .pt2_frx(group_labels[k]), yg[k],
                       x_indicator - .74, yi[j],
                       group_loadings[j], nudge = .16)
-    .pt2_box(x_indicator, yi[j], indicator_labels[j])
+    .pt2_box(x_indicator, yi[j], indicator_labels[j], hh = hh)
     .pt2_arrow(x_resid - .52, yi[j], x_indicator + .74, yi[j],
                col = pt2_resid_col, lwd = 1.15)
     text(x_resid, yi[j], .pt2_label(paste0("epsilon[", j, "]")), cex = .85)
@@ -1038,23 +1083,41 @@ all residual covariances are zero. Factor variances equal one, and
 the primary model is covariance-only. It has 29 free parameters and
 49 df.
 
-This chapter rebuilds the fitted object from the declared specification and
-seed rather than refitting a variant of it. It does not
-reconstruct the baseline from rounded estimates, change the item order,
-or substitute a simple-structure model. The inherited object includes
-the data role, codebook, parameter table, software settings, warnings,
-and sample covariance under the normal-likelihood convention.
+This chapter refits that exact specification to Sample B, taken from the
+released file. It does not reconstruct the baseline from rounded estimates,
+change the item order, or substitute a simple-structure model, so the fitted
+object below carries the same parameter table, software settings, warnings and
+sample covariance under the normal-likelihood convention.
 
 ```r
-handoff <- pt3_build()
-fit <- handoff$fit
-lavaan::fitMeasures(fit, handoff$fit_measure_names)
+sle <- read.csv("sle_continuous.csv")
+
+items <- c(paste0("P", 1:4),
+           paste0("S", 1:4),
+           paste0("B", 1:4))
+
+dat <- sle[sle$sample == "B", items]
+
+model <- '
+  Planning  =~ p1*P1 + p2*P2 + P3 + P4
+  Strategy  =~ S1 + S2 + S3 + S4 + P4
+  Belonging =~ B1 + B2 + B3 + B4 + S4
+'
+fit <- lavaan::cfa(model, data = dat, estimator = "ML",
+                   likelihood = "normal", std.lv = TRUE,
+                   meanstructure = FALSE)
+lavaan::fitMeasures(fit, c("chisq", "df", "pvalue", "rmsea",
+                           "cfi", "tli", "srmr"))
 ```
 
-The code is short because the previous chapter preserved the record.
-It is not a license to skip checking it. The render verifies the
-candidate, the Sample B seed, package version, item order, and
-estimation gates before using any fit statistics.
+This is the same specification the previous chapter estimated, refitted from
+the released file so that the block runs as printed. It is not a license to
+skip checking the result. Before any fit statistic below is used, the render
+confirms that the released records match the declared population, that the item
+order and free-parameter count are as specified, and that the solution
+converged and is admissible. The R and package versions are recorded alongside
+those checks so that a later reader can tell what produced the numbers; they
+are not themselves verified against a required version.
 
 ## Separate five questions
 
@@ -1140,7 +1203,7 @@ p <- ncol(S)
 Fml <- determinant(Sigma, logarithm = TRUE)$modulus +
        sum(diag(solve(Sigma, S))) -
        determinant(S, logarithm = TRUE)$modulus - p
-as.numeric(nrow(handoff$input$x) * Fml)
+as.numeric(nrow(dat) * Fml)
 ```
 
 ## Do not mix normal, Wishart, and robust conventions
@@ -1665,7 +1728,9 @@ changes.
 pt2_higher_order_diagram(rep(1:3,each=4),
   factor_labels=c("Planning","Strategy","Belonging"),
   indicator_labels=c(paste0("P",1:4),paste0("S",1:4),paste0("B",1:4)),
-  gamma_labels=pt2_num(extensions$gamma,2),higher_label="General")
+  gamma_labels=pt2_num(extensions$gamma,2),higher_label="General",
+  cross=data.frame(factor=c("Strategy","Belonging"),item=c("P4","S4"),
+                   stringsAsFactors=FALSE))
 ```
 
 An arrow from $G$ to a first-order factor represents a hypothesized common
@@ -2050,7 +2115,9 @@ sensitivity demonstration, not a recommendation to modify a favorable
 model whenever an MI is available.
 
 The revision's syntax, its stated limitations and its parent model were all
-fixed before Sample C was read. Only this one diagnostic
+fixed before Sample C entered any model fit or diagnostic analysis; the
+provenance check had touched it only to confirm the released file matches the
+declared population. Only this one diagnostic
 revision is fitted. We do not chase additional MIs, remove items,
 select a new seed, or invent an explanation after seeing C.
 

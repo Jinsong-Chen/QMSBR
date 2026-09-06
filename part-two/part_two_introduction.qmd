@@ -27,15 +27,26 @@ format:
     fig-align: center
     include-in-header:
       text: |
-        % Keep an imported figure's own transparency group and the driver's group on
-        % separate Form XObjects, so no object carries two /Group keys. Adapted from
-        % latex3/graphics-def PR 48 (Joseph Wright); LPPL 1.3c or later. The exact-token
-        % patches fail loudly on an unexpected driver rather than silently doing nothing.
+        % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+        % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+        % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+        % https://github.com/latex3/graphics-def/pull/48
+        % https://github.com/latex3/graphics-def/issues/47
+        % The upstream PR was unmerged when this local backport was made.
+        % Original driver copyright: LaTeX3 Project and its listed contributors.
+        % This adaptation is distributed under LPPL 1.3c or later:
+        % https://www.latex-project.org/lppl.txt
+        %
+        % Preserve the imported PDF's transparency group. Put the driver's additional
+        % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+        % keys. Do not replace this with PDF post-processing or disabling transparency.
+        % Exact-token patches deliberately fail on an unexpected/new driver: review
+        % whether the upstream fix is then installed before removing this backport.
         \usepackage{etoolbox}
         \makeatletter
         \newcommand{\QMSBRgraphicsPatchError}[1]{%
           \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
-            {Expected the LuaTeX graphics driver this book was built against.}}
+            {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
         \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
         \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
         \patchcmd{\Gread@@pdftex}
@@ -290,9 +301,10 @@ favorable story. @tbl-part-two-evidence gives the principal roles.
 The Student Learning Experiences (SLE) records are synthetic continuous data,
 not observations from actual students: three independent samples of 360 cases
 on twelve indicators -- four Planning, four Strategy and four Belonging.
-Chapters 2 to 4 each simulate the sample they are entitled to from a declared
-population and a fixed seed; Chapter 1 uses no SLE data at all. The Chapter 2
-appendix supplies the codebook and manifest.
+All three are distributed together in `sle_continuous.csv`, and the analyses in
+Chapters 2 to 4 are run on the sample each chapter is entitled to; Chapter 1
+uses no SLE data at all. The Chapter 2 appendix supplies the codebook, the
+sample manifest and the generating population.
 The samples are never pooled to manufacture a larger analysis, and a record
 that becomes exploratory through revision does not recover confirmatory status
 because the next command is called CFA.
