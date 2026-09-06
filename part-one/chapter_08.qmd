@@ -1678,8 +1678,9 @@ Here $p$ counts all fitted coefficient columns, including the intercept;
 for the binary-only model $p=2$. The within-school cross-products distinguish
 this from treating every pupil as independent. The implementation below
 uses school-clustered HC1 covariance, the finite-cluster correction, and a
-$t_{G-1}$ critical value. These are stated approximations, not exact
-randomization inference.
+$t_{G-1}$ critical value, computed with the clustered covariance estimator of
+the *sandwich* package [@zeileis2020]. These are stated approximations, not
+exact randomization inference.
 
 ```{=latex}
 \Needspace{23\baselineskip}

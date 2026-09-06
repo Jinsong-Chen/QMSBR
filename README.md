@@ -11,7 +11,6 @@ Site: <https://jinsong-chen.github.io/QMSBR/>
   (introduction + Chapters 1, 1a, 2–8)
 - `part-two/` — Factor analysis and structural equation modeling
   (introduction + Chapters 1–4), with the R companions and data they use
-- `supplement/` — shared render inputs used by the chapters
 - `_quarto.yml` — the only configuration file
 - `index.qmd`, `library.qmd`, `about.qmd` — the three site pages
 

@@ -677,9 +677,11 @@ The first question is:
 > report an intention to pursue higher education?
 
 The UCI Student Performance record contains 395 students from two schools
-[@cortez2008data]. One row represents one recorded student. Higher-education
-intention was observed, not assigned. Passing is defined here as a final grade
-of at least 10 on the source scale.
+[@cortez2008data], distributed under the Creative Commons Attribution 4.0
+licence. One row represents one recorded student. Higher-education
+intention was observed, not assigned. The values embedded here are unchanged;
+the adaptation selects and renames the analysed columns and derives the pass
+indicator from the documented cut point of 10 on the 0--20 scale.
 
 The source documentation defines final grade on a 0--20 scale and marks the
 file as having no missing values. It does not, however, explain an unusual
@@ -966,7 +968,10 @@ condition had an incomplete outcome because of illness or transfer. The public
 *Baumann* record in the *carData* package therefore contains 66 observed
 outcomes, 22 per group [@carData2022; @fox2019].
 
-The source study recorded two pretests and three post-tests. This chapter
+The retained *carData* record contains two pretest variables and three
+quantitative post-test variables. The source study also administered a
+further qualitative interview post-test to a subset of pupils; that material
+is not part of this teaching record. This chapter
 selects the 0--16 error-detection outcome and uses an **unadjusted one-way
 model**, rather than reproducing the source's pretest-adjusted analysis.
 The uncertainty calculations are model-based, not finite-sample
@@ -2156,8 +2161,10 @@ A blocking variable can improve precision when it records a feature related to
 the outcome and the assignment process respects the blocks. It does not create
 a second research question automatically. For one declared contrast estimand,
 an unadjusted group comparison and a block-adjusted comparison are alternative
-analyses of the **same** estimand and therefore remain in one statistical
-strand.
+analyses of the **same** estimand, and therefore remain in one statistical
+strand, only when the adjustment preserves the declared units, contrast,
+target, and weighting. If adjustment changes the target or the weighting, it
+is not merely another analysis within the same strand.
 
 Readers should ask:
 
