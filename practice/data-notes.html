@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Data sources for browser statistics practice – QMSBR R support</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-2f5524832805d734b96ee676820b2dda.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">QMSBR R support</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapters</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
+        <li>
+    <a class="dropdown-item" href="./chapter-03.html">
+ <span class="dropdown-text">3: Estimates and uncertainty</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chapter-04.html">
+ <span class="dropdown-text">4: Comparing groups</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./workspace.html"> 
+<span class="menu-text">Workspace</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./data-notes.html" aria-current="page"> 
+<span class="menu-text">Data sources</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#synthetic-special-practice-record" id="toc-synthetic-special-practice-record" class="nav-link active" data-scroll-target="#synthetic-special-practice-record">Synthetic Special Practice record</a></li>
+  <li><a href="#uci-student-performance-extract" id="toc-uci-student-performance-extract" class="nav-link" data-scroll-target="#uci-student-performance-extract">UCI Student Performance extract</a></li>
+  <li><a href="#feedback-and-practice-quiz-scores" id="toc-feedback-and-practice-quiz-scores" class="nav-link" data-scroll-target="#feedback-and-practice-quiz-scores">Feedback and practice quiz scores</a></li>
+  <li><a href="#reading-instruction-data-from-cardata" id="toc-reading-instruction-data-from-cardata" class="nav-link" data-scroll-target="#reading-instruction-data-from-cardata">Reading instruction data from <code>carData</code></a></li>
+  <li><a href="#review-timing-data" id="toc-review-timing-data" class="nav-link" data-scroll-target="#review-timing-data">Review-timing data</a></li>
+  <li><a href="#private-course-data" id="toc-private-course-data" class="nav-link" data-scroll-target="#private-course-data">Private course data</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data sources for browser statistics practice</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The browser statistics activities use a synthetic practice record, an observational record of secondary-school students, an invented feedback-by-practice quiz record, a published reading instruction record, and archived numerical scores used in an invented factorial teaching setting. Each supports a different kind of comparison. This note explains what the records contain, where they come from, and how they may be reused.</p>
+<p>Use this list to find the data for your chapter; the sections below give downloads, column explanations, source context, and reuse terms.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Chapter</th>
+<th style="text-align: left;">Access</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><a href="#synthetic-special-practice-record">Special Practice</a></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Public CSV; fictional teaching records.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="#uci-student-performance-extract">UCI Student Performance extract</a></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Public CSV; observed groups and passing status.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><a href="#feedback-and-practice-quiz-scores">Feedback and practice quiz scores</a></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Public CSV; invented one-way and factorial teaching data.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="#reading-instruction-data-from-cardata">Reading instruction</a></td>
+<td style="text-align: left;">Reference</td>
+<td style="text-align: left;"><code>carData::Baumann</code>; prepared in the shared workspace.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><a href="#review-timing-data">Review timing</a></td>
+<td style="text-align: left;">Reference</td>
+<td style="text-align: left;">Public CSV and codebook; archived factorial scores.</td>
+</tr>
+</tbody>
+</table>
+<p>Use short, meaningful names in your code. Keep starting data in <code>d0</code> and a working copy in <code>dat</code> when changing rows. Report calculated statistical results to four decimal places, keeping full precision for calculations. Input precision or software rounding may slightly change the last digits.</p>
+<p>Four CSV files are available below. Each uses a comma as the delimiter and has variable names in its first row. The reading instruction data are obtained directly from the <code>carData</code> R package; no extract of that dataset accompanies this note. The reading instruction and review-timing records remain available for reference consumers and the shared workspace; the Chapter 4 page uses the feedback and practice scores instead.</p>
+<section id="synthetic-special-practice-record" class="level2">
+<h2 class="anchored" data-anchor-id="synthetic-special-practice-record">Synthetic Special Practice record</h2>
+<p><a href="data/chapter_03_special_practice.csv">Download the Special Practice data (CSV)</a></p>
+<p>This QMSBR record contains 120 fictional participants: 60 assigned to Special Practice and 60 to Usual Practice. The imagined study compares two practice formats with four sessions and equal total study time. A common assessment, scored from 0 to 40 points, takes place two weeks later. These are constructed teaching records, not observations from an actual experiment.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning and coding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">Artificial row identifier, <code>C3-001</code> through <code>C3-120</code>; it has no personal meaning.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>group</code></td>
+<td style="text-align: left;"><code>Special Practice</code> or <code>Usual Practice</code>, with 60 records in each condition.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>score</code></td>
+<td style="text-align: left;">Integer score on the common delayed assessment, in points on a 0–40 scale.</td>
+</tr>
+</tbody>
+</table>
+<p>The concise headers <code>id</code>, <code>group</code>, and <code>score</code> replace the earlier <code>student_id</code>, <code>assigned_condition</code>, and <code>delayed_score</code> headers. The records and their order are unchanged.</p>
+<p>All 120 records are retained, and the three fields contain no missing values. The comparison direction is Special Practice minus Usual Practice. The assignment and follow-up details belong to the invented study description; the values alone do not establish a research design.</p>
+<p>The supplied rows define a fixed teaching record. Calculate software results from those rows and retain their full precision during analysis. Use these records for CSV tasks and the inputs supplied in each core exercise for its calculations.</p>
+<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. The dedication applies to the CSV. Retain its description as synthetic when presenting or adapting it.</p>
+</section>
+<section id="uci-student-performance-extract" class="level2">
+<h2 class="anchored" data-anchor-id="uci-student-performance-extract">UCI Student Performance extract</h2>
+<p><a href="data/chapter_03_uci_groups.csv">Download the UCI groups data (CSV)</a></p>
+<p>This extract retains all 395 records from the mathematics file in Paulo Cortez’s <em>Student Performance</em> dataset. The source records concern students in two Portuguese secondary schools. Higher-education intention was observed, not assigned. One row represents one recorded student.</p>
+<p><strong>Source and attribution.</strong> Cortez, P. (2008). <em>Student Performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5TG7T">https://doi.org/10.24432/C5TG7T</a>. The <a href="https://archive.ics.uci.edu/dataset/320/student+performance">UCI dataset page</a> provides the source files and variable documentation.</p>
+<p>QMSBR prepared this three-column extract through a curated copy of the mathematics data. All rows remain in their source order. The adaptations are the addition of an artificial identifier, selection and renaming of fields, and derivation of pass status from the recorded final grade.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Source, meaning, and transformation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">Artificial identifier <code>U001</code> through <code>U395</code>, added by QMSBR as <code>student_id</code> in the curated copy and renamed here. It is not an original participant identifier.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>higher</code></td>
+<td style="text-align: left;">Source field <code>higher</code>, retained as <code>higher_education</code> in the curated copy and renamed here. <code>yes</code> means the student reported an intention to pursue higher education; <code>no</code> means the student reported no such intention.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>pass</code></td>
+<td style="text-align: left;">Derived from source final grade <code>G3</code>, retained as <code>pass</code> in the curated copy and renamed here. <code>Yes</code> means a grade of at least 10 on the 0–20 scale; <code>No</code> means a grade below 10.</td>
+</tr>
+</tbody>
+</table>
+<p>The three supplied fields have no missing values. There are 375 <code>yes</code> intention records and 20 <code>no</code> intention records. For a passing proportion within an intention group, use that group’s total as the denominator. The comparison direction is intention <code>yes</code> minus intention <code>no</code>, with the result interpreted as an observed association in this record.</p>
+<p><strong>Recorded zero grades.</strong> The source documentation marks the dataset as having no missing values, but the source mathematics file contains an unresolved pattern: 38 records have final grade zero and zero absences, and 25 of those also have a positive second-period grade. The documentation does not establish a common meaning for all these zeros. The primary comparison retains grades as recorded. Omitting the zero-grade records is a diagnostic check that changes the analysed set, rather than an established correction.</p>
+<p>Grades and absences are absent from this three-column extract. It therefore cannot identify the zero-grade records or reproduce that diagnostic exclusion. Interpret any supplied diagnostic results alongside this limitation.</p>
+<p><strong>Reuse.</strong> The source and this extract are licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International</a>. When redistributing or adapting the extract, credit Cortez and the UCI Machine Learning Repository, retain the source and licence links, and identify QMSBR’s adaptations and any further changes you make. The licence does not imply endorsement by the source creators.</p>
+</section>
+<section id="feedback-and-practice-quiz-scores" class="level2">
+<h2 class="anchored" data-anchor-id="feedback-and-practice-quiz-scores">Feedback and practice quiz scores</h2>
+<p><a href="data/feedback_practice.csv">Download the feedback and practice data (CSV)</a></p>
+<p>This QMSBR record contains 24 invented Grade 7 students, each measured once on a fractions quiz scored from 0 to 20. The imagined study crosses three feedback conditions with two practice schedules, giving six cells of four different students. The <a href="./chapter-04.html">Chapter 4 page</a> uses the 12 Massed-practice rows for its one-way example and all 24 rows for the full factorial model.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning and coding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>student</code></td>
+<td style="text-align: left;">Sequential identifier 1–24; it has no personal meaning.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>feedback</code></td>
+<td style="text-align: left;"><code>Rereading</code>, <code>Answer feedback</code> or <code>Explanatory feedback</code>, in that teaching order.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>practice</code></td>
+<td style="text-align: left;"><code>Massed</code> or <code>Spaced</code>, in that teaching order.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>score</code></td>
+<td style="text-align: left;">Integer quiz score in points on a 0–20 scale.</td>
+</tr>
+</tbody>
+</table>
+<p>A CSV stores these labels as plain text, so R orders them alphabetically unless the script declares the order. Every analysis sets <code>levels = c("Rereading", "Answer feedback", "Explanatory feedback")</code> and <code>levels = c("Massed", "Spaced")</code> with <code>factor()</code> before fitting a model.</p>
+<p>The 24 scores are fixed authored values, not a sample generated at render time, and the repeated residual pattern is deliberate so the arithmetic stays visible. They are teaching records: they do not validate a Normal model, equal variances, or any real effect of feedback or practice scheduling. There are no missing values and no student appears twice.</p>
+<p><strong>Maintained provenance.</strong> The canonical file, its complete score table and the full preparation record belong to the Chapter 4 technical document in the course materials, under its data section <code>ch04-data-feedback-practice</code>. This page redistributes only the identity and dictionary its readers need; the copy here is verified byte for byte against that canonical file.</p>
+<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. Retain its description as invented teaching data when presenting or adapting it.</p>
+</section>
+<section id="reading-instruction-data-from-cardata" class="level2">
+<h2 class="anchored" data-anchor-id="reading-instruction-data-from-cardata">Reading instruction data from <code>carData</code></h2>
+<p>This reference example uses <code>Baumann</code> from <a href="https://cran.r-project.org/package=carData"><code>carData</code>: Companion to Applied Regression Data Sets</a>, by John Fox, Sanford Weisberg, and Brad Price. The <a href="https://search.r-project.org/CRAN/refmans/carData/html/Baumann.html">package documentation for <code>Baumann</code></a> describes 66 records with a group field, two pretests, and three post-tests. It traces the teaching dataset to Moore and McCabe’s <em>Introduction to the Practice of Statistics</em> (2nd ed., 1993, pp.&nbsp;794–795).</p>
+<p>Once <code>carData</code> is available in R or WebR, load the dataset explicitly and prepare a working copy with the activity’s group labels:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"Baumann"</span>, <span class="at">package =</span> <span class="st">"carData"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d0 <span class="ot">&lt;-</span> Baumann</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> d0</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>score <span class="ot">&lt;-</span> dat<span class="sc">$</span>post.test<span class="fl">.1</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  dat<span class="sc">$</span>group,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Basal"</span>, <span class="st">"DRTA"</span>, <span class="st">"Strat"</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"DRA"</span>, <span class="st">"DRTA"</span>, <span class="st">"Think-aloud"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This code keeps the package record in <code>d0</code>, copies it to <code>dat</code>, gives the selected outcome the short name <code>score</code>, and changes the working group labels. It retains all 66 observed records and their scores. The outcome used here is <code>post.test.1</code>, the selected error-detection score in points on a 0–16 scale. The original package object remains available as <code>Baumann</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Package label</th>
+<th style="text-align: left;">Activity label</th>
+<th style="text-align: right;">Assigned children</th>
+<th style="text-align: right;">Observed outcomes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>Basal</code></td>
+<td style="text-align: left;">DRA: directed reading activity</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>DRTA</code></td>
+<td style="text-align: left;">DRTA: directed reading-thinking activity</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Strat</code></td>
+<td style="text-align: left;">Think-aloud instruction</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">22</td>
+</tr>
+</tbody>
+</table>
+<p>The study description and assignment counts come from Baumann, Seifert-Kessell, and Jones (1992), <a href="https://doi.org/10.1080/10862969209547770"><em>Effect of Think-Aloud Instruction on Elementary Students’ Comprehension Monitoring Abilities</em></a>, particularly the Method section on printed page 147. The study assigned 68 fourth-grade children in one rural Midwestern school. One child in each innovative condition had an unavailable outcome because of illness or transfer. The package therefore contains 66 observed outcomes, with 22 per group; it provides no scores for the two unavailable outcomes.</p>
+<p>The reference example selects one outcome and uses an unadjusted one-way model with a common within-group variance. The source study used several outcomes and pretest-adjusted analyses. Its integrated success criterion is invented for an imagined future replication: both DRA-referenced contrasts must have lower endpoints above zero in a two-sided 95% Bonferroni family. Applying that criterion to these historical records is a post hoc teaching analysis. It is not a prespecified decision attributed to the original investigators. Linking complete-outcome calculations to effects for all assigned children also requires a justification for the unavailable outcomes; a completion check alone does not establish that link.</p>
+<p><strong>Source and reuse.</strong> The browser obtains <code>carData</code> from the <a href="https://repo.r-wasm.org/">WebR package repository</a> at run time. This note distributes no Baumann CSV or package copy. The package retains its upstream GPL version 2 or later terms, as stated on its CRAN page. Anyone redistributing the package or a derived extract should retain the applicable upstream terms and notices. The research article is cited, not redistributed, and its publication terms are separate from the package’s terms.</p>
+</section>
+<section id="review-timing-data" class="level2">
+<h2 class="anchored" data-anchor-id="review-timing-data">Review-timing data</h2>
+<p><a href="data/resource_timing.csv">Download the review-timing data (CSV)</a> · <a href="data/resource_timing_codebook.md">Full codebook</a></p>
+<p>This 36-case file preserves every score, factor code and case order from the generic <code>SPSS_2way.sav</code> in the 6020-25F26S teaching archive. The donor columns were <code>Score</code>, <code>A</code> and <code>B</code>. QMSBR added a sequential identifier and gave the factors the labels below. The Grade 7 fractions lesson, resource descriptions, review times, quiz interpretation and random assignment are invented for Chapter 4. The archived scores themselves were not newly simulated, and the source file does not document a real educational study or establish randomization.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning and coding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>student</code></td>
+<td style="text-align: left;">Added sequential case identifier, 1–36.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>resource</code></td>
+<td style="text-align: left;">Original A: 1 = Textbook, 2 = Tutorial, 3 = Video.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>timing</code></td>
+<td style="text-align: left;">Original B: 1 = Same day, 2 = Two days, 3 = One week.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>score</code></td>
+<td style="text-align: left;">Original Score, unchanged. Values range from 7 to 20; the invented setting interprets them as numbers correct on a 20-item retention quiz.</td>
+</tr>
+</tbody>
+</table>
+<p>There are four complete cases in each of the nine cells and no missing values. Scores sum to 407. In resource order Textbook, Tutorial, Video and timing order Same day, Two days, One week, cell means are (8.5000, 9.0000, 8.2500), (15.7500, 14.2500, 18.2500) and (9.7500, 9.7500, 8.2500). A full resource-by-timing model fits these records under independent-student, common-variance working assumptions. Normal errors give the exact classical F and t references. These archived scores are kept for reference consumers and the shared workspace; the Chapter 4 page does not use them.</p>
+<p><strong>Source and reuse.</strong> Retain the archived-file attribution and identify the educational setting as invented when adapting this example. The CC0 dedication for the separate Special Practice CSV does not apply to these archived scores. This note assigns no new licence to the donor file; QMSBR’s original descriptions and code retain the terms in <a href="LICENSE">LICENSE</a>.</p>
+</section>
+<section id="private-course-data" class="level2">
+<h2 class="anchored" data-anchor-id="private-course-data">Private course data</h2>
+<p>The HSB exercises use CSVs distributed through the course. The webpages provide import and analysis instructions, including the minimal field names and historical category codes needed by each activity. They distribute no HSB records or results. Students open their own file locally in the browser workspace; it is not uploaded to this website. The complete course dictionary and provenance qualifications accompany the private course data reference.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>QMSBR · R practice for the book chapters</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="./LICENSE">
+<p>Sources and reuse</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<script src="command-runner.js?v=2"></script>
+<script src="workspace.js?v=4"></script>
+
+
+
+
+</body></html>

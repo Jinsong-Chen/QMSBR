@@ -1,13 +1,14 @@
 ---
 title: "QMSBR"
 subtitle: "Quantitative Methods for Social and Behavioral Research"
-description: "A reusable learning library of quantitative-methods chapters for social and behavioral research."
+description: "A modular collection of quantitative-methods chapters, with browser R support, for social and behavioral research."
 page-layout: full
 title-block-banner: false
 body-classes: qmsbr-home
 sidebar: false
 toc: false
 image: assets/social-preview.png
+aliases: ["library.html"]
 ---
 
 ::: {.qmsbr-hero}
@@ -24,12 +25,79 @@ interpretation, and reproducible computing—without letting a software result
 stand in for an argument.
 
 ::: {.hero-actions}
-[Explore the chapter library](library.qmd){.btn .btn-primary .btn-lg}
+[Browse the collections](#collections){.btn .btn-primary .btn-lg}
 [Understand the approach](about.qmd#the-approach){.btn .btn-outline-light .btn-lg}
 :::
 
 ::: {.release-strip}
-Part One, Chapters 1–8 · Part Two, Chapters 1–4 · Read online or download the PDF
+Part One, Introduction and Chapters 1–9 · Part Two, Introduction and Chapters
+1–4 · R support for Chapters 3 and 4 · Read online or download the PDF
+:::
+:::
+
+## Collections {#collections}
+
+::: {.collection-grid}
+::: {.collection-card}
+### Part One
+
+::: {.collection-subtitle}
+Foundations, Regression, and Generalized Linear Models
+:::
+
+- [Introduction](part-one/part_one_introduction.qmd) [PDF](part-one/part_one_introduction.pdf){.pdf-link}
+- [1. The Quantitative Research Journey](part-one/chapter_01.qmd) [PDF](part-one/chapter_01.pdf){.pdf-link}
+- [2. Data, Distributions, and Variation](part-one/chapter_02.qmd) [PDF](part-one/chapter_02.pdf){.pdf-link}
+- [3. Estimates, Uncertainty, and Statistical Tests](part-one/chapter_03.qmd) [PDF](part-one/chapter_03.pdf){.pdf-link}
+- [4. Group Comparisons with Analysis of Variance](part-one/chapter_04.qmd) [PDF](part-one/chapter_04.pdf){.pdf-link}
+- [5. Description and Basic Inference with R](part-one/chapter_05.qmd) [PDF](part-one/chapter_05.pdf){.pdf-link}
+- [6. Group Comparisons and Statistical Modelling with R](part-one/chapter_06.qmd) [PDF](part-one/chapter_06.pdf){.pdf-link}
+- [7. Simple Linear Regression](part-one/chapter_07.qmd) [PDF](part-one/chapter_07.pdf){.pdf-link}
+- [8. Multiple Regression I: Conditioning, Checks, and Coordinated Questions](part-one/chapter_08.qmd) [PDF](part-one/chapter_08.pdf){.pdf-link}
+- [9. Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty](part-one/chapter_09.qmd) [PDF](part-one/chapter_09.pdf){.pdf-link}
+:::
+
+::: {.collection-card}
+### Part Two
+
+::: {.collection-subtitle}
+Factor Analysis and Structural Equation Modeling
+:::
+
+- [Introduction](part-two/part_two_introduction.qmd) [PDF](part-two/part_two_introduction.pdf){.pdf-link}
+- [1. From Latent-Variable Modeling to Factor Analysis](part-two/chapter_01.qmd) [PDF](part-two/chapter_01.pdf){.pdf-link}
+- [2. Exploratory Factor Analysis and Model Development](part-two/chapter_02.qmd) [PDF](part-two/chapter_02.pdf){.pdf-link}
+- [3. Specifying and Estimating Confirmatory Factor Models](part-two/chapter_03.qmd) [PDF](part-two/chapter_03.pdf){.pdf-link}
+- [4. Evaluating and Comparing Confirmatory Factor Models](part-two/chapter_04.qmd) [PDF](part-two/chapter_04.pdf){.pdf-link}
+:::
+
+::: {.collection-card}
+### R support
+
+::: {.collection-subtitle}
+Practice R in the browser, nothing to install
+:::
+
+- [R support home](practice/index.html)
+- [Chapter 3: Estimates and uncertainty](practice/chapter-03.html)
+- [Chapter 4: Comparing groups](practice/chapter-04.html)
+- [Your R workspace](practice/workspace.html)
+- [Data sources](practice/data-notes.html)
+:::
+
+::: {.collection-card .unavailable aria-disabled="true"}
+### Argument Approach
+
+::: {.collection-subtitle}
+Supplementary chapters
+:::
+
+[Not yet available]{.badge-unavailable}
+
+- A. How to Read a Quantitative Study as an Argument
+- B. Extending the Argument-Based Approach to Quantitative Studies
+
+Both chapters are in preparation and will appear here when they are ready.
 :::
 :::
 
@@ -43,7 +111,7 @@ Begin with an empirical problem, turn it into a quantitative question, and keep
 evidence, variation, uncertainty, and the boundary between a statistical result
 and a substantive claim visible.
 
-[Start with Part One →](library.qmd#part-one-foundations-regression-and-generalized-linear-models)
+[Start with Part One →](part-one/part_one_introduction.qmd)
 :::
 
 ::: {.route-card}
@@ -52,7 +120,7 @@ and a substantive claim visible.
 Chapters 5 and 6 build auditable R workflows and reconnect computation to
 units, denominators, estimands, and research claims.
 
-[Start with Chapter 5 →](part-one/chapter_05.qmd)
+[Start with Chapter 5: Description and Basic Inference with R →](part-one/chapter_05.qmd)
 :::
 
 ::: {.route-card}
@@ -61,7 +129,7 @@ units, denominators, estimands, and research claims.
 Move from simple comparison to conditional interpretation, checking,
 sensitivity, and design-aware reporting.
 
-[Start with Chapter 7 →](part-one/chapter_07.qmd)
+[Start with Chapter 7: Simple Linear Regression →](part-one/chapter_07.qmd)
 :::
 
 ::: {.route-card}
@@ -88,9 +156,10 @@ result, and keeps the final answer within its design, measurement, uncertainty,
 and population boundaries.
 
 Chapter 1 supplies the complete basic route, including a simple construction
-workflow and six evaluation questions. Chapter 1a is an optional extension for
-coordinated questions, deeper evaluation, and regression-based methods; it is
-not required by later chapters.
+workflow and six evaluation questions. The supplementary chapters A and B will
+extend the approach to coordinated questions, deeper evaluation, and
+regression-based methods when they are published; no chapter in the series
+depends on them.
 
 [See the argument-based approach](about.qmd#the-approach)
 :::
@@ -131,13 +200,13 @@ course-specific teaching assets.
 
 ## What comes next
 
-Part One will extend through interaction, generalized linear models,
-prediction, and a credibility capstone. Part Two continues into structural
-equation modeling, and Part Three is reserved for multilevel and longitudinal
-models. Later collections can join this same site when their scope is clear and
-real material is ready.
+Part One continues with Chapters 10–14, extending through interaction,
+generalized linear models, prediction, and the pitfalls of regression-based
+claims. Part Two continues into structural equation modeling, and Part Three is
+reserved for multilevel and longitudinal models. Later collections can join
+this same site when their scope is clear and real material is ready.
 
-[Browse the library](library.qmd){.btn .btn-outline-primary}
+[Browse the collections](#collections){.btn .btn-outline-primary}
 
 ::: {.author-band}
 **Jinsong Chen** · Faculty of Education, The University of Hong Kong  

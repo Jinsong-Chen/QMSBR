@@ -749,41 +749,60 @@ L <- pop$Lambda; Phi <- pop$Phi; Theta <- pop$Theta
 
 {{< pagebreak >}}
 
-::: {.callout-tip title="Chapter box"}
-**Five themes.**
-
-*A restriction is a claim.* Confirmatory analysis differs from exploratory
-analysis in what it fixes, not in the equation it uses. Every zero is a
-statement about the moments that could turn out to be false.
-
-*Fixed, free and constrained are three different statuses.* A diagram shows
-which relations exist; it does not show which are estimated, which are held
-at a value, and which are tied to another.
-
-*A latent variable needs a metric before it has coefficients.* Marker
-scaling and fixed-factor scaling give the same implied covariance and
-different printed numbers.
-
-*Counting is necessary and not sufficient.* Moments minus free parameters
-gives degrees of freedom; identification asks the separate question of
-whether the moments determine the parameters.
-
-*Estimation minimizes a stated discrepancy.* Convergence, admissibility and
-a well-conditioned solution are read before any coefficient is interpreted.
-
-**Prerequisites.** The covariance decomposition, factor scale and
-orientation, and pattern coefficients from the preceding chapters, together
-with the candidate model fixed at the end of the exploratory analysis.
-
-**Records.** A neutral six-indicator model makes the algebra visible; a
-four-factor topology tests diagram-to-syntax transfer; a separate synthetic
-example supports compact comparisons. The twelve-indicator candidate is
-estimated on the confirmation sample, untouched by the development analysis.
-
-**Scope.** We specify, identify, estimate and check. Convergence and
-admissibility are settled here; overall model adequacy is not assessed, and
-no fit index is interpreted.
+::: {.callout-note title="Chapter overview"}
+This chapter turns the candidate frozen at the end of the exploratory
+analysis into a model that can be estimated and read. We write one small
+model in words, in equations, in parameter matrices and as a diagram, and
+check the four against one another. We separate what is free, what is held
+at a value, what is tied to another parameter and what is merely defined.
+We give the latent variables a metric, by fixing a marker loading or a
+factor variance, and see what a change of metric does and does not alter.
+We trace a cross-loading and a residual covariance into the moments each one
+changes, count moments and free parameters, and then ask the separate
+question of whether those moments determine the parameters at all. We state
+what normal-theory maximum likelihood minimizes, estimate the inherited
+twelve-indicator candidate once on the confirmation sample, check
+convergence, admissibility, gradients and local rank before reading any
+coefficient, read the estimates in their stated units with their
+uncertainty, test one planned equality, and write down the record that
+evaluation will begin from. Three records keep their own identities: a
+neutral six-indicator model in which the algebra stays visible, a published
+four-factor topology read from its diagram, and the twelve-indicator course
+questionnaire. The preceding chapters supply the covariance decomposition,
+factor scale and orientation, and pattern coefficients. By the end you will
+be able to state one restricted model in agreeing representations, count and
+read its degrees of freedom, set and transform its latent metric, say what
+an estimated coefficient is expressed in, and say how far an admissible
+solution takes an argument. Overall adequacy is not assessed here and no fit
+index is interpreted; the software that fits each model is practised in the
+Computer Lab.
 :::
+
+A published study of teachers' technology use reports four correlated
+constructs -- self-efficacy, school support, privacy concerns and
+technostress -- each measured by four questionnaire items, and prints a
+diagram of arrows to show how they were modeled [@chou2021]. The diagram is
+easy to read and easy to over-read. It shows which items were assigned to
+which construct. It does not show which coefficients were estimated and which
+were held at a value, what supplied the units of the four latent variables,
+or whether the sixteen indicator variances, their covariances and the six
+construct relations were enough to determine those coefficients at all. Two
+analysts working from the same figure can fit two different models, report
+two different sets of numbers, and neither of them has made a mistake.
+
+Our own problem is the same one, a step earlier. The exploratory chapter left
+a specific proposal: three factors behind twelve items of a learning
+experience questionnaire, with two secondary loadings retained. That proposal
+is a sentence, not yet a model.
+
+> What has to be decided, written down and checked before an inherited factor
+> structure becomes a model that can be estimated on new records, and how far
+> does an admissible estimate take the argument?
+
+Answering that takes four separable tasks -- declaring the restrictions,
+asking whether the parameters can be recovered, estimating them, and reading
+the result -- and stops before the fifth, evaluating the fit, which the next
+chapter owns.
 
 # From exploratory structure to restricted CFA
 
@@ -928,7 +947,7 @@ latent mean because this CFA has no structural paths or latent
 predictors. This convention will need an explicit distinction between
 intercepts and marginal means once structural regressions enter.
 
-## A diagram and executable syntax
+## A diagram and the free parameters it implies
 
 ```{r}
 #| label: fig-cfa-six
@@ -941,21 +960,27 @@ pt2_groups_diagram(
   factor_cov_labels="phi[12]")
 ```
 
-In R, the `lavaan` package represents factor loadings with `=~` and
-variances or covariances with `~~`. The following is the marker-scaled
-specification:
+In R these models are fitted with the `lavaan` package, whose model syntax
+names each factor with its indicators, fixes a marker loading at one, and
+states which variances and covariances are free. The syntax is written and
+run in the Computer Lab; what the book fixes is the object it has to
+reproduce, the free parameter vector
 
-```r
-model6 <- '
-  F1 =~ 1*Y1 + Y2 + Y3
-  F2 =~ 1*Y4 + Y5 + Y6
-  F1 ~~ F2
-'
-```
+$$
+\boldsymbol\vartheta=(\lambda_{21},\lambda_{31},\lambda_{52},\lambda_{62},\;
+\phi_{11},\phi_{12},\phi_{22},\;
+\theta_{11},\theta_{22},\theta_{33},\theta_{44},\theta_{55},
+\theta_{66})^{\mathsf T}.
+$$
 
-The `cfa()` convenience function supplies free indicator residual
+That is thirteen entries. Everything else in the three matrices is fixed:
+$\lambda_{11}=\lambda_{42}=1$, the six remaining loadings at zero, and
+$\theta_{jk}=0$ for $j\neq k$. Section 6.2 counts the same thirteen against
+the twenty-one available moments.
+
+A convenience fitting function supplies free indicator residual
 variances and fixes unmentioned residual covariances to zero in this
-model. Defaults must still be checked; a short syntax string is not a
+model. Defaults must still be checked; a short specification is not a
 complete parameter ledger. The [official CFA tutorial](https://lavaan.ugent.be/tutorial/cfa.html)
 is a useful orientation to the specify--fit--extract workflow.
 
@@ -974,7 +999,7 @@ interpreting output.
 
 A larger diagram should be read with the same ledger rather than as a new
 kind of model. As a published-reading exercise, reconstruct the topology of
-Figure 3 in @chou2021: four correlated factors---self-efficacy, school
+Figure 3 in @chou2021 [p. 6]: four correlated factors---self-efficacy, school
 support, privacy concerns, and technostress---each measured by four
 indicators. The reconstruction below records the displayed assignments and
 factor relations; it does not reproduce the paper's estimated coefficients
@@ -992,20 +1017,32 @@ pt2_groups_diagram(
   correlated=TRUE,marker=FALSE)
 ```
 
-Under fixed-factor scaling, a direct `lavaan` translation is
+Under fixed-factor scaling the reconstruction has parameter matrices
 
-```r
-model4 <- '
-  SelfEfficacy =~ E1 + E2 + E3 + E4
-  SchoolSupport =~ S1 + S2 + S3 + S4
-  Privacy =~ P1 + P2 + P3 + P4
-  Technostress =~ T1 + T2 + T3 + T4
-'
-fit4 <- lavaan::cfa(model4, data = dat, std.lv = TRUE)
-```
+$$
+\boldsymbol\Lambda=
+\begin{bmatrix}
+\boldsymbol\lambda_1&\mathbf 0&\mathbf 0&\mathbf 0\\
+\mathbf 0&\boldsymbol\lambda_2&\mathbf 0&\mathbf 0\\
+\mathbf 0&\mathbf 0&\boldsymbol\lambda_3&\mathbf 0\\
+\mathbf 0&\mathbf 0&\mathbf 0&\boldsymbol\lambda_4
+\end{bmatrix},
+\qquad
+\boldsymbol\Phi=
+\begin{bmatrix}
+1&\phi_{12}&\phi_{13}&\phi_{14}\\
+\phi_{12}&1&\phi_{23}&\phi_{24}\\
+\phi_{13}&\phi_{23}&1&\phi_{34}\\
+\phi_{14}&\phi_{24}&\phi_{34}&1
+\end{bmatrix},
+$$
 
-The omitted loading arrows are fixed zero, the four latent variances set the
-factor metrics, and the six pairwise factor covariances are free. With 16
+with $\boldsymbol\Lambda$ of order $16\times4$, each $\boldsymbol\lambda_g$ a
+$4\times1$ vector of free loadings, each $\mathbf 0$ a $4\times1$ vector of
+fixed zeros, and $\boldsymbol\Theta$ diagonal of order sixteen.
+The omitted loading arrows are those fixed zeros, the four unit latent
+variances set the factor metrics, and the six pairwise factor covariances,
+here correlations, are free. With 16
 continuous indicators, the covariance ledger is therefore
 
 $$
@@ -1333,16 +1370,23 @@ decomposition, not a harmless cosmetic warning.
 pt2_table(data.frame(Indicator=rownames(pop$Sigma),pop$Sigma,check.names=FALSE))
 ```
 
-```r
-Sigma <- Lambda %*% Phi %*% t(Lambda) + Theta
-Sigma[2, 3]
-Sigma[2, 5]
-cov2cor(Sigma)
-```
+Every entry of that table comes from the same assembly, and the four
+expressions above are four of its entries:
 
-The final line changes covariance units to correlations; it does not
-re-estimate the model. In a fitted model, compare the implied covariance
-to the sample covariance using matching divisors and variable order.
+$$
+\boldsymbol\Sigma(\boldsymbol\vartheta)
+=\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}
++\boldsymbol\Theta,
+\qquad
+\mathbf R=\mathbf D_y^{-1/2}\boldsymbol\Sigma\mathbf D_y^{-1/2}.
+$$
+
+The second expression, in the $\mathbf D_y$ notation of Section 4.3,
+changes covariance units to correlations; it does not re-estimate the model.
+In a fitted model, compare the implied covariance to the sample covariance
+using matching divisors and variable order. Computer Lab Round 2 assembles
+$\boldsymbol\Sigma$ from an estimated model, checks it against the fitted
+matrix, and rescales it to correlations.
 
 ## What the cross-loading adds
 
@@ -1472,7 +1516,9 @@ For six indicators this gives
 
 In covariance form, the fixed-factor two-factor simple-structure model has
 six loadings, one factor correlation, and six residual variances: $t=13$ and
-$df=21-13=8$. In correlation form, the six unit-diagonal equations determine
+$df=21-13=8$. That is the count previewed in Chapter 1, Section 5.3, completed
+here in both moment representations rather than restated.
+In correlation form, the six unit-diagonal equations determine
 the six residual variances, leaving seven free parameters and the same
 $df=15-7=8$. Subtracting all 13 covariance-model parameters from 15
 correlations would count standardization twice.
@@ -1672,7 +1718,7 @@ an optimizer even when a well-behaved optimum exists.
 A numerical derivative matrix provides a local diagnostic. If
 $\mathbf s(\boldsymbol\vartheta)$ stacks the distinct implied moments,
 its Jacobian is
-$\boldsymbol\Delta=\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$.
+$\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$.
 Full column rank at a regular point supports local identification;
 it does not prove global uniqueness or uniform stability throughout
 the parameter space. Students need not derive this matrix to understand
@@ -1786,37 +1832,52 @@ establish multivariate normality or independent sampling.
 Sample B consists of 360 complete, independently simulated continuous
 records. There is no silent missing-case removal, imputation, weighting,
 clustering adjustment, or ordinal recoding. The raw indicators retain
-the fixed process-index units. The fitted settings are explicit:
+the fixed process-index units.
+
+The estimated model is the inherited candidate, unchanged:
 
 ```{=latex}
 \Needspace{18\baselineskip}
 ```
 
-```r
-sle <- read.csv("sle_continuous.csv")
+$$
+\boldsymbol\Lambda=
+\begin{bmatrix}
+\boldsymbol\lambda_{\mathrm P}&\mathbf 0&\mathbf 0\\
+\mathbf 0&\boldsymbol\lambda_{\mathrm S}&\mathbf 0\\
+\mathbf 0&\mathbf 0&\boldsymbol\lambda_{\mathrm B}
+\end{bmatrix}
+\ \text{with two entries freed},
+\qquad
+\boldsymbol\Phi=
+\begin{bmatrix}
+1&\phi_{12}&\phi_{13}\\
+\phi_{12}&1&\phi_{23}\\
+\phi_{13}&\phi_{23}&1
+\end{bmatrix}.
+$$
 
-items <- c(paste0("P", 1:4),
-           paste0("S", 1:4),
-           paste0("B", 1:4))
+Here $\boldsymbol\Lambda$ is $12\times3$, with
+$\boldsymbol\lambda_{\mathrm P}$, $\boldsymbol\lambda_{\mathrm S}$ and
+$\boldsymbol\lambda_{\mathrm B}$ each $4\times1$ and free. The two freed
+entries are P4 on Strategy, in the fourth row of the second column, and S4 on
+Belonging, in the eighth row of the third column. Fourteen of the thirty-six
+loading slots are therefore free and twenty-two are fixed at zero;
+$\boldsymbol\Theta$ is diagonal of order twelve; and the Planning
+coefficients of P1 and P2 are the two named for the planned equality of
+Section 8.5.
 
-dat <- sle[sle$sample == "B", items]
-
-model <- '
-  Planning =~ p1*P1 + p2*P2 + P3 + P4
-  Strategy =~ S1 + S2 + S3 + S4 + P4
-  Belonging =~ B1 + B2 + B3 + B4 + S4
-'
-fit <- lavaan::cfa(model, data = dat[items],
-                   estimator = "ML", likelihood = "normal",
-                   std.lv = TRUE, meanstructure = FALSE,
-                   missing = "listwise", se = "standard",
-                   test = "standard", information = "expected")
-```
+The estimation settings are stated rather than inherited: normal-theory
+maximum likelihood on the raw records, the normal likelihood scaling of the
+covariance discrepancy, unit factor variances rather than marker loadings, no
+mean structure, listwise deletion of incomplete cases, conventional standard
+errors and a conventional test statistic, and expected information for both.
+Section 7.3 records the divisor the normal scaling implies. Computer Lab
+Round 1 writes the same eight settings out as code on its own record.
 
 Sample B is the confirmation record in the released
 `sle_continuous.csv`; the exploratory chapter's data appendix gives the
-codebook and sample manifest. The syntax above matches the fixed candidate
-exactly, so the block runs as printed against the distributed file.
+codebook and sample manifest.
 Before fitting, the chapter source checks the released file against the
 declared population: the column names and order, the row count for each
 sample, the case identifiers, and every indicator value. Numerically coded columns alone are not sufficient evidence
@@ -1877,9 +1938,13 @@ the intended separation of covariance restrictions from an unrestricted
 mean extension. It does not justify freely estimating latent origins
 without additional constraints.
 
-# Read an estimated model before reading its fit
+# Read an estimated model before its fit, and record what evaluation begins from
 
 ## Convergence and admissibility first
+
+Convergence, admissibility, gradients, and local rank are checked before
+any coefficient or fit index is read. Nothing below that gate is an
+adequacy statement.
 
 The optimizer reports convergence for the inherited M1-cross model,
 with no captured fitting warnings. The maximum absolute gradient is
@@ -2027,11 +2092,18 @@ $$
 $$
 
 Ignoring the covariance between estimates can give the wrong test.
-The syntax labels `p1` and `p2` identify the coefficients:
+With the free parameters in the order the fitted model reports them, the
+planned restriction is the single row
 
-```r
-lavaan::lavTestWald(fit, constraints = "p1 == p2")
-```
+$$
+\mathbf R=(\,1,\;-1,\;0,\ldots,0\,),
+\qquad \mathbf r=0,\qquad q=1,
+$$
+
+the $1$ and $-1$ standing in the positions of the two named Planning
+coefficients, so those two are the only parameters the test touches.
+Computer Lab Round 3 runs the same test on its own record and then imposes
+the equality.
 
 Here $W=$ `r pt2_num(h$wald$stat)` on one df, with
 $p$ `r pt2_p(h$wald$p.value)`. Under the declared model and
@@ -2040,8 +2112,6 @@ equality. This is not a test that M1 is globally adequate, nor a
 test of equality of fully standardized loadings. The Wald perspective is
 one of three views of the same restriction; the restricted-model and
 likelihood-ratio views belong with model comparison.
-
-# Build the evaluation transition record
 
 ## Carry the exact candidate, not an assumed baseline
 
@@ -2099,6 +2169,10 @@ is the fitted `lavaan` object itself rather than a reconstruction from rounded
 coefficients. What the render guarantees is internal consistency - the same
 declared population, sample role, syntax and settings produce the same fit each
 time - not agreement with a separately stored file from an earlier session.
+
+Chapter 4 is this record's consumer: it rebuilds the record in memory from
+the same declarations and refits the exact specification, rather than
+reconstructing the fit from the rounded estimates printed here.
 
 The numerical marker/fixed-factor comparison also succeeds for both
 records. For the SLE fit, the largest absolute difference in implied
@@ -2189,7 +2263,7 @@ evidence.
 
 # Appendix: Structured means and parcels {.unnumbered}
 
-## Latent location is not identified by naming a factor {.unnumbered}
+## Latent location is not identified by naming a factor {#sec-latent-location .unnumbered}
 
 The mean equation $\boldsymbol\mu=\boldsymbol\nu+
 \boldsymbol\Lambda\boldsymbol\alpha$ contains both indicator
@@ -2208,7 +2282,7 @@ latent intercept; rescaling an observed variable requires transforming
 its intercept and residual variance as well. An equality imposed after
 only some of these transformations can silently change the hypothesis.
 
-## Parceling changes the observed system {.unnumbered}
+## Parceling changes the observed system {#sec-parceling .unnumbered}
 
 Combining items into parcels before fitting is common and contested; the
 trade-offs are set out in @little2002. The algebra below shows why the choice

@@ -8,20 +8,27 @@ Site: <https://jinsong-chen.github.io/QMSBR/>
 ## What is here
 
 - `part-one/` — Foundations, regression, and generalized linear models
-  (introduction + Chapters 1, 1a, 2–8)
+  (introduction + Chapters 1–9), with the data Chapter 1 reads
 - `part-two/` — Factor analysis and structural equation modeling
-  (introduction + Chapters 1–4), with the R companions and data they use
+  (introduction + Chapters 1–4), with the data they use
+- `practice/` — the R-support pages, rendered from `materials/webr` and copied
+  in here as static files; `_quarto.yml` lists it as a project resource, so the
+  build copies the folder into `_site` untouched
+- `_freeze/` — the committed execution cache; the GitHub Actions build runs
+  Quarto without R and restores results from here
 - `_quarto.yml` — the only configuration file
-- `index.qmd`, `library.qmd`, `about.qmd` — the three site pages
+- `index.qmd`, `about.qmd` — the two site pages
 
 Each chapter has a `.qmd` source and a reviewed `.pdf` beside it. The site
 renders the HTML; the PDF is offered as a download.
 
 ## Building locally
 
-Requires [Quarto](https://quarto.org) 1.8 or later and R with the packages the
-Part Two chapters use (`lavaan`, `psych`, `GPArotation`, `DiagrammeR`,
-`DiagrammeRsvg`, `rsvg`, `digest`).
+Requires [Quarto](https://quarto.org) 1.10.18 — the version
+`.github/workflows/publish.yml` pins, and the version that produced the
+committed `_freeze/` cache. R is also needed, with the packages the chapters
+load: chiefly `ggplot2`, `car`, `carData`, `AER`, and `sandwich` in Part One,
+and `lavaan`, `psych`, and `GPArotation` in Part Two.
 
 ```bash
 quarto render --to html     # builds the site into _site/
@@ -33,16 +40,21 @@ Always render with `--to html`. A bare `quarto render` would also fire the
 
 ## Adding or updating a chapter
 
-1. Put the `.qmd` and its `.pdf` in `part-one/` or `part-two/`.
+1. Put the `.qmd` and its `.pdf` in `part-one/` or `part-two/`, together with
+   any data file the chapter reads.
 2. Add the `.qmd` to `render:` and to the sidebar in `_quarto.yml`.
-3. Add one row to the table in `library.qmd`.
+3. Add its line to the matching collection column in `index.qmd`.
 4. `quarto render --to html` and check the page locally.
-5. Commit and push — GitHub Actions publishes the site.
+5. Commit the regenerated `_freeze/` entry together with the sources.
+6. Commit and push — GitHub Actions publishes the site.
+
+The `practice/` folder is not edited here. It is re-rendered from
+`materials/webr` and its output is recopied whole.
 
 ## Licence
 
 CC BY 4.0 for text and figures, MIT for original code, CC0 1.0 for simulated
-data. Two third-party items keep their own terms. See [LICENSE](LICENSE).
+data. Third-party items keep their own terms. See [LICENSE](LICENSE).
 
 Maintained by Jinsong Chen, Faculty of Education, The University of Hong Kong.
 QMSBR is not an official University service.

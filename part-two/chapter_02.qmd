@@ -814,47 +814,64 @@ retention <- efa_retention_survey(z)
 
 {{< pagebreak >}}
 
-::: {.callout-tip title="Chapter box"}
-**Five themes.**
+::: {.callout-note title="Chapter overview"}
+The preceding chapter built a covariance matrix from parameters declared in
+advance. This chapter reverses the direction of work: a sample correlation
+matrix comes first, no simple model reproduces it exactly, and the number of
+dimensions, the orientation of the axes and the substantive names all have
+to be developed and defended. We audit twelve learning-experience indices
+before reading their correlations; compare what principal components,
+principal-axis factoring, minimum-residual extraction and maximum likelihood
+each answer; and decide how many common dimensions the matrix supports by
+holding each observed eigenvalue against a reference built from the same
+records with their pairings destroyed, and then against six further rules.
+We fit neighboring solutions, count how many parameters a factor model of
+each size really has, and choose axes by a declared rotation criterion
+rather than by whichever display looks tidiest. The rotated result is read
+as pattern coefficients, structure correlations, factor correlations and
+communalities together, and a residual correlation matrix then says where it
+strains, which an average residual cannot. The chapter closes by freezing
+one candidate specification and four named rivals for the confirmatory
+chapter that follows.
 
-*The direction of work reverses.* The preceding chapter built a covariance
-matrix from declared parameters. Here a sample correlation matrix comes
-first, and no simple model reproduces it exactly.
+Sample A holds 360 complete, simulated continuous records on twelve Student
+Learning Experiences indicators. No observation concerns an actual student,
+and the two remaining samples are neither analyzed nor inspected here. You
+will need sample covariance and correlation, elementary matrix algebra, and
+the common-factor model, communalities, uniquenesses and scale and
+rotational indeterminacies developed in the preceding chapter; the printed
+matrices, equations and tables support the reasoning without running
+anything. Indicators are treated as continuous throughout Part Two, no
+restricted model is estimated, and no fit index is read as evidence for a
+construct: this is model development, not instrument validation or
+individual scoring.
 
-*Every diagnostic compares against a reference.* Extraction, retention and
-rotation each state what the data are being held up against. Naming the
-reference is what makes a result interpretable, and what makes two
-procedures with the same name different.
-
-*Axes are chosen, not found.* Rotation changes the loading display
-without changing the fitted covariance, so pattern coefficients, structure
-correlations and factor correlations are three different quantities that
-must be read together.
-
-*Discrepancy has a location.* A residual correlation matrix says where a
-retained solution strains; an average residual cannot.
-
-*A development sample cannot confirm what it was used to develop.* The
-analysis produces a candidate whose restrictions are stated explicitly, and
-the evidence for it has to come from records not yet inspected.
-
-**Prerequisites.** Sample covariance and correlation, elementary matrix
-algebra, and the common-factor model, communalities, uniquenesses and
-scale and rotational indeterminacies developed in the preceding chapter. Basic R helps
-reproduction; the printed matrices, equations and output support the
-reasoning without running it.
-
-**Record.** Sample A contains 360 complete, simulated continuous records on
-twelve Student Learning Experiences indicators. No observations concern
-actual students. Samples B and C are not analyzed here.
-
-**Scope.** We develop a candidate measurement model on Sample A and stop
-there. Neither confirmation sample is analyzed or inspected for
-model-development decisions, no restricted model is estimated,
-and no fit index is interpreted as evidence for a construct. Indicators are
-treated as continuous throughout Part Two. This is model development, not
-instrument validation or individual scoring.
+By the end you will be able to carry out and report an exploratory factor
+analysis in which every diagnostic names what it was compared against, and
+to say why a development sample cannot confirm the model it was used to
+build.
 :::
+
+A programme team writes twelve statements about how its students plan their
+study, adjust their methods when something is not working, and feel they
+belong, and collects responses from 360 people. The items were drafted under
+three headings, and the team would like to report three scores. The
+correlations, when they arrive, are less obliging. Some planning items move
+with strategy items about as strongly as with one another, one belonging
+item keeps company that the other three do not, and nothing in the matrix
+announces how many attributes produced it. Naming the three visible blocks
+and stopping there would answer a question nobody asked. This is the
+ordinary position of anyone who has just collected questionnaire data, and
+it is where this chapter starts.
+
+The guiding question is therefore: **what common-factor representation of
+these twelve indicators is defensible on the records that produced it, and
+what would it take to confirm one?** The first half is answered here, on one
+development sample, with every step stating what it was compared against.
+The second half cannot be answered here at all. A representation developed
+by inspecting these observations has used them up, so the chapter ends by
+writing down a specification precise enough for records that have not been
+inspected to evaluate.
 
 # Define the exploratory measurement problem {#sec-efa-problem}
 
@@ -1034,22 +1051,11 @@ the way.
 
 The observations are synthetic samples generated from a prespecified
 continuous latent-variable population, and the exact released records are
-distributed as `sle_continuous.csv`. Throughout the fragments below, `X` is
-Sample A's 360-by-12 indicator matrix and `R` is its correlation matrix:
-
-```r
-sle <- read.csv("sle_continuous.csv")
-
-items <- c(paste0("P", 1:4),
-           paste0("S", 1:4),
-           paste0("B", 1:4))
-
-X <- sle[sle$sample == "A", items]
-R <- cor(X)
-```
- For
-these complete observations, standardizing the covariance matrix gives the
-same Pearson matrix as direct calculation. That identity checks the
+distributed as `sle_continuous.csv`. Throughout this chapter the analysis
+runs on Sample A alone: its 360 rows of twelve indicators, taken from that
+file in codebook order, and their Pearson correlation matrix $\mathbf R$.
+For these complete observations, standardizing the covariance matrix gives
+the same Pearson matrix as direct calculation. That identity checks the
 transformation, not the suitability of Pearson correlation for every dataset.
 Numeric codes for categories would require a separate
 measurement treatment; that topic belongs to other courses or later
@@ -1222,6 +1228,8 @@ identified.
 | Minres | Small off-diagonal squared residuals | Normal-likelihood inference without additional work |
 | ML factor analysis | Best normal likelihood within the factor model | Substantive truth, validity, or acceptable fit merely from convergence |
 
+: PCA, PAF, minres and ML: the immediate target each extraction answers, and what its output does not establish. {#tbl-efa-methods}
+
 The maintained sequence is therefore Pearson correlations, ML
 extraction, and oblimin rotation. Minres is a bounded sensitivity
 comparison on the same matrix. The later CFA uses the same continuous
@@ -1360,24 +1368,16 @@ A short note on implementation, because a function name can hide the rule it
 applies. The installed `psych` version's `fa.parallel(sim = FALSE)` resamples
 each column **with replacement**, which is a bootstrap rather than the
 permutation described above. Both are defensible null constructions, but they
-are not the same one, so this chapter uses an explicit loop:
+are not the same one, so this chapter builds its reference directly rather
+than calling that option.
 
-```r
-set.seed(12345)
-null_roots <- replicate(100, {
-  X0 <- vapply(X, function(v) sample(v, replace = FALSE), numeric(nrow(X)))
-  eigen(cor(X0), symmetric = TRUE, only.values = TRUE)$values
-})
-reference_95 <- apply(null_roots, 1, quantile, probs = .95, type = 7)
-```
-
-Read from the inside out: `sample(v, replace = FALSE)` shuffles one column;
-`vapply` does that to all twelve, producing one null dataset; `eigen(cor(X0))`
-returns its twelve eigenvalues; `replicate` repeats the whole thing 100 times,
-giving a 12-by-100 matrix of null eigenvalues; and the last line takes the 95th
-percentile at each rank. A hundred replications is ample here - going to a
-thousand moves the reference values by about $.01$ and changes no retained
-count.
+One replication shuffles each of the twelve columns independently and
+without replacement, correlates the shuffled columns, and keeps the twelve
+eigenvalues of that correlation matrix. A hundred replications, drawn from
+seed 12345, give a 12-by-100 array of null roots, and the reference at each
+rank is the 95th percentile of its row under the type-7 quantile definition.
+A hundred replications is ample here - going to a thousand moves the
+reference values by about $.01$ and changes no retained count.
 
 **Two targets, two panels.** @fig-efa-pa runs this comparison twice, and the
 difference between its panels is the diagonal of the matrix being decomposed.
@@ -1631,23 +1631,26 @@ identification stops being automatic and has to be argued.
 We estimate normal-theory ML common-factor models for one through five
 factors. Each fit uses the same Pearson matrix, $n=360$, SMC starts,
 and the same uniqueness-bound convention. The primary extraction is
-unrotated; rotation is a subsequent choice of axes. The printed code
-shows the essential calls; the chapter source carries the convergence checks
-and the full settings.
+unrotated; rotation is a subsequent choice of axes.
 
-```r
-fit3 <- psych::fa(R, nfactors = 3, n.obs = nrow(X),
-                  fm = "ml", rotate = "none", SMC = TRUE,
-                  smooth = FALSE, scores = "none")
-A <- unclass(fit3$loadings)
-```
+Each fit minimizes the maximum-likelihood discrepancy of @eq-efa-ml over a
+$12\times m$ loading matrix and a diagonal $\boldsymbol\Theta$, taking
+squared multiple correlations as communality starts, leaving $\mathbf R$
+unsmoothed, extracting without rotation, and computing no factor scores. The
+unrotated estimate it returns is the $12\times m$ matrix
+$\widehat{\boldsymbol\Lambda}_m$, whose fitted common part is
+$\widehat{\boldsymbol\Lambda}_m
+\widehat{\boldsymbol\Lambda}_m^{\mathsf T}$; the three-factor estimate is
+what the rotation of the next section transforms, where it is written
+$\mathbf A$.
 
-Two details about this call repay attention, because both are easy to
-misread. `psych::fa()` accepts `min.err` and `max.iter`, and it is tempting to
-present them as convergence controls for every extraction method. Under
-`fm = "ml"` in the installed version they do not govern the optimizer: the
-same solution is returned whether they are set tightly or loosely. They
-control the iterative principal-axis path instead. Second, the smallest
+Two details about this extraction repay attention, because both are easy to
+misread. The `psych` implementation accepts `min.err` and `max.iter`, and it
+is tempting to present them as convergence controls for every extraction
+method. Under maximum likelihood in the installed version they do not govern
+the optimizer: the same solution is returned whether they are set tightly or
+loosely. They control the iterative principal-axis path instead. Second, the
+smallest
 uniqueness this implementation will return under ML is bounded below at
 $.005$, which is why the four- and five-factor solutions in the table below
 report a minimum uniqueness at exactly that value rather than at zero. Neither
@@ -1815,14 +1818,13 @@ up to 10,000 iterations, and 20 random starts. At $\gamma=0$, the
 criterion discourages a row from having large squared coefficients in
 several columns. It does not set the factor correlations to zero.
 
-```r
-set.seed(12345)
-rot3 <- GPArotation::oblimin(A, gam = 0, normalize = FALSE,
-                            eps = 1e-7, maxit = 10000,
-                            randomStarts = 20)
-pattern <- unclass(rot3$loadings)
-factor_correlations <- rot3$Phi
-```
+Appendix B states that objective explicitly. It is minimized over the
+nonsingular transformations of @eq-efa-rotation, from seed 12345, applied to
+the unrotated three-factor $\mathbf A$. What the minimization returns is the
+pattern matrix $\mathbf P=\mathbf A\mathbf T^{-1}$ tabulated later in this
+chapter, together with the factor correlation matrix
+$\boldsymbol\Phi=\mathbf T\mathbf T^{\mathsf T}$, rescaled to a unit
+diagonal.
 
 Kaiser normalization, when requested, divides each row by its
 communality-based length before optimizing and restores its scale
@@ -1978,7 +1980,7 @@ indicators $j$ and $k$ is
 $$
 \widehat r_{jk}=\widehat{\mathbf p}_j^{\mathsf T}
 \widehat{\boldsymbol\Phi}\widehat{\mathbf p}_k.
-$$
+$$ {#eq-efa-reproduced-pair}
 
 All primary and secondary coefficients participate. For P4 and S4,
 the observed correlation is `r pt2_num(z$R["P4","S4"])` and the
@@ -1987,14 +1989,20 @@ The residual, defined as observed minus reproduced, is
 `r pt2_num(z$residual["P4","S4"])`. Its sign is interpretable only
 after the subtraction convention is stated.
 
-```r
-common <- pattern %*% factor_correlations %*% t(pattern)
-communality <- diag(common)
-reproduced <- common + diag(fit3$uniquenesses)
-residual <- R - reproduced
-```
+Collecting every pair gives the matrix form. Writing
+$\widehat{\boldsymbol\Theta}=\operatorname{diag}(u_1^2,\ldots,u_p^2)$ for
+the estimated uniquenesses,
 
-This short calculation is more informative than memorizing the names of
+$$
+\widehat{\mathbf R}
+=\mathbf P\boldsymbol\Phi\mathbf P^{\mathsf T}
+ +\widehat{\boldsymbol\Theta},
+$$ {#eq-efa-reproduced}
+
+and the communalities of the previous section are the diagonal entries of
+$\mathbf P\boldsymbol\Phi\mathbf P^{\mathsf T}$.
+
+This one relation is more informative than memorizing the names of
 several output tables. It links loadings, factor correlations,
 communalities, uniquenesses, and residuals to one covariance equation.
 When a table cannot be reconstructed from that equation, first check
@@ -2212,6 +2220,37 @@ Chapter 3 now changes the question: **given the fixed zero, free, and
 equality restrictions, can a CFA be specified, identified, and estimated
 coherently?** An exploratory orientation becomes a confirmatory model
 only when its restrictions and analytic history are made explicit.
+
+# Key terms {.unnumbered}
+
+Use this short reference to revisit the concepts introduced here. Each
+entry states the distinction that matters when the term is used rather
+than a complete definition, and the sections above are where each one is
+developed. The Chapter 1 vocabulary this chapter reuses without
+redefining - construct, factor, indicator, loading, communality,
+uniqueness, local independence, and scale, sign and rotational
+indeterminacy - stays explained there.
+
+| Term and common alternatives | Meaning |
+|:--|:--|
+| Exploratory factor analysis (EFA) | A common-factor analysis that leaves most loading restrictions open while seeking a comparatively low-dimensional representation of shared covariation. It is not assumption-free: the indicator set, population, association matrix, residual restriction, dimensional range and rotation criterion all shape what it can reveal. |
+| Development sample (development record) | The sample whose inspection produces a model. A model developed after inspecting these observations is exploratory with respect to them whatever fitting function is used, so the same records cannot confirm it. |
+| Squared multiple correlation (SMC) | For indicator $j$, the $R^2$ from regressing it on all other indicators, computed as $1-1/(\mathbf R^{-1})_{jj}$. It is a regression summary of the observed matrix used as a communality start, not a known common variance. |
+| Reduced correlation matrix (SMC-reduced matrix) | The correlation matrix with communality estimates replacing the unit diagonal. It need not be positive semidefinite, and its eigenvalues are on a different scale from the full matrix's. |
+| Principal-axis factoring (PAF) | Iterative extraction that decomposes a reduced matrix, forms loadings from its leading positive roots and updates the diagonal from row sums of squared loadings. The diagonal start, nonpositive-root handling and stopping rule are implementation choices. |
+| Minimum-residual extraction (minres) | Extraction minimizing the sum of squared off-diagonal correlation residuals, giving each displayed discrepancy equal weight. It is a common-factor method but not another name for PAF. |
+| Kaiser--Guttman rule (eigenvalue-greater-than-one) | Retaining roots above one in a unit-diagonal correlation analysis. Sampling variation alone produces roots above one, and applying the threshold to a reduced matrix changes the comparison. |
+| Parallel analysis (permutation parallel analysis) | Comparing each observed eigenvalue with the same-rank eigenvalues of datasets built to have no common factors but the same sample size and marginal distributions, and retaining the leading consecutive run that clears its reference. The eigenvalue basis, the null generator, the reference statistic and the replication count and seed all belong to the specification. |
+| Effective EFA parameter count ($t_m$) | $pm+p-m(m-1)/2$ for an unrestricted common-factor covariance model at regular points, with $df_m=p(p+1)/2-t_m$. The subtraction removes rotational redundancy; an oblique rotation adds no parameters because it re-expresses the same fitted covariance. |
+| Inverse-paired transformation | The general nonsingular change of factor coordinates $\boldsymbol\Lambda\mathbf T^{-1}$ with $\mathbf T\boldsymbol\Phi\mathbf T^{\mathsf T}$, which leaves the fitted common covariance unchanged. Multiplying loadings while leaving $\boldsymbol\Phi$ alone is not an equivalent oblique rotation. |
+| Direct oblimin (quartimin at $\gamma=0$) | An oblique criterion discouraging large squared coefficients in several columns of one row while permitting factor correlations. The name alone is not a specification: $\gamma$, normalization, tolerance, iteration limit, starts and seed all matter. |
+| Pattern coefficient (pattern matrix $\mathbf P$) | The coefficient of a factor in the simultaneous decomposition of a standardized indicator, read conditional on the other factors in the same representation. |
+| Structure correlation (structure matrix $\mathbf C=\mathbf P\boldsymbol\Phi$) | The zero-order indicator--factor correlation, which can be appreciable where the pattern coefficient is near zero because part of the relation travels through the factor correlation. Pattern and structure coincide only in an orthogonal solution. |
+| Oblique communality as a quadratic form | $h_j^2=\mathbf p_j^{\mathsf T}\boldsymbol\Phi\mathbf p_j$, whose factor-correlation cross-products are part of the common variance. A row sum of squared pattern coefficients omits them and is a different quantity. |
+| Correlation residual matrix ($\mathbf E$) and off-diagonal RMS | Observed minus reproduced correlations, summarized by $\sqrt{2\sum_{j<k}e_{jk}^2/[p(p-1)]}$, which excludes variances. The largest absolute residual and the location of discrepancy carry information an average conceals, and this summary is not automatically any software statistic named RMSR or SRMR. |
+| Frozen candidate specification | The exact item order, free and fixed relations, scaling, covariance and mean settings, estimation family and named rivals recorded before any confirmation evidence is inspected. Freezing is what makes a later comparison interpretable. |
+
+: Selected concepts from the exploratory route. {#tbl-efa-key-terms tbl-colwidths="[26,74]"}
 
 # Exercises {.unnumbered}
 

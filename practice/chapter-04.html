@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Chapter 4 R support – QMSBR R support</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-2f5524832805d734b96ee676820b2dda.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">QMSBR R support</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapters</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
+        <li>
+    <a class="dropdown-item" href="./chapter-03.html">
+ <span class="dropdown-text">3: Estimates and uncertainty</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chapter-04.html">
+ <span class="dropdown-text">4: Comparing groups</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./workspace.html"> 
+<span class="menu-text">Workspace</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./data-notes.html"> 
+<span class="menu-text">Data sources</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#before-you-start" id="toc-before-you-start" class="nav-link active" data-scroll-target="#before-you-start">Before you start</a></li>
+  <li><a href="#feedback-data" id="toc-feedback-data" class="nav-link" data-scroll-target="#feedback-data">The data and a first plot</a></li>
+  <li><a href="#one-way-anova" id="toc-one-way-anova" class="nav-link" data-scroll-target="#one-way-anova">One-way ANOVA</a></li>
+  <li><a href="#contrasts" id="toc-contrasts" class="nav-link" data-scroll-target="#contrasts">Contrasts and multiple comparisons</a></li>
+  <li><a href="#factorial-anova" id="toc-factorial-anova" class="nav-link" data-scroll-target="#factorial-anova">The full factorial model</a></li>
+  <li><a href="#eta-squared" id="toc-eta-squared" class="nav-link" data-scroll-target="#eta-squared">Eta squared for each source</a></li>
+  <li><a href="#interaction-plot" id="toc-interaction-plot" class="nav-link" data-scroll-target="#interaction-plot">The interaction plot and one selected comparison</a></li>
+  <li><a href="#programming-help" id="toc-programming-help" class="nav-link" data-scroll-target="#programming-help">Run a supplied script</a></li>
+  <li><a href="#your-r-work" id="toc-your-r-work" class="nav-link" data-scroll-target="#your-r-work">Your R work</a></li>
+  <li><a href="#supplied-output" id="toc-supplied-output" class="nav-link" data-scroll-target="#supplied-output">Fixed code and output</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Chapter 4 R support</h1>
+<p class="subtitle lead">Base R for group comparisons and a factorial model</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Use these examples beside Chapter 4 and its lecture, or adapt their short commands for an exercise, Computer Lab or homework. Computer Lab 4 selects one connected analysis for its final classroom activity round; it does not ask you to work through every section here. This page is reusable support, available before class, and completing it beforehand is not required. Choose one software route: R here, desktop R, or the lab’s SPSS instructions. The lab contains its activity and worked answers.</p>
+<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete cell and <strong>Start Over</strong> to restore its starting code. Every cell repeats the short setup it needs, so any one of them can run on its own in a fresh session. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits. For keyboard shortcuts and individual commands, see <a href="#run-code">how to run code</a>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Your task</th>
+<th style="text-align: left;">Useful starting point</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">New to R, or returning after a break</td>
+<td style="text-align: left;"><a href="#before-you-start">Before you start</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Enter or read the 24 quiz scores</td>
+<td style="text-align: left;"><a href="#feedback-data">The data and a first plot</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Core Exercises 3-4 or homework 9</td>
+<td style="text-align: left;"><a href="#one-way-anova">One-way ANOVA</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A declared comparison, or all pairwise differences</td>
+<td style="text-align: left;"><a href="#contrasts">Contrasts and Tukey</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Computer Lab 4, core Exercises 5-6 or homework 10</td>
+<td style="text-align: left;"><a href="#factorial-anova">The full factorial model</a>, then <a href="#interaction-plot">the interaction plot and selected comparison</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Checking the fitted model against its residuals</td>
+<td style="text-align: left;"><a href="#factorial-residuals">Residuals from the factorial fit</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">How much variation a source represents</td>
+<td style="text-align: left;"><a href="#eta-squared">Eta squared for each source</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Private course data or another complete supplied script</td>
+<td style="text-align: left;"><a href="#programming-help">Programming help</a> and <a href="#your-r-work">your workspace</a></td>
+</tr>
+</tbody>
+</table>
+<p>Use the task’s own data, model and requested precision. The workspace and the demonstration cells have separate R objects, so copy a whole cell, including its setup, when you move code. <a href="#supplied-output">Fixed code and output</a> remain readable if the browser R runtime cannot start.</p>
+<section id="before-you-start" class="level2">
+<h2 class="anchored" data-anchor-id="before-you-start">Before you start</h2>
+<p>A <strong>command</strong> is one instruction for R, such as <code>mean(feedback_data$score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>n</code>. The assignment arrow <code>&lt;-</code> creates one: <code>n &lt;- 24</code> stores 24 under the name <code>n</code>, and typing <code>n</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c("Massed", "Spaced")</code> holds two labels. A table of records is an object too: <code>feedback_data &lt;- read.csv("data/feedback_practice.csv")</code> reads the 24 records into a table called <code>feedback_data</code>, and <code>factor()</code> with <code>levels =</code> then fixes the order the conditions are listed in. <code>$</code> takes one named column out of a table: <code>feedback_data$score</code> is the score column. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>aov(score ~ feedback, data = massed)</code> the formula is the first argument and <code>data = massed</code> is a named one; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Score</code> is not <code>score</code>. See <a href="#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
+</section>
+<section id="feedback-data" class="level2">
+<h2 class="anchored" data-anchor-id="feedback-data">The data and a first plot</h2>
+<p>The invented study gives 24 different Grade 7 students a fractions quiz scored from 0 to 20. Each student appears once, in one of six cells formed by three feedback conditions and two practice schedules, with four students per cell. <a href="./data-notes.html#feedback-and-practice-quiz-scores">The data note</a> records the identity of the file and its invented setting.</p>
+<p>The 24 records are stored in a <a href="data/feedback_practice.csv">CSV file</a> with the columns <code>student</code>, <code>feedback</code>, <code>practice</code> and <code>score</code>. <code>read.csv()</code> reads that file into a data frame. A CSV holds plain text with no order of its own, so the two <code>factor()</code> lines set each factor’s display and model order explicitly; without them R would sort alphabetically and put “Answer feedback” first. <code>head()</code> shows the first six rows, <code>str()</code> reports each column’s type and a factor’s level order, and <code>table()</code> with two factors counts the six cells.</p>
+<div class="cell" data-exercise="c4-csv" data-autorun="false">
+<div>
+<div id="webr-1" class="exercise-cell">
+
+</div>
+<script type="webr-1-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWNzdiJ9LCJjb2RlIjoiZmVlZGJhY2tfZGF0YSA8LSByZWFkLmNzdihcImRhdGEvZmVlZGJhY2tfcHJhY3RpY2UuY3N2XCIpXG5mZWVkYmFja19kYXRhJGZlZWRiYWNrIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJGZlZWRiYWNrLFxuICBsZXZlbHMgPSBjKFwiUmVyZWFkaW5nXCIsIFwiQW5zd2VyIGZlZWRiYWNrXCIsIFwiRXhwbGFuYXRvcnkgZmVlZGJhY2tcIikpXG5mZWVkYmFja19kYXRhJHByYWN0aWNlIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJHByYWN0aWNlLFxuICBsZXZlbHMgPSBjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpKVxuaGVhZChmZWVkYmFja19kYXRhKVxuc3RyKGZlZWRiYWNrX2RhdGEpXG50YWJsZShmZWVkYmFja19kYXRhJGZlZWRiYWNrLCBmZWVkYmFja19kYXRhJHByYWN0aWNlKSJ9
+</script>
+</div>
+</div>
+<p>The table has 24 rows and four columns. <code>str()</code> confirms that <code>feedback</code> is a factor with three levels in the declared order and <code>practice</code> a factor with two, and the counted table shows six cells of four students. Every cell on this page repeats these same three setup lines. On desktop R, use <code>read.csv("feedback_practice.csv")</code> with the file beside your script.</p>
+<section id="typed-alternative" class="level3">
+<h3 class="anchored" data-anchor-id="typed-alternative">The same 24 scores typed in</h3>
+<p>You do not need the file. Typing the scores keeps the whole record visible, which helps when you want to see exactly what is being analysed, or to change one score and rerun. <code>data.frame()</code> builds the table; <code>rep(..., each = 8)</code> repeats each feedback label eight times and the nested <code>rep()</code> alternates the two schedules in blocks of four. The same two <code>factor()</code> calls fix the level order, written here inside <code>data.frame()</code>.</p>
+<div class="cell" data-exercise="c4-typed" data-autorun="false">
+<div>
+<div id="webr-2" class="exercise-cell">
+
+</div>
+<script type="webr-2-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LXR5cGVkIn0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIGRhdGEuZnJhbWUoXG4gIHN0dWRlbnQgPSAxOjI0LFxuICBmZWVkYmFjayA9IGZhY3RvcihyZXAoYyhcIlJlcmVhZGluZ1wiLCBcIkFuc3dlciBmZWVkYmFja1wiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICBcIkV4cGxhbmF0b3J5IGZlZWRiYWNrXCIpLCBlYWNoID0gOCksXG4gICAgICAgICAgICAgICAgICAgIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIkV4cGxhbmF0b3J5IGZlZWRiYWNrXCIpKSxcbiAgcHJhY3RpY2UgPSBmYWN0b3IocmVwKHJlcChjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpLCBlYWNoID0gNCksIDMpLFxuICAgICAgICAgICAgICAgICAgICBsZXZlbHMgPSBjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpKSxcbiAgc2NvcmUgPSBjKDQsIDUsIDcsIDgsIDQsIDUsIDcsIDgsXG4gICAgICAgICAgICA2LCA3LCA5LCAxMCwgMTAsIDExLCAxMywgMTQsXG4gICAgICAgICAgICA4LCA5LCAxMSwgMTIsIDE2LCAxNywgMTksIDIwKVxuKVxuaGVhZChmZWVkYmFja19kYXRhKVxudGFibGUoZmVlZGJhY2tfZGF0YSRmZWVkYmFjaywgZmVlZGJhY2tfZGF0YSRwcmFjdGljZSkifQ==
+</script>
+</div>
+</div>
+<p>This produces the same 24 records, in the same order, as the CSV, so either starting point can feed the analyses below. The cells that follow all start from the CSV, because that is the shorter setup to repeat.</p>
+</section>
+<section id="massed-subset" class="level3">
+<h3 class="anchored" data-anchor-id="massed-subset">The Massed subset and every observation</h3>
+<p>The first comparison uses only the 12 Massed-practice students, so the three feedback conditions are compared under one schedule. <code>subset()</code> keeps the rows matching a condition. <code>table()</code> counts the three groups, and <code>aggregate(score ~ feedback, ...)</code> applies <code>mean</code> within each one; <code>tapply()</code> returns the same three means as a named vector.</p>
+<div class="cell" data-exercise="c4-data" data-autorun="false">
+<div>
+<div id="webr-3" class="exercise-cell">
+
+</div>
+<script type="webr-3-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWRhdGEifSwiY29kZSI6ImZlZWRiYWNrX2RhdGEgPC0gcmVhZC5jc3YoXCJkYXRhL2ZlZWRiYWNrX3ByYWN0aWNlLmNzdlwiKVxuZmVlZGJhY2tfZGF0YSRmZWVkYmFjayA8LSBmYWN0b3IoZmVlZGJhY2tfZGF0YSRmZWVkYmFjayxcbiAgbGV2ZWxzID0gYyhcIlJlcmVhZGluZ1wiLCBcIkFuc3dlciBmZWVkYmFja1wiLCBcIkV4cGxhbmF0b3J5IGZlZWRiYWNrXCIpKVxuZmVlZGJhY2tfZGF0YSRwcmFjdGljZSA8LSBmYWN0b3IoZmVlZGJhY2tfZGF0YSRwcmFjdGljZSxcbiAgbGV2ZWxzID0gYyhcIk1hc3NlZFwiLCBcIlNwYWNlZFwiKSlcbm1hc3NlZCA8LSBzdWJzZXQoZmVlZGJhY2tfZGF0YSwgcHJhY3RpY2UgPT0gXCJNYXNzZWRcIilcbm5yb3cobWFzc2VkKVxudGFibGUobWFzc2VkJGZlZWRiYWNrKVxuYWdncmVnYXRlKHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQsIG1lYW4pXG50YXBwbHkobWFzc2VkJHNjb3JlLCBtYXNzZWQkZmVlZGJhY2ssIHNkKSJ9
+</script>
+</div>
+</div>
+<p>There are 12 Massed students, four per group, with means 6.0000, 8.0000 and 10.0000 and the same SD 1.8257 in each group. The means differ by two points per step while the groups overlap.</p>
+</section>
+<section id="massed-dotplot" class="level3">
+<h3 class="anchored" data-anchor-id="massed-dotplot">A dotplot of the 12 scores</h3>
+<p><code>stripchart()</code> draws every observation. <code>method = "stack"</code> stacks equal scores so none is hidden, <code>pch</code> chooses the point symbol, <code>las = 1</code> keeps the group labels horizontal and <code>par(mar = ...)</code> widens the left margin for them. <code>points()</code> then adds the three group means as crosses.</p>
+<div class="cell" data-exercise="c4-stripchart" data-autorun="false">
+<div>
+<div id="webr-4" class="exercise-cell">
+
+</div>
+<script type="webr-4-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LXN0cmlwY2hhcnQifSwiY29kZSI6ImZlZWRiYWNrX2RhdGEgPC0gcmVhZC5jc3YoXCJkYXRhL2ZlZWRiYWNrX3ByYWN0aWNlLmNzdlwiKVxuZmVlZGJhY2tfZGF0YSRmZWVkYmFjayA8LSBmYWN0b3IoZmVlZGJhY2tfZGF0YSRmZWVkYmFjayxcbiAgbGV2ZWxzID0gYyhcIlJlcmVhZGluZ1wiLCBcIkFuc3dlciBmZWVkYmFja1wiLCBcIkV4cGxhbmF0b3J5IGZlZWRiYWNrXCIpKVxubWFzc2VkIDwtIHN1YnNldChmZWVkYmFja19kYXRhLCBwcmFjdGljZSA9PSBcIk1hc3NlZFwiKVxucGFyKG1hciA9IGMoNCwgOSwgMSwgMSkpXG5zdHJpcGNoYXJ0KHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQsXG4gICAgICAgICAgIG1ldGhvZCA9IFwic3RhY2tcIiwgcGNoID0gMTYsIGxhcyA9IDEsXG4gICAgICAgICAgIHhsYWIgPSBcIlF1aXogc2NvcmUgKDAtMjApXCIsIHlsYWIgPSBcIlwiLCB4bGltID0gYygwLCAyMCkpXG5wb2ludHModGFwcGx5KG1hc3NlZCRzY29yZSwgbWFzc2VkJGZlZWRiYWNrLCBtZWFuKSwgMTozLFxuICAgICAgIHBjaCA9IDQsIGNleCA9IDEuNywgbHdkID0gMikifQ==
+</script>
+</div>
+</div>
+<p>With four scores per group the dots show the data more directly than a summary would. A chart of the three means alone would hide the overlap.</p>
+</section>
+<section id="massed-boxplot" class="level3">
+<h3 class="anchored" data-anchor-id="massed-boxplot">The same subset as boxplots</h3>
+<p><code>boxplot(score ~ feedback, ...)</code> draws one box per group. With only four observations per group the box is a coarse summary, so read it beside the dotplot rather than instead of it.</p>
+<div class="cell" data-exercise="c4-boxplot" data-autorun="false">
+<div>
+<div id="webr-5" class="exercise-cell">
+
+</div>
+<script type="webr-5-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWJveHBsb3QifSwiY29kZSI6ImZlZWRiYWNrX2RhdGEgPC0gcmVhZC5jc3YoXCJkYXRhL2ZlZWRiYWNrX3ByYWN0aWNlLmNzdlwiKVxuZmVlZGJhY2tfZGF0YSRmZWVkYmFjayA8LSBmYWN0b3IoZmVlZGJhY2tfZGF0YSRmZWVkYmFjayxcbiAgbGV2ZWxzID0gYyhcIlJlcmVhZGluZ1wiLCBcIkFuc3dlciBmZWVkYmFja1wiLCBcIkV4cGxhbmF0b3J5IGZlZWRiYWNrXCIpKVxubWFzc2VkIDwtIHN1YnNldChmZWVkYmFja19kYXRhLCBwcmFjdGljZSA9PSBcIk1hc3NlZFwiKVxuYm94cGxvdChzY29yZSB+IGZlZWRiYWNrLCBkYXRhID0gbWFzc2VkLFxuICAgICAgICB4bGFiID0gXCJGZWVkYmFjayBjb25kaXRpb25cIiwgeWxhYiA9IFwiUXVpeiBzY29yZSAoMC0yMClcIikifQ==
+</script>
+</div>
+</div>
+</section>
+</section>
+<section id="one-way-anova" class="level2">
+<h2 class="anchored" data-anchor-id="one-way-anova">One-way ANOVA</h2>
+<p><code>aov()</code> fits the model. In <code>score ~ feedback</code>, <code>~</code> separates the outcome from its grouping factor. <code>summary()</code> prints the ANOVA table: a row for the factor and a row for the within-group residuals.</p>
+<div class="cell" data-exercise="c4-anova" data-autorun="false">
+<div>
+<div id="webr-6" class="exercise-cell">
+
+</div>
+<script type="webr-6-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWFub3ZhIn0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbm1hc3NlZCA8LSBzdWJzZXQoZmVlZGJhY2tfZGF0YSwgcHJhY3RpY2UgPT0gXCJNYXNzZWRcIilcbm9uZV93YXkgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQpXG5zdW1tYXJ5KG9uZV93YXkpIn0=
+</script>
+</div>
+</div>
+<p>The table gives F(2, 9) = 4.8000 with p = .0381. The null is that the three Massed group means are equal; the alternative is that at least two differ. Under independent observations, equal group error variances and Normal errors, the null ratio has an F(2, 9) reference. This result concerns the 12 invented Massed scores only.</p>
+<section id="one-way-ms" class="level3">
+<h3 class="anchored" data-anchor-id="one-way-ms">Where the df and mean squares come from</h3>
+<p><code>deviance()</code> returns the residual sum of squares and <code>df.residual()</code> the residual degrees of freedom, so their ratio is the within-group mean square <code>MS_W</code>. The between-group sum of squares 32 divided by its 2 df gives <code>MS_B</code>; the F statistic is the ratio of the two mean squares, and <code>pf(..., lower.tail = FALSE)</code> gives its right-tail probability.</p>
+<div class="cell" data-exercise="c4-ms" data-autorun="false">
+<div>
+<div id="webr-7" class="exercise-cell">
+
+</div>
+<script type="webr-7-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LW1zIn0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbm1hc3NlZCA8LSBzdWJzZXQoZmVlZGJhY2tfZGF0YSwgcHJhY3RpY2UgPT0gXCJNYXNzZWRcIilcbm9uZV93YXkgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQpXG5TU19XIDwtIGRldmlhbmNlKG9uZV93YXkpXG5kZl9XIDwtIGRmLnJlc2lkdWFsKG9uZV93YXkpXG5NU19XIDwtIFNTX1cgLyBkZl9XXG5jKFNTX1cgPSBTU19XLCBkZl9XID0gZGZfVywgTVNfVyA9IE1TX1cpXG5jKE1TX0IgPSAzMiAvIDIsIEYgPSAoMzIgLyAyKSAvIE1TX1csXG4gIHAgPSBwZigoMzIgLyAyKSAvIE1TX1csIDIsIGRmX1csIGxvd2VyLnRhaWwgPSBGQUxTRSkpIn0=
+</script>
+</div>
+</div>
+<p><code>SS_W</code> is 30.0000 with 9 df, so <code>MS_W</code> is 3.3333. The three group means carry 2 df because the third is fixed once the grand mean and the other two are known, and each group of four residuals sums to zero, leaving 12 - 3 = 9. Both mean squares estimate the same error variance under the null; their ratio is not expected to be exactly 1 in an observed sample.</p>
+</section>
+</section>
+<section id="contrasts" class="level2">
+<h2 class="anchored" data-anchor-id="contrasts">Contrasts and multiple comparisons</h2>
+<p>A contrast gives each group mean a weight, with the weights summing to zero. Here <code>c(-1, 1, 0)</code> is Answer feedback minus Rereading and <code>c(-1, 0, 1)</code> is Explanatory feedback minus Rereading, in the declared feedback order. <code>rbind()</code> stacks the two weight rows; <code>weights %*% group_means</code> multiplies them out and <code>drop()</code> returns a plain named vector.</p>
+<p>The SE of a contrast is <code>sqrt(MS_W * sum(c^2 / n))</code>: the weights are squared because variances of independent means add. <code>sweep(weights^2, 2, group_n, "/")</code> divides each squared weight by its own group count and <code>rowSums()</code> adds them. <code>qt(1 - .05 / (2 * 2), df)</code> is the Bonferroni critical value: the first 2 allows two tails and the second allows the two declared comparisons, giving at least 95% joint coverage under the model. State the family before choosing the multiplier.</p>
+<div class="cell" data-exercise="c4-contrast" data-autorun="false">
+<div>
+<div id="webr-8" class="exercise-cell">
+
+</div>
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWNvbnRyYXN0In0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbm1hc3NlZCA8LSBzdWJzZXQoZmVlZGJhY2tfZGF0YSwgcHJhY3RpY2UgPT0gXCJNYXNzZWRcIilcbm9uZV93YXkgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQpXG5ncm91cF9tZWFucyA8LSB0YXBwbHkobWFzc2VkJHNjb3JlLCBtYXNzZWQkZmVlZGJhY2ssIG1lYW4pXG5ncm91cF9uIDwtIHRhYmxlKG1hc3NlZCRmZWVkYmFjaylcbndlaWdodHMgPC0gcmJpbmQoQW5zd2VyID0gYygtMSwgMSwgMCksIEV4cGxhaW4gPSBjKC0xLCAwLCAxKSlcbmVzdGltYXRlIDwtIGRyb3Aod2VpZ2h0cyAlKiUgZ3JvdXBfbWVhbnMpXG5NU19XIDwtIGRldmlhbmNlKG9uZV93YXkpIC8gZGYucmVzaWR1YWwob25lX3dheSlcblNFIDwtIHNxcnQoTVNfVyAqIHJvd1N1bXMoc3dlZXAod2VpZ2h0c14yLCAyLCBncm91cF9uLCBcIi9cIikpKVxuY3JpdGljYWwgPC0gcXQoMSAtIC4wNSAvICgyICogMiksIGRmLnJlc2lkdWFsKG9uZV93YXkpKVxuYyhjcml0aWNhbCA9IGNyaXRpY2FsKVxuZGF0YS5mcmFtZShlc3RpbWF0ZSwgU0UsXG4gICAgICAgICAgIGxvd2VyID0gZXN0aW1hdGUgLSBjcml0aWNhbCAqIFNFLFxuICAgICAgICAgICB1cHBlciA9IGVzdGltYXRlICsgY3JpdGljYWwgKiBTRSkifQ==
+</script>
+</div>
+</div>
+<p>Both comparisons have SE 1.2910 with 9 error df, and the Bonferroni critical value is 2.6850. The intervals are [-1.4663, 5.4663] for Answer minus Rereading and [0.5337, 7.4663] for Explanatory minus Rereading. Under the stated conditions the second excludes zero and the first does not; an interval containing zero does not establish equal means. The two intervals share the Rereading mean, so they are positively related.</p>
+<section id="tukey" class="level3">
+<h3 class="anchored" data-anchor-id="tukey">All three pairs with Tukey</h3>
+<p><code>TukeyHSD()</code> answers a different question: all three pairwise differences at once. Its family is larger than the two declared comparisons, so its multiplier and intervals differ. Run it in its own cell so the two families stay visibly separate.</p>
+<div class="cell" data-exercise="c4-tukey" data-autorun="false">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LXR1a2V5In0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbm1hc3NlZCA8LSBzdWJzZXQoZmVlZGJhY2tfZGF0YSwgcHJhY3RpY2UgPT0gXCJNYXNzZWRcIilcbm9uZV93YXkgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2ssIGRhdGEgPSBtYXNzZWQpXG5UdWtleUhTRChvbmVfd2F5LCBcImZlZWRiYWNrXCIpIn0=
+</script>
+</div>
+</div>
+<p>The three differences are 2.0000, 4.0000 and 2.0000, with intervals [-1.6045, 5.6045], [0.3955, 7.6045] and [-1.6045, 5.6045] and adjusted p-values .3150, .0310 and .3150. Choose a family because it matches the question you asked, never because its intervals exclude zero.</p>
+</section>
+</section>
+<section id="factorial-anova" class="level2">
+<h2 class="anchored" data-anchor-id="factorial-anova">The full factorial model</h2>
+<p>Now use all 24 students. No one supplies an observation in both schedules, so these are six separate groups of four different students. In the model formula, <code>feedback * practice</code> includes both main effects and their interaction. <code>tapply()</code> with <code>list()</code> of the two factors returns the table of six cell means; <code>rowMeans()</code> and <code>colMeans()</code> give the equally weighted marginal means.</p>
+<div class="cell" data-exercise="c4-factorial" data-autorun="false">
+<div>
+<div id="webr-10" class="exercise-cell">
+
+</div>
+<script type="webr-10-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWZhY3RvcmlhbCJ9LCJjb2RlIjoiZmVlZGJhY2tfZGF0YSA8LSByZWFkLmNzdihcImRhdGEvZmVlZGJhY2tfcHJhY3RpY2UuY3N2XCIpXG5mZWVkYmFja19kYXRhJGZlZWRiYWNrIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJGZlZWRiYWNrLFxuICBsZXZlbHMgPSBjKFwiUmVyZWFkaW5nXCIsIFwiQW5zd2VyIGZlZWRiYWNrXCIsIFwiRXhwbGFuYXRvcnkgZmVlZGJhY2tcIikpXG5mZWVkYmFja19kYXRhJHByYWN0aWNlIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJHByYWN0aWNlLFxuICBsZXZlbHMgPSBjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpKVxudGFibGUoZmVlZGJhY2tfZGF0YSRmZWVkYmFjaywgZmVlZGJhY2tfZGF0YSRwcmFjdGljZSlcbmNlbGxfbWVhbnMgPC0gd2l0aChmZWVkYmFja19kYXRhLFxuICAgICAgICAgICAgICAgICAgIHRhcHBseShzY29yZSwgbGlzdChmZWVkYmFjaywgcHJhY3RpY2UpLCBtZWFuKSlcbmNlbGxfbWVhbnNcbnJvd01lYW5zKGNlbGxfbWVhbnMpXG5jb2xNZWFucyhjZWxsX21lYW5zKVxuZnVsbF9maXQgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2sgKiBwcmFjdGljZSwgZGF0YSA9IGZlZWRiYWNrX2RhdGEpXG5zdW1tYXJ5KGZ1bGxfZml0KSJ9
+</script>
+</div>
+</div>
+<p>Six cells of four students leave 24 - 6 = 18 error df. Feedback gives F(2, 18) = 38.4000, practice gives F(1, 18) = 28.8000, and the interaction gives F(2, 18) = 9.6000 with p = .0015. The feedback marginal means are 6.0000, 10.0000 and 14.0000 and the practice marginal means are 8.0000 and 12.0000; these averages use equal weights across the other factor’s levels. With an interaction present, the cell means are needed to see the pattern that those averages summarize. The 12-record Massed analysis above used a slice of these data and had 9 error df, not 18.</p>
+<section id="factorial-residuals" class="level3">
+<h3 class="anchored" data-anchor-id="factorial-residuals">Residuals from the factorial fit</h3>
+<p>A residual is one student’s score minus the fitted value for that student’s cell, so the residuals are what the six cell means leave unexplained. <code>fitted()</code> returns the fitted cell mean for each of the 24 students and <code>resid()</code> the matching residual. Plotting one against the other puts the cells side by side: <code>plot()</code> draws the points, <code>abline(h = 0, lty = 2)</code> adds a dashed horizontal line at zero, and <code>table(round(resid(full_fit), 4))</code> counts how often each residual value occurs.</p>
+<div class="cell" data-exercise="c4-residuals" data-autorun="false">
+<div>
+<div id="webr-11" class="exercise-cell">
+
+</div>
+<script type="webr-11-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LXJlc2lkdWFscyJ9LCJjb2RlIjoiZmVlZGJhY2tfZGF0YSA8LSByZWFkLmNzdihcImRhdGEvZmVlZGJhY2tfcHJhY3RpY2UuY3N2XCIpXG5mZWVkYmFja19kYXRhJGZlZWRiYWNrIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJGZlZWRiYWNrLFxuICBsZXZlbHMgPSBjKFwiUmVyZWFkaW5nXCIsIFwiQW5zd2VyIGZlZWRiYWNrXCIsIFwiRXhwbGFuYXRvcnkgZmVlZGJhY2tcIikpXG5mZWVkYmFja19kYXRhJHByYWN0aWNlIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJHByYWN0aWNlLFxuICBsZXZlbHMgPSBjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpKVxuZnVsbF9maXQgPC0gYW92KHNjb3JlIH4gZmVlZGJhY2sgKiBwcmFjdGljZSwgZGF0YSA9IGZlZWRiYWNrX2RhdGEpXG5wYXIobWFyID0gYyg0LCA0LCAxLCAxKSlcbnBsb3QoZml0dGVkKGZ1bGxfZml0KSwgcmVzaWQoZnVsbF9maXQpLCBwY2ggPSAxNixcbiAgICAgeGxhYiA9IFwiRml0dGVkIGNlbGwgbWVhblwiLCB5bGFiID0gXCJSZXNpZHVhbFwiLFxuICAgICB4bGltID0gYygwLCAyMCksIHlsaW0gPSBjKC00LCA0KSlcbmFibGluZShoID0gMCwgbHR5ID0gMilcbnRhYmxlKHJvdW5kKHJlc2lkKGZ1bGxfZml0KSwgNCkpIn0=
+</script>
+</div>
+</div>
+<p>The points fall in five vertical columns, at fitted values 6, 8, 10, 12 and 18. Two cells share the fitted mean 6, so that column holds eight students; their residuals coincide exactly, so only four dots are visible there. Every cell contributes the residuals -2, -1, 1 and 2, which is why the counted table shows each of those four values six times while the plot shows twenty dots.</p>
+<p>Look for three things. First, the points in each column should be centred on the dashed line; they are, because fitting cell means forces the residuals within a cell to sum to zero. Second, the vertical spread should be about the same at every fitted value: a fan that widens as the fitted mean grows would question the equal error variance the F tests assume. Third, a point far from all the others would mark an unusual observation worth checking in the data. With four scores per cell this display can show only a coarse pattern, and these invented scores are unusually regular; it supports the conditions rather than proving them.</p>
+</section>
+</section>
+<section id="eta-squared" class="level2">
+<h2 class="anchored" data-anchor-id="eta-squared">Eta squared for each source</h2>
+<p>Eta squared is a descriptive summary of magnitude: one source’s sum of squares divided by the total sum of squares. It reports the share of the observed squared variation that goes with that source in this sample. <code>anova()</code> on a fitted model returns the table whose <code>"Sum Sq"</code> column holds those sums, and <code>rownames()</code> supplies the source names, so <code>full_SS / sum(full_SS)</code> divides each one by the total.</p>
+<div class="cell" data-exercise="c4-eta" data-autorun="false">
+<div>
+<div id="webr-12" class="exercise-cell">
+
+</div>
+<script type="webr-12-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWV0YSJ9LCJjb2RlIjoiZmVlZGJhY2tfZGF0YSA8LSByZWFkLmNzdihcImRhdGEvZmVlZGJhY2tfcHJhY3RpY2UuY3N2XCIpXG5mZWVkYmFja19kYXRhJGZlZWRiYWNrIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJGZlZWRiYWNrLFxuICBsZXZlbHMgPSBjKFwiUmVyZWFkaW5nXCIsIFwiQW5zd2VyIGZlZWRiYWNrXCIsIFwiRXhwbGFuYXRvcnkgZmVlZGJhY2tcIikpXG5mZWVkYmFja19kYXRhJHByYWN0aWNlIDwtIGZhY3RvcihmZWVkYmFja19kYXRhJHByYWN0aWNlLFxuICBsZXZlbHMgPSBjKFwiTWFzc2VkXCIsIFwiU3BhY2VkXCIpKVxubWFzc2VkIDwtIHN1YnNldChmZWVkYmFja19kYXRhLCBwcmFjdGljZSA9PSBcIk1hc3NlZFwiKVxub25lX3dheSA8LSBhb3Yoc2NvcmUgfiBmZWVkYmFjaywgZGF0YSA9IG1hc3NlZClcbm9uZV9TUyA8LSBhbm92YShvbmVfd2F5KVtbXCJTdW0gU3FcIl1dXG5jKFNTX0IgPSBvbmVfU1NbMV0sIFNTX1cgPSBvbmVfU1NbMl0sIFNTX1QgPSBzdW0ob25lX1NTKSxcbiAgZXRhX3NxdWFyZWQgPSBvbmVfU1NbMV0gLyBzdW0ob25lX1NTKSlcbmZ1bGxfZml0IDwtIGFvdihzY29yZSB+IGZlZWRiYWNrICogcHJhY3RpY2UsIGRhdGEgPSBmZWVkYmFja19kYXRhKVxuZnVsbF90YWJsZSA8LSBhbm92YShmdWxsX2ZpdClcbmZ1bGxfU1MgPC0gZnVsbF90YWJsZVtbXCJTdW0gU3FcIl1dXG5uYW1lcyhmdWxsX1NTKSA8LSByb3duYW1lcyhmdWxsX3RhYmxlKVxuZnVsbF9TU1xucm91bmQoZnVsbF9TUyAvIHN1bShmdWxsX1NTKSwgNCkifQ==
+</script>
+</div>
+</div>
+<p>In the 12-record Massed one-way fit, the between-group sum of squares is 32.0000 and the total is 62.0000, so eta squared is .5161. In the full factorial fit the sums of squares are 256.0000 for feedback, 96.0000 for practice, 64.0000 for the interaction and 60.0000 for the residuals, a total of 476.0000; the four shares are .5378, .2017, .1345 and .1261, and the exact shares add to one, although the four rounded values shown add to 1.0001 because each rounds up.</p>
+<p>Read these as the fraction of variation among these observed scores, not as the fraction of learning caused by feedback. A value depends on the design and on which sources the model contains, so the one-way .5161 and the factorial .5378 are two different quantities rather than one quantity measured twice. If software reports partial eta squared instead, its denominator is that term’s own sum of squares plus the residual sum of squares, not the total; say which one you are reporting.</p>
+</section>
+<section id="interaction-plot" class="level2">
+<h2 class="anchored" data-anchor-id="interaction-plot">The interaction plot and one selected comparison</h2>
+<p><code>interaction.plot(x.factor, trace.factor, response)</code> calculates the cell means and joins them with one line per trace level. <code>type = "b"</code> draws points and lines, <code>lty</code> and <code>col</code> distinguish the three lines, <code>trace.label</code> names the legend and <code>ylim</code> fixes the score axis.</p>
+<div class="cell" data-exercise="c4-interaction" data-autorun="false">
+<div>
+<div id="webr-13" class="exercise-cell">
+
+</div>
+<script type="webr-13-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LWludGVyYWN0aW9uIn0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbmZlZWRiYWNrX2RhdGEkcHJhY3RpY2UgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkcHJhY3RpY2UsXG4gIGxldmVscyA9IGMoXCJNYXNzZWRcIiwgXCJTcGFjZWRcIikpXG5wYXIobWFyID0gYyg0LCA0LCAxLCAxKSlcbndpdGgoZmVlZGJhY2tfZGF0YSxcbiAgICAgaW50ZXJhY3Rpb24ucGxvdChwcmFjdGljZSwgZmVlZGJhY2ssIHNjb3JlLCB0eXBlID0gXCJiXCIsXG4gICAgICAgICAgICAgICAgICAgICAgcGNoID0gYygxNiwgMSwgMTcpLCBsdHkgPSAxOjMsXG4gICAgICAgICAgICAgICAgICAgICAgeGxhYiA9IFwiUHJhY3RpY2Ugc2NoZWR1bGVcIiwgeWxhYiA9IFwiTWVhbiBxdWl6IHNjb3JlXCIsXG4gICAgICAgICAgICAgICAgICAgICAgdHJhY2UubGFiZWwgPSBcIkZlZWRiYWNrXCIsIHlsaW0gPSBjKDAsIDIwKSkpIn0=
+</script>
+</div>
+</div>
+<p>Each line joins means of different students; the lines are not repeated measurements. Nonparallel lines are descriptive evidence that the schedule comparison changes across feedback conditions. An inferential claim also needs uncertainty and a stated reference distribution.</p>
+<section id="selected-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="selected-comparison">Simple differences and a difference of differences</h3>
+<p><code>cell_means[, "Spaced"] - cell_means[, "Massed"]</code> subtracts two columns of the cell-mean table, giving the schedule difference within each feedback condition. Subtracting two of those differences asks how the schedule comparison itself changes between two conditions. All four cell means come from different students, so under the full model their variances add and <code>SE = sqrt(MS_E * (1/4 + 1/4 + 1/4 + 1/4))</code>.</p>
+<p>Because this comparison is selected after looking at the plot, <code>sqrt(2 * qf(.95, 2, error_df))</code> supplies a Scheffe multiplier covering every contrast in the two-degree-of-freedom interaction space. <code>unname()</code> drops an inherited label when printing; the value is unchanged.</p>
+<div class="cell" data-exercise="c4-selected" data-autorun="false">
+<div>
+<div id="webr-14" class="exercise-cell">
+
+</div>
+<script type="webr-14-contents">
+eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6ImM0LXNlbGVjdGVkIn0sImNvZGUiOiJmZWVkYmFja19kYXRhIDwtIHJlYWQuY3N2KFwiZGF0YS9mZWVkYmFja19wcmFjdGljZS5jc3ZcIilcbmZlZWRiYWNrX2RhdGEkZmVlZGJhY2sgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkZmVlZGJhY2ssXG4gIGxldmVscyA9IGMoXCJSZXJlYWRpbmdcIiwgXCJBbnN3ZXIgZmVlZGJhY2tcIiwgXCJFeHBsYW5hdG9yeSBmZWVkYmFja1wiKSlcbmZlZWRiYWNrX2RhdGEkcHJhY3RpY2UgPC0gZmFjdG9yKGZlZWRiYWNrX2RhdGEkcHJhY3RpY2UsXG4gIGxldmVscyA9IGMoXCJNYXNzZWRcIiwgXCJTcGFjZWRcIikpXG5mdWxsX2ZpdCA8LSBhb3Yoc2NvcmUgfiBmZWVkYmFjayAqIHByYWN0aWNlLCBkYXRhID0gZmVlZGJhY2tfZGF0YSlcbmNlbGxfbWVhbnMgPC0gd2l0aChmZWVkYmFja19kYXRhLFxuICAgICAgICAgICAgICAgICAgIHRhcHBseShzY29yZSwgbGlzdChmZWVkYmFjaywgcHJhY3RpY2UpLCBtZWFuKSlcbnNjaGVkdWxlX2RpZmZlcmVuY2UgPC0gY2VsbF9tZWFuc1ssIFwiU3BhY2VkXCJdIC0gY2VsbF9tZWFuc1ssIFwiTWFzc2VkXCJdXG5zY2hlZHVsZV9kaWZmZXJlbmNlXG5zZWxlY3RlZCA8LSBzY2hlZHVsZV9kaWZmZXJlbmNlW1wiQW5zd2VyIGZlZWRiYWNrXCJdIC1cbiAgICAgICAgICAgIHNjaGVkdWxlX2RpZmZlcmVuY2VbXCJSZXJlYWRpbmdcIl1cbmVycm9yX2RmIDwtIGRmLnJlc2lkdWFsKGZ1bGxfZml0KVxuTVNfRSA8LSBkZXZpYW5jZShmdWxsX2ZpdCkgLyBlcnJvcl9kZlxuc2VsZWN0ZWRfU0UgPC0gc3FydChNU19FICogKDEvNCArIDEvNCArIDEvNCArIDEvNCkpXG5zY2hlZmZlIDwtIHNxcnQoMiAqIHFmKC45NSwgMiwgZXJyb3JfZGYpKVxuYyhlc3RpbWF0ZSA9IHVubmFtZShzZWxlY3RlZCksIFNFID0gc2VsZWN0ZWRfU0UsIG11bHRpcGxpZXIgPSBzY2hlZmZlKVxuc3ByaW50ZihcIiUuNGZcIiwgdW5uYW1lKHNlbGVjdGVkKSArIGMoLTEsIDEpICogc2NoZWZmZSAqIHNlbGVjdGVkX1NFKSJ9
+</script>
+</div>
+</div>
+<p>The schedule differences are 0.0000, 4.0000 and 8.0000 points for Rereading, Answer feedback and Explanatory feedback. The selected difference of differences is 4.0000 with SE 1.8257, the Scheffe multiplier is 2.6663, and the simultaneous interval is [-0.8680, 8.8680]. It includes zero although the omnibus interaction p-value is .0015: the joint test addresses all interaction directions at once, while this interval covers every selected contrast in that space. The two procedures answer different questions with different calibrations, so neither one overrules the other. A simple effect within one condition also contains a practice main-effect component and lies outside this interaction-only family.</p>
+</section>
+</section>
+<section id="programming-help" class="level2">
+<h2 class="anchored" data-anchor-id="programming-help">Run a supplied script</h2>
+<p>Paste the whole script for an exercise, Computer Lab question or homework into <a href="#your-r-work">your workspace</a>, including its data-loading and <code>factor()</code> lines. The workspace has its own R session, so objects created in the cells above are not available there. The public CSV on this page is available in the workspace as <code>data/feedback_practice.csv</code>; on desktop R, keep that subfolder or change the path to your downloaded file. A script that types the 24 scores needs no file at all.</p>
+<p>The complete starting script below runs in order in a fresh session and reproduces the page’s main factorial result, the cell means, the schedule differences and the selected simultaneous interval. Copy all of it, then change only what your own task requires.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full_fit)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">with</span>(feedback_data,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">tapply</span>(score, <span class="fu">list</span>(feedback, practice), mean))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>cell_means</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>schedule_difference <span class="ot">&lt;-</span> cell_means[, <span class="st">"Spaced"</span>] <span class="sc">-</span> cell_means[, <span class="st">"Massed"</span>]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>schedule_difference</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>selected <span class="ot">&lt;-</span> schedule_difference[<span class="st">"Answer feedback"</span>] <span class="sc">-</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            schedule_difference[<span class="st">"Rereading"</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>error_df <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(full_fit)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>MS_E <span class="ot">&lt;-</span> <span class="fu">deviance</span>(full_fit) <span class="sc">/</span> error_df</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>selected_SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_E <span class="sc">*</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>scheffe <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> <span class="fu">qf</span>(.<span class="dv">95</span>, <span class="dv">2</span>, error_df))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">unname</span>(selected), <span class="at">SE =</span> selected_SE, <span class="at">multiplier =</span> scheffe)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, <span class="fu">unname</span>(selected) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> scheffe <span class="sc">*</span> selected_SE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Commands used in the supplied scripts include <code>data.frame()</code> and <code>rep()</code> for entering scores, <code>subset()</code> and <code>droplevels()</code> for a reduced set, <code>aov()</code> and <code>summary()</code> for a model, <code>anova()</code> for a fitted model’s table, <code>deviance()</code> and <code>df.residual()</code> for the error term, <code>TukeyHSD()</code> for all pairs, <code>qt()</code> and <code>qf()</code> for critical values, <code>interaction.plot()</code> and <code>stripchart()</code> for base graphs, and <code>sprintf("%.4f", x)</code> for reporting. <code>sprintf()</code> returns text; keep the numeric objects for further arithmetic. Use the family, weights and factor order declared by your task.</p>
+<section id="local-csv-help" class="level3">
+<h3 class="anchored" data-anchor-id="local-csv-help">Open a private course CSV</h3>
+<p>Choose <strong>Open a CSV</strong> in the workspace and select the course-supplied <code>hsb.csv</code>. It remains in this browser session and is not uploaded. Read it with the first line of the task’s complete script:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>hsb <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"hsb.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(hsb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>names()</code> shows the column names. Keep the course’s numeric codes and run the supplied group and coding setup, weights and model. Opening a file does not by itself create the R object. If you reload the page, reopen both the CSV and your saved script; saving a script does not save the CSV records.</p>
+</section>
+<section id="software-references" class="level3">
+<h3 class="anchored" data-anchor-id="software-references">Function and software references</h3>
+<p>The R manuals explain <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/data.frame.html">data frames</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/factor.html">factors</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/subset.html">subsetting</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/aov.html">ANOVA models</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/summary.aov.html">model summaries</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/TukeyHSD.html">Tukey comparisons</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/TDist.html">t critical values</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Fdist.html">F critical values</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/interaction.plot.html">interaction plots</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/stripchart.html">stripcharts</a> and <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/sprintf.html">formatting results</a>. Every command on this page belongs to base R, <code>stats</code> or <code>graphics</code>, so desktop R needs no installation step for them.</p>
+<p>For the Computer Lab’s SPSS route: <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=univariate-overview-glm-command">full-factorial GLM</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/32.0.0?topic=analysis-glm-profile-plots">profile plots</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=anova-one-way-contrasts">one-way contrasts</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=properties-cell-format-value">cell format</a> and <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=transformations-recode-into-different-variables">recoding</a>. Use the task’s group order, model and error term with either route. <a href="./data-notes.html">Data sources and reuse</a> describe the public records.</p>
+</section>
+</section>
+<section id="your-r-work" class="level2">
+<h2 class="anchored" data-anchor-id="your-r-work">Your R work</h2>
+<section id="run-code" class="level3">
+<h3 class="anchored" data-anchor-id="run-code">How to run code</h3>
+<p><strong>Run a complete example.</strong> Click <strong>Run All</strong> to run the whole code block or workspace script, including its data-loading commands.</p>
+<p><strong>Try commands one by one.</strong> Click inside a code box and place the cursor on the first command. Press <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS, or click <strong>Run Code</strong>. This runs the current complete command and advances the cursor. Select several commands first to run just that selection. Enter/Return alone adds a new line.</p>
+<p>Objects remain available for later commands in the same code box. An assignment such as <code>dat &lt;- d0</code> usually prints nothing; run <code>head(dat)</code> to inspect the result. A command spanning several lines, such as a model or plot call with several arguments, runs together. When selecting text, include the entire command; an incomplete selection produces an R error. After changing data, rerun every calculation that uses them. <strong>Start Over</strong> restores a chapter block’s original code and clears that block’s objects.</p>
+<p><strong>Use desktop RStudio.</strong> Put the complete code in an R script. With the cursor on a command, <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS runs the current line or selected code. Select the whole command when it spans several lines. The <a href="https://docs.posit.co/ide/user/ide/reference/shortcuts.html">RStudio shortcut reference</a> gives further details. In the R console, type a complete command and press Enter/Return. Run the data-loading commands before commands that use them.</p>
+<p><strong>If R shows an error.</strong> Read the last line of the message first: it usually names the problem, and nothing is damaged. Five common causes:</p>
+<ul>
+<li><em>unexpected numeric constant</em> or <em>unexpected symbol</em>: a missing comma between two values or arguments, such as <code>c(50 54)</code> instead of <code>c(50, 54)</code>.</li>
+<li><em>unexpected ‘)’</em>: one closing bracket too many, such as <code>c(50, 54))</code>.</li>
+<li><em>could not find function</em> or a name R does not recognise: a misspelled name. R matches names exactly, so <code>t.tset</code> is not <code>t.test</code> and <code>Mean</code> is not <code>mean</code>.</li>
+<li>A <code>+</code> prompt, or a result that never appears: an unmatched quote or bracket, so the command is still unfinished. Complete the quote or bracket, or press <strong>Esc</strong> to cancel, then run the command again.</li>
+<li><em>object ‘dat’ not found</em>: that object does not exist in this session, usually because its setup line has not been run. Rerun the cell’s setup lines, or choose <strong>Run All</strong>, before the command that uses the object.</li>
+</ul>
+<p>Correct the line and run it again. If a code box has drifted too far from its starting code, <strong>Start Over</strong> restores it.</p>
+<details class="qmsbr-workspace-panel">
+<summary>Open workspace for your own code or CSV</summary>
+<p>Paste the complete code for an exercise, Software Lab, or homework question here, including its data-loading lines. To save edits from an example, copy that example's code here first.</p>
+<div class="qmsbr-workspace" id="r-workspace">
+  <p class="qmsbr-status" role="status" aria-live="polite">R is starting. You can edit and save code while it loads.</p>
+  <div class="qmsbr-controls">
+    <label>Open a CSV <input type="file" accept=".csv,text/csv" data-file="csv" disabled=""></label>
+    <label>Open an R script <input type="file" accept=".R,.r,text/plain" data-file="script"></label>
+  </div>
+  <p class="qmsbr-note">Use a CSV with column names in the first row (up to 5 MB). Files stay in this browser session. For course-supplied HSB, open the CSV, then use <code>hsb &lt;- read.csv("hsb.csv")</code>.</p>
+  <pre class="qmsbr-preview" aria-label="Imported data preview" hidden=""></pre>
+  <label for="workspace-code">Your R code</label>
+  <textarea class="qmsbr-code" id="workspace-code" spellcheck="false"># Paste your complete code here.
+scores &lt;- c(12, 15, 17, 18, 20)
+mean(scores)
+sd(scores)
+</textarea>
+  <div class="qmsbr-controls">
+    <button type="button" data-action="run" disabled="">Run Code</button>
+    <button type="button" data-action="run-all" disabled="">Run All</button>
+    <button type="button" data-action="save-code">Save R script</button>
+    <button type="button" data-action="save-results">Save results and interpretation</button>
+    <button type="button" data-action="clear" disabled="">Clear R objects</button>
+  </div>
+  <p class="qmsbr-note">Run Code uses the selection or current complete command. Run All uses the whole script. Clear R objects resets the analysis while keeping your code and imported files.</p>
+  <label for="workspace-output">Most recent workspace output</label>
+  <pre class="qmsbr-output" id="workspace-output" aria-live="polite">Your results will appear here.</pre>
+  <div class="qmsbr-plots"></div>
+  <label for="workspace-notes">Your interpretation</label>
+  <textarea class="qmsbr-notes" id="workspace-notes" placeholder="Write your answer to the question."></textarea>
+</div>
+<details>
+<summary>Saving and reopening work</summary>
+<p>Save your R script and results before leaving. The script includes unrun edits; the results file pairs the latest output with its code and the earlier executed commands. For a reproducible submission, keep all setup in the script, clear R objects, and use Run All before saving. Save plots separately. Submit through your course's usual system.</p>
+<p>Reloading clears R objects and imported files. Reopen your CSV and saved script, then run it. On desktop R, use the folder containing your script and CSV as the working directory; built-in examples using <code>data/...</code> need that subfolder. For a stalled calculation, save your code and reload.</p>
+</details>
+</details>
+<noscript><p class="qmsbr-fallback">JavaScript is off. Use <a href="#supplied-output">the supplied code and output</a>, or run the code on desktop R.</p></noscript>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="0" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb3-0"><a href="#cb3-0" aria-hidden="true" tabindex="-1"></a>workspace_ready <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrWorkspace</span><span class="op">.</span><span class="fu">attach</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="supplied-output" class="level2">
+<h2 class="anchored" data-anchor-id="supplied-output">Fixed code and output</h2>
+<p>Open an example for its complete starting code and saved result. These remain usable when the browser runtime is unavailable; edits in a live cell do not change them.</p>
+<details>
+<summary>
+The course CSV, its factor order and the six cells
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  student  feedback practice score
+1       1 Rereading   Massed     4
+2       2 Rereading   Massed     5
+3       3 Rereading   Massed     7
+4       4 Rereading   Massed     8
+5       5 Rereading   Spaced     4
+6       6 Rereading   Spaced     5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   24 obs. of  4 variables:
+ $ student : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ feedback: Factor w/ 3 levels "Rereading","Answer feedback",..: 1 1 1 1 1 1 1 1 2 2 ...
+ $ practice: Factor w/ 2 levels "Massed","Spaced": 1 1 1 1 2 2 2 2 1 1 ...
+ $ score   : int  4 5 7 8 4 5 7 8 6 7 ...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      
+                       Massed Spaced
+  Rereading                 4      4
+  Answer feedback           4      4
+  Explanatory feedback      4      4</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+The same 24 scores typed in
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">student =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">24</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">feedback =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"Explanatory feedback"</span>), <span class="at">each =</span> <span class="dv">8</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Explanatory feedback"</span>)),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">practice =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>), <span class="at">each =</span> <span class="dv">4</span>), <span class="dv">3</span>),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>)),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">score =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">19</span>, <span class="dv">20</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  student  feedback practice score
+1       1 Rereading   Massed     4
+2       2 Rereading   Massed     5
+3       3 Rereading   Massed     7
+4       4 Rereading   Massed     8
+5       5 Rereading   Spaced     4
+6       6 Rereading   Spaced     5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      
+                       Massed Spaced
+  Rereading                 4      4
+  Answer feedback           4      4
+  Explanatory feedback      4      4</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+The Massed subset, counts, means and SDs
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(massed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 12</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(massed<span class="sc">$</span>feedback)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+           Rereading      Answer feedback Explanatory feedback 
+                   4                    4                    4 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              feedback score
+1            Rereading     6
+2      Answer feedback     8
+3 Explanatory feedback    10</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, sd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Rereading      Answer feedback Explanatory feedback 
+            1.825742             1.825742             1.825742 </code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Dotplot of the 12 Massed scores with group means
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stripchart</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">method =</span> <span class="st">"stack"</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">las =</span> <span class="dv">1</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab =</span> <span class="st">"Quiz score (0-20)"</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, mean), <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">4</span>, <span class="at">cex =</span> <span class="fl">1.7</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chapter-04_files/figure-html/c4-stripchart-static-1.png" class="img-fluid figure-img" alt="Three rows of four dots. Rereading scores 4, 5, 7 and 8 center on a cross at 6; Answer feedback scores 6, 7, 9 and 10 center on 8; Explanatory feedback scores 8, 9, 11 and 12 center on 10. The ranges overlap." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Boxplots of the same 12 scores
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Feedback condition"</span>, <span class="at">ylab =</span> <span class="st">"Quiz score (0-20)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chapter-04_files/figure-html/c4-boxplot-static-1.png" class="img-fluid figure-img" alt="Three boxplots of four scores each. The boxes step upward from Rereading to Answer feedback to Explanatory feedback and their ranges overlap." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</details>
+<details>
+<summary>
+One-way ANOVA table for the Massed subset
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(one_way)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)  
+feedback     2     32  16.000     4.8 0.0381 *
+Residuals    9     30   3.333                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Residual sum of squares, df and mean squares
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>SS_W <span class="ot">&lt;-</span> <span class="fu">deviance</span>(one_way)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>df_W <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(one_way)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>MS_W <span class="ot">&lt;-</span> SS_W <span class="sc">/</span> df_W</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">SS_W =</span> SS_W, <span class="at">df_W =</span> df_W, <span class="at">MS_W =</span> MS_W)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     SS_W      df_W      MS_W 
+30.000000  9.000000  3.333333 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">MS_B =</span> <span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>, <span class="at">F =</span> (<span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">/</span> MS_W,</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">p =</span> <span class="fu">pf</span>((<span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">/</span> MS_W, <span class="dv">2</span>, df_W, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       MS_B           F           p 
+16.00000000  4.80000000  0.03813143 </code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Two declared comparisons and their Bonferroni intervals
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>group_means <span class="ot">&lt;-</span> <span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, mean)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>group_n <span class="ot">&lt;-</span> <span class="fu">table</span>(massed<span class="sc">$</span>feedback)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="at">Answer =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="at">Explain =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>estimate <span class="ot">&lt;-</span> <span class="fu">drop</span>(weights <span class="sc">%*%</span> group_means)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>MS_W <span class="ot">&lt;-</span> <span class="fu">deviance</span>(one_way) <span class="sc">/</span> <span class="fu">df.residual</span>(one_way)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_W <span class="sc">*</span> <span class="fu">rowSums</span>(<span class="fu">sweep</span>(weights<span class="sc">^</span><span class="dv">2</span>, <span class="dv">2</span>, group_n, <span class="st">"/"</span>)))</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>critical <span class="ot">&lt;-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> .<span class="dv">05</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="fu">df.residual</span>(one_way))</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">critical =</span> critical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>critical 
+2.685011 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(estimate, SE,</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">lower =</span> estimate <span class="sc">-</span> critical <span class="sc">*</span> SE,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">upper =</span> estimate <span class="sc">+</span> critical <span class="sc">*</span> SE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        estimate       SE      lower    upper
+Answer         2 1.290994 -1.4663341 5.466334
+Explain        4 1.290994  0.5336659 7.466334</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+All three pairwise differences with Tukey
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">TukeyHSD</span>(one_way, <span class="st">"feedback"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = score ~ feedback, data = massed)
+
+$feedback
+                                     diff        lwr      upr     p adj
+Answer feedback-Rereading               2 -1.6044637 5.604464 0.3149865
+Explanatory feedback-Rereading          4  0.3955363 7.604464 0.0310140
+Explanatory feedback-Answer feedback    2 -1.6044637 5.604464 0.3149865</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Six cells, marginal means and the full factorial ANOVA
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      
+                       Massed Spaced
+  Rereading                 4      4
+  Answer feedback           4      4
+  Explanatory feedback      4      4</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">with</span>(feedback_data,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">tapply</span>(score, <span class="fu">list</span>(feedback, practice), mean))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>cell_means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     Massed Spaced
+Rereading                 6      6
+Answer feedback           8     12
+Explanatory feedback     10     18</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rowMeans</span>(cell_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Rereading      Answer feedback Explanatory feedback 
+                   6                   10                   14 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colMeans</span>(cell_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Massed Spaced 
+     8     12 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+feedback           2    256  128.00    38.4 3.21e-07 ***
+practice           1     96   96.00    28.8 4.23e-05 ***
+feedback:practice  2     64   32.00     9.6  0.00145 ** 
+Residuals         18     60    3.33                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Residuals against fitted cell means
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(full_fit), <span class="fu">resid</span>(full_fit), <span class="at">pch =</span> <span class="dv">16</span>,</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted cell mean"</span>, <span class="at">ylab =</span> <span class="st">"Residual"</span>,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chapter-04_files/figure-html/c4-residuals-static-1.png" class="img-fluid figure-img" alt="Residuals plotted against fitted cell means. Five vertical columns stand at 6, 8, 10, 12 and 18, each showing the residuals -2, -1, 1 and 2 around a dashed line at zero; the eight students at a fitted mean of 6 overlap into the same four dots." width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">round</span>(<span class="fu">resid</span>(full_fit), <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-2 -1  1  2 
+ 6  6  6  6 </code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Eta squared for the one-way and factorial fits
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>one_SS <span class="ot">&lt;-</span> <span class="fu">anova</span>(one_way)[[<span class="st">"Sum Sq"</span>]]</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">SS_B =</span> one_SS[<span class="dv">1</span>], <span class="at">SS_W =</span> one_SS[<span class="dv">2</span>], <span class="at">SS_T =</span> <span class="fu">sum</span>(one_SS),</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta_squared =</span> one_SS[<span class="dv">1</span>] <span class="sc">/</span> <span class="fu">sum</span>(one_SS))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       SS_B        SS_W        SS_T eta_squared 
+  32.000000   30.000000   62.000000    0.516129 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>full_table <span class="ot">&lt;-</span> <span class="fu">anova</span>(full_fit)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>full_SS <span class="ot">&lt;-</span> full_table[[<span class="st">"Sum Sq"</span>]]</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(full_SS) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(full_table)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>full_SS</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         feedback          practice feedback:practice         Residuals 
+              256                96                64                60 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(full_SS <span class="sc">/</span> <span class="fu">sum</span>(full_SS), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         feedback          practice feedback:practice         Residuals 
+           0.5378            0.2017            0.1345            0.1261 </code></pre>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Interaction plot of the six cell means
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(feedback_data,</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>     <span class="fu">interaction.plot</span>(practice, feedback, score, <span class="at">type =</span> <span class="st">"b"</span>,</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">1</span>, <span class="dv">17</span>), <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xlab =</span> <span class="st">"Practice schedule"</span>, <span class="at">ylab =</span> <span class="st">"Mean quiz score"</span>,</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trace.label =</span> <span class="st">"Feedback"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chapter-04_files/figure-html/c4-interaction-static-1.png" class="img-fluid figure-img" alt="Three lines across Massed and Spaced practice. Rereading stays at 6, Answer feedback rises from 8 to 12, and Explanatory feedback rises from 10 to 18, so the lines are not parallel." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</details>
+<details>
+<summary>
+Schedule differences and the selected Scheffe interval
+</summary>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">with</span>(feedback_data,</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">tapply</span>(score, <span class="fu">list</span>(feedback, practice), mean))</span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>schedule_difference <span class="ot">&lt;-</span> cell_means[, <span class="st">"Spaced"</span>] <span class="sc">-</span> cell_means[, <span class="st">"Massed"</span>]</span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>schedule_difference</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Rereading      Answer feedback Explanatory feedback 
+                   0                    4                    8 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>selected <span class="ot">&lt;-</span> schedule_difference[<span class="st">"Answer feedback"</span>] <span class="sc">-</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>            schedule_difference[<span class="st">"Rereading"</span>]</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>error_df <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(full_fit)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>MS_E <span class="ot">&lt;-</span> <span class="fu">deviance</span>(full_fit) <span class="sc">/</span> error_df</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>selected_SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_E <span class="sc">*</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>scheffe <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> <span class="fu">qf</span>(.<span class="dv">95</span>, <span class="dv">2</span>, error_df))</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">unname</span>(selected), <span class="at">SE =</span> selected_SE, <span class="at">multiplier =</span> scheffe)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  estimate         SE multiplier 
+  4.000000   1.825742   2.666292 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, <span class="fu">unname</span>(selected) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> scheffe <span class="sc">*</span> selected_SE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "-0.8680" "8.8680" </code></pre>
+</div>
+</div>
+</details>
+
+
+<script type="webr-data">
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+</script>
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE0ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0xNC1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzE0ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xNCwge30pO1xuX3dlYnJfZmVlZGJhY2tfMTQgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzE0LmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTM7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEzID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTMtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0xMy1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzEzID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xMywge30pO1xuX3dlYnJfZmVlZGJhY2tfMTMgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzEzLmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0xMi1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzEyID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xMiwge30pO1xuX3dlYnJfZmVlZGJhY2tfMTIgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzEyLmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0xMS1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzExID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xMSwge30pO1xuX3dlYnJfZmVlZGJhY2tfMTEgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzExLmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0xMC1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzEwID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xMCwge30pO1xuX3dlYnJfZmVlZGJhY2tfMTAgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzEwLmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgLy8gRGVmYXVsdCBleGVyY2lzZSBjb25maWd1cmF0aW9uXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKFxuICAgIHtcbiAgICAgIGlkOiBcIndlYnItOS1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzkgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzksIHt9KTtcbl93ZWJyX2ZlZWRiYWNrXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzkuZXZhbHVhdG9yKTtcbiAgY29uc3QgZmVlZGJhY2sgPSBhd2FpdCBncmFkZXIuZ3JhZGVFeGVyY2lzZSgpO1xuICBpZiAoIWZlZWRiYWNrKSByZXR1cm4gZW1wdHlGZWVkYmFjaztcbiAgcmV0dXJuIGZlZWRiYWNrO1xufVxuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzg7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici04IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfOCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTgtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici04LWNvbnRlbnRzXCIsXG4gICAgICBlbnZpcjogYGV4ZXJjaXNlLWVudi0ke2Jsb2NrLmF0dHIuZXhlcmNpc2V9YCxcbiAgICAgIGVycm9yOiBmYWxzZSxcbiAgICAgIGNhcHRpb246ICdFeGVyY2lzZScsXG4gICAgfSxcbiAgICBibG9jay5hdHRyXG4gICk7XG5cbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcbiAgLy8gQSBuYW1lZCBlbnZpcm9ubWVudCByZXRhaW5zIG9iamVjdHMgd2hpbGUgY29tbWFuZHMgYXJlIHJ1biBvbmUgYnkgb25lLlxuICBlZGl0b3Iub3B0aW9ucy5lbnZpciA9IGBxbXNici0ke29wdGlvbnMuaWR9YDtcbiAgd2luZG93LnFtc2JyQ29tbWFuZHMubW91bnQoZWRpdG9yLCB3ZWJST2pzLndlYlJQcm9taXNlKTtcbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG52aWV3b2YgX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuX3dlYnJfZmVlZGJhY2tfOCA9IHtcbiAgY29uc3QgeyBXZWJSR3JhZGVyIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBlbXB0eUZlZWRiYWNrID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7XG5cbiAgY29uc3QgZ3JhZGVyID0gbmV3IFdlYlJHcmFkZXIoX3dlYnJfdmFsdWVfOC5ldmFsdWF0b3IpO1xuICBjb25zdCBmZWVkYmFjayA9IGF3YWl0IGdyYWRlci5ncmFkZUV4ZXJjaXNlKCk7XG4gIGlmICghZmVlZGJhY2spIHJldHVybiBlbXB0eUZlZWRiYWNrO1xuICByZXR1cm4gZmVlZGJhY2s7XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNztcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl83ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNy1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIC8vIERlZmF1bHQgZXhlcmNpc2UgY29uZmlndXJhdGlvblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbihcbiAgICB7XG4gICAgICBpZDogXCJ3ZWJyLTctY29udGVudHNcIixcbiAgICAgIGVudmlyOiBgZXhlcmNpc2UtZW52LSR7YmxvY2suYXR0ci5leGVyY2lzZX1gLFxuICAgICAgZXJyb3I6IGZhbHNlLFxuICAgICAgY2FwdGlvbjogJ0V4ZXJjaXNlJyxcbiAgICB9LFxuICAgIGJsb2NrLmF0dHJcbiAgKTtcblxuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuICAvLyBBIG5hbWVkIGVudmlyb25tZW50IHJldGFpbnMgb2JqZWN0cyB3aGlsZSBjb21tYW5kcyBhcmUgcnVuIG9uZSBieSBvbmUuXG4gIGVkaXRvci5vcHRpb25zLmVudmlyID0gYHFtc2JyLSR7b3B0aW9ucy5pZH1gO1xuICB3aW5kb3cucW1zYnJDb21tYW5kcy5tb3VudChlZGl0b3IsIHdlYlJPanMud2ViUlByb21pc2UpO1xuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbnZpZXdvZiBfd2Vicl92YWx1ZV83ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl83LCB7fSk7XG5fd2Vicl9mZWVkYmFja183ID0ge1xuICBjb25zdCB7IFdlYlJHcmFkZXIgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IGVtcHR5RmVlZGJhY2sgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtcblxuICBjb25zdCBncmFkZXIgPSBuZXcgV2ViUkdyYWRlcihfd2Vicl92YWx1ZV83LmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgLy8gRGVmYXVsdCBleGVyY2lzZSBjb25maWd1cmF0aW9uXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKFxuICAgIHtcbiAgICAgIGlkOiBcIndlYnItNi1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzYgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzYsIHt9KTtcbl93ZWJyX2ZlZWRiYWNrXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzYuZXZhbHVhdG9yKTtcbiAgY29uc3QgZmVlZGJhY2sgPSBhd2FpdCBncmFkZXIuZ3JhZGVFeGVyY2lzZSgpO1xuICBpZiAoIWZlZWRiYWNrKSByZXR1cm4gZW1wdHlGZWVkYmFjaztcbiAgcmV0dXJuIGZlZWRiYWNrO1xufVxuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzU7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici01IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTUtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici01LWNvbnRlbnRzXCIsXG4gICAgICBlbnZpcjogYGV4ZXJjaXNlLWVudi0ke2Jsb2NrLmF0dHIuZXhlcmNpc2V9YCxcbiAgICAgIGVycm9yOiBmYWxzZSxcbiAgICAgIGNhcHRpb246ICdFeGVyY2lzZScsXG4gICAgfSxcbiAgICBibG9jay5hdHRyXG4gICk7XG5cbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcbiAgLy8gQSBuYW1lZCBlbnZpcm9ubWVudCByZXRhaW5zIG9iamVjdHMgd2hpbGUgY29tbWFuZHMgYXJlIHJ1biBvbmUgYnkgb25lLlxuICBlZGl0b3Iub3B0aW9ucy5lbnZpciA9IGBxbXNici0ke29wdGlvbnMuaWR9YDtcbiAgd2luZG93LnFtc2JyQ29tbWFuZHMubW91bnQoZWRpdG9yLCB3ZWJST2pzLndlYlJQcm9taXNlKTtcbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG52aWV3b2YgX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuX3dlYnJfZmVlZGJhY2tfNSA9IHtcbiAgY29uc3QgeyBXZWJSR3JhZGVyIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBlbXB0eUZlZWRiYWNrID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7XG5cbiAgY29uc3QgZ3JhZGVyID0gbmV3IFdlYlJHcmFkZXIoX3dlYnJfdmFsdWVfNS5ldmFsdWF0b3IpO1xuICBjb25zdCBmZWVkYmFjayA9IGF3YWl0IGdyYWRlci5ncmFkZUV4ZXJjaXNlKCk7XG4gIGlmICghZmVlZGJhY2spIHJldHVybiBlbXB0eUZlZWRiYWNrO1xuICByZXR1cm4gZmVlZGJhY2s7XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNDtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl80ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIC8vIERlZmF1bHQgZXhlcmNpc2UgY29uZmlndXJhdGlvblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbihcbiAgICB7XG4gICAgICBpZDogXCJ3ZWJyLTQtY29udGVudHNcIixcbiAgICAgIGVudmlyOiBgZXhlcmNpc2UtZW52LSR7YmxvY2suYXR0ci5leGVyY2lzZX1gLFxuICAgICAgZXJyb3I6IGZhbHNlLFxuICAgICAgY2FwdGlvbjogJ0V4ZXJjaXNlJyxcbiAgICB9LFxuICAgIGJsb2NrLmF0dHJcbiAgKTtcblxuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuICAvLyBBIG5hbWVkIGVudmlyb25tZW50IHJldGFpbnMgb2JqZWN0cyB3aGlsZSBjb21tYW5kcyBhcmUgcnVuIG9uZSBieSBvbmUuXG4gIGVkaXRvci5vcHRpb25zLmVudmlyID0gYHFtc2JyLSR7b3B0aW9ucy5pZH1gO1xuICB3aW5kb3cucW1zYnJDb21tYW5kcy5tb3VudChlZGl0b3IsIHdlYlJPanMud2ViUlByb21pc2UpO1xuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbnZpZXdvZiBfd2Vicl92YWx1ZV80ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl80LCB7fSk7XG5fd2Vicl9mZWVkYmFja180ID0ge1xuICBjb25zdCB7IFdlYlJHcmFkZXIgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IGVtcHR5RmVlZGJhY2sgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtcblxuICBjb25zdCBncmFkZXIgPSBuZXcgV2ViUkdyYWRlcihfd2Vicl92YWx1ZV80LmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgLy8gRGVmYXVsdCBleGVyY2lzZSBjb25maWd1cmF0aW9uXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKFxuICAgIHtcbiAgICAgIGlkOiBcIndlYnItMy1jb250ZW50c1wiLFxuICAgICAgZW52aXI6IGBleGVyY2lzZS1lbnYtJHtibG9jay5hdHRyLmV4ZXJjaXNlfWAsXG4gICAgICBlcnJvcjogZmFsc2UsXG4gICAgICBjYXB0aW9uOiAnRXhlcmNpc2UnLFxuICAgIH0sXG4gICAgYmxvY2suYXR0clxuICApO1xuXG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG4gIC8vIEEgbmFtZWQgZW52aXJvbm1lbnQgcmV0YWlucyBvYmplY3RzIHdoaWxlIGNvbW1hbmRzIGFyZSBydW4gb25lIGJ5IG9uZS5cbiAgZWRpdG9yLm9wdGlvbnMuZW52aXIgPSBgcW1zYnItJHtvcHRpb25zLmlkfWA7XG4gIHdpbmRvdy5xbXNickNvbW1hbmRzLm1vdW50KGVkaXRvciwgd2ViUk9qcy53ZWJSUHJvbWlzZSk7XG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxudmlld29mIF93ZWJyX3ZhbHVlXzMgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzMsIHt9KTtcbl93ZWJyX2ZlZWRiYWNrXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkdyYWRlciB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3QgZW1wdHlGZWVkYmFjayA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2RpdicpO1xuXG4gIGNvbnN0IGdyYWRlciA9IG5ldyBXZWJSR3JhZGVyKF93ZWJyX3ZhbHVlXzMuZXZhbHVhdG9yKTtcbiAgY29uc3QgZmVlZGJhY2sgPSBhd2FpdCBncmFkZXIuZ3JhZGVFeGVyY2lzZSgpO1xuICBpZiAoIWZlZWRiYWNrKSByZXR1cm4gZW1wdHlGZWVkYmFjaztcbiAgcmV0dXJuIGZlZWRiYWNrO1xufVxuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0yIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMiA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV4ZXJjaXNlIGNvbmZpZ3VyYXRpb25cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oXG4gICAge1xuICAgICAgaWQ6IFwid2Vici0yLWNvbnRlbnRzXCIsXG4gICAgICBlbnZpcjogYGV4ZXJjaXNlLWVudi0ke2Jsb2NrLmF0dHIuZXhlcmNpc2V9YCxcbiAgICAgIGVycm9yOiBmYWxzZSxcbiAgICAgIGNhcHRpb246ICdFeGVyY2lzZScsXG4gICAgfSxcbiAgICBibG9jay5hdHRyXG4gICk7XG5cbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcbiAgLy8gQSBuYW1lZCBlbnZpcm9ubWVudCByZXRhaW5zIG9iamVjdHMgd2hpbGUgY29tbWFuZHMgYXJlIHJ1biBvbmUgYnkgb25lLlxuICBlZGl0b3Iub3B0aW9ucy5lbnZpciA9IGBxbXNici0ke29wdGlvbnMuaWR9YDtcbiAgd2luZG93LnFtc2JyQ29tbWFuZHMubW91bnQoZWRpdG9yLCB3ZWJST2pzLndlYlJQcm9taXNlKTtcbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG52aWV3b2YgX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuX3dlYnJfZmVlZGJhY2tfMiA9IHtcbiAgY29uc3QgeyBXZWJSR3JhZGVyIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBlbXB0eUZlZWRiYWNrID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7XG5cbiAgY29uc3QgZ3JhZGVyID0gbmV3IFdlYlJHcmFkZXIoX3dlYnJfdmFsdWVfMi5ldmFsdWF0b3IpO1xuICBjb25zdCBmZWVkYmFjayA9IGF3YWl0IGdyYWRlci5ncmFkZUV4ZXJjaXNlKCk7XG4gIGlmICghZmVlZGJhY2spIHJldHVybiBlbXB0eUZlZWRiYWNrO1xuICByZXR1cm4gZmVlZGJhY2s7XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8xID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIC8vIERlZmF1bHQgZXhlcmNpc2UgY29uZmlndXJhdGlvblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbihcbiAgICB7XG4gICAgICBpZDogXCJ3ZWJyLTEtY29udGVudHNcIixcbiAgICAgIGVudmlyOiBgZXhlcmNpc2UtZW52LSR7YmxvY2suYXR0ci5leGVyY2lzZX1gLFxuICAgICAgZXJyb3I6IGZhbHNlLFxuICAgICAgY2FwdGlvbjogJ0V4ZXJjaXNlJyxcbiAgICB9LFxuICAgIGJsb2NrLmF0dHJcbiAgKTtcblxuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuICAvLyBBIG5hbWVkIGVudmlyb25tZW50IHJldGFpbnMgb2JqZWN0cyB3aGlsZSBjb21tYW5kcyBhcmUgcnVuIG9uZSBieSBvbmUuXG4gIGVkaXRvci5vcHRpb25zLmVudmlyID0gYHFtc2JyLSR7b3B0aW9ucy5pZH1gO1xuICB3aW5kb3cucW1zYnJDb21tYW5kcy5tb3VudChlZGl0b3IsIHdlYlJPanMud2ViUlByb21pc2UpO1xuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbnZpZXdvZiBfd2Vicl92YWx1ZV8xID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xLCB7fSk7XG5fd2Vicl9mZWVkYmFja18xID0ge1xuICBjb25zdCB7IFdlYlJHcmFkZXIgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IGVtcHR5RmVlZGJhY2sgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdkaXYnKTtcblxuICBjb25zdCBncmFkZXIgPSBuZXcgV2ViUkdyYWRlcihfd2Vicl92YWx1ZV8xLmV2YWx1YXRvcik7XG4gIGNvbnN0IGZlZWRiYWNrID0gYXdhaXQgZ3JhZGVyLmdyYWRlRXhlcmNpc2UoKTtcbiAgaWYgKCFmZWVkYmFjaykgcmV0dXJuIGVtcHR5RmVlZGJhY2s7XG4gIHJldHVybiBmZWVkYmFjaztcbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+WyJkYXRhL2ZlZWRiYWNrX3ByYWN0aWNlLmNzdiJd
+</script>
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IndvcmtzcGFjZV9yZWFkeSA9IHdpbmRvdy5xbXNicldvcmtzcGFjZS5hdHRhY2god2ViUk9qcy53ZWJSUHJvbWlzZSlcbiJ9XX0=
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>QMSBR · R practice for the book chapters</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="./LICENSE">
+<p>Sources and reuse</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<script src="command-runner.js?v=2"></script>
+<script src="workspace.js?v=4"></script>
+
+
+
+
+</body></html>

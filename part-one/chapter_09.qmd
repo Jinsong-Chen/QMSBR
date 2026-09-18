@@ -1,0 +1,1964 @@
+---
+title: "Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+  fig.pos = "H")
+if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
+options(digits = 7, width = 68)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 11))
+```
+
+\clearpage
+
+::: {.callout-note title="Chapter overview"}
+Chapters 7 and 8 fitted lines and additive models and read them as
+conditional comparisons. Along the way they used tools they could only
+name: a factor coded as 0/1 columns, a contrast between two categories, a
+joint test of several added coefficients, an information criterion, a
+squared predictor, a logged outcome, a covariance estimate that allows
+unequal spread, and a covariance that respects pupils sitting in schools.
+This chapter develops each of them once, on the same 98 occupation
+records, and then on Project STAR, where a randomized design supplies a
+different warrant. By the end of the chapter you will be able to code and
+read a factor with several levels, estimate a contrast with the right
+uncertainty, compare nested models and read AIC and BIC, change a
+predictor's form or an outcome's scale and say what question changed,
+choose between classical, HC3, cluster-robust, and bootstrap uncertainty
+for a stated reason, and say what none of these calculations repairs.
+:::
+
+A regression report rarely stops at one additive equation. It compares
+groups that are categories, asks whether a set of added variables matters
+jointly, ranks candidate models, lets a relationship curve or a scale
+change, and reports uncertainty calculated in more than one way. Each of
+these steps has a small mathematics of its own and a temptation of its
+own: reading a coefficient as "the effect of type", adding two standard
+errors, comparing criteria across different outcomes, or treating a robust
+standard error as a repair for a design problem.
+
+We keep the occupation records of Chapter 8, with their 98 complete rows,
+income in thousand 1971 Canadian dollars, and the additive model of
+education, prestige, percentage of women, and type, so that every tool is
+seen on numbers already read. Nothing here is a new study. The chapter's
+contribution is to give a scattered set of operations one home, one
+vocabulary, and one set of records, so that the difference between
+changing a model, changing a question, and changing an uncertainty
+calculation stays visible. The chapter closes with Project STAR, where the
+uncertainty calculation has to follow the design that produced the data.
+
+Each visible R example follows from the earlier visible preparation in
+this chapter; Chapters 7 and 8 supply familiarity, not an existing R
+session. The type levels remain *bc*, *prof*, and *wc*, the full additive
+formula remains `income_k ~ education + prestige + women + type`, and
+every adjusted type comparison names education, prestige, and the
+percentage of women as its conditioning set.
+
+\clearpage
+
+## Predictors That Are Categories {#sec-ch9-factors}
+
+### One indicator, then several
+
+Chapter 7, Section 3.3, fitted a single 0/1 predictor to 24 invented
+feedback-by-practice scores. The fitted line passed through the two group
+means, its slope was the difference between them, 4.0000 with SE 1.6967
+and $t=2.3575$ on 22 df, and that test was the equal-variance two-sample
+test written as a regression. Nothing about that arrangement is special to
+two groups.
+
+A factor with $J$ levels enters a regression as $J-1$ indicator columns.
+One level is omitted and becomes the **reference**: the intercept is its
+fitted mean, and each indicator coefficient is a difference from it. With
+three occupation types and blue-collar as the reference,
+
+$$
+\widehat y_g=\widehat\alpha+\widehat\delta_{\mathrm{prof}}D_{\mathrm{prof}}
++\widehat\delta_{\mathrm{wc}}D_{\mathrm{wc}},\qquad
+\widehat\mu_{\mathrm{bc}}=\widehat\alpha,\quad
+\widehat\mu_{\mathrm{prof}}=\widehat\alpha+\widehat\delta_{\mathrm{prof}},\quad
+\widehat\mu_{\mathrm{wc}}=\widehat\alpha+\widehat\delta_{\mathrm{wc}}.
+$$
+
+Two indicators, not three, carry three means: the third column would be
+the intercept column minus the other two, and the design matrix would
+lose full rank. The choice of reference is a choice of coordinates, not a
+choice of model.
+
+We re-create the Chapter 8 objects visibly so that every later calculation
+in this chapter has a stated origin. The 98 rows are the type-complete
+occupations; `m0`, `m1`, and `m2` are the education-only, the
+education-and-prestige, and the full additive models.
+
+```{=latex}
+\Needspace{20\baselineskip}
+```
+
+```{r}
+#| label: ch9-records
+#| echo: true
+prestige <- carData::Prestige
+prestige$income_k <- prestige$income / 1000
+d <- prestige[!is.na(prestige$type), ]
+d$type <- factor(d$type, levels = c("bc", "prof", "wc"))
+m0 <- lm(income_k ~ education, data = d)
+m1 <- lm(income_k ~ education + prestige, data = d)
+m2 <- lm(income_k ~ education + prestige + women + type, data = d)
+c(rows = nrow(d), residual_df = df.residual(m2))
+```
+
+The 98 retained records hold 44 blue-collar, 31 professional, and 23
+white-collar occupations. The full model fits six coefficients, leaving 92
+residual degrees of freedom. Complete-case selection is how these rows
+were chosen; it is not random sampling from a labour market
+[@carData2022; @fox2019].
+
+### Indicators recover fitted group means
+
+Before adjusting for anything, fit income on type alone. Printing the
+model matrix for one row of each type makes the coding visible rather than
+assumed, and placing the fitted values beside the observed group means
+shows what the indicators are doing.
+
+```{=latex}
+\Needspace{24\baselineskip}
+```
+
+```{r}
+#| label: ch9-group-means
+#| echo: true
+type_levels <- data.frame(type = factor(c("bc", "prof", "wc"),
+  levels = levels(d$type)))
+model.matrix(~ type, data = type_levels)
+group_fit <- lm(income_k ~ type, data = d)
+cbind(type_levels,
+      observed = as.numeric(tapply(d$income_k, d$type, mean)),
+      fitted = predict(group_fit, type_levels))
+coef(group_fit)
+```
+
+The blue-collar row carries zeros in both indicator columns, so its fitted
+value is the intercept alone. The observed means are 5.3741, 10.5595, and
+5.0523 thousand dollars, and the fitted values reproduce them exactly. The
+coefficients are 5.3741, 5.1853, and $-0.3218$: the intercept is the
+blue-collar mean, and each indicator coefficient is that type's mean minus
+the blue-collar mean.
+
+This is not an accident of these data. Least squares minimizes the sum of
+squared deviations, and with one free parameter per group the minimizing
+value within each group is that group's own mean. A group-only regression
+is therefore a description of three means with no adjustment in it at all.
+
+Keep that description apart from the adjusted comparison of the full
+model. In `m2` the professional and white-collar coefficients are 0.3242
+and 0.2353: they compare fitted incomes at the *same* education, prestige,
+and percentage of women, not the observed incomes of differently composed
+groups. The observed professional advantage of 5.1853 thousand dollars
+and the adjusted 0.3242 are answers to different questions, and neither is
+"the effect of occupational type".
+
+### Releveling and centering change coordinates, not the fit
+
+Releveling makes a different level the reference. Refit the group-only
+model with white-collar as reference and compare the fitted values.
+
+```{=latex}
+\Needspace{14\baselineskip}
+```
+
+```{r}
+#| label: ch9-relevel
+#| echo: true
+group_fit_wc <- lm(income_k ~ relevel(type, ref = "wc"), data = d)
+coef(group_fit_wc)
+max(abs(fitted(group_fit) - fitted(group_fit_wc)))
+```
+
+The coefficients are now 5.0523, 0.3218, and 5.5071: the intercept is the
+white-collar mean, and the two indicator coefficients are the blue-collar
+and professional means measured from it. The fitted values agree with the
+blue-collar coding to about $10^{-13}$, the size of floating-point
+rounding. The same three means are being reported in a different
+coordinate system.
+
+The full model behaves the same way. Releveling `m2` to white-collar gives
+intercept 0.6559, blue-collar $-0.2353$, and professional 0.0889, while
+the education, prestige, and women coefficients are unchanged to the last
+printed digit. Centering a continuous predictor is the analogous
+operation: subtracting a constant moves the profile the intercept refers
+to, and leaves every fitted value, residual, and fixed substantive
+contrast alone.
+
+Two consequences are worth keeping. First, a coefficient's size is not
+interpretable without the reference it is measured from; "the professional
+coefficient" is short for "professional minus whichever level is currently
+omitted". Second, neither releveling nor centering creates information.
+Chapter 8 documented how thin the joint support across types is at common
+education and prestige values; changing coordinates does not add a single
+observed comparison.
+
+### The one-way analysis of variance of Chapter 4 as a regression
+
+Chapter 4 tested equality of several group means with a one-way analysis
+of variance. In the group-only regression, that null is the null that both
+indicator coefficients are zero, so the reduced model is the
+intercept-only model and the comparison is a nested-model comparison:
+
+$$
+F=\frac{(RSS_{\mathrm{reduced}}-RSS_{\mathrm{full}})/2}
+{RSS_{\mathrm{full}}/(98-3)}
+=\frac{(1734.0792-1138.1230)/2}{1138.1230/95}=24.8725.
+$$
+
+The reduced model's residual sum of squares is the total sum of squares
+about the grand mean, 1734.0792; the group-only model leaves 1138.1230 on
+95 degrees of freedom. Two restrictions are tested, and the denominator is
+the full model's residual mean square.
+
+```{=latex}
+\Needspace{26\baselineskip}
+```
+
+```{r}
+#| label: ch9-anova-identity
+#| echo: true
+null_fit <- lm(income_k ~ 1, data = d)
+anova(null_fit, group_fit)
+type_aov <- aov(income_k ~ type, data = d)
+c(regression_F = anova(null_fit, group_fit)$F[2],
+  anova_F = summary(type_aov)[[1]][["F value"]][1],
+  max_fitted_difference = max(abs(fitted(group_fit) - fitted(type_aov))))
+```
+
+`aov()` returns the same statistic from the same fitted means, the same
+within-group residual sum of squares, the same two restrictions, and the
+same denominator degrees of freedom, and its fitted values are identical.
+The equality is algebraic. It holds whether or not group membership was
+randomized, and it therefore supplies no causal warrant of its own; what
+randomization would add is a reason to read the compared means as
+assignment effects, which Section 7 takes up.
+
+The Chapter 4 cautions travel with the identity. An omnibus $F$ says that
+the three means are not all equal under the stated reference distribution;
+it does not say which differ, and any comparison chosen after looking at
+this result still needs the family calibration of Chapter 4. The next
+section gives the calculation that a single declared comparison requires.
+
+## Contrasts and Adjusted Group Comparisons {#sec-ch9-contrasts}
+
+### A contrast needs coefficient covariance
+
+A **contrast** is a declared linear combination of coefficients,
+$C=c'\boldsymbol\beta$, chosen before the comparison is read. Its estimate
+is the same combination of the fitted coefficients, and its variance is
+the corresponding quadratic form in the coefficient covariance matrix:
+
+$$
+\widehat C=c'\widehat{\boldsymbol\beta},\qquad
+\widehat{\operatorname{Var}}(\widehat C)=c'\widehat{\mathbf V}c,\qquad
+SE(\widehat C)=\sqrt{c'\widehat{\mathbf V}c}.
+$$
+
+Estimated coefficients are correlated, because the predictors they belong
+to are correlated. The quadratic form is exactly the bookkeeping that
+tracks those correlations: for a difference of two coefficients it gives
+$\operatorname{Var}(b_1)+\operatorname{Var}(b_2)-2\operatorname{Cov}(b_1,b_2)$.
+Take professional minus white-collar in `m2`, with the coefficient order
+intercept, education, prestige, women, professional, white-collar, so that
+$c=(0,0,0,0,1,-1)'$.
+
+```{=latex}
+\Needspace{20\baselineskip}
+```
+
+```{r}
+#| label: ch9-contrast
+#| echo: true
+c_vec <- c(0, 0, 0, 0, 1, -1)
+V <- vcov(m2)
+C_hat <- sum(c_vec * coef(m2))
+C_var <- drop(c_vec %*% V %*% c_vec)
+c(estimate = C_hat, variance = C_var, SE = sqrt(C_var))
+C_hat + c(-1, 1) * qt(.975, df.residual(m2)) * sqrt(C_var)
+```
+
+The estimate is $0.3242-0.2353=0.0889$ thousand dollars. Its variance
+assembles the two coefficient variances and their covariance,
+
+$$
+2.1406+0.9698-2(0.9720)=1.1664,
+$$
+
+so the SE is 1.0800 and, with $t_{.975,92}=1.9861$, the interval is
+$[-2.0561,\ 2.2338]$.
+
+Two wrong calculations are worth naming because both are common. Adding
+the two standard errors gives $1.4631+0.9848=2.4479$, which is not the
+standard error of anything here; it is an upper bound that the positive
+covariance between the two coefficients makes badly loose. Adding the two
+variances and discarding the covariance gives 3.1104 and an SE of 1.7636,
+also wrong. Only the quadratic form is the variance of the declared
+comparison.
+
+The same machinery covers any declared comparison, because $c$ is simply
+the recipe written as a vector. Setting one entry to 1 and the rest to 0
+returns an ordinary coefficient and its usual SE. Setting the two type
+entries to $1/2$ each compares the average of the two named types with
+the blue-collar reference. Whenever the non-intercept entries sum to
+zero, the combination is a contrast in the Chapter 4 sense and does not
+depend on which level is the reference; the comparison above is such a
+combination, which is why Section 1.3 found the same 0.0889 as the
+professional coefficient of the releveled fit. What never changes is that
+the variance is the quadratic form, computed from the same
+$\widehat{\mathbf V}$ that `vcov()` returns.
+
+Declaring the comparison in advance matters as much as computing it
+correctly. Chapter 4's family calibration applies to comparisons chosen
+after seeing an omnibus result, and a contrast selected because it looked
+large in the fitted coefficients is exactly such a choice. The calculation
+in this subsection assumes one comparison named before the model was read.
+
+Read the interval for what it is. It is a working-model benchmark for an
+adjusted comparison: professional against white-collar occupations at the
+same education, prestige, and percentage of women. It is not a
+difference of observed group means, and its width does not overcome the
+limited cross-type support that Chapter 8 documented. An interval can be
+arithmetically correct and still describe a comparison that the records
+barely observe.
+
+### Adjusted block tests
+
+A contrast tests one declared combination. A **block test** asks whether a
+set of coefficients is jointly zero, and it is the nested-model comparison
+of Section 1.4 with a different reduced model. Two blocks are worth
+testing here, and they are different questions.
+
+```{=latex}
+\Needspace{12\baselineskip}
+```
+
+```{r}
+#| label: ch9-blocks
+#| echo: true
+no_type <- lm(income_k ~ education + prestige + women, data = d)
+women_type <- anova(m1, m2)
+type_after <- anova(no_type, m2)
+```
+
+Adding the percentage of women and the two type indicators to `m1` tests
+three restrictions against the full model's 92 residual degrees of
+freedom. Dropping type from the full model tests two restrictions against
+the same denominator.
+
+\Needspace{10\baselineskip}
+
+| Added | df | $F$ | $p$ |
+|:--|--:|--:|--:|
+| Women and type | 3 | 11.5088 | $<.0001$ |
+| Type after women | 2 | 0.0319 | .9686 |
+
+: Two declared adjusted block comparisons. {#tbl-ch09-blocks tbl-colwidths="[40,15,20,25]"}
+
+The first block is strongly supported: $F(3,92)=11.5088$ against a 5%
+critical value of 2.7036. The second is not: $F(2,92)=0.0319$ with
+$p=.9686$ against a critical value of 3.0954.
+
+Neither result says what it is often read as saying. Joint evidence for
+the first block does not establish that each of the three added columns
+contributes; the percentage of women could be carrying the whole block.
+And the second result is not proof that occupational type is irrelevant.
+It says that, once education, prestige, and the percentage of women are in
+the equation, the two type indicators add no detectable reduction in
+residual sum of squares *on these 98 records*, where the types barely
+overlap on the other predictors. Absence of detectable joint contribution
+is not evidence of no difference.
+
+Two further distinctions matter. `anova(m2)` on a single model gives
+**sequential** sums of squares in formula order: each line tests a term
+given only the terms above it, so the answers depend on the order in which
+the formula was written. Those lines are not order-free tests of every
+term, and only the last one coincides with the corresponding block test.
+Separately, Welch-type and robust-covariance tests are different
+procedures with different reference distributions, not variants of this
+formula; Section 5 gives the robust version of exactly this type block.
+
+### Adjusted means under a common slope: the Baumann reference {#ch09-ancova}
+
+Chapter 6 introduced the analysis of covariance on a separate invented
+twelve-pupil example with a pretest: a group comparison made at a common
+baseline value under a common slope. The real-record reference for that
+idea belongs here, because it is the same indicator-and-contrast
+machinery with one continuous covariate.
+
+Baumann and colleagues studied 68 fourth-grade pupils in one rural school
+under three reading-instruction conditions [@baumann1992]. The
+`carData::Baumann` distribution holds the 66 pupils with a recorded first
+posttest, 22 per group. The teaching analysis uses the first pretest and
+first posttest only, and relabels the package's `Basal`, `DRTA`, and
+`Strat` as DRA, DRTA, and Think-aloud, with DRA as the reference. The
+model assumes one common pretest slope across groups:
+
+$$
+Y_{ij}=\mu_j+\beta(X_{ij}-\bar X)+\varepsilon_{ij},\qquad
+\bar Y_j^{\,\mathrm{adj}}=\bar Y_j-\widehat\beta(\bar X_j-\bar X).
+$$
+
+The adjusted mean is the observed group mean moved along the common slope
+by the group's pretest advantage or deficit relative to the grand pretest
+mean.
+
+```{=latex}
+\Needspace{20\baselineskip}
+```
+
+```{r}
+#| label: ch9-baumann
+#| echo: true
+reading <- carData::Baumann
+reading$group <- factor(reading$group,
+  levels = c("Basal", "DRTA", "Strat"),
+  labels = c("DRA", "DRTA", "Think-aloud"))
+ancova <- lm(post.test.1 ~ group + pretest.1, data = reading)
+summary(ancova)$coefficients
+reading_means <- tapply(reading$post.test.1, reading$group, mean)
+pretest_means <- tapply(reading$pretest.1, reading$group, mean)
+adjusted <- reading_means - coef(ancova)["pretest.1"] *
+  (pretest_means - mean(reading$pretest.1))
+adjusted
+varying_slopes <- lm(post.test.1 ~ group * pretest.1, data = reading)
+anova(ancova, varying_slopes)
+```
+
+The common pretest slope is 0.6932 with SE 0.1015. Against DRA, the DRTA
+coefficient is 3.6266 (SE 0.7362) and the Think-aloud coefficient is
+2.0362 (SE 0.7450); the residual mean square is 5.8940 on 62 degrees of
+freedom. The group pretest means are 10.5000, 9.7273, and 9.1364 against a
+grand mean of 9.7879, so DRA starts above and Think-aloud below the common
+reference point.
+
+Adjustment moves the raw posttest means 6.6818, 9.7727, and 7.7727 to
+6.1882, 9.8147, and 8.2243. The DRA mean falls because that group's
+pretest advantage of 0.7121 points is removed at the common slope; the
+Think-aloud mean rises for the mirror-image reason. The adjusted values
+answer a question the raw means do not: what these groups' posttest means
+would be if each had the grand pretest mean, *under the common-slope
+model*.
+
+Two conditions carry that reading, and both need saying. The adjusted
+means need a **common reference** — here the grand pretest mean — and an
+**averaging population** over which the comparison is made. Averaging the
+fitted model over the common empirical pretest distribution returns the
+same three values, because the model is linear in the pretest and the same
+distribution is used for every group; that equality is why the simple
+shift formula suffices.
+
+The common-slope condition is checkable. Comparing the additive model with
+the model that lets each group have its own pretest slope gives
+$F(2,60)=1.5054$, $p=.2302$: on these records, the varying-slope model
+does not improve the fit detectably. That is a check, not a
+demonstration that the slopes are equal, and it is where this chapter
+stops. Chapter 10 develops the varying-slope model itself as an
+interaction, with conditional slopes and their uncertainty.
+
+## Compare Nested Models {#sec-ch9-comparison}
+
+### The extra-sum-of-squares statistic
+
+Sections 1.4 and 2.2 were two instances of one statistic. Let the reduced
+model be obtained from the full model by setting $q$ coefficients to zero,
+with both models fitted to the same records and the same outcome. Then
+
+$$
+F=\frac{(RSS_{R}-RSS_{F})/q}{RSS_{F}/(n-p)},\qquad
+F_{\mathrm{overall}}=\frac{RegSS/(p-1)}{RSS/(n-p)},\quad
+RegSS=\sum_i(\widehat y_i-\bar y)^2.
+$$
+
+The numerator is the extra sum of squares the added block explains, per
+added coefficient. The denominator is the full model's residual mean
+square, the same $s^2$ that appears in every coefficient standard error.
+Under the normal linear model with independent common-variance errors, the
+ratio has an $F_{q,\,n-p}$ reference.
+
+Both earlier tests are instances. The one-way identity of Section 1.4 sets
+$q=2$ and $n-p=95$, with $RSS_R=1734.0792$ from the intercept-only model
+and $RSS_F=1138.1230$ from the group-only model, giving
+$(595.9562/2)/(1138.1230/95)=24.8725$. The adjusted type block of Section
+2.2 sets $q=2$ and $n-p=92$, with $RSS_R=631.3272$ from the model without
+type and $RSS_F=630.8897$ from `m2`, giving
+$(0.4375/2)/(630.8897/92)=0.0319$. The women-and-type block sets $q=3$
+with $RSS_R=867.6537$, giving $(236.7640/3)/6.8575=11.5088$. The same
+three ingredients appear every time: how much residual sum of squares the
+block buys, how many coefficients it spends, and what a unit of unexplained
+variation costs in the fuller model.
+
+Notice what must be held fixed for the subtraction to mean anything. The
+two models must use the same rows and the same outcome, or the difference
+of residual sums of squares is not a reduction attributable to the added
+block; and the reduced model must be obtainable from the fuller one by
+restrictions, or there is no null to test. Chapter 8's complete-case
+selection is why every comparison in this chapter runs on the same 98
+records.
+
+The **overall** regression test is the special case in which the reduced
+model is the intercept alone, so every non-intercept coefficient is
+restricted to zero. It is the line R prints at the foot of `summary()`.
+
+```{=latex}
+\Needspace{12\baselineskip}
+```
+
+```{r}
+#| label: ch9-overall-f
+#| echo: true
+summary(m2)$fstatistic
+summary(m0)$fstatistic
+```
+
+The full model gives $F(5,92)=32.1747$; the education-only model on the
+same 98 records gives $F(1,96)=47.1956$. Two remarks keep these in
+proportion. They test different joint restrictions in different models, so
+the larger value for `m0` is not evidence that `m0` is the better model.
+And neither statistic verifies the mean function, the error model, or the
+independence of the rows; a large overall $F$ is compatible with a badly
+misspecified equation. Nor does either say how a fitted rule would perform
+on records it has not seen, which is a separate question with a separate
+calculation (Chapter 13).
+
+### Restrictions in matrix form
+
+The same statistic has a compact matrix form, and the matrix notation is
+worth one pass because it makes clear what "the same records" is doing in
+every comparison above. Let $\mathbf X$ hold $n$ rows and $p$ coefficient
+columns including the intercept, with full column rank. Minimizing
+$(\mathbf y-\mathbf X\boldsymbol\beta)'(\mathbf y-\mathbf X\boldsymbol\beta)$
+gives the normal equations
+$\mathbf X'(\mathbf y-\mathbf X\widehat{\boldsymbol\beta})=\mathbf 0$ and
+hence
+$\widehat{\boldsymbol\beta}=(\mathbf X'\mathbf X)^{-1}\mathbf X'\mathbf y$,
+$\widehat{\mathbf y}=\mathbf H\mathbf y$ with
+$\mathbf H=\mathbf X(\mathbf X'\mathbf X)^{-1}\mathbf X'$, and
+$\widehat{\mathbf V}=s^2(\mathbf X'\mathbf X)^{-1}$. For $q$ independent
+linear restrictions $\mathbf R\boldsymbol\beta=\mathbf r$,
+
+$$
+F=\frac{(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)'\,
+[\mathbf R(\mathbf X'\mathbf X)^{-1}\mathbf R']^{-1}\,
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)}{q\,s^{2}}\sim F_{q,\,n-p}.
+$$
+
+Choosing the rows of $\mathbf R$ that select the two type coefficients,
+with $\mathbf r=\mathbf 0$, reproduces the adjusted type block test of
+Section 2.2 without fitting a second model.
+
+```{=latex}
+\Needspace{24\baselineskip}
+```
+
+```{r}
+#| label: ch9-matrix
+#| echo: true
+X <- model.matrix(m2)
+beta_hat <- solve(crossprod(X), crossprod(X, d$income_k))
+c(columns = ncol(X), rank = qr(X)$rank,
+  max_coefficient_difference = max(abs(beta_hat - coef(m2))),
+  max_normal_equation_error = max(abs(crossprod(X, residuals(m2)))))
+R <- rbind(c(0, 0, 0, 0, 1, 0), c(0, 0, 0, 0, 0, 1))
+Rb <- R %*% coef(m2)
+drop(t(Rb) %*% solve(R %*% vcov(m2) %*% t(R)) %*% Rb) / nrow(R)
+```
+
+The model matrix has six columns and rank 6, so the two indicators plus
+the intercept are not collinear. Solving the normal equations directly
+reproduces `lm()`'s coefficients to within about $10^{-13}$, and the
+residuals are orthogonal to every column of $\mathbf X$ to the same
+precision. The restriction statistic returns 0.0319, the value the
+`anova()` comparison gave.
+
+Two practical points follow. `lm()` does not form
+$(\mathbf X'\mathbf X)^{-1}$; it uses a QR decomposition, which is
+numerically better behaved. The displayed matrix equation explains what
+the estimator *is*, not how R computes it [@fox2016; @fox2019]. And
+because $\widehat{\mathbf y}=\mathbf H\mathbf y$ is a projection onto the
+column space of $\mathbf X$, any full-rank recoding of a factor spans the
+same space and leaves the fitted vector alone — which is Section 1.3's
+releveling result stated geometrically. Appendix A carries the derivation.
+
+### A local Normal likelihood and information criteria
+
+Nested $F$ tests compare two models when one contains the other.
+Information criteria rank models that need not be nested, using a
+different quantity: the maximized likelihood, penalized for the number of
+fitted parameters. Chapter 6 built a likelihood once, for 32 successes in
+50 binomial trials, by treating the probability of the observed data as a
+function of the unknown parameter. The linear-model version is the same
+idea with a continuous density.
+
+Treat the predictor rows as fixed and the outcomes as independent Normal
+draws with mean $\mathbf x_i'\boldsymbol\beta$ and SD $\sigma$. The
+log-likelihood, and its value at the maximizing arguments, are
+
+$$
+\ell(\boldsymbol\beta,\sigma)=-n\log\sigma-\frac n2\log(2\pi)
+-\frac{1}{2\sigma^2}\sum_i(y_i-\mathbf x_i'\boldsymbol\beta)^2,\qquad
+\ell(\widehat{\boldsymbol\beta},\widehat\sigma_{\mathrm{ML}})
+=-\frac n2\left\{\log(2\pi)+1+\log(RSS/n)\right\}.
+$$
+
+Only the final term of the first expression involves $\boldsymbol\beta$,
+and it is $-RSS/(2\sigma^2)$. Maximizing over the coefficients therefore
+*minimizes* the residual sum of squares: least squares and maximum
+likelihood give the same coefficients under this error model. They do not
+give the same scale estimate. The maximizing $\sigma$ is
+$\sqrt{RSS/n}=2.5373$, while the residual SD reported by `lm()` is
+$\sqrt{RSS/(n-p)}=2.6187$, which divides by the residual degrees of
+freedom instead. The criteria use the first.
+
+$$
+AIC=-2\log\widehat L+2k,\qquad BIC=-2\log\widehat L+k\log n.
+$$
+
+Here $k$ counts the fitted coefficients **and** the residual variance, so
+`m2` has $k=7$, not 6.
+
+```{=latex}
+\Needspace{22\baselineskip}
+```
+
+```{r}
+#| label: ch9-likelihood
+#| echo: true
+ll <- logLik(m2)
+sigma_ml <- sqrt(mean(residuals(m2)^2))
+manual_ll <- sum(dnorm(d$income_k, mean = fitted(m2), sd = sigma_ml,
+  log = TRUE))
+c(sigma_ML = sigma_ml, residual_SD = sigma(m2),
+  logLik = as.numeric(ll), manual = manual_ll, k = attr(ll, "df"),
+  AIC = AIC(m2), BIC = BIC(m2))
+```
+
+`logLik(m2)` returns $-230.3020$, and summing the Normal log-densities of
+the 98 observed incomes at the fitted means and the ML scale returns the
+same number. The criteria follow arithmetically:
+$AIC=2(230.3020)+2(7)=474.6040$ and $BIC=460.6040+7\log 98=492.6988$, with
+$\log 98=4.5850$.
+
+\Needspace{12\baselineskip}
+
+| Model | $k$ | $R^2$ | Adjusted $R^2$ | AIC | BIC |
+|:--|--:|--:|--:|--:|--:|
+| `m0` | 3 | .3296 | .3226 | 526.5052 | 534.2601 |
+| `m1` | 4 | .4996 | .4891 | 499.8328 | 510.1727 |
+| `m2` | 7 | .6362 | .6164 | 474.6040 | 492.6988 |
+
+: In-sample summaries for comparable income models. {#tbl-ch09-criteria tbl-colwidths="[16,10,16,20,19,19]"}
+
+Smaller is preferred under either criterion, and both prefer `m2` here.
+The conditions for reading the table are strict and easy to breach. The
+three models must be fitted to the same records, with the same outcome on
+the same scale, under the same likelihood convention; Section 4.2 shows
+what happens when the last of these fails. BIC's heavier penalty,
+$k\log n$ against AIC's $2k$, means the two can disagree, and a
+disagreement is information about how strongly the extra parameters are
+being charged, not a tie to be broken by preference.
+
+Above all, neither criterion is a held-out error. Both are calculated on
+the same records that fitted the model, and both are comparative rather
+than absolute: a smaller AIC says one candidate is preferred to another,
+not that either describes the records well [@akaike1974; @schwarz1978].
+Chapter 11 develops likelihood properly, for models where least squares
+is no longer available; this section needs only the local Normal case.
+
+## Change the Form of a Predictor or the Scale of the Outcome {#sec-ch9-forms}
+
+### A polynomial term
+
+Chapter 8, Section 4.3, refitted the full model with a squared prestige
+term as a disclosed sensitivity check on functional form. Here that refit
+is the worked example, with its block test, its criteria, and the reading
+a curved term forces.
+
+A squared term is an ordinary extra column, `I(prestige^2)`, and the
+model is still linear in its coefficients. What changes is the reading:
+
+$$
+E(Y\mid x,\ldots)=\beta_0+\beta_1x+\beta_2x^2+\cdots,\qquad
+\frac{\partial E(Y)}{\partial x}=\beta_1+2\beta_2x,\qquad
+x^{*}=-\frac{\beta_1}{2\beta_2}.
+$$
+
+The predictor no longer has a single slope. It has a slope that depends on
+its own value, and a turning point where that slope is zero.
+
+```{=latex}
+\Needspace{30\baselineskip}
+```
+
+```{r}
+#| label: ch9-quadratic
+#| echo: true
+m2q <- lm(income_k ~ education + prestige + I(prestige^2) + women + type,
+  data = d)
+coef(summary(m2q))[c("prestige", "I(prestige^2)"), ]
+anova(m2, m2q)
+c(AIC = AIC(m2q), BIC = BIC(m2q),
+  turning_point = -coef(m2q)["prestige"] / (2 * coef(m2q)["I(prestige^2)"]))
+d$prestige_c <- d$prestige - mean(d$prestige)
+m2qc <- lm(income_k ~ education + prestige_c + I(prestige_c^2) + women +
+  type, data = d)
+c(cor(d$prestige, d$prestige^2), cor(d$prestige_c, d$prestige_c^2),
+  max(abs(fitted(m2q) - fitted(m2qc))))
+```
+
+The quadratic coefficient is 0.0024 with SE 0.0009 and $t=2.5954$; the
+one-restriction block test gives $F(1,91)=6.7360$ with $p=.0110$; and the
+criteria move from 474.6040 and 492.6988 to 469.6058 and 490.2855. Adding
+the term also changes the education coefficient from 0.1164 to $-0.0298$,
+a reminder that coefficients in an additive model are defined relative to
+the other columns present.
+
+Read the curve by evaluating its slope. With $\beta_1=-0.0754$ and
+$\beta_2=0.0024$, the fitted slope $-0.0754+2(0.0024)x$ is 0.0697 at
+prestige 30, 0.1665 at 50, and 0.2633 at 70: income rises with prestige
+throughout, and rises faster at the top. The turning point 15.5906 lies
+below the smallest observed prestige of 17.3, so the descending branch of
+the parabola is entirely outside the records. Reporting a "negative
+prestige coefficient" from this model would be a misreading of the
+coordinate $-0.0754$, which is the slope at prestige zero, a value no
+occupation has.
+
+Centering repairs a second coordinate problem. Prestige and its square
+correlate .9849, which inflates both coefficients' standard errors;
+centering prestige before squaring lowers that correlation to .3216 and
+changes the linear coefficient to 0.1536, now the slope at the mean
+prestige. The two fits have identical fitted values to about $10^{-14}$.
+Centering changes the coordinates in which the curve is described; it does
+not change the curve.
+
+Finally, keep the status of the exercise straight. This is a disclosed
+sensitivity check on functional form, declared before the refit, and its
+result is that a modest curvature is detectable on these records. It is
+not a search across candidate terms for the smallest $p$-value, and a
+$p$-value read after such a search would not mean what it appears to mean.
+
+### A log-transformed outcome
+
+Changing a predictor's form keeps the question. Changing the outcome's
+scale changes the question, and that difference is the point of this
+subsection.
+
+$$
+\log Y_i=\beta_0+\sum_j\beta_jx_{ij}+\varepsilon_i,\qquad
+100\,(e^{\beta_j}-1)\ \text{percent per unit of } x_j .
+$$
+
+A coefficient in a log-income model is an additive difference in expected
+log income. Exponentiating turns it into a multiplicative difference in
+geometric mean income under that model, and
+$100(e^{\widehat\beta}-1)$ expresses that multiplier as a percentage. The
+geometric mean is not the arithmetic mean, so this is not automatically a
+statement about average income in dollars.
+
+```{=latex}
+\Needspace{18\baselineskip}
+```
+
+```{r}
+#| label: ch9-log-outcome
+#| echo: true
+m_log <- lm(log(income) ~ education + prestige + women + type, data = d)
+terms <- c("education", "prestige", "women")
+log_ci <- confint(m_log)[terms, ]
+data.frame(term = terms, log_coefficient = coef(m_log)[terms],
+  percent = 100 * (exp(coef(m_log)[terms]) - 1),
+  lower = 100 * (exp(log_ci[, 1]) - 1),
+  upper = 100 * (exp(log_ci[, 2]) - 1), row.names = NULL)
+```
+
+\Needspace{12\baselineskip}
+
+| Term | Log coefficient | Percent | Lower | Upper |
+|:--|--:|--:|--:|--:|
+| education | 0.0076 | 0.7661 | $-4.2041$ | 5.9941 |
+| prestige | 0.0207 | 2.0965 | 1.4351 | 2.7622 |
+| women | $-0.0085$ | $-0.8430$ | $-1.0189$ | $-0.6667$ |
+
+: Log-model contrasts on a geometric-mean percent scale. {#tbl-ch09-log tbl-colwidths="[22,22,18,19,19]"}
+
+One more prestige point is associated with about 2.0965 percent higher
+geometric mean income at the same education, percentage of women, and
+type, with interval $[1.4351,\ 2.7622]$ percent. One more percentage point
+of women is associated with about $-0.8430$ percent. The two type
+coefficients, $-0.0137$ and 0.0708 on the log scale, are $-1.3584$ and
+7.3341 percent. The intervals are the classical log-scale intervals with
+both endpoints transformed, which is legitimate because the
+transformation is monotone; they inherit the log-scale working model and
+supply no new warrant.
+
+The criteria will not travel across this change. This model's AIC is
+8.0910 against `m2`'s 474.6040, and the difference says nothing at all:
+the two likelihoods are densities of different response variables, so
+their reference measures differ and their values are not on a common
+scale. A valid comparison across a transformed outcome needs the Jacobian
+adjustment that converts one density to the other. The simpler discipline
+is the one to keep: fix the outcome and the question inside any comparison,
+and treat a scale change as a new question rather than as data cleaning
+[@fox2019].
+
+### Coefficient scales: standardized coefficients and unique contributions
+
+Two summaries are often asked for once several predictors are in an
+equation, and both are more limited than their names suggest.
+
+$$
+\beta_j^{*}=\widehat\beta_j\frac{s_{x_j}}{s_y},\qquad
+\Delta R^2_j=R^2_{\mathrm{full}}-R^2_{\mathrm{without}\ j}.
+$$
+
+A **standardized coefficient**, or beta weight, rescales a partial slope
+into outcome-SD units per predictor SD. A **drop-one $R^2$** reports how
+much of the explained variation disappears when one predictor is removed
+from the full model.
+
+```{=latex}
+\Needspace{14\baselineskip}
+```
+
+```{r}
+#| label: ch9-coefficient-scales
+#| echo: true
+coef(m2)[2:4] * sapply(d[c("education", "prestige", "women")], sd) /
+  sd(d$income_k)
+summary(m2)$r.squared -
+  summary(lm(income_k ~ prestige + women + type, data = d))$r.squared
+```
+
+The beta weights are 0.0757, 0.5685, and $-0.3971$ for education,
+prestige, and the percentage of women. Education's drop-one $R^2$ is
+.0007: removing it from the full model costs essentially nothing in fit,
+which is the same message the education coefficient's wide interval
+carried in Chapter 8.
+
+Both quantities are rescalings of an in-sample fit, and neither measures
+importance. A standardized coefficient depends on the predictor's observed
+spread in these particular records, so a restricted range shrinks it for
+reasons that have nothing to do with the relationship. It also differs
+from the standardization over named profiles that Chapter 8 used, which
+averages fitted values over a declared distribution rather than dividing
+by an SD. The drop-one change describes only the *unique* contribution:
+because predictor information overlaps, the separate drop-one values need
+not sum to the joint $R^2$, and a predictor that duplicates another can
+show a near-zero value while mattering. Neither number establishes a
+causal ranking or predicts held-out performance.
+
+## Robust Uncertainty Under Unequal Spread {#sec-ch9-hc3}
+
+### The HC3 covariance
+
+Chapter 7 used a robust standard error once, on the simple regression
+line, where the education slope's SE moved from 0.1270 to 0.1491. The
+estimator behind that number is worth stating, because the rest of this
+chapter turns on what it does and does not change.
+
+The classical covariance $s^2(\mathbf X'\mathbf X)^{-1}$ assumes one
+common error variance for every row. The heteroskedasticity-consistent
+family replaces the single $s^2$ by each row's own squared residual,
+sandwiched between two copies of the design component:
+
+$$
+\widehat{\mathbf V}_{\mathrm{HC3}}=(\mathbf X'\mathbf X)^{-1}
+\left\{\sum_i \mathbf x_i\mathbf x_i'
+\frac{e_i^2}{(1-h_{ii})^2}\right\}(\mathbf X'\mathbf X)^{-1}.
+$$
+
+The outer factors are the design component; the inner sum is the
+residual-scale component. Dividing by $(1-h_{ii})^2$ inflates the
+contribution of high-leverage rows, which is why HC3 is the usual
+small-sample recommendation in this family [@white1980; @mackinnon1985;
+@long2000; @zeileis2004].
+
+```{=latex}
+\Needspace{16\baselineskip}
+```
+
+```{r}
+#| label: ch9-hc3
+#| echo: true
+V_hc3 <- sandwich::vcovHC(m2, type = "HC3")
+cbind(classical = sqrt(diag(vcov(m2))), HC3 = sqrt(diag(V_hc3)))
+coef(m2)["education"] + c(-1, 1) * qt(.975, 92) *
+  sqrt(V_hc3["education", "education"])
+```
+
+\Needspace{14\baselineskip}
+
+| Coefficient | Estimate | Classical SE | HC3 SE |
+|:--|--:|--:|--:|
+| Intercept | 0.4205 | 1.9573 | 2.7741 |
+| education | 0.1164 | 0.2752 | 0.3823 |
+| prestige | 0.1406 | 0.0354 | 0.0387 |
+| women | $-0.0535$ | 0.0097 | 0.0079 |
+| prof | 0.3242 | 1.4631 | 2.0928 |
+| wc | 0.2353 | 0.9848 | 1.0548 |
+
+: Classical and HC3 standard errors for the full occupation model. {#tbl-ch09-hc3 tbl-colwidths="[28,24,24,24]"}
+
+Read the table by column and then by row. The estimate column is
+unchanged: HC3 replaces a covariance estimate, not a fit, so every
+coefficient, fitted value, and residual is exactly what it was. The
+education SE grows from 0.2752 to 0.3823, and its 95% interval on the
+robust covariance is $[-0.6429,\ 0.8758]$, wider than the classical one
+but leading to the same reading of an imprecisely estimated comparison.
+
+The women row is the instructive one: its SE *falls* from 0.0097 to
+0.0079. A robust covariance is not a penalty applied to every coefficient.
+It is a different estimate of the same target, and where the classical
+common-variance assumption happened to overstate a coefficient's
+variability, the robust version is smaller. Reporting only the
+coefficients whose intervals widened, or switching estimators after seeing
+which choice gives the preferred conclusion, turns a stated method into a
+selection.
+
+### A block test with a robust covariance
+
+The restriction statistic of Section 3.2 needs only a coefficient vector
+and a covariance matrix. Substituting
+$\widehat{\mathbf V}_{\mathrm{HC3}}$ for $\widehat{\mathbf V}$ gives an
+approximate Wald version of the same block test.
+
+```{=latex}
+\Needspace{20\baselineskip}
+```
+
+```{r}
+#| label: ch9-hc3-block
+#| echo: true
+wald_F <- function(fit, V, which) {
+  b <- coef(fit)[which]
+  drop(t(b) %*% solve(V[which, which]) %*% b) / length(which)
+}
+type_cols <- c("typeprof", "typewc")
+c(classical = wald_F(m2, vcov(m2), type_cols),
+  HC3 = wald_F(m2, V_hc3, type_cols))
+pf(wald_F(m2, V_hc3, type_cols), 2, 92, lower.tail = FALSE)
+```
+
+The type block gives 0.0319 with the classical covariance and 0.0345 with
+HC3, $p=.9661$ against the classical .9686. Here the substitution changes
+nothing of substance, which is the ordinary case when the coefficients are
+far from the restriction.
+
+The reference distribution is where the two differ in kind. The classical
+statistic has an exact $F_{2,92}$ distribution under the stated normal
+linear model. The robust version has only an approximate reference,
+justified as the sample grows, and $F$ with the same degrees of freedom is
+a convention rather than a derivation. Quoting the robust $p$-value to
+several digits, or treating it as the same object as the classical one
+because both are labelled $F$, overstates what the calculation delivers.
+Section 2.2's classical test and this one answer the same question with
+different warrants.
+
+### What HC3 does not repair
+
+HC3 has one job. Under a maintained linear conditional mean and
+independent observations, it estimates the coefficient covariance without
+assuming a common error variance. That is all.
+
+It does not repair curvature: if the mean function is wrong, the
+coefficients estimate a different quantity and a robust covariance
+describes that different quantity's variability more honestly, without
+making it the quantity of interest. It does not repair dependence: rows
+that are not independent break the estimator's own derivation, and Section
+7 shows a case where a robust row-level SE and a naive one agree closely
+while both understate the uncertainty by nearly half. It does not repair
+measurement error, selection, or missing outcomes, which change what the
+records represent. It does not supply causal identification, which comes
+from design or from an argument about the conditioning set. And it does
+not create joint support: the type contrast's robust SE of 1.1827 is still
+the uncertainty of a comparison the records barely observe.
+
+The practical response is to say which estimator was used and why, and to
+keep the answer's limits attached to it. Chapter 8's advice holds here:
+report the named comparison, its form and influence sensitivities, and the
+covariance calculation, rather than treating any one of them as a pass/fail
+certificate.
+
+## Resample the Records {#sec-ch9-bootstrap}
+
+### Why resample, and which scheme
+
+Every uncertainty statement so far came from a formula: a coefficient
+covariance matrix, classical or robust, propagated through a linear
+combination. Resampling offers a different approximation. Refit the model
+to many resamples of the records, and read the spread of the refitted
+estimates directly [@efron1979; @efron1993; @davison1997]. Where the
+formula and the empirical resampling distribution disagree, the
+disagreement is itself informative.
+
+The choice of what to resample is an assumption, not a default.
+
+- **Case resampling** draws whole records with replacement and refits. It
+  conditions on nothing and inherits whatever unequal spread the rows
+  contain, but it requires the resampling unit to match the sampling unit,
+  with units independent and exchangeable.
+- **Residual resampling** holds the design fixed, resamples rescaled
+  residuals, and adds them back to the fitted values. It assumes
+  identically distributed errors — the assumption HC3 exists to relax.
+- **The wild bootstrap** also holds the design fixed but multiplies each
+  rescaled residual by an independent mean-zero, unit-variance draw, so
+  every record keeps its own error scale. It is the residual scheme
+  repaired for unequal variance.
+
+This chapter uses case resampling, for two stated reasons. The occupation
+predictors were not designed: no one assigned education or prestige to an
+occupation, so a joint-sampling view of rows is the natural one. And the
+residual spread differs visibly by type, so the identically-distributed
+errors behind residual resampling are not available [@freedman1981].
+Appendix B carries out the other two schemes on the same targets for
+comparison.
+
+### Case resampling for the full model
+
+Resample the 98 rows with replacement, refit `m2`, and record three
+targets: the education slope, the professional-minus-white-collar
+contrast, and the professional coefficient. The seed and the number of
+resamples $B$ belong in the record, so both appear in the code; $B$ counts
+bootstrap resamples here, as it counted simulation repetitions in
+Chapter 5.
+
+```{=latex}
+\Needspace{40\baselineskip}
+```
+
+```{r}
+#| label: ch9-bootstrap
+#| echo: true
+set.seed(90909)
+B <- 2000
+coef_names <- names(coef(m2))
+draws <- matrix(NA_real_, B, 3,
+  dimnames = list(NULL, c("education", "prof_minus_wc", "prof")))
+for (b in seq_len(B)) {
+  rows <- sample.int(nrow(d), replace = TRUE)
+  fit_b <- lm(income_k ~ education + prestige + women + type,
+    data = d[rows, ])
+  b_hat <- coef(fit_b)
+  if (all(coef_names %in% names(b_hat)) && !anyNA(b_hat[coef_names])) {
+    draws[b, ] <- c(b_hat["education"], b_hat["typeprof"] - b_hat["typewc"],
+      b_hat["typeprof"])
+  }
+}
+colSums(is.finite(draws))
+rbind(estimate = c(coef(m2)["education"], C_hat, coef(m2)["typeprof"]),
+  classical_SE = c(sqrt(V["education", "education"]), sqrt(C_var),
+    sqrt(V["typeprof", "typeprof"])),
+  HC3_SE = c(sqrt(V_hc3["education", "education"]),
+    sqrt(drop(c_vec %*% V_hc3 %*% c_vec)),
+    sqrt(V_hc3["typeprof", "typeprof"])),
+  bootstrap_SE = apply(draws, 2, sd, na.rm = TRUE),
+  lower = apply(draws, 2, quantile, .025, na.rm = TRUE, names = FALSE),
+  upper = apply(draws, 2, quantile, .975, na.rm = TRUE, names = FALSE))
+```
+
+The printed matrix carries one blank column name: the middle target is a
+contrast rather than a coefficient, so `C_hat` arrives without a name. Its
+column is the professional-minus-white-collar comparison of Section 2.1,
+and the table below labels all three targets explicitly.
+
+The guard inside the loop matters. A resample could omit an entire
+occupational type, and the refit would then drop a coefficient; such a
+draw must be recorded as missing rather than silently misaligned. Here all
+2,000 resamples contained all three types, so all 2,000 refits are usable,
+and that count is part of the result rather than an assumption.
+
+\Needspace{12\baselineskip}
+
+| Target | Estimate | Classical SE | HC3 SE | Bootstrap SE | Percentile 2.5% | Percentile 97.5% |
+|:--|--:|--:|--:|--:|--:|--:|
+| Education slope | 0.1164 | 0.2752 | 0.3823 | 0.3699 | $-0.6830$ | 0.7440 |
+| prof $-$ wc | 0.0889 | 1.0800 | 1.1827 | 1.1187 | $-1.9613$ | 2.4313 |
+| prof coefficient | 0.3242 | 1.4631 | 2.0928 | 1.9926 | $-3.1416$ | 4.5443 |
+
+: Model-based, HC3, and case-bootstrap uncertainty for three targets in the full occupation model (seed 90909, $B=2000$). {#tbl-ch09-bootstrap tbl-colwidths="[22,12,14,12,14,13,13]"}
+
+Read the table one row at a time. The education slope's bootstrap SE of
+0.3699 sits between the classical 0.2752 and the HC3 0.3823, with
+percentile interval $[-0.6830,\ 0.7440]$: three calculations, one
+conclusion that this comparison is imprecise. The type contrast's
+bootstrap SE of 1.1187 exceeds the classical 1.0800, with percentile
+interval $[-1.9613,\ 2.4313]$. The professional coefficient shows the
+largest movement, from a classical 1.4631 to 1.9926, close to the HC3
+2.0928; with only 31 professional occupations, a resample's composition
+matters, and the formula that assumes a common error variance is the most
+optimistic of the three.
+
+Agreement between HC3 and the bootstrap is not independent confirmation.
+Both are sensitivity procedures applied to the same 98 records, and both
+inherit the same limitations of those records; agreement means the two
+approximations behave similarly here, not that the answer has been
+replicated. Monte Carlo variation also means that the last decimal of a
+bootstrap summary carries no weight: a different seed would move it, which
+is exactly why the seed and $B=2000$ are reported.
+
+### Which interval, and what resampling does not repair
+
+Two intervals come directly from the resampling distribution. The
+**percentile interval** takes its 2.5th and 97.5th quantiles, as in the
+table above. The **normal-approximation interval** takes the original
+estimate plus and minus 1.96 bootstrap standard errors. The two agree when
+the resampling distribution is roughly symmetric; here the three
+distributions have skewness $-0.3891$, 0.2635, and 0.3785, mild enough
+that the endpoints agree closely. For a strongly skewed or biased
+resampling distribution, **bootstrap-$t$** intervals, which resample a
+studentized quantity, and **BCa** intervals, which correct for bias and
+for skewness-driven acceleration, are the higher-order alternatives;
+Appendix B defines both in words.
+
+What resampling cannot do is more important than which interval to
+choose. Drawing occupations with replacement treats them as independent
+and exchangeable draws, which they are not: they share one historical
+labour market, and their measurements are aggregates from different years.
+Resampling does not repair the thin cross-type support, correct the
+measurement problems Chapter 8 documented, or convert an observational
+comparison into a causal one. And if a design contained clusters, strata,
+or weights, the resampling unit would have to follow the design rather
+than the rows — which is the subject of the next section.
+
+
+## Dependence in the Design: Project STAR {#sec-ch9-star}
+
+```{=latex}
+\hypertarget{sec-ch9-star}{}
+```
+
+Every calculation so far has used one set of 98 observational records, and
+every qualification has been about what those records cannot support. This
+section changes the design. Project STAR randomized kindergarten pupils to
+class types within their schools, which supplies a warrant no amount of
+adjustment can manufacture — and a dependence structure that the
+uncertainty calculation must follow.
+
+### A different design supplies a different warrant
+
+The question is specific:
+
+> Among eligible kindergarten pupils in the participating Tennessee
+> schools, what was the mean reading-score difference under assignment to
+> a small rather than a regular class?
+
+The outcome is `readk`, an end-of-kindergarten reading scale score. The
+field `stark` records the kindergarten class-type condition. Reading its
+small-versus-regular comparison as an assignment comparison rests on the
+documented experimental protocol, not on the column name or on the
+`lm()` call: random assignment occurred **within** participating schools
+[@finn1990; @mosteller1995]. The regular-with-aide arm is outside this
+declared two-arm comparison and is excluded by design, not dropped for
+convenience.
+
+Three limits belong with the question from the start. Class **type** is
+not a measured headcount, so this analysis estimates no dose response in
+pupils per room. The distributed field does not independently verify each
+pupil's original randomized assignment; an assignment-effect reading
+additionally requires linking the recorded type to the assignment record
+and checking switches and implementation deviations, which this teaching
+reanalysis does not supply. And the scientific target is the
+pupil-weighted mean assignment effect for the eligible cohort in
+participating schools, while a common coefficient from a
+complete-record model is an estimator that needs further links — a
+common effect across schools, or an explicit weighting argument — to
+reach that target.
+
+The data are distributed as `AER::STAR`, accompanying *Applied
+Econometrics with R* and following the version used by Stock and Watson
+[@kleiber2008; @stock2007]. They are loaded from the package rather than
+redistributed here, and the analysis is retrospective rather than
+preregistered.
+
+### Separate eligibility from missingness
+
+Two different reasons for a record's absence from an analysis are easy to
+merge and must not be. Some distributed rows belong to pupils who entered
+the study after kindergarten: they have no kindergarten condition at all,
+and their absence is **structural ineligibility**. Other rows belong to
+eligible kindergarten pupils whose reading score or covariates were not
+recorded: that is **missingness**, and it can distort a comparison.
+
+Only variables a calculation actually uses may enter its complete-record
+rule. In particular `mathk` must not exclude an otherwise usable reading
+record.
+
+```{=latex}
+\Needspace{22\baselineskip}
+```
+
+```{r}
+#| label: ch9-star-prepare
+#| echo: true
+data("STAR", package = "AER")
+star_vars <- c("stark", "readk", "lunchk", "gender", "ethnicity",
+  "experiencek", "schoolidk")
+star_k_recorded <- !is.na(STAR$stark)
+star_two_arm <- star_k_recorded & STAR$stark %in% c("regular", "small")
+star_complete <- complete.cases(STAR[, star_vars])
+star_df <- droplevels(STAR[star_two_arm & star_complete, star_vars])
+star_df$stark <- relevel(star_df$stark, ref = "regular")
+star_observed <- droplevels(STAR[star_two_arm & !is.na(STAR$readk), c(
+  "stark", "readk", "schoolidk")])
+star_observed$stark <- relevel(star_observed$stark, ref = "regular")
+c(observed_reading = nrow(star_observed), complete_covariates = nrow(
+  star_df))
+```
+
+\Needspace{16\baselineskip}
+
+| Stage | $n$ |
+|:--|--:|
+| Distributed records | 11,598 |
+| Kindergarten condition recorded | 6,325 |
+| Eligible small or regular | 4,094 |
+| Eligible, reading observed | 3,745 |
+| Complete primary records | 3,735 |
+| Primary regular | 2,001 |
+| Primary small | 1,734 |
+| Primary schools | 79 |
+
+: STAR eligibility and reading-analysis completeness. {#tbl-ch09-star-sample tbl-colwidths="[60,40]"}
+
+Of 11,598 distributed records, 5,273 have no kindergarten condition; they
+are later entrants, not 5,273 failed measurements. The remaining 6,325
+have a recorded kindergarten arm, and across all three arms 536 lack a
+reading score. Restricting to the two declared arms leaves 4,094 eligible
+records, of which 349 lack reading — 188 in the regular arm and 161 in the
+small arm — leaving 3,745 with an observed reading score, 2,006 regular
+and 1,739 small.
+
+Similar missing percentages in the two arms are reassuring but prove
+nothing: the absent scores could differ systematically within either arm,
+and no observed value can reveal that. Complete-record inference here
+requires an assumption that, given the declared covariates and within arm
+and school, observation does not depend on the reading score that would
+have been recorded. Stating the assumption is not verifying it.
+
+Among the observed-reading records across all arms, 38 lack at least one
+of lunch status, gender, ethnicity, and teacher experience; within the two
+focal arms, ten do. The primary common-covariate sample therefore has
+3,735 pupils, 2,001 regular and 1,734 small, in 79 schools. The
+observed-reading sample keeps all 3,745 focal records and is used as a
+declared sensitivity, not as an alternative headline.
+
+### The binary slope recovers the observed arm means
+
+Section 1.1's identity applies unchanged. With $D_i=1$ for the small arm
+and 0 for regular,
+
+$$
+\widehat Y_i=\widehat\alpha+\widehat\delta D_i,\qquad
+\widehat\alpha=\bar Y_{D=0},\qquad
+\widehat\delta=\bar Y_{D=1}-\bar Y_{D=0}=440.5474-434.7323=5.8151.
+$$
+
+```{=latex}
+\Needspace{20\baselineskip}
+```
+
+```{r}
+#| label: ch9-star-means
+#| echo: true
+star_observed_unadjusted <- lm(readk ~ stark, data = star_observed)
+star_arm_means <- tapply(star_observed$readk, star_observed$stark, mean)
+c(regular_mean = unname(star_arm_means["regular"]),
+  small_mean = unname(star_arm_means["small"]),
+  small_minus_regular = unname(star_arm_means["small"] -
+    star_arm_means["regular"]),
+  regression_difference = unname(coef(
+    star_observed_unadjusted)["starksmall"]))
+```
+
+On these 3,745 records the difference is 5.8151 reading points, and the
+regression slope reproduces it exactly, as Chapter 7's binary predictor
+did on 24 pupils. The identity is algebraic and requires no randomization;
+what randomization adds is the reason to read the difference as an
+assignment comparison.
+
+Two cautions attach to the number itself. Under independent
+common-variance rows, the slope's $t$ test equals the pooled two-sample
+test, here $t=5.6039$; that row-level reference ignores the fact that
+pupils sit in schools, which the next subsection addresses. And raw arm
+means weight each school by its own arm-specific pupil count, so the
+pooled difference equals the pupil-weighted cohort target only under
+common assignment probabilities and comparable observation patterns, or
+after explicit standardization to target school weights.
+
+### Compare two specifications on identical primary rows
+
+The adjusted model adds free-lunch status, gender, ethnicity, teacher
+experience, and school indicators. School indicators respect the
+assignment blocks; the remaining covariates are the declared adjustment
+specification, not a substitute for randomization.
+
+```{=latex}
+\Needspace{18\baselineskip}
+```
+
+```{r}
+#| label: ch9-star-models
+#| echo: true
+star_unadjusted <- lm(readk ~ stark, data = star_df)
+star_primary <- lm(readk ~ stark + lunchk + gender + ethnicity +
+  experiencek + schoolidk, data = star_df)
+star_sensitivity <- lm(readk ~ stark + schoolidk, data = star_observed)
+c(unadjusted = nobs(star_unadjusted), adjusted = nobs(star_primary),
+  observed_reading = nobs(star_sensitivity))
+```
+
+On the common 3,735 primary rows, the unadjusted difference is 5.8955 and
+the adjusted coefficient is 6.6575. Adjustment can improve precision when
+the added variables are prognostic for reading, and school indicators
+match the blocks in which assignment happened. It is not needed to remove
+baseline confounding that a successfully implemented randomization already
+prevents, and it does not automatically preserve a causal target: timing,
+selection, and the fitted comparison still need scrutiny.
+
+The earlier 5.8151 comes from 3,745 rows and must not serve as the
+same-row unadjusted baseline for 6.6575. Comparing 5.8151 with 6.6575
+confounds two changes — a change of records and a change of
+specification — and the whole discipline of this chapter is to keep those
+apart. The same-row pair to compare is 5.8955 against 6.6575.
+
+Similar unadjusted and adjusted coefficients are consistent with
+successful randomization. They are not proof that implementation,
+missingness, or weighting problems are absent, and a common coefficient
+still carries its own implicit weights if the effect varies across schools
+or pupil profiles.
+
+### Cluster uncertainty follows the design
+
+Pupils are the outcome units. Schools are the randomization blocks and the
+approximately independent units for this covariance calculation; the
+schools themselves were not assigned to arms. Pupils sharing a school —
+and, within it, a classroom — may have correlated outcomes, and a
+covariance estimate that ignores this understates the uncertainty of an
+arm comparison.
+
+For school $g$, form its score $\mathbf s_g=\mathbf X_g'\mathbf e_g$ by
+summing the residual contributions **within** the school before taking an
+outer product. The CR1/HC1 cluster-robust covariance is then
+
+$$
+\widehat{\mathbf V}_{\mathrm{CR1}}=c_G(\mathbf X'\mathbf X)^{-1}
+\Big(\sum_{g=1}^{G}\mathbf s_g\mathbf s_g'\Big)(\mathbf X'\mathbf X)^{-1},
+\qquad \mathbf s_g=\mathbf X_g'\mathbf e_g,\qquad
+c_G=\frac{G}{G-1}\frac{n-1}{n-p}.
+$$
+
+The within-school cross-products are exactly what distinguishes this from
+treating every pupil as independent, and $c_G$ is the finite-cluster
+correction. With $G=79$ schools, the interval below uses a $t_{78}$
+critical value, 1.9908 [@zeileis2020].
+
+```{=latex}
+\Needspace{30\baselineskip}
+```
+
+```{r}
+#| label: ch9-star-cluster
+#| echo: true
+star_V <- sandwich::vcovCL(star_primary, cluster = star_df$schoolidk,
+  type = "HC1", cadjust = TRUE)
+star_b <- unname(coef(star_primary)["starksmall"])
+star_se <- sqrt(star_V["starksmall", "starksmall"])
+star_G <- nlevels(star_df$schoolidk)
+c(estimate = star_b, SE = star_se)
+star_b + c(-1, 1) * qt(.975, star_G - 1) * star_se
+c(row_level = sqrt(vcov(star_observed_unadjusted)["starksmall", "starksmall"]),
+  HC3 = sqrt(sandwich::vcovHC(star_observed_unadjusted,
+    type = "HC3")["starksmall", "starksmall"]),
+  clustered = sqrt(sandwich::vcovCL(star_observed_unadjusted,
+    cluster = star_observed$schoolidk, type = "HC1",
+    cadjust = TRUE)["starksmall", "starksmall"]))
+```
+
+\Needspace{12\baselineskip}
+
+| Model | $n$ | Estimate | SE | Interval |
+|:--|--:|--:|--:|:--|
+| Observed: unadjusted | 3,745 | 5.8151 | 1.8476 | [2.1368, 9.4935] |
+| Primary: unadjusted | 3,735 | 5.8955 | 1.8491 | [2.2143, 9.5767] |
+| Primary: adjusted | 3,735 | 6.6575 | 1.6974 | [3.2782, 10.0368] |
+| Observed: school-adjusted | 3,745 | 6.6273 | 1.7797 | [3.0842, 10.1703] |
+
+: Class-type comparisons and school-clustered intervals. {#tbl-ch09-star-estimates tbl-colwidths="[34,12,16,14,24]"}
+
+The table holds four distinct calculations, each with its own records and
+its own specification; each row's interval uses the school identifiers
+from that model's own rows. Changing the model or its records is a
+different act from changing the covariance calculation, and the table
+keeps them separable.
+
+The three standard errors printed at the end of the chunk make Section 5's
+point concrete. For the same 3,745-record unadjusted comparison, treating
+pupils as independent rows gives SE 1.0377; HC3 gives 1.0416, barely
+different; school clustering gives 1.8476, nearly twice as large. Unequal
+spread across pupils was not this design's problem. Dependence within
+schools was, and no row-level robust covariance addresses it. The adjusted
+primary model shows the same pattern: its row-level SE is 0.9161 and its
+HC3 SE 0.9509, against the clustered 1.6974.
+
+These are cluster-asymptotic approximations with 79 clusters, not exact
+randomization inference and not a multilevel model. A residual plot cannot
+choose the independence unit — the design does. And a count of 79 clusters
+does not certify the approximation: the balance of information across
+clusters and the influence of particular schools also matter.
+
+### Read the bounded answer, then evaluate its support
+
+A chapter-authored report can now state:
+
+> On 3,735 complete two-arm kindergarten records, the common adjusted
+> small-versus-regular class-type coefficient was 6.6575 reading points,
+> with approximate school-clustered interval [3.2782, 10.0368]. Its causal
+> mean-effect interpretation relies on documented within-school
+> randomization, a verified link from recorded class type to original
+> assignment, suitable complete-record selection, independent-school
+> uncertainty, and a common-effect or target-matching weighting argument.
+> It concerns assigned class type, one kindergarten reading outcome, and
+> participating Tennessee schools, not realized headcount or a portable
+> policy dose response.
+
+Read the report's functions before judging it, applying Chapter 1's
+argument components as Chapters 7 and 8 did. The sample audit and the
+model code carry **STAT-E** content; the design and covariance reasoning
+supplies **STAT-J**; the estimate and its clustered interval supply
+**STAT-I**; and the first sentence is the bounded **STAT-C** answer.
+**SUB-E** situates the pupils, the test, the cohort, and the school
+context; **SUB-J** adds the assignment record together with the selection
+and weighting qualifications; **SUB-I** reads the coefficient as
+assignment-related only under that support; and **SUB-C** bounds the
+substantive claim. These are linked functions within one argument, not two
+arguments.
+
+Then separate what is *stated* from what is *demonstrated*. The report
+states the selection and weighting conditions; stating them does not
+establish that they hold. The randomization protocol is documented in the
+study's own publications, not shown by this coefficient table. The link
+from the recorded class-type field to the original assignment is asserted
+here and not verified. Where a necessary link cannot be assessed, the
+honest move is to report the limitation rather than to invent it or to
+quietly substitute a different target.
+
+The design literature documents implementation and interpretation issues
+that a single coefficient cannot settle [@krueger1999; @hanushek1999;
+@nye2000; @chetty2011]. Nor does this result transport by itself to
+nonparticipating schools, another period, another outcome, or another
+education system. Those limits belong inside the answer, not in a list
+appended after an unrestricted claim — and a crossed significance boundary
+is not what makes a result [@gelman2006; @gelman2020].
+
+Chapter 14 returns to dependence as a design fact and reuses this
+calculation as its example. What a design supplies that adjustment cannot
+is the subject there; what this section supplies is the discipline of
+letting the covariance calculation follow the unit at which the design
+acted.
+
+## Reading Bridge {#sec-ch9-summary}
+
+A factor enters a regression as indicators, and its fitted means,
+contrasts, and omnibus test are the analysis of variance written as a
+model; a contrast's uncertainty needs the covariance between coefficients,
+not the sum of two standard errors. Nested models compare on the same
+records and the same outcome by an extra-sum-of-squares $F$, and
+information criteria rank them by penalized in-sample fit, never by
+held-out error. A squared predictor gives a comparison that depends on the
+predictor's value; a logged outcome changes the question to a
+geometric-mean scale, and its criteria no longer speak to the original
+one. HC3, the case bootstrap, and a clustered covariance each change the
+uncertainty calculation for a stated reason and leave the fitted
+coefficients alone; none repairs curvature, missing outcomes, weighting,
+or the absence of a design. Project STAR showed the uncertainty following
+the design: schools, not pupils, were the approximately independent units,
+and the difference was nearly a factor of two.
+
+Chapter 10 asks a different question of the same equations. Every
+comparison in this chapter was the same at every value of the other
+predictors — that is what "additive" means, and Section 2.3's common-slope
+check was the first test of it. Chapter 10 lets a comparison itself vary
+with another predictor, and develops how to read, probe, and report such
+an interaction.
+
+### Key terms {.unnumbered}
+
+Use this short reference to revisit the concepts introduced here. The Part
+One introduction gives the broader reference and the principal home of
+each concept; indicator coding, partial slopes, coefficient covariance,
+and HC3 are explained in Chapters 7 and 8.
+
+| Term and common alternatives | Meaning |
+|:--|:--|
+| Nested-model $F$ test (extra sum of squares; block test) | Compares a reduced model with a fuller one fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the fuller model's residual mean square, referred to $F$ with the number of restrictions and the fuller model's residual df. It tests the added block jointly, not each coefficient separately. |
+| Information criteria (AIC; BIC) | Penalized in-sample fit: $-2\log\widehat L$ plus $2k$ (AIC) or $k\log n$ (BIC), with $k$ counting the coefficients and the residual variance. Smaller is preferred among models fitted to the same records and outcome scale; neither is held-out error. |
+| Polynomial term (quadratic term; curvature) | A power of a predictor added as a further column so that the fitted mean can curve. The predictor's comparison then depends on its value; centering before squaring reduces collinearity without changing the fitted curve. |
+| Log-transformed outcome (geometric-mean scale) | Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and $100(e^{\beta}-1)$ percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale's. |
+| Standardized coefficient (beta weight) | A partial slope rescaled by the predictor and outcome SDs, in outcome-SD units per predictor SD, with the other predictors held fixed. It differs from standardization over named profiles and does not measure causal importance. |
+| Bootstrap (case resampling; percentile interval) | Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design. |
+| Cluster-robust standard error (school-clustered covariance) | A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting. |
+
+: Selected concepts for the regression toolbox. {#tbl-ch09-key-terms tbl-colwidths="[28,72]"}
+
+### Further reading {.unnumbered}
+
+- The [OpenIntro multiple-predictor and model-selection tutorial](https://openintro-ims.netlify.app/model-mlr)
+  gives concrete indicator interpretations and criterion-based reading. We
+  use its equation-first device without adopting automatic stepwise
+  selection.
+- The [ISLR regression lab](https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html)
+  and the [ISLR resampling lab](https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch5-resample-lab.html)
+  connect fitting, factors, criteria, and resampling in one workflow
+  [@james2021].
+- Fox [@fox2016] and Kutner and colleagues [@kutner2005] develop the
+  linear-model algebra, the restriction statistic, and the diagnostics
+  behind this chapter's matrix section.
+- Efron and Tibshirani [@efron1993] and Davison and Hinkley [@davison1997]
+  are the standard bootstrap references, including the bootstrap-$t$ and
+  BCa intervals named in Section 6.3.
+- The [sandwich documentation](https://cran.r-project.org/web/packages/sandwich/sandwich.pdf)
+  specifies the HC and CR covariance calls used here [@zeileis2020].
+
+## Exercises {.unnumbered}
+
+Use the supplied numbers; rounding within 0.02 is acceptable unless a
+different precision is requested. These prompts do not require the
+appendices.
+
+\Needspace{18\baselineskip}
+
+<!-- prompt-id: CH09-E01 -->
+### Exercise 1: Read indicator coefficients (Foundational) {.unnumbered #ex-ch09-01}
+
+A group-only regression of income (thousand dollars) on occupation type
+has observed group means 5.3741 (blue-collar, 44 records), 10.5595
+(professional, 31), and 5.0523 (white-collar, 23). (1) With blue-collar as
+reference, give the intercept and the two indicator coefficients. (2) Give
+the intercept and both coefficients with white-collar as reference. (3)
+Explain why the fitted values are the same under both codings. (4) The
+full additive model's professional coefficient is 0.3242. Explain why it
+differs from the professional coefficient in (1) and why neither is "the
+effect of occupational type".
+
+\Needspace{18\baselineskip}
+
+<!-- prompt-id: CH09-E02 -->
+### Exercise 2: A contrast needs covariance (Foundational) {.unnumbered #ex-ch09-02}
+
+In the full additive model the professional and white-collar coefficients
+are 0.3242 and 0.2353, with estimated variances 2.1406 and 0.9698 and
+covariance 0.9720; the residual df are 92 and $t_{.975,92}=1.9861$. (1)
+Estimate the professional-minus-white-collar contrast and its variance.
+(2) Give its SE and 95% interval. (3) A student adds the two SEs (1.4631
+and 0.9848) instead. State what that number is and why it is wrong. (4)
+Explain what the interval does and does not say about the two types.
+
+\Needspace{20\baselineskip}
+
+<!-- prompt-id: CH09-E03 -->
+### Exercise 3: A nested comparison from residual sums of squares (Foundational) {.unnumbered #ex-ch09-03}
+
+On the same 98 records, the model with education and prestige has RSS
+867.6537 on 95 df, and the full model adding the percentage of women and
+the two type indicators has RSS 630.8897 on 92 df. The 5% critical value
+of $F(3,92)$ is 2.7036. (1) Calculate the $F$ statistic for the added
+block. (2) State the decision at 5% and what it does and does not say
+about the three added columns. (3) Explain why the sequential sums of
+squares from a single `anova()` call on the full model would not answer
+this question.
+
+\Needspace{18\baselineskip}
+
+<!-- prompt-id: CH09-E04 -->
+### Exercise 4: Information criteria by hand (Foundational) {.unnumbered #ex-ch09-04}
+
+The full model's maximized log-likelihood is $-230.3020$ on 98 records,
+with seven fitted parameters (six coefficients and the residual variance),
+and $\log 98=4.584967$. (1) Calculate AIC and BIC. (2) The model with
+education and prestige only has AIC 499.8328. Which model do the criteria
+favour, and on what condition is that comparison meaningful? (3) A
+log-income version of the full model has AIC 8.0910. Explain why this
+number cannot be compared with your answer to (1).
+
+\Needspace{22\baselineskip}
+
+<!-- prompt-id: CH09-E05 -->
+### Exercise 5: Percent and curvature (Integrative) {.unnumbered #ex-ch09-05}
+
+(1) In a log-income model the prestige coefficient is 0.0207. Give the
+percent difference in geometric-mean income per prestige point and say
+what "geometric mean" adds to the reading. (2) In an income model with a
+squared prestige term, the prestige coefficients are $-0.0754$ (linear) and
+0.0024 (squared); prestige ranges from 17.3 to 87.2. Give the fitted slope
+at prestige 30, 50, and 70 and locate the turning point. (3) State in one
+sentence what the curve claims about income and prestige over the observed
+range, and one reason that claim is a sensitivity check rather than a
+discovery.
+
+\Needspace{22\baselineskip}
+
+<!-- prompt-id: CH09-E06 -->
+### Exercise 6: Choose the uncertainty calculation (Integrative) {.unnumbered #ex-ch09-06}
+
+In Project STAR the small-minus-regular kindergarten reading difference on
+3,745 observed records is 5.8151 points. Three standard errors are
+available: 1.0377 treating pupils as independent, 1.0416 with HC3, and
+1.8476 clustering pupils within their 79 schools; use $t_{.975}=1.9606$
+for the first two and 1.9908 for the third. (1) Give the interval under
+the first and the third calculation. (2) Say which one a report should use
+and why, naming the unit at which assignment happened. (3) Name two
+problems that none of the three calculations repairs.
+
+## Appendix A: Matrix Geometry, Restrictions, and Sandwich Constructions {.unnumbered #app-ch9-a}
+
+This appendix derives the results that Sections 3.2 and 5.1 used. It is
+reference material: the exercises do not require it, and the main route is
+complete without it. Complete R reproductions of every construction below
+belong to the Computer Lab tasks on normal equations, on manual HC3, and
+on the joint Wald helper.
+
+### Projection and the normal equations {.unnumbered}
+
+Let $\mathbf X$ be $n\times p$ with full column rank, so $\mathbf X'\mathbf X$
+is invertible. The least-squares criterion is
+$S(\boldsymbol\beta)=(\mathbf y-\mathbf X\boldsymbol\beta)'(\mathbf y-\mathbf X\boldsymbol\beta)$.
+Expanding gives
+$S=\mathbf y'\mathbf y-2\boldsymbol\beta'\mathbf X'\mathbf y
++\boldsymbol\beta'\mathbf X'\mathbf X\boldsymbol\beta$, and differentiating
+with respect to $\boldsymbol\beta$ yields the normal equations
+
+$$
+\mathbf X'\mathbf X\widehat{\boldsymbol\beta}=\mathbf X'\mathbf y,
+\qquad\text{equivalently}\qquad
+\mathbf X'(\mathbf y-\mathbf X\widehat{\boldsymbol\beta})=\mathbf 0 .
+$$
+
+The second form is the geometry: the residual vector is orthogonal to
+every column of $\mathbf X$. Hence
+$\widehat{\mathbf y}=\mathbf X\widehat{\boldsymbol\beta}=\mathbf H\mathbf y$
+with $\mathbf H=\mathbf X(\mathbf X'\mathbf X)^{-1}\mathbf X'$, and
+$\mathbf H$ is symmetric and idempotent — the orthogonal projection onto
+the column space of $\mathbf X$. Its trace is $p$, which is why the
+leverages $h_{ii}$ sum to the number of fitted coefficients; for `m2` they
+sum to 6.
+
+Two consequences used earlier follow immediately. Any full-rank recoding
+$\mathbf X\mathbf A$, with $\mathbf A$ invertible, spans the same column
+space, so $\mathbf H$ and $\widehat{\mathbf y}$ are unchanged: releveling
+a factor or centering a predictor cannot alter a single fitted value.
+Adding a genuinely new column enlarges the space and can change every
+fitted value. And under the classical error model,
+$\widehat{\mathbf V}=s^2(\mathbf X'\mathbf X)^{-1}$ with
+$s^2=RSS/(n-p)$, which is where every classical standard error in this
+chapter came from. Section 3.2's check confirmed both the coefficients and
+the orthogonality to about $10^{-13}$ on the occupation model.
+
+### General linear restrictions {.unnumbered}
+
+Let $\mathbf R$ be $q\times p$ of rank $q$ and consider
+$\mathbf R\boldsymbol\beta=\mathbf r$. Since
+$\widehat{\boldsymbol\beta}$ has covariance
+$\sigma^2(\mathbf X'\mathbf X)^{-1}$ under the classical model, the vector
+$\mathbf R\widehat{\boldsymbol\beta}-\mathbf r$ has covariance
+$\sigma^2\mathbf R(\mathbf X'\mathbf X)^{-1}\mathbf R'$. Standardizing by
+that covariance and dividing by $q$ gives
+
+$$
+F=\frac{(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)'\,
+[\mathbf R(\mathbf X'\mathbf X)^{-1}\mathbf R']^{-1}\,
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)}{q\,s^{2}},
+$$
+
+which has an exact $F_{q,\,n-p}$ reference under normal errors, because
+the numerator and denominator quadratic forms are independent chi-squares.
+This is the same number the extra-sum-of-squares formula produces: fitting
+the restricted model and differencing residual sums of squares is an
+algebraically equivalent route. Taking the two rows of $\mathbf R$ that
+select `typeprof` and `typewc`, with $\mathbf r=\mathbf 0$, returned
+0.0319 in Section 3.2 — the adjusted type block test, obtained without
+fitting the reduced model.
+
+The equivalence with the extra-sum-of-squares route is worth seeing once.
+Minimizing $S(\boldsymbol\beta)$ subject to
+$\mathbf R\boldsymbol\beta=\mathbf r$ with a Lagrange multiplier gives the
+restricted estimator
+$\widetilde{\boldsymbol\beta}=\widehat{\boldsymbol\beta}
+-(\mathbf X'\mathbf X)^{-1}\mathbf R'
+[\mathbf R(\mathbf X'\mathbf X)^{-1}\mathbf R']^{-1}
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)$, a correction applied
+only in the directions the restriction touches. Substituting it into the
+criterion shows that the increase in residual sum of squares is
+$RSS_R-RSS_F=(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)'
+[\mathbf R(\mathbf X'\mathbf X)^{-1}\mathbf R']^{-1}
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)$, which is exactly the
+numerator above. Fitting the reduced model and differencing, or evaluating
+the quadratic form in the unrestricted fit, are two routes to one number.
+
+Replacing $s^2(\mathbf X'\mathbf X)^{-1}$ by a robust covariance in the
+middle of this expression gives the Wald statistic of Section 5.2. The
+algebra survives the substitution; the exact reference distribution does
+not.
+
+### The HC3 sandwich {.unnumbered}
+
+Write the coefficient error as
+$\widehat{\boldsymbol\beta}-\boldsymbol\beta
+=(\mathbf X'\mathbf X)^{-1}\mathbf X'\boldsymbol\varepsilon$. Under
+independent rows with possibly different variances $\sigma_i^2$, its exact
+covariance is
+
+$$
+(\mathbf X'\mathbf X)^{-1}
+\Big(\sum_i\sigma_i^2\,\mathbf x_i\mathbf x_i'\Big)
+(\mathbf X'\mathbf X)^{-1},
+$$
+
+a *sandwich* with the design component as bread and the error-scale
+component as filling. The classical estimator substitutes a common $s^2$,
+which collapses the filling to $s^2\mathbf X'\mathbf X$. The HC family
+substitutes each row's own squared residual instead. Because
+$E(e_i^2)=\sigma_i^2(1-h_{ii})$ under the classical model, the raw
+residual understates the error at high-leverage rows; HC3 corrects by
+dividing by $(1-h_{ii})^2$, which is deliberately slightly conservative
+and performs well in small samples [@mackinnon1985; @long2000].
+
+Building the estimator directly — inverting $\mathbf X'\mathbf X$ for the
+bread and forming the cross-product of the rows of $\mathbf X$ scaled by
+$e_i/(1-h_{ii})$ for the filling — reproduces
+`sandwich::vcovHC(m2, type = "HC3")` to within about $10^{-12}$ on the
+occupation model, which is floating-point agreement.
+
+### The CR1 cluster sandwich {.unnumbered}
+
+Cluster robustness changes the filling, not the bread. Partition the rows
+into $G$ clusters and let $\mathbf X_g$ and $\mathbf e_g$ hold cluster
+$g$'s rows and residuals. The cluster score
+$\mathbf s_g=\mathbf X_g'\mathbf e_g$ sums the within-cluster
+contributions *before* the outer product is taken, so the estimator
+retains the within-cluster residual correlations that the independent-row
+filling discards:
+
+$$
+\widehat{\mathbf V}_{\mathrm{CR1}}=c_G(\mathbf X'\mathbf X)^{-1}
+\Big(\sum_{g=1}^{G}\mathbf s_g\mathbf s_g'\Big)(\mathbf X'\mathbf X)^{-1},
+\qquad c_G=\frac{G}{G-1}\,\frac{n-1}{n-p}.
+$$
+
+If every cluster held one row, the filling would reduce to the HC0 form,
+which is why a row-level robust SE is the special case that assumes away
+the dependence. The asymptotics are in $G$, not in $n$: 3,745 pupils in 79
+schools supply 79 independent pieces of information for this covariance,
+which is why the clustered SE of 1.8476 is so much larger than the
+row-level 1.0377 and why a $t_{G-1}$ reference is used. Constructing the
+score matrix by summing $\mathbf X\odot\mathbf e$ within school, applying
+$c_G=1.0131$, and sandwiching it reproduces
+`sandwich::vcovCL(..., type = "HC1", cadjust = TRUE)` to within about
+$10^{-13}$ on the observed-reading STAR model.
+
+## Appendix B: Bootstrap Schemes and Intervals {.unnumbered #app-ch9-b}
+
+Section 6 used case resampling and said why. This appendix runs the other
+two schemes on the same model, the same three targets, and the same seed,
+and defines the two higher-order intervals named there. The lab tasks on
+resampling variants and on manual covariance reproduction carry the full
+implementations.
+
+### Residual and wild resampling {.unnumbered}
+
+Both schemes hold the design matrix fixed and rebuild outcomes from the
+fitted values. Residual resampling draws leverage-rescaled residuals
+$e_i/\sqrt{1-h_{ii}}$ with replacement and adds them to the fitted values,
+which assumes the rescaled residuals are exchangeable across rows. The
+wild bootstrap keeps each row's own rescaled residual and multiplies it by
+an independent mean-zero, unit-variance draw — here $\pm1$ with equal
+probability — so each row retains its own error scale.
+
+```{=latex}
+\Needspace{26\baselineskip}
+```
+
+```{r}
+#| label: ch9b-schemes
+#| echo: true
+set.seed(90909)
+X <- model.matrix(m2); e <- residuals(m2); h <- hatvalues(m2)
+fit_draw <- function(y) {
+  b <- coef(lm(y ~ X - 1))
+  c(b["Xeducation"], b["Xtypeprof"] - b["Xtypewc"], b["Xtypeprof"])
+}
+residual_draws <- t(replicate(B, fit_draw(fitted(m2) +
+  sample(e / sqrt(1 - h), replace = TRUE))))
+wild_draws <- t(replicate(B, fit_draw(fitted(m2) +
+  e / sqrt(1 - h) * sample(c(-1, 1), nrow(d), replace = TRUE))))
+rbind(case = apply(draws, 2, sd, na.rm = TRUE),
+  residual = apply(residual_draws, 2, sd), wild = apply(wild_draws, 2, sd))
+```
+
+For the education slope the three schemes give 0.3699 (case), 0.2820
+(residual), and 0.3673 (wild). The residual scheme is the outlier, and its
+value sits close to the classical 0.2752 — which is what one should
+expect, since both assume one common error distribution. The wild
+bootstrap, which does not, lands near the case result and near HC3's
+0.3823. For the professional coefficient the pattern repeats more
+strongly: 1.9926, 1.4861, and 1.9767. When the schemes disagree, the
+disagreement is about the error model, not about the data, and it is a
+reason to say which scheme was used.
+
+### Percentile, normal, and higher-order intervals {.unnumbered}
+
+Four interval definitions are worth distinguishing in words.
+
+- The **percentile interval** takes the 2.5th and 97.5th quantiles of the
+  resampling distribution of the estimate.
+- The **normal-approximation interval** takes the original estimate plus
+  and minus 1.96 bootstrap standard errors. It uses the resampling
+  distribution only for its spread, so it is insensitive to skewness.
+- The **bootstrap-$t$ interval** resamples a studentized quantity,
+  $(\widehat\theta^{*}-\widehat\theta)/SE^{*}$, and inverts its empirical
+  quantiles. It needs a standard error inside every resample, which is
+  expensive, and it is more accurate when the studentized quantity is
+  closer to pivotal than the estimate itself.
+- The **BCa interval** adjusts the percentile endpoints for median bias
+  and for an acceleration constant that captures how the standard error
+  changes with the parameter. It is the usual recommendation when the
+  resampling distribution is visibly skewed [@efron1993; @davison1997].
+
+For the three targets of Section 6 the skewness values $-0.3891$, 0.2635,
+and 0.3785 are mild, so percentile and normal-approximation endpoints agree
+closely and the higher-order corrections would change little. That
+agreement is a property of this example, not a general licence.
+
+### Extended practice: resampling choices (Integrative) {.unnumbered}
+
+1. Repeat the case bootstrap of Section 6.2 for the women coefficient in
+   `m2`, with the same seed and $B$. Report the bootstrap SE and
+   percentile interval, compare them with the classical 0.0097 and the
+   HC3 0.0079, and explain what it means that the classical SE is the
+   largest of the three here. State what the comparison does not show.
+2. Resample the STAR observed-reading records in two ways: drawing pupils
+   with replacement within each school, and drawing whole schools with
+   replacement. Report the resulting SEs for the small-minus-regular
+   difference beside the row-level 1.0377 and the clustered 1.8476.
+   Explain which resampling unit the design supports and why, and say
+   what neither scheme repairs.
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

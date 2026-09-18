@@ -1,5 +1,5 @@
 ---
-title: "Reading Group Comparisons: Categorical Outcomes and Mean Outcomes"
+title: "Group Comparisons with Analysis of Variance"
 author: "Jinsong Chen"
 
 bibliography: ../references.bib
@@ -24,8 +24,6 @@ format:
     number-sections: true
     toc: true
     toc-depth: 2
-    fig-cap: true
-    tbl-cap: true
     fig-align: center
     include-in-header:
       - text: |
@@ -65,6 +63,8 @@ format:
             {}{\QMSBRgraphicsPatchError{4}}
           \makeatother
           \setlength{\parindent}{0pt}
+          \widowpenalty=10000
+          \clubpenalty=10000
           \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
           \ifdefined\pdftrailerid\pdftrailerid{}\fi
           \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
@@ -72,9 +72,6 @@ format:
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
-          \addtokomafont{sectionentry}{\small}
-          \let\chapteroldtableofcontents\tableofcontents
-          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
           \usepackage{caption}
           \captionsetup[table]{
             position=above,
@@ -90,6 +87,10 @@ format:
           \usepackage{array}
           \usepackage{float}
           \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{12\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \usepackage{xcolor}
   html:
     df-print: kable
     toc: true
@@ -113,2077 +114,1756 @@ editor:
 ```{r}
 #| label: setup
 #| include: false
-
-knitr::opts_chunk$set(
-  echo = FALSE,
-  warning = FALSE,
-  message = FALSE,
-  fig.align = "center",
-  out.width = "90%"
-)
-if (knitr::is_latex_output()) {
-  knitr::opts_chunk$set(dev = "cairo_pdf")
-}
-
-options(digits = 4, width = 82, scipen = 4)
-
-library(ggplot2)
-library(carData)
-
-theme_set(
-  theme_minimal(base_size = 12) +
-    theme(
-      panel.grid.minor = element_blank(),
-      plot.title.position = "plot",
-      legend.position = "bottom"
-    )
-)
-
-fmt_p <- function(p) {
-  if (p < .001) "< .001" else sub("^0", "", sprintf("%.3f", p))
-}
-
-fmt_num <- function(x, digits = 2) {
-  formatC(x, format = "f", digits = digits)
-}
-
-## The curated UCI secondary-school record of Cortez and Silva (2008),
-## reduced to the columns this chapter analyses and embedded so that the
-## chapter renders without an external data file. Values are unchanged;
-## pass reproduces the documented cut point of 10 on the 0-20 scale.
-sp_absences <- c(
- 6,4,10,2,4,10,0,6,0,0,0,4,2,2,0,4,6,4,16,4,0,0,2,0,2,14,2,4,4,16,0,0,0,
- 0,0,0,2,7,2,8,25,8,2,0,14,8,12,4,2,2,2,2,6,0,6,8,0,4,2,2,6,6,4,2,0,2,4,
- 4,2,12,0,0,2,2,54,6,8,0,2,12,2,4,10,4,2,6,4,4,12,18,0,4,4,0,6,2,2,2,6,
- 0,14,0,4,26,0,10,8,2,6,4,6,0,6,10,8,2,2,0,20,6,2,6,2,18,0,0,0,2,0,8,0,
- 0,12,16,0,0,0,0,0,0,0,8,2,2,0,0,0,2,0,0,0,6,8,0,0,2,8,6,2,4,0,6,0,2,0,
- 16,4,0,0,0,0,2,0,0,4,4,2,4,10,4,10,2,0,56,14,12,2,0,6,4,10,0,12,8,0,0,
- 4,8,24,0,2,6,4,18,6,28,5,10,6,6,10,13,0,15,12,2,22,13,3,4,2,0,2,0,0,16,
- 10,2,14,10,14,4,14,2,18,10,4,20,2,0,14,2,0,0,0,6,4,16,8,0,0,6,4,0,0,2,
- 6,12,8,0,21,2,1,4,0,13,2,8,10,0,15,4,2,2,2,6,75,22,15,8,30,19,1,4,4,2,
- 5,6,6,9,11,0,12,6,8,4,0,10,0,5,14,0,0,0,20,8,0,38,0,18,0,20,3,22,14,40,
- 0,9,0,2,23,12,3,1,0,3,3,8,7,4,2,7,0,0,0,16,12,0,7,4,4,0,11,0,4,7,9,0,0,
- 10,8,2,7,4,4,0,4,2,4,0,0,2,0,0,0,4,0,0,0,10,4,3,8,14,0,2,4,4,0,17,4,5,
- 2,0,14,2,7,0,0,0,11,3,3,0,5
-)
-
-sp_grade_period_2 <- c(
- 6,5,8,14,10,15,12,5,18,15,8,12,14,10,16,14,14,10,5,10,14,15,15,13,9,9,
- 12,16,11,12,11,16,16,10,14,7,16,16,12,13,10,12,18,8,10,8,12,19,15,7,13,
- 13,11,10,13,9,15,15,10,16,11,8,10,9,10,15,13,7,9,16,15,10,6,12,12,9,11,
- 11,8,5,12,10,6,15,10,9,7,14,10,6,7,17,6,10,13,10,15,9,14,9,7,17,13,6,
- 18,11,8,18,13,15,19,10,13,19,9,15,13,14,7,13,15,14,13,11,7,13,10,8,4,
- 18,0,0,13,11,0,0,0,0,12,16,9,9,11,14,0,11,7,11,6,9,5,13,10,0,11,8,12,8,
- 15,12,6,9,0,10,8,11,10,15,7,14,5,15,11,7,11,9,13,5,8,10,8,13,17,9,13,
- 12,12,15,7,9,12,8,8,9,14,15,15,9,18,9,16,10,9,6,10,9,7,12,9,7,8,12,13,
- 7,10,15,6,6,7,10,6,5,16,13,13,8,15,11,8,10,13,11,9,13,7,9,13,12,11,7,
- 12,11,0,12,0,18,12,8,5,15,8,10,9,9,12,9,12,11,14,9,18,8,12,9,10,17,9,
- 10,9,0,9,14,11,14,10,12,9,9,8,11,8,9,12,9,9,10,18,12,14,13,11,15,12,18,
- 13,12,9,8,13,15,10,11,12,17,14,12,18,9,12,10,9,12,11,10,13,11,8,10,11,
- 11,13,9,11,14,15,12,15,10,9,14,8,14,0,8,9,15,13,8,15,10,12,10,15,8,10,
- 13,15,10,15,13,7,13,7,8,11,9,13,12,10,16,13,12,11,15,11,10,13,6,10,12,
- 7,12,11,5,18,8,14,9,15,10,14,6,11,5,5,9,5,5,9,5,9,16,8,12,9
-)
-
-sp_final_grade <- c(
- 6,6,10,15,10,15,11,6,19,15,9,12,14,11,16,14,14,10,5,10,15,15,16,12,8,8,
- 11,15,11,11,12,17,16,12,15,6,18,15,11,13,11,12,18,11,9,6,11,20,14,7,13,
- 13,10,11,13,10,15,15,9,16,11,11,9,9,10,15,12,6,8,16,15,10,5,14,11,10,
- 10,11,10,5,12,11,6,15,10,8,6,14,10,7,8,18,6,10,14,10,15,10,14,8,5,17,
- 14,6,18,11,8,18,13,16,19,10,13,19,9,16,14,13,8,13,15,15,13,13,8,12,11,
- 9,0,18,0,0,12,11,0,0,0,0,12,15,0,9,11,13,0,11,0,11,0,10,0,14,10,0,12,8,
- 13,10,15,12,0,7,0,10,7,12,10,16,0,14,0,16,10,0,9,9,11,6,9,11,8,12,17,8,
- 12,11,11,15,9,10,13,9,8,10,14,15,16,10,18,10,16,10,10,6,11,9,7,13,10,7,
- 8,13,14,8,10,15,4,8,8,10,6,0,17,13,14,7,15,12,9,12,14,11,9,13,6,10,13,
- 12,11,0,12,12,0,12,0,18,13,8,5,15,8,10,8,8,12,8,13,11,14,0,18,8,12,9,0,
- 17,10,11,10,0,9,14,11,14,10,12,9,9,8,10,8,10,12,10,11,11,19,12,14,15,
- 11,15,13,18,14,11,0,8,14,16,11,10,14,18,13,12,18,8,12,10,0,13,11,11,13,
- 11,0,9,10,11,13,9,11,15,15,11,16,10,9,14,8,14,0,0,0,15,13,0,17,10,11,0,
- 15,0,10,14,16,9,15,13,8,13,8,8,11,9,13,11,10,16,13,12,10,15,12,10,13,0,
- 10,11,9,12,11,5,19,10,15,10,15,10,14,7,10,0,5,10,6,0,8,0,9,16,7,10,9
-)
-
-sp_higher_no <- c(
- 79,128,149,151,154,161,164,165,166,167,240,248,251,253,270,277,312,353,
- 362,372
-)
-
-uci <- data.frame(
-  absences = as.integer(sp_absences),
-  grade_period_2 = as.integer(sp_grade_period_2),
-  final_grade = as.integer(sp_final_grade),
-  higher_education = "yes",
-  stringsAsFactors = FALSE
-)
-uci$higher_education[sp_higher_no] <- "no"
-uci$pass <- ifelse(uci$final_grade >= 10, "Yes", "No")
-uci$higher_education <- factor(
-  uci$higher_education,
-  levels = c("no", "yes"),
-  labels = c("No", "Yes")
-)
-uci$pass <- factor(uci$pass, levels = c("No", "Yes"))
-
-uci_tab <- with(uci, table(higher_education, pass))
-uci_prop <- prop.table(uci_tab, margin = 1)
-uci_chi <- chisq.test(uci_tab, correct = FALSE)
-uci_p_yes <- uci_prop["Yes", "Yes"]
-uci_p_no <- uci_prop["No", "Yes"]
-uci_n_yes <- sum(uci_tab["Yes", ])
-uci_n_no <- sum(uci_tab["No", ])
-uci_rd <- uci_p_yes - uci_p_no
-uci_rd_se <- sqrt(
-  uci_p_yes * (1 - uci_p_yes) / uci_n_yes +
-    uci_p_no * (1 - uci_p_no) / uci_n_no
-)
-uci_rd_ci <- uci_rd + c(-1, 1) * qnorm(.975) * uci_rd_se
-uci_rr <- uci_p_yes / uci_p_no
-uci_or <- (uci_tab["Yes", "Yes"] / uci_tab["Yes", "No"]) /
-  (uci_tab["No", "Yes"] / uci_tab["No", "No"])
-uci_v <- sqrt(unname(uci_chi$statistic) / sum(uci_tab))
-
-# The source-coded result remains primary.  This deletion analysis is a
-# diagnostic for the unexplained cluster of final-grade zeros, not a recoding.
-uci_zero <- uci$final_grade == 0
-uci_zero_n <- sum(uci_zero)
-uci_zero_all_absent_zero <- all(uci$absences[uci_zero] == 0)
-uci_zero_prior_positive <- sum(uci$grade_period_2[uci_zero] > 0)
-uci_nozero <- uci[!uci_zero, ]
-uci_nozero_tab <- with(uci_nozero, table(higher_education, pass))
-uci_nozero_prop <- prop.table(uci_nozero_tab, margin = 1)
-uci_nozero_p_yes <- uci_nozero_prop["Yes", "Yes"]
-uci_nozero_p_no <- uci_nozero_prop["No", "Yes"]
-uci_nozero_n_yes <- sum(uci_nozero_tab["Yes", ])
-uci_nozero_n_no <- sum(uci_nozero_tab["No", ])
-uci_nozero_rd <- uci_nozero_p_yes - uci_nozero_p_no
-uci_nozero_se <- sqrt(
-  uci_nozero_p_yes * (1 - uci_nozero_p_yes) / uci_nozero_n_yes +
-    uci_nozero_p_no * (1 - uci_nozero_p_no) / uci_nozero_n_no
-)
-uci_nozero_ci <- uci_nozero_rd + c(-1, 1) * qnorm(.975) * uci_nozero_se
-uci_nozero_chi <- chisq.test(uci_nozero_tab, correct = FALSE)
-uci_nozero_fisher <- fisher.test(uci_nozero_tab)
-stopifnot(
-  uci_zero_n == 38L,
-  uci_zero_all_absent_zero,
-  uci_zero_prior_positive == 25L
-)
-
-data("Baumann")
-reading <- Baumann
-reading$group <- factor(
-  reading$group,
-  levels = c("Basal", "DRTA", "Strat"),
-  labels = c("DRA", "DRTA", "Think-aloud")
-)
-
-reading_groups <- levels(reading$group)
-reading_summary <- do.call(
-  rbind,
-  lapply(reading_groups, function(g) {
-    z <- reading$post.test.1[reading$group == g]
-    data.frame(
-      Group = g,
-      Assigned = c(22L, 23L, 23L)[match(g, reading_groups)],
-      Observed = length(z),
-      Mean = mean(z),
-      SD = sd(z),
-      Minimum = min(z),
-      Maximum = max(z),
-      stringsAsFactors = FALSE
-    )
-  })
-)
-
-reading_aov <- aov(post.test.1 ~ group, data = reading)
-reading_anova <- anova(reading_aov)
-reading_welch <- oneway.test(
-  post.test.1 ~ group,
-  data = reading,
-  var.equal = FALSE
-)
-reading_tukey <- TukeyHSD(reading_aov)$group
-
-reading_means <- setNames(reading_summary$Mean, reading_summary$Group)
-reading_ns <- setNames(reading_summary$Observed, reading_summary$Group)
-reading_mse <- reading_anova["Residuals", "Mean Sq"]
-reading_df <- reading_anova["Residuals", "Df"]
-reading_contrast_names <- c("DRTA minus DRA", "Think-aloud minus DRA")
-reading_contrast_est <- c(
-  reading_means["DRTA"] - reading_means["DRA"],
-  reading_means["Think-aloud"] - reading_means["DRA"]
-)
-reading_contrast_se <- c(
-  sqrt(reading_mse * (1 / reading_ns["DRTA"] + 1 / reading_ns["DRA"])),
-  sqrt(reading_mse *
-    (1 / reading_ns["Think-aloud"] + 1 / reading_ns["DRA"]))
-)
-reading_bonf_critical <- qt(1 - .05 / (2 * 2), reading_df)
-reading_contrast_low <- reading_contrast_est -
-  reading_bonf_critical * reading_contrast_se
-reading_contrast_high <- reading_contrast_est +
-  reading_bonf_critical * reading_contrast_se
-reading_contrast_t <- reading_contrast_est / reading_contrast_se
-reading_contrast_p <- 2 * pt(-abs(reading_contrast_t), reading_df)
-reading_ss_between <- reading_anova["group", "Sum Sq"]
-reading_ss_total <- sum(reading_anova[, "Sum Sq"])
-reading_eta2 <- reading_ss_between / reading_ss_total
-reading_omega2 <- (
-  reading_ss_between -
-    reading_anova["group", "Df"] * reading_mse
-) / (reading_ss_total + reading_mse)
-
-# Bounded completed-data stress test.  The two unavailable scores can each
-# take an integer value on the documented 0--16 outcome scale.
-reading_completion_grid <- expand.grid(
-  drta_missing = 0:16,
-  think_missing = 0:16
-)
-reading_completion_results <- do.call(
-  rbind,
-  lapply(seq_len(nrow(reading_completion_grid)), function(i) {
-    x_d <- reading_completion_grid$drta_missing[i]
-    x_t <- reading_completion_grid$think_missing[i]
-    completed <- rbind(
-      reading[c("group", "post.test.1")],
-      data.frame(group = factor("DRTA", levels = reading_groups),
-                 post.test.1 = x_d),
-      data.frame(group = factor("Think-aloud", levels = reading_groups),
-                 post.test.1 = x_t)
-    )
-    fit <- aov(post.test.1 ~ group, data = completed)
-    fit_anova <- anova(fit)
-    mse <- fit_anova["Residuals", "Mean Sq"]
-    df <- fit_anova["Residuals", "Df"]
-    means <- tapply(completed$post.test.1, completed$group, mean)
-    ns <- table(completed$group)
-    estimates <- c(means["DRTA"] - means["DRA"],
-                   means["Think-aloud"] - means["DRA"])
-    ses <- c(
-      sqrt(mse * (1 / ns["DRTA"] + 1 / ns["DRA"])),
-      sqrt(mse * (1 / ns["Think-aloud"] + 1 / ns["DRA"]))
-    )
-    critical <- qt(1 - .05 / (2 * 2), df)
-    data.frame(
-      drta_estimate = estimates[1],
-      think_estimate = estimates[2],
-      drta_low = estimates[1] - critical * ses[1],
-      drta_high = estimates[1] + critical * ses[1],
-      think_low = estimates[2] - critical * ses[2],
-      think_high = estimates[2] + critical * ses[2]
-    )
-  })
-)
-reading_drta_completed_bounds <- range(reading_completion_results$drta_estimate)
-reading_think_completed_bounds <- range(reading_completion_results$think_estimate)
-reading_drta_min_low <- min(reading_completion_results$drta_low)
-reading_think_low_range <- range(reading_completion_results$think_low)
-reading_think_high_range <- range(reading_completion_results$think_high)
-
-draw_reading_route <- function() {
-  old <- par(mar = rep(0.15, 4), xpd = NA)
-  on.exit(par(old))
-  plot.new()
-  plot.window(xlim = c(0, 18), ylim = c(0, 6))
-  x <- c(.3, 3.9, 7.5, 11.1, 14.7)
-  labels <- c(
-    "Comparison\nquestion",
-    "Outcome form\nand design",
-    "Counts or raw\ngrouped values",
-    "Estimate and\nuncertainty",
-    "Design-bounded\nanswer"
-  )
-  fills <- c("#DCEAF3", "#E3EDDD", "#F7EDC9", "#F3DDC9", "#E8DCEB")
-  for (i in seq_along(x)) {
-    rect(
-      x[i], 2.0, x[i] + 3.0, 4.3,
-      col = fills[i], border = "#29434E", lwd = 1.2
-    )
-    text(
-      x[i] + 1.5, 3.15, labels[i],
-      cex = .78, font = 2, col = "#26363D"
-    )
-    if (i < length(x)) {
-      arrows(
-        x[i] + 3.05, 3.15, x[i + 1] - .08, 3.15,
-        length = .07, lwd = 1.2, col = "#50656E"
-      )
-    }
-  }
-  text(
-    9, 5.15,
-    "Read the support in question order",
-    font = 2, cex = .95, col = "#244A63"
-  )
-  text(
-    9, 1.15,
-    "One estimand may have several outputs without becoming several strands",
-    cex = .73, col = "#6C513B"
-  )
-}
-
-draw_strand_map <- function() {
-  old <- par(mar = rep(.15, 4), xpd = NA)
-  on.exit(par(old))
-  plot.new()
-  plot.window(xlim = c(0, 16), ylim = c(0, 12))
-
-  box <- function(x, y, w, h, label, fill, border = "#314955",
-                  cex = .78) {
-    rect(x, y, x + w, y + h, col = fill, border = border, lwd = 1.1)
-    text(x + w / 2, y + h / 2, label, cex = cex, font = 2,
-         col = "#24343B")
-  }
-  arrow <- function(x1, y1, x2, y2, col = "#536B76", lty = 1) {
-    arrows(x1, y1, x2, y2, length = .065, lwd = 1.05,
-           col = col, lty = lty)
-  }
-
-  text(.35, 11.45, "STATISTICAL LAYER", adj = 0, font = 2,
-       cex = .78, col = "#244A63")
-  box(.4, 8.65, 2.5, 1.65, "Shared\nSTAT-E", "#DCEAF3")
-  box(3.35, 8.65, 2.5, 1.65, "Shared\nSTAT-J", "#E3EDDD")
-  box(6.55, 9.45, 2.55, 1.55, "STAT-I1\nDRTA-DRA", "#F7EDC9")
-  box(9.55, 9.45, 2.55, 1.55, "STAT-C1\npositive", "#F3DDC9")
-  box(6.55, 7.15, 2.55, 1.55, "STAT-I2\nThink-DRA", "#F7EDC9")
-  box(9.55, 7.15, 2.55, 1.55, "STAT-C2\ninconclusive", "#F3DDC9")
-  arrow(2.9, 9.48, 3.35, 9.48)
-  arrow(5.85, 9.48, 6.55, 10.22)
-  arrow(5.85, 9.48, 6.55, 7.92)
-  arrow(9.1, 10.22, 9.55, 10.22)
-  arrow(9.1, 7.92, 9.55, 7.92)
-
-  text(.35, 5.55, "SUBSTANTIVE LAYER", adj = 0, font = 2,
-       cex = .78, col = "#6C513B")
-  box(.4, 2.65, 2.5, 1.65, "SUB-E\nsetting", "#E8DCEB")
-  box(3.35, 2.65, 2.5, 1.65, "SUB-J\ncontext", "#E8DCEB")
-  box(6.55, 2.65, 2.55, 1.65, "SUB-I\nretain both", "#E8DCEB")
-  box(9.55, 2.65, 2.55, 1.65, "SUB-C\none bounded\nanswer", "#E8DCEB")
-  arrow(2.9, 3.48, 3.35, 3.48, "#735D73")
-  arrow(5.85, 3.48, 6.55, 3.48, "#735D73")
-  arrow(9.1, 3.48, 9.55, 3.48, "#735D73")
-
-  # Routed convergence arrows stop at the substantive component boundaries.
-  arrow(1.65, 8.65, 1.65, 4.3, "#A36D34", 2)
-  arrow(4.6, 8.65, 4.6, 4.3, "#A36D34", 2)
-  segments(7.82, 9.45, 7.82, 8.95, col = "#A36D34", lty = 2)
-  segments(7.82, 8.95, 6.15, 8.95, col = "#A36D34", lty = 2)
-  segments(6.15, 8.95, 6.15, 5.25, col = "#A36D34", lty = 2)
-  segments(7.82, 7.15, 7.82, 6.55, col = "#A36D34", lty = 2)
-  segments(7.82, 6.55, 6.15, 6.55, col = "#A36D34", lty = 2)
-  arrow(6.15, 5.25, 7.82, 4.3, "#A36D34", 2)
-  segments(10.82, 9.45, 10.82, 8.95, col = "#A36D34", lty = 2)
-  segments(10.82, 8.95, 12.75, 8.95, col = "#A36D34", lty = 2)
-  segments(10.82, 7.15, 10.82, 6.55, col = "#A36D34", lty = 2)
-  segments(10.82, 6.55, 12.75, 6.55, col = "#A36D34", lty = 2)
-  segments(12.75, 8.95, 12.75, 5.15, col = "#A36D34", lty = 2)
-  arrow(12.75, 5.15, 10.82, 4.3, "#A36D34", 2)
-
-  text(14.1, 9.85, "One question", cex = .75, font = 2,
-       col = "#244A63")
-  text(14.1, 8.95, "Two estimands", cex = .72, col = "#244A63")
-  text(14.1, 8.05, "Two strands", cex = .72, col = "#244A63")
-  text(14.1, 3.85, "One integrated", cex = .72, font = 2,
-       col = "#6C513B")
-  text(14.1, 3.05, "answer", cex = .72, font = 2,
-       col = "#6C513B")
-  text(8.0, 1.25,
-       "The omnibus ANOVA is contextual output, not a third strand",
-       cex = .68, col = "#6C513B")
-}
-
-draw_workflow <- function() {
-  old <- par(mar = rep(0.2, 4), xpd = NA)
-  on.exit(par(old))
-  plot.new()
-  plot.window(xlim = c(0, 14), ylim = c(0, 8))
-  rect(0.15, 4.15, 13.85, 7.60, col = "#EEF5F8", border = "#9BB6C4")
-  rect(0.15, 0.25, 13.85, 3.70, col = "#F1F6EF", border = "#A7BFA2")
-  text(
-    0.38, 7.30,
-    "PHASE 1 - UNDERSTAND AND PLAN | iterative Stages 1-3",
-    adj = 0, font = 2, cex = .66, col = "#244A63"
-  )
-  text(
-    0.38, 3.40,
-    "PHASE 2 - PRODUCE AND COMPLETE | iterative Stages 4-6",
-    adj = 0, font = 2, cex = .64, col = "#466B43"
-  )
-  x <- c(.48, 5.05, 9.62)
-  width <- 3.88
-  labels <- c(
-    "Review problem\nand literature",
-    "Frame question and\ncandidate answer",
-    "Align design, measurement,\nestimand, evidence,\nand inferential plan",
-    "Produce or acquire\nand document evidence",
-    "Estimate, check,\nand analyse",
-    "Contextualize, interpret,\nand complete bounded answer"
-  )
-  stage_box <- function(x0, y0, number, label) {
-    rect(
-      x0, y0, x0 + width, y0 + 1.62,
-      col = "white", border = "#344A55", lwd = 1
-    )
-    text(
-      x0 + .18, y0 + 1.34, paste0("STAGE ", number),
-      adj = 0, font = 2, cex = .72, col = "#203744"
-    )
-    text(x0 + width / 2, y0 + .66, label, cex = .65, col = "#29353B")
-  }
-  for (i in 1:3) stage_box(x[i], 4.65, i, labels[i])
-  bottom <- c(6, 5, 4)
-  for (i in 1:3) stage_box(x[i], .75, bottom[i], labels[bottom[i]])
-  for (i in 1:2) {
-    arrows(
-      x[i] + width + .02, 5.46, x[i + 1] - .02, 5.46,
-      length = .07, col = "#4F6875"
-    )
-  }
-  for (i in 3:2) {
-    arrows(
-      x[i] - .02, 1.56, x[i - 1] + width + .02, 1.56,
-      length = .07, col = "#557052"
-    )
-  }
-  arrows(
-    x[3] + width / 2, 4.63, x[3] + width / 2, 2.39,
-    length = .07, col = "#6B6B6B"
-  )
-  arrows(
-    x[3] + width / 2, 6.58, x[1] + width / 2, 6.58,
-    length = .07, lty = 2, col = "#7A4B2A"
-  )
-  text(
-    7, 6.84, "revise and realign within Phase 1",
-    cex = .52, col = "#7A4B2A"
-  )
-  arrows(
-    x[1] + width / 2, .64, x[3] + width / 2, .64,
-    length = .07, lty = 2, col = "#7A4B2A"
-  )
-  text(
-    7, .40, "verify, reanalyse, and recalibrate within Phase 2",
-    cex = .51, col = "#7A4B2A"
-  )
-}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+  fig.pos = "H", collapse = TRUE, comment = "#>")
+if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
+feedback_data <- data.frame(
+  student = 1:24,
+  feedback = factor(rep(c("Rereading", "Answer feedback",
+    "Explanatory feedback"), each = 8),
+    levels = c("Rereading", "Answer feedback", "Explanatory feedback")),
+  practice = factor(rep(rep(c("Massed", "Spaced"), each = 4), 3),
+    levels = c("Massed", "Spaced")),
+  score = c(4, 5, 7, 8, 4, 5, 7, 8,
+    6, 7, 9, 10, 10, 11, 13, 14,
+    8, 9, 11, 12, 16, 17, 19, 20))
+massed <- subset(feedback_data, practice == "Massed")
+one_way <- aov(score ~ feedback, data = massed)
+full_fit <- aov(score ~ feedback * practice, data = feedback_data)
 ```
 
-{{< pagebreak >}}
+\clearpage
 
-::: {.callout-tip title="Chapter box"}
-**Central question:** How can a reader understand and compare group results
-when the outcome is categorical or quantitative?
-
-**Focal concepts:** Denominators, conditional proportions, grouped
-distributions, estimands, omnibus questions, single and multiple statistical
-strands, simultaneous uncertainty, and design-bounded claims.
-
-**Main evidence:** One compact observational comparison from the UCI student
-record and one transparently hypothetical teaching extension based on the
-documented Baumann reading-study record. The first pair has one estimand and
-one statistical strand. The second has one integrated question and two
-subordinate contrast estimands.
-
-**Scope boundary:** The main route covers ordinary two-way tables and one-way
-group-mean comparisons, including the basic ANOVA model, sums of squares,
-degrees of freedom, and $F$ calculation. Sparse tables, extended effect scales,
-full ANOVA derivations, robust alternatives, blocking, and software
-implementation are optional depth.
-
-**Use hierarchy:** Reading published comparisons is the primary use. Quality
-evaluation is the distinct secondary use after reading. The six-stage
-construction workflow is the auxiliary use for conducting research.
+::: {.callout-note title="Chapter overview"}
+This chapter compares means by examining variation. One invented study
+provides the observations throughout: we first compare three groups,
+then use the full two-factor layout to ask how a comparison changes
+across practice schedules. We build the one-way ANOVA calculation from
+individual scores, distinguish its omnibus question from a particular
+contrast, and explain how the comparison family determines an interval's
+coverage. Cell means and simple effects then reveal what main effects
+can conceal. By the end, you will be able to reproduce an ANOVA table,
+interpret a contrast and its uncertainty, and connect a factorial pattern
+to the design and model conditions that support its interpretation.
 :::
 
-Chapter 1 supplies the shared argument-based vocabulary; Chapter 1a is not
-required. The calculations build on the means, variances, standard errors,
-intervals, and tests developed in Chapters 2--3. Brief reminders are included,
-but introductory statistics and basic algebra are useful preparation. The
-public route requires no programming or statistical software.
+Twenty-four students study the same fractions material and take a common
+20-item quiz. In this **invented study**, random allocation places four
+different students in each combination of three feedback conditions and
+two practice schedules. *Rereading* offers the worked material again;
+*Answer feedback* supplies the correct answer after an attempt;
+*Explanatory feedback* supplies the answer with a worked explanation.
+Massed practice occurs in one session, and Spaced practice in two shorter
+sessions with the same total practice time. Everyone takes the quiz at
+the same specified follow-up point after their final practice. All design
+details and scores are invented for teaching.
 
-# Begin with the Comparison Question
+Our first question concerns the students assigned to Massed practice:
+how do the three feedback-condition means compare? Chapter 3 developed
+an estimate, SE, interval and test for one comparison. We extend that
+reasoning to several groups, keeping the difference between an overall
+pattern and particular comparisons visible. Later, the full table lets
+us ask how the feedback comparison depends on practice schedule.
 
-Consider two statements that could appear in a report:
+## Comparison Questions and Designs {#sec-ch04-design}
 
-> Students intending higher education were more likely to pass.
+### Outcome, factors, cells and units
 
-> The instructional methods differed significantly.
+A quiz score is the number of correctly answered items, from 0 to 20.
+Higher values represent more correct answers on this assessment. A
+four-point difference therefore means four more correct answers on
+average; it does not by itself describe every aspect of learning
+fractions. The outcome and its scale give a numerical comparison its
+substantive meaning.
 
-Both may sound informative, yet neither is a complete answer. The first omits
-the denominator, numerical difference, source population, and observational
-boundary. The second omits the outcome, the groups, the comparison that
-matters, and the size and uncertainty of the difference.
+A **factor** in analysis of variance is a categorical variable defining
+groups or conditions. Its categories are **levels**. Feedback has three
+levels and practice schedule has two. This use of *factor* differs from
+a latent factor used to represent shared indicator variation in a
+measurement model.
 
-A reader can first interpret either statement by building a **comparison record**;
-subsequent quality evaluation may show that its wording needs repair:
+A **cell** contains cases sharing one level of each factor. Answer
+feedback with Spaced practice is one cell. Crossing three feedback
+levels with two practice levels gives six cells; four students per cell
+makes the layout **balanced**. One-way and two-way refer to the number
+of factors, not to the number of levels. A one-way analysis can compare
+three, four or more groups.
 
-1. **Unit and analytic sample:** What does one observation represent, and
-   which observations entered the result?
-2. **Group or assigned condition:** Which groups are being compared, and were
-   they observed or assigned?
-3. **Outcome:** Is it a named event or a numerical scale with units?
-4. **Estimand:** Is the quantity sought an event-probability
-   difference, an equality pattern, a mean difference, or another declared
-   contrast?
-5. **Design-supported scope:** Which people, settings, processes, or
-   assignments can the answer describe?
+\Needspace{10\baselineskip}
 
-| Outcome form | First evidence to inspect | Typical estimand | First effect estimate |
-|:-------------|:--------------------------|:---------------|:----------------------|
-| Categorical | Counts and conditional proportions | Difference in event probabilities or a whole-table association | Proportion difference for a named event and direction |
-| Quantitative | Raw grouped observations and group summaries | Difference or contrast among group means | Mean difference or prespecified linear contrast |
+| Feedback condition | Massed practice | Spaced practice |
+|:--|:--|:--|
+| Rereading | 4, 5, 7, 8 | 4, 5, 7, 8 |
+| Answer feedback | 6, 7, 9, 10 | 10, 11, 13, 14 |
+| Explanatory feedback | 8, 9, 11, 12 | 16, 17, 19, 20 |
 
-: *A reading-first orientation to group comparisons.* {#tbl-comparison-orientation tbl-colwidths="[18,28,29,25]"}
+: Invented fractions-quiz scores, four different students per cell, on a 0--20 scale. {#tbl-ch04-feedback-scores tbl-colwidths="[38,31,31]"}
 
-This table is an orientation, not a mechanical procedure selector. The design
-and the intended claim still determine whether a repeated-sample or causal
-interpretation is justified.
+Each score in @tbl-ch04-feedback-scores belongs to a different student.
+The student is both the stipulated assignment unit and the measurement
+unit. The four scores in a cell are not repeated measurements on one
+student; nor are the Massed and Spaced scores paired. The repeated
+within-cell pattern deliberately simplifies the arithmetic. It is a
+teaching construction, not evidence of Normal errors, equal variances
+or an educational effect.
 
-An **estimand** is the precisely specified quantity the study seeks to learn;
-an **estimate** is the numerical result obtained from the observed evidence for
-that estimand. Several tables, intervals, tests, or sensitivity checks may
-describe one estimand without creating several arguments. Several estimands
-become **statistical strands** only when all are subordinate to one integrated
-answer and none is owed a separate question-facing conclusion. If a report
-interprets a contrast separately, that conclusion belongs to its own
-question--answer pair and argument.
+The complete course data file, `feedback_practice.csv`, represents the
+same table in one row per student, with columns `student`, `feedback`,
+`practice` and `score`. Students are numbered 1--24, ordered by feedback,
+then practice, then student within each cell. The printed scores are
+sufficient for every calculation in this chapter.
 
-```{r}
-#| label: fig-comparison-route
-#| fig-cap: "A reading route from the comparison question to a design-bounded answer."
-#| fig-alt: "Five linked boxes move from comparison question to outcome form and design, counts or raw grouped values, estimate and uncertainty, and finally a design-bounded answer."
-#| fig-width: 6.5
-#| fig-height: 2.4
-#| out-width: "100%"
+### A one-way slice and the full factorial question
 
-draw_reading_route()
-```
+For the first analysis, restrict attention to the twelve Massed-practice
+students. There are three groups, defined by feedback alone. Their
+model means, written $\mu_R$, $\mu_A$ and $\mu_E$, refer to Rereading,
+Answer feedback and Explanatory feedback within this practice schedule.
+For example, $\mu_A-\mu_R$ states a direction and an outcome scale.
+The observed difference estimates this particular contrast under the
+model introduced below.
 
-The remainder of the main route follows @fig-comparison-route twice. The UCI
-record supplies a categorical observational comparison. The Baumann-inspired
-teaching contract supplies a quantitative randomized comparison. They share a reading discipline,
-but they do not share evidence or one combined argument.
-
-\needspace{9\baselineskip}
-
-# Read a Categorical Group Comparison {#sec-categorical-comparison}
-
-## Start with the denominator
-
-The first question is:
-
-> Among students recorded in two Portuguese secondary schools, how did the
-> observed passing proportion differ between students who did and did not
-> report an intention to pursue higher education?
-
-The UCI Student Performance record contains 395 students from two schools
-[@cortez2008data], distributed under the Creative Commons Attribution 4.0
-licence. One row represents one recorded student. Higher-education
-intention was observed, not assigned. The values embedded here are unchanged;
-the adaptation selects and renames the analysed columns and derives the pass
-indicator from the documented cut point of 10 on the 0--20 scale.
-
-The source documentation defines final grade on a 0--20 scale and marks the
-file as having no missing values. It does not, however, explain an unusual
-joint pattern: 38 records have final grade 0 and absences 0, although 25 of
-those records have a positive second-period grade. A zero may be a genuine
-lowest grade, but the accessible record does not establish whether every zero
-has the same meaning. The primary analysis therefore keeps the published
-numeric coding exactly as recorded and labels the unresolved pattern; a later
-deletion analysis is only a diagnostic sensitivity check.
-
-The question asks for the proportion passing **within each intention group**.
-The group totals are therefore the denominators:
-
-$$
-\widehat p_g =
-\frac{\text{number passing in group }g}
-     {\text{number recorded in group }g}.
-$$
-
-```{r}
-#| label: tbl-uci-counts
-#| tbl-cap: "Pass status and within-group passing proportions from grades as recorded in the UCI record"
-
-uci_counts_display <- data.frame(
-  "Higher-education intention" = rownames(uci_tab),
-  "Did not pass" = as.integer(uci_tab[, "No"]),
-  "Passed" = as.integer(uci_tab[, "Yes"]),
-  "Group total" = as.integer(rowSums(uci_tab)),
-  "Passing proportion" = sprintf("%.3f", uci_prop[, "Yes"]),
-  check.names = FALSE
-)
-
-knitr::kable(
-  uci_counts_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "r", "r")
-)
-```
-
-The group that reported an intention to pursue higher education was much
-larger: 375 students, compared with 20 who did not. Counts alone therefore
-mislead. Within the two groups, the passing proportions were .688 and .350.
-
-Column percentages would answer a different question: among students who
-passed or did not pass, what proportion reported higher-education intention?
-Neither row nor column percentages are universally correct. The research
-question chooses the denominator.
-
-```{r}
-#| label: fig-uci-proportions
-#| fig-cap: "Within-group passing proportions derived from grades as recorded in the UCI record."
-#| fig-alt: "Two bars show that 35.0 percent of students without a reported higher-education intention passed, compared with 68.8 percent of students with that intention. Group sizes are 20 and 375."
-#| fig-width: 6.6
-#| fig-height: 3.8
-
-uci_plot <- data.frame(
-  Intention = factor(c("No", "Yes"), levels = c("No", "Yes")),
-  Proportion = c(uci_p_no, uci_p_yes),
-  n = c(uci_n_no, uci_n_yes)
-)
-
-ggplot(uci_plot, aes(Intention, Proportion, fill = Intention)) +
-  geom_col(width = .58, show.legend = FALSE) +
-  geom_text(
-    aes(label = sprintf("%.1f%%\n(n = %d)", 100 * Proportion, n)),
-    vjust = -0.2, size = 3.5
-  ) +
-  scale_y_continuous(
-    limits = c(0, .82),
-    breaks = seq(0, .8, .2),
-    labels = function(x) paste0(round(100 * x), "%"),
-    expand = expansion(mult = c(0, .02))
-  ) +
-  scale_fill_manual(values = c("No" = "#C98E5A", "Yes" = "#5A8FA8")) +
-  labs(
-    x = "Reported intention to pursue higher education",
-    y = "Passing proportion"
-  )
-```
-
-For the declared event and direction, the primary descriptive effect is
-
-$$
-\widehat\Delta
-=
-\widehat p_{\text{yes}}-\widehat p_{\text{no}}
-=.688-.350=.338.
-$$
-
-Thus, among these records, the passing proportion was 33.8 percentage points
-higher in the intention-yes group. This is already a complete **descriptive**
-answer for the observed table. No p-value is needed to know that realized
-difference.
-
-Other scales answer other questions. **Odds** are $p/(1-p)$: passing
-probability .75 gives odds $.75/.25=3$, or three passes per nonpass. A
-probability ratio compares probabilities; an **odds ratio** compares odds,
-not probabilities. Appendix A develops these scales. The proportion
-difference remains primary because percentage points directly answer our
-question.
-
-## Read evidence against an independence pattern
-
-Inference adds a question that description alone does not answer:
-
-> Would a discrepancy of this size be unusual under a declared
-> no-association model or assignment process?
-
-For a two-way table, **independence** means that the modeled distribution of
-pass status is the same across intention groups. Under that restriction, the
-expected count in row $r$ and column $c$ is
-
-$$
-E_{rc}=
-\frac{(\text{row total})(\text{column total})}{n}.
-$$
-
-For example, the no-intention group contains 20 students and the table contains
-265 passes. The expected no-intention/pass count under independence is
-$(20)(265)/395=13.42$, compared with 7 observed passes. The Pearson statistic
-collects the cell discrepancies:
-
-$$
-X^2=\sum\frac{(O-E)^2}{E}.
-$$
-
-Here $X^2$ names the calculated Pearson statistic; $\chi^2$ names its
-chi-square reference distribution. Reports often use $\chi^2$ for the
-reported statistic too; these are notation conventions, not different tests.
-
-Here $O$ and $E$ are an observed and expected cell count, and $\sum$ means
-add the contributions across all cells. For the no-intention/pass cell, the
-contribution is $(7-13.4177)^2/13.4177=3.0696$. The other three contributions
-are 6.2573, 0.1637, and 0.3337, giving $X^2=9.8243$ after rounding. The
-reference degrees of freedom are $(R-1)(C-1)$ for $R$ rows and $C$ columns:
-here $(2-1)(2-1)=1$. Once both margins are fixed, specifying one cell fixes
-the remaining cells; they cannot vary independently.
-
-It is an omnibus statistic for the whole independence restriction. It is not
-an effect size, a causal estimate, or a locator that by itself explains which
-cells produced the pattern.
-
-## Make the model-based uncertainty checkable
-
-The recorded-table question has already been answered descriptively. For an
-explicitly conditional illustration of inference, consider comparable
-records from the same stipulated process. Write $\pi_g=P(Y=1\mid G=g)$ for
-the passing probability within intention group $g$, where $Y=1$ means pass.
-The model estimand is $\Delta=\pi_{\mathrm{yes}}-\pi_{\mathrm{no}}$;
-its estimate is the observed difference $\widehat\Delta=.338$. That model
-quantity differs from the as-recorded 395-record description. The model
-calculation is contextual output here, not uncertainty about the already
-known table or an independently established conclusion about other schools.
-
-Under independent binomial sampling within the two groups, estimate the
-standard error by adding the variances of their estimated proportions:
-
-$$
-\widehat{SE}(\widehat\Delta)=
-\sqrt{\frac{\widehat p_1(1-\widehat p_1)}{n_1}
-      +\frac{\widehat p_0(1-\widehat p_0)}{n_0}}
-=\sqrt{\frac{.688(.312)}{375}+\frac{.350(.650)}{20}}
-=.1093.
-$$
-
-Subscripts 1 and 0 denote the yes and no groups. An illustrative Wald interval
-is $.338\pm1.96(.1093)=[.124,.552]$. The small 20-student group makes this
-normal approximation fragile; a score-based interval is generally preferable
-for a substantive analysis. The calculation is retained here to make the
-standard-error mechanism visible, not as a recommendation to use Wald
-intervals routinely.
-
-The no-association test asks a different numerical question: if both groups
-shared one passing probability, how surprising would the discrepancy be?
-Its pooled estimate is $\widehat p=265/395=.6709$, so its null standard error
-is $\sqrt{\widehat p(1-\widehat p)(1/375+1/20)}=.1078$. The resulting
-$z=.338/.1078=3.1344$ has $z^2=9.8243$, the uncorrected Pearson statistic
-for this $2\times2$ table. The pooled null SE is not the unpooled estimation
-SE used for the displayed interval. These are outputs about the same directed
-model difference under different restrictions, not new statistical strands.
-
-```{r}
-#| label: tbl-uci-results
-#| tbl-cap: "Categorical estimate, interval, and omnibus evidence derived from grades as recorded"
-
-uci_results_display <- data.frame(
-  "Result" = c(
-    "Passing proportion, intention yes",
-    "Passing proportion, intention no",
-    "Difference, yes minus no",
-    "Large-sample 95% CI for difference",
-    "Pearson chi-square",
-    "Degrees of freedom",
-    "p value"
-  ),
-  "Value" = c(
-    sprintf("%.3f", uci_p_yes),
-    sprintf("%.3f", uci_p_no),
-    sprintf("%.3f", uci_rd),
-    sprintf("[%.3f, %.3f]", uci_rd_ci[1], uci_rd_ci[2]),
-    sprintf("%.2f", unname(uci_chi$statistic)),
-    sprintf("%d", unname(uci_chi$parameter)),
-    fmt_p(uci_chi$p.value)
-  ),
-  check.names = FALSE
-)
-
-knitr::kable(
-  uci_results_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r")
-)
-```
-
-@tbl-uci-results keeps four tasks separate:
-
-- The **proportion difference** gives direction and magnitude on the selected
-  event scale.
-- The **interval** displays values compatible with a hypothetical
-  record-generating model. The displayed Wald interval is illustrative and
-  should be treated cautiously because the no-intention group has only 20
-  students.
-- The **chi-square result**, chi-square with 1 degree of freedom = 9.82,
-  $p=.002$, assesses the whole
-  independence restriction under its reference conditions.
-- The **question wording** determines whether the mode is descriptive,
-  associational, predictive, or causal. The **design and justification**
-  determine which claim is warranted.
-
-All four expected counts exceed 5 in this table, but that fact is not a
-universal license to trust the reference distribution. The analysis also
-requires a defensible account of dependence, selection, clustering,
-measurement, and the stochastic process to which the p-value refers. Students
-share schools and perhaps classrooms, and the source is not a probability
-sample of a broad population.
-
-### Check the unexplained zero-grade cluster
-
-If the 38 final-grade-zero records are omitted solely as a diagnostic, 357
-records remain. The passing proportions become .752 in the intention-yes group
-($258/343$) and .500 in the intention-no group ($7/14$), a difference of .252.
-The illustrative Wald interval becomes [-.014, .518]. Pearson's
-$X^2(1)=4.47$, $p=.034$, but its smallest expected count is only 3.61;
-Fisher's two-sided exact test gives $p=.055$. Thus, even this simple coding
-decision materially changes the numerical evidence.
-
-This is not permission to delete the zeros. Doing so changes the analytic set
-and the finite-record quantity being described, and it requires a defensible
-record-definition or missingness rule that is not located in the source
-documentation. The comparison based on all 395 rows remains the primary
-source-coded result; the diagnostic shows why its meaning and process-level
-extension require caution.
+This one-way analysis answers a prespecified question within a factorial
+study. Its conclusion concerns the Massed slice. It does not silently
+average over the Spaced students or establish that the same contrast
+holds in both schedules. Returning to all six cells will allow the
+second question: does the feedback comparison change with practice?
 
 \Needspace{16\baselineskip}
-::: {.callout-important title="Bounded categorical answer"}
-Among the 395 recorded students, the observed passing proportions were 68.8%
-for those reporting an intention to pursue higher education and 35.0% for
-those not reporting it, a difference of 33.8 percentage points. Under an
-illustrative independent-record model for comparable records from the same
-process, a large-sample 95% interval was 12.4 to 55.2 percentage points and the
-independence statistic was chi-square with 1 degree of freedom = 9.82,
-$p=.002$. A diagnostic omission of the 38 unexplained final-grade-zero records
-reduced the difference to 25.2 percentage points and made the inferential
-conclusion sensitive to the procedure (Pearson $p=.034$; Fisher $p=.055$).
-The all-row comparison is
-exploratory, local, and observational. It does not show that intending higher
-education caused passing or support transport to students outside the
-documented setting and selection process, and the accessible materials do not
-settle the meaning of the zero-grade cluster.
-:::
 
-# Read a Mean Comparison with One Integrated Answer {#sec-mean-comparison}
+| Analysis | Records used | Question addressed |
+|:--|:--|:--|
+| One-way | 12 Massed students; three feedback groups | Do the feedback means differ within Massed practice? |
+| Two-way | All 24 students; six feedback-by-practice cells | What are the average factor comparisons, and how do comparisons change across the other factor? |
 
-## Define the integrated comparison question
+: Two questions using stated parts of the same invented study. {#tbl-ch04-layouts tbl-colwidths="[19,38,43]"}
 
-The second example deliberately separates a **source record** from a
-**chapter-created teaching contract**. Baumann and colleagues assigned 68
-fourth-grade students in one rural Midwestern school: 22 to directed reading
-activity (DRA), 23 to directed reading-thinking activity (DRTA), and 23 to
-think-aloud instruction [@baumann1992, p. 147]. One student in each innovative
-condition had an incomplete outcome because of illness or transfer. The public
-*Baumann* record in the *carData* package therefore contains 66 observed
-outcomes, 22 per group [@carData2022; @fox2019].
+A two-factor ANOVA and Chapter 3's two-way frequency table have different
+outcomes. ANOVA compares a numerical score across factor combinations.
+A frequency table counts cases in combinations of categories. The word
+*two-way* describes a layout; it does not identify a shared statistical
+test.
 
-The retained *carData* record contains two pretest variables and three
-quantitative post-test variables. The source study also administered a
-further qualitative interview post-test to a subset of pupils; that material
-is not part of this teaching record. This chapter
-selects the 0--16 error-detection outcome and uses an **unadjusted one-way
-model**, rather than reproducing the source's pretest-adjusted analysis.
-The uncertainty calculations are model-based, not finite-sample
-randomization intervals. The package cannot recover the two unobserved
-scores. These are limits of this teaching reanalysis, not details supplied
-by an ANOVA result.
+### Design determines the relevant comparison
 
-The chapter does **not** claim that
-the source investigators prespecified the question, contrasts, or decision
-rule below. Instead, imagine a future replication in this setting whose
-teaching contract declares, before its outcomes are inspected:
+Random allocation is stipulated in the invented story. If implemented
+in a real study, that design could support a causal comparison among
+the participating students, subject to adherence, relevant interference
+and missing outcomes. It would not make the participants a random sample
+of all students. The data table alone establishes neither implementation
+of assignment nor representativeness.
 
-> Does a two-format instructional package meet its integrated success
-> criterion: both DRTA assignment and think-aloud assignment improve mean
-> error-detection score relative to DRA assignment?
+Different designs can produce superficially similar tables. If whole
+classes receive conditions, students within the same class may share
+influences and the class may be the assignment unit. If each student is
+measured twice, the two outcomes belong to a pair. An uncertainty formula
+must reflect these connections rather than treating every row as an
+independent assignment.
 
-For this hypothetical contract, *improve* means a positive mean difference.
-There are two subordinate estimands:
+**Blocking** makes condition comparisons within groups of similar units.
+Chapter 3's [paired-school reference](chapter_03.qmd#app-ch03-school-pairs)
+gives the complete illustration: each school contributes two classes,
+with one class assigned to each format. The school-specific differences
+preserve that allocation structure. The six cells in our present quiz
+example instead contain distinct individually assigned students.
+Sampling strata, which organize selection into a sample, and allocation
+blocks, which organize treatment comparisons, have different roles.
 
-1. mean error-detection score under DRTA assignment minus mean score under DRA
-   assignment; and
-2. mean score under think-aloud assignment minus mean score under DRA
-   assignment.
+\Needspace{12\baselineskip}
 
-For this hypothetical replication, the intended means refer to outcomes
-under each assignment for comparable eligible pupils in the stipulated
-setting. The inferential calculations use an independent-pupil outcome model,
-not a claim that this school represents all fourth-graders. All assignees
-belong in that intended comparison; if only complete outcomes are analysed,
-linking observed means to those intended means requires an explicit
-missingness justification. The chapter reports that limitation rather than
-quietly redefining the estimands as effects among only the observed pupils.
+## One-Way ANOVA {#sec-mean-comparison}
 
-The declared rule requires the lower endpoint of **each** two-sided 95%
-Bonferroni simultaneous interval for those two comparisons to exceed zero.
-Zero is a directional benchmark, not a threshold for educational importance.
-The criterion is prospective only inside this explicitly hypothetical
-replication. Applying it to an already available source record is a post hoc,
-secondary teaching reanalysis.
+### Inspect grouped observations before reducing them
 
-The two estimands count as statistical strands because both are needed for the
-one package-level answer and neither receives its own recommendation. If a
-report instead concludes separately about DRTA or think-aloud, it owes a
-separate question--answer pair and argument for that conclusion.
+The three Massed groups have means 6.0000, 8.0000 and 10.0000 points.
+Each has four scores and the same sample SD, 1.8257. Their ranges overlap:
+for example, some Rereading scores exceed some Answer-feedback scores.
+A difference between means is a summary of group distributions; it does
+not say that every student in one group outperformed every student in
+another.
 
-## See grouped evidence and read ANOVA
+\Needspace{12\baselineskip}
 
-The assignment record and observed outcomes come before a test.
+| Feedback | n | Mean | SD | Range |
+|:--|--:|--:|--:|:--|
+| Rereading | 4 | 6.0000 | 1.8257 | 4--8 |
+| Answer feedback | 4 | 8.0000 | 1.8257 | 6--10 |
+| Explanatory feedback | 4 | 10.0000 | 1.8257 | 8--12 |
+
+: Descriptions of the twelve Massed-practice scores. {#tbl-ch04-group-summary tbl-colwidths="[36,10,18,18,18]"}
 
 ```{r}
-#| label: tbl-baumann-record
-#| tbl-cap: "Source assignment record and observed error-detection summaries"
-
-baumann_display <- reading_summary
-baumann_display$Mean <- sprintf("%.2f", baumann_display$Mean)
-baumann_display$SD <- sprintf("%.2f", baumann_display$SD)
-baumann_display$Range <- paste0(
-  baumann_display$Minimum, "--", baumann_display$Maximum
-)
-baumann_display$Minimum <- NULL
-baumann_display$Maximum <- NULL
-
-knitr::kable(
-  baumann_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "r", "r", "r")
-)
+#| label: fig-ch04-feedback-groups
+#| fig-cap: "Massed-practice quiz scores by feedback condition. Every point is a different student; crosses mark group means."
+#| fig-alt: "Each of three groups has four scores. Rereading scores 4, 5, 7, 8 center on 6; Answer feedback scores 6, 7, 9, 10 center on 8; Explanatory feedback scores 8, 9, 11, 12 center on 10. The ranges overlap."
+#| fig-width: 7
+#| fig-height: 3.5
+#| out-width: 100%
+par(mar = c(4, 9, 1, 1))
+stripchart(score ~ feedback, data = massed,
+  method = "stack", pch = 16, las = 1,
+  xlab = "Quiz score (0-20)", ylab = "", xlim = c(0, 20))
+points(tapply(massed$score, massed$feedback, mean), 1:3,
+  pch = 4, cex = 1.7, lwd = 2)
 ```
 
-The assigned counts and observed counts are not interchangeable. The 66
-complete records support direct description of observed outcomes. Extending
-that analysis to an all-assigned estimand requires a missingness justification;
-ANOVA cannot supply one.
+With only four observations per group, individual dots communicate the
+record more directly than a boxplot. A bar chart of means would hide the
+within-group variation entirely. That variation matters to inference:
+the same distance between group means can be more or less convincing
+depending on how widely individual scores vary within groups.
 
 ```{r}
-#| label: fig-baumann-distributions
-#| fig-pos: H
-#| fig-cap: "Observed error-detection scores by assigned instructional condition."
-#| fig-alt: "All 66 observed scores are plotted by assigned condition. DRA has the lowest mean, DRTA the highest, and think-aloud lies between them. The distributions overlap, and think-aloud has the widest spread."
-#| fig-width: 7.2
-#| fig-height: 4.1
-
-ggplot(reading, aes(group, post.test.1, color = group)) +
-  geom_boxplot(
-    width = .44, outlier.shape = NA, alpha = .18,
-    show.legend = FALSE
-  ) +
-  geom_point(
-    position = position_jitter(width = .08, height = 0, seed = 404),
-    alpha = .72, size = 1.7, show.legend = FALSE
-  ) +
-  stat_summary(
-    fun = mean, geom = "point", shape = 18, size = 3.5,
-    color = "#1F2E35"
-  ) +
-  scale_color_manual(values = c("#9B6A45", "#356E8D", "#6E7F48")) +
-  labs(x = "Assigned condition", y = "Error-detection score (0--16)")
+#| label: fig-ch04-separation-spread
+#| fig-cap: "The same group means can provide different evidence when within-group spread changes. Counts and mean positions are held fixed in these constructed panels."
+#| fig-alt: "Both panels have group means 6, 8 and 10 with four observations each. The second doubles each observation's distance from its group mean. Between-group variation stays fixed while within-group variation quadruples."
+#| fig-width: 7
+#| fig-height: 3.4
+#| out-width: 100%
+group_mean <- ave(massed$score, massed$feedback, FUN = mean)
+wider <- group_mean + 2 * (massed$score - group_mean)
+par(mfrow = c(1, 2), mar = c(4, 3, 3, 1))
+for (panel in 1:2) {
+  v <- list(massed$score, wider)[[panel]]
+  stripchart(v ~ massed$feedback, vertical = TRUE,
+    method = "stack", pch = 16, ylim = c(0, 16),
+    group.names = c("Reread", "Answer", "Explain"),
+    main = c("Original spread", "Doubled deviations")[panel],
+    xlab = "Feedback", ylab = "Score")
+  points(1:3, c(6, 8, 10), pch = 4, cex = 1.5, lwd = 2)
+}
+par(mfrow = c(1, 1))
 ```
 
-Before seeing an ANOVA table, @fig-baumann-distributions and
-@tbl-baumann-record establish four facts:
+In @fig-ch04-separation-spread the mean positions and counts stay fixed.
+Only each score's distance from its group mean changes. Doubling those
+distances multiplies their squares by four. The second panel therefore
+has the same between-group separation but four times the within-group
+squared variation. ANOVA compares these two kinds of variation after
+putting them on comparable scales [@cetinkaya2024; @kutner2005].
 
-- the group centers differ;
-- the observations overlap;
-- within-group variation is substantial; and
-- the think-aloud group is more dispersed than the other two groups.
+### Mean model and deviation decomposition
 
-The graph is evidence about the observed distributions. It does not prove a
-model assumption or a causal claim.
-
-### Read the omnibus ANOVA question
-
-One-way ANOVA represents each observed score as
+Write $Y_{ij}$ for the random score of student $i$ in feedback group $j$.
+Here $j$ indexes a group, rather than a data-file column. The one-way
+model is
 
 $$
-\text{observed score}
-=
-\text{fitted group mean}
-+
-\text{within-group residual}.
+Y_{ij}=\mu_j+\varepsilon_{ij}.
 $$
 
-The corresponding **group-mean model** is $Y_{ij}=\mu_j+\varepsilon_{ij}$:
-$Y_{ij}$ is pupil $i$'s score in group $j$, $\mu_j$ is that condition's model
-mean, and $\varepsilon_{ij}$ is the pupil's deviation from it. Assume mean-zero
-errors, a common variance $\sigma^2$, and independent pupils for this working
-model. The fitted mean is the observed group mean $\bar Y_j$; a residual is
-$Y_{ij}-\bar Y_j$. A fitted residual is not the same as the unknown model
-error $\varepsilon_{ij}$.
+The unknown $\mu_j$ is the group mean in the model, and
+$\varepsilon_{ij}$ is that student's unknown departure from it. After
+fitting the group means, the **fitted value** is
+$\widehat y_{ij}=\bar y_j$, and the **residual** is
+$e_{ij}=y_{ij}-\bar y_j$. A residual is calculated from observed scores
+and fitted means; a model error is a departure from an unknown model
+mean. This distinction will recur in regression.
 
-### From deviations to sums of squares
-
-The **grand mean** $\bar Y$ is the mean of all $n=66$ observed scores; it is
-8.0758. Each deviation from it splits into two pieces:
-
-$$
-Y_{ij}-\bar Y=(\bar Y_j-\bar Y)+(Y_{ij}-\bar Y_j).
-$$
-
-For a DRA pupil scoring 5, this is
-$5-8.0758=(6.6818-8.0758)+(5-6.6818)=-1.3940-1.6818$.
-The first piece locates the group mean; the second locates the pupil within
-that group. Square and add across pupils and groups to obtain
+The observed grand mean is $\bar y=(6+8+10)/3=8.0000$ because the
+three groups are equally sized. For the Rereading student who scored 4,
+the distance from the grand mean separates into two parts:
 
 $$
-\underbrace{\sum_j\sum_i(Y_{ij}-\bar Y)^2}_{SS_T}
-=\underbrace{\sum_j n_j(\bar Y_j-\bar Y)^2}_{SS_B}
-+\underbrace{\sum_j\sum_i(Y_{ij}-\bar Y_j)^2}_{SS_W}.
+4-8=(6-8)+(4-6)=-2+(-2).
 $$
 
-The double summation means sum over pupils within each group and then over
-groups. $SS_T$, $SS_B$, and $SS_W$ are total, between-group, and within-group
-sums of squares. The extra cross-products vanish because residuals within
-each group sum to zero. For example, DRA contributes
-$22(6.681818-8.075758)^2=42.7475$ to $SS_B$. Across all three groups,
-$SS_B=108.1212$ and $SS_W=640.5000$, so $SS_T=748.6212$. These numbers
-measure variation in squared score units, not mean differences.
+The group mean is two points below the grand mean, and this student is
+another two points below the group mean. The general identity is
 
-```{r}
-#| label: fig-f-mechanism
-#| fig-cap: "Fitted group means and within-group residuals in the Baumann data."
-#| fig-alt: "Observed scores appear as points. Horizontal lines mark the three group means, and thin vertical segments connect each score to its fitted group mean. ANOVA compares separation among fitted means with the residual spread around them."
-#| fig-width: 7.2
-#| fig-height: 4.1
+$$
+y_{ij}-\bar y=(\bar y_j-\bar y)+(y_{ij}-\bar y_j).
+$$
 
-mechanism <- reading
-mechanism$x <- as.numeric(mechanism$group)
-mechanism$offset <- ave(
-  mechanism$post.test.1,
-  mechanism$group,
-  FUN = function(z) seq(-.16, .16, length.out = length(z))
-)
-mechanism$xj <- mechanism$x + mechanism$offset
-mechanism$fitted <- reading_means[as.character(mechanism$group)]
+Squaring every deviation and adding over students gives a corresponding
+partition of total squared variation:
 
-ggplot(mechanism, aes(xj, post.test.1, color = group)) +
-  geom_segment(
-    aes(x = xj, xend = xj, y = fitted, yend = post.test.1),
-    linewidth = .35, alpha = .35
-  ) +
-  geom_point(size = 1.45, alpha = .74) +
-  geom_segment(
-    data = data.frame(
-      group = reading_groups,
-      x = 1:3,
-      mean = as.numeric(reading_means[reading_groups])
-    ),
-    aes(
-      x = x - .28, xend = x + .28,
-      y = mean, yend = mean, color = group
-    ),
-    inherit.aes = FALSE, linewidth = 1.3
-  ) +
-  scale_x_continuous(breaks = 1:3, labels = reading_groups) +
-  scale_color_manual(values = c("#9B6A45", "#356E8D", "#6E7F48")) +
-  guides(color = "none") +
-  labs(x = "Assigned condition", y = "Error-detection score (0--16)")
-```
-
-### From mean squares to the omnibus test
-
-Divide each sum of squares by its degrees of freedom to obtain a **mean
-square**. There are $J=3$ fitted group means, so between-group degrees of
-freedom are $J-1=2$ and residual degrees of freedom are $n-J=63$. The three
-within-group zero-sum constraints leave $66-3=63$ free residual pieces.
+$$
+SS_T=SS_B+SS_W,
+$$
 
 $$
 \begin{aligned}
-MS_B&=\frac{108.1212}{2}=54.0606,\qquad
-MS_W=\frac{640.5000}{63}=10.1667,\\
-F&=\frac{MS_B}{MS_W}=\frac{54.0606}{10.1667}=5.3174.
+SS_T&=\sum_{j=1}^J\sum_{i=1}^{n_j}(y_{ij}-\bar y)^2,\\
+SS_B&=\sum_{j=1}^Jn_j(\bar y_j-\bar y)^2,\\
+SS_W&=\sum_{j=1}^J\sum_{i=1}^{n_j}(y_{ij}-\bar y_j)^2.
 \end{aligned}
 $$
 
-$MS_W$, also called the mean square error or MSE, estimates the common error
-variance. Under equal model means, both mean squares estimate that variance,
-so an $F$ ratio much larger than 1 indicates an unusually large between-group
-pattern relative to within-group noise. The omnibus null is
+$SS_B$ is the **between-group sum of squares**: each group-mean
+departure is counted once for each student in that group. $SS_W$ is
+the **within-group sum of squares**: the remaining squared residuals
+around those group means. The total $SS_T$ describes departures around
+one grand mean. All three quantities are in squared quiz points.
+
+Here the between-group calculation is
 
 $$
-H_0:\mu_{\mathrm{DRA}}
-=\mu_{\mathrm{DRTA}}
-=\mu_{\mathrm{Think\text{-}aloud}}.
+SS_B=4(6-8)^2+4(8-8)^2+4(10-8)^2=32.0000.
 $$
 
-It is one joint question. The numerator degrees of freedom describe the number
-of independent group restrictions; the denominator degrees of freedom describe
-the residual information used to estimate within-group variation.
-
-Under independent Normal errors with common variance, the null reference is
-exactly an $F$ distribution with $J-1$ and $n-J$ degrees of freedom,
-conditional on the group assignments. Without those error conditions it is
-an approximation whose suitability needs justification. Random assignment
-supports the assignment comparison; it does not prove Normal errors, equal
-variances, or the exact finite-sample $F$ reference.
-
-```{r}
-#| label: tbl-baumann-anova
-#| tbl-cap: "One-way ANOVA for observed error-detection outcomes"
-
-baumann_results <- data.frame(
-  "Source" = c("Between groups", "Within groups", "Total"),
-  "df" = c(2, 63, 65),
-  "Sum of squares" = c(
-    reading_anova["group", "Sum Sq"],
-    reading_anova["Residuals", "Sum Sq"],
-    sum(reading_anova[, "Sum Sq"])
-  ),
-  "Mean square" = c(
-    reading_anova["group", "Mean Sq"],
-    reading_anova["Residuals", "Mean Sq"],
-    NA
-  ),
-  "F" = c(reading_anova["group", "F value"], NA, NA),
-  "p" = c(reading_anova["group", "Pr(>F)"], NA, NA),
-  check.names = FALSE
-)
-baumann_results[, 3:6] <- lapply(
-  baumann_results[, 3:6],
-  function(x) ifelse(is.na(x), "", sprintf("%.3f", x))
-)
-
-knitr::kable(
-  baumann_results,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "r", "r", "r")
-)
-```
-
-The omnibus result, $F(2,63)=5.32$, $p=.007$, indicates that the
-equal-means restriction is difficult to reconcile with the declared pooled
-model. It does **not** identify which comparison matters, show that every pair
-differs, or give the size of a meaningful comparison.
-
-Model conditions are questions about how the evidence was produced:
-
-- Were units independent under the assignment and classroom setting?
-- Did the score have the same meaning in every condition?
-- Is a common within-group variance a useful working model?
-- Are unusual observations or distributional shapes influential?
-- Does the treatment of missing outcomes align with the all-assigned estimand?
-
-A plot can reveal a possible problem. It cannot certify an assumption.
-For these observed outcomes, Welch's unequal-variance sensitivity result is
-$F(2,41.13)=6.99$, $p=.002$. It relaxes the common-variance condition;
-it does not repair missingness, dependence, outcome selection, or transport.
-Appendix B gives a small-data reconstruction and comparison-family detail.
-
-## Read two statistical strands and one integrated answer
-
-The omnibus result is useful context, but it is not a third strand and cannot
-answer the package question. It can reject equal means when only one innovative
-condition differs from DRA. The integrated rule instead requires adequate
-evidence for **both** declared contrasts.
-
-| Result family | Role in this teaching case | Argument status |
-|:--------------|:---------------------------|:----------------|
-| Omnibus ANOVA | Assesses the broader equal-means restriction | Contextual output; neither a strand nor the package answer |
-| DRTA minus DRA | Supplies a complete-record estimate and simultaneous model interval relevant to estimand 1 | Statistical strand 1 |
-| Think-aloud minus DRA | Supplies a complete-record estimate and simultaneous model interval relevant to estimand 2 | Statistical strand 2 |
-| Other pairwise comparisons | Answer separately declared exploratory questions | Not strands of this integrated pair |
-
-: *Omnibus, statistical-strand, and separate-pair roles.* {#tbl-result-roles tbl-colwidths="[22,44,34]"}
-
-### Start with differences, then generalize to a contrast
-
-The next calculations use the 66 complete records. They estimate differences
-among the observed group means. Connecting those values to the two all-assigned
-estimands declared above requires the missingness bridge that the source record
-cannot provide by itself.
-
-The group means are 6.681818 (DRA), 9.772727 (DRTA), and 7.772727
-(think-aloud). The two required estimates are therefore
+Each group's residuals are $-2,-1,1,2$, whose squared sum is
+$4+1+1+4=10$. Thus
 
 $$
-\widehat L_1=9.772727-6.681818=3.090909,\qquad
-\widehat L_2=7.772727-6.681818=1.090909.
+SS_W=3(10)=30.0000,\qquad SS_T=32+30=62.0000.
 $$
 
-In the fixed order DRA, DRTA, think-aloud, these differences use weights
-$(-1,1,0)$ and $(-1,0,1)$. For the first, multiply the DRA mean by $-1$, the
-DRTA mean by 1, and the think-aloud mean by 0, then add. Each weight set sums
-to zero, so it compares means rather than their overall level.
+Squaring an individual deviation split introduces a cross-product.
+Those cross-products cancel only after summing within each group,
+because its residuals sum to zero. [Appendix A](#app-ch04-calculations)
+shows that cancellation explicitly. The decomposition is arithmetic;
+it needs no Normality or independence assumption. Those conditions
+enter when the observed decomposition is used for inference.
 
-A **linear contrast** generalizes this operation. With $c_j$ denoting the
-chosen weight on group $j$,
+### Degrees of freedom, mean squares and the F test
 
-$$
-L=\sum_{j=1}^{J}c_j\mu_j,\qquad \sum_{j=1}^{J}c_j=0,
-\qquad \widehat L=\sum_{j=1}^{J}c_j\bar Y_j.
-$$
+A sum of squares increases with both variation and the number of
+contributing observations. **Mean squares** divide by the appropriate
+degrees of freedom before the two sources are compared.
 
-$L$ is the estimand; $\widehat L$ is its estimate. Adding the same constant
-to every group mean leaves the contrast unchanged because the weights sum to
-zero. Changing the weights changes the comparison and may change the
-question--answer pair. In particular, averaging the two innovative conditions
-against DRA uses $(-1,1/2,1/2)$; it cannot answer whether **both** comparisons
-meet the declared rule.
-
-### Calculate uncertainty for the declared two-comparison family
-
-Under the independent common-variance model, the estimated contrast SE is
+There are $J=3$ group-mean departures from the grand mean, but their
+weighted sum is zero. Only $J-1=2$ departures can vary freely. Within
+each group, four residuals sum to zero, leaving three free residuals.
+Across three groups this gives $N-J=12-3=9$ within-group df. The total
+has $N-1=11$ df, since all deviations from the grand mean sum to zero.
+The component df add: $2+9=11$.
 
 $$
-\widehat{SE}(\widehat L)
-=\sqrt{MS_W\sum_{j=1}^{J}\frac{c_j^2}{n_j}}.
-$$
-
-The squared weights appear because the variance of a weighted mean is
-multiplied by the square of its weight. For either declared contrast,
-$n_j=22$ and only the two nonzero weights contribute:
-$\widehat{SE}=\sqrt{10.166667(1/22+1/22)}=0.961375$ points. This is the
-uncertainty of a mean difference, not the SD of individual scores.
-
-Bonferroni calibration protects a declared finite family of comparisons. For
-$m=2$ two-sided intervals with family confidence at least 95%, allocate
-$.05/2=.025$ noncoverage to each interval, split equally as
-$.025/2=.0125$ in each tail. Thus $1-.0125=.9875$ lies to the left of the
-upper critical point.
-The resulting critical value is
-$t^*=t_{1-.05/(2m),63}=t_{.9875,63}=2.296237$ (use **2.296** on a
-calculator). The subscript .9875 identifies the proportion to the left of that
-point in the $t$ distribution; 63 is its degrees of freedom. Thus
-
-$$
-\widehat L_k\pm t^*\widehat{SE}(\widehat L_k),\qquad k=1,2.
-$$
-
-The margin is $2.296237(.961375)=2.207545$ points. Strand 1 gives
-$3.090909\pm2.207545=[0.883364,5.298454]$; strand 2 gives
-$1.090909\pm2.207545=[-1.116636,3.298454]$. Round only at the end. The
-family statement concerns repeated-use coverage of **both** estimands, not a
-95% probability for either fixed estimand after observing this pair of
-intervals. It also does not repair missingness or justify the outcome model.
-
-Ordinary pointwise 95% intervals use a smaller critical value and do not
-provide this same simultaneous guarantee. Bonferroni does not require the
-two contrasts to be independent; their common DRA mean in fact makes them
-dependent. Other family-calibration procedures are possible. This teaching
-contract deliberately specifies Bonferroni; it is not a universal requirement
-for every claim requiring two positive differences. This family covers only
-the **two declared contrasts on the selected error-detection outcome**; it
-does not adjust across every outcome or analysis in the source study.
-Appendix B compares
-alternative families.
-
-```{r}
-#| label: tbl-baumann-strands
-#| tbl-cap: "Two complete-record DRA-referenced statistical strands under the hypothetical teaching contract"
-
-strand_display <- data.frame(
-  "Strand" = c("1: DRTA minus DRA", "2: Think-aloud minus DRA"),
-  "Estimate (complete records)" = sprintf("%.2f", reading_contrast_est),
-  "95% Bonferroni interval" = sprintf(
-    "[%.2f, %.2f]", reading_contrast_low, reading_contrast_high
-  ),
-  "Relation to zero" = c(
-    "Lower bound is above zero",
-    "Interval includes zero"
-  ),
-  "Conclusion" = c("Positive", "Inconclusive"),
-  check.names = FALSE
-)
-
-knitr::kable(
-  strand_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "l", "l")
-)
-```
-
-The DRTA-minus-DRA estimate is 3.09 points, with simultaneous interval [0.88,
-5.30]. Its lower bound exceeds zero. The think-aloud-minus-DRA estimate is
-1.09 points, with interval [-1.12, 3.30]. That interval remains compatible
-with both no improvement and a positive improvement. It is therefore
-**inconclusive** for the declared directional criterion. An interval including
-zero is not proof of equality.
-
-### Stress-test the two unavailable outcomes
-
-The outcome scale runs from 0 to 16. Without pretending to know the two
-unavailable scores, let the missing DRTA score and the missing think-aloud
-score each take every integer value on that scale. The DRA group has all 22
-scores, with sum 147. The observed DRTA and think-aloud sums are 215 and 171.
-The resulting **completed-data difference-in-means estimates** must therefore
-fall within
-
-$$
-\frac{215+x_D}{23}-\frac{147}{22}\in[2.666,3.362],
+MS_B=\frac{SS_B}{J-1}=\frac{32}{2}=16.0000,
 \qquad
-\frac{171+x_T}{23}-\frac{147}{22}\in[.753,1.449],
+MS_W=\frac{SS_W}{N-J}=\frac{30}{9}=3.3333.
 $$
 
-where $x_D,x_T\in\{0,1,\ldots,16\}$. These are bounds on what the arithmetic
-difference in completed group means could be, not identification bounds for
-the causal estimands.
+The **F statistic** compares these mean squares:
 
-As a second, explicitly model-dependent check, refit the same pooled one-way
-model and both Bonferroni intervals for all $17^2=289$ possible completions.
-The DRTA-minus-DRA lower endpoint remains above zero; its smallest value is
-.271. The think-aloud-minus-DRA interval includes zero in every completion:
-its largest lower endpoint is -.805 and its smallest upper endpoint is 2.996.
-Consequently, the chapter's conjunctive statistical criterion remains unmet
-for every bounded completion under this particular analysis rule.
+$$
+F=\frac{MS_B}{MS_W}=\frac{16}{30/9}=4.8000.
+$$
 
-This is a **bounded completed-data decision stress test**, not a formal
-missing-data analysis. It demonstrates that the teaching decision is stable
-across these scale-bounded completions, but it does not establish why outcomes
-were unavailable, identify all-assigned causal effects, repair outcome
-selection, or justify transport beyond the setting.
+\Needspace{16\baselineskip}
+
+| Source | SS | df | MS | F | p |
+|:--|--:|--:|--:|--:|--:|
+| Feedback | 32.0000 | 2 | 16.0000 | 4.8000 | .0381 |
+| Within groups | 30.0000 | 9 | 3.3333 | | |
+| Total | 62.0000 | 11 | | | |
+
+: One-way ANOVA for the 12 Massed-practice students. {#tbl-ch04-one-way-anova}
+
+The omnibus null hypothesis is
+
+$$
+H_0:\mu_R=\mu_A=\mu_E.
+$$
+
+The alternative says that at least two of these means differ. Under
+independent observations with Normal errors and a common error
+variance $\sigma^2$, the null statistic has an $F(2,9)$ reference
+distribution. Its two df describe the numerator and denominator.
+Normality concerns the departures around the group means, not the
+pooled mixture of all scores.
+
+Under the null, both mean squares estimate the same error variance.
+The numerator also responds to separation of the model means under
+alternatives. A relatively large ratio is therefore evidence against
+equality. The null does not force an observed ratio to equal 1, and
+the expectation of the ratio is not exactly 1. Sampling variation
+produces a distribution of possible positive ratios.
 
 ```{r}
-#| label: fig-statistical-strands-ch4
-#| fig-pos: H
-#| fig-cap: "Two statistical strands supply one integrated teaching answer."
-#| fig-alt: "Shared statistical Evidence and Justification feed two separate Inference-to-Claim lanes: DRTA minus DRA is positive and think-aloud minus DRA is inconclusive. Both lanes converge on one substantive chain and one bounded integrated answer. A note says the omnibus ANOVA is not a third strand."
-#| fig-width: 6.5
-#| fig-height: 4.4
-#| out-width: "100%"
-
-draw_strand_map()
+#| label: fig-ch04-f-reference
+#| fig-cap: "The one-way statistic 4.8000 and its right-tail probability under an F(2,9) null reference."
+#| fig-alt: "A right-skewed F density begins at zero and declines across positive values. The area to the right of F=4.8 is shaded and labelled p=.0381."
+#| fig-width: 6.6
+#| fig-height: 3.1
+xx <- seq(0, 12, length.out = 600)
+par(mar = c(4, 4, 1, 1))
+plot(xx, df(xx, 2, 9), type = "l", lwd = 2,
+  xlab = "F statistic", ylab = "Density")
+tail_x <- seq(4.8, 12, length.out = 200)
+polygon(c(4.8, tail_x, 12), c(0, df(tail_x, 2, 9), 0),
+  col = "grey80", border = NA)
+abline(v = 4.8, lty = 2)
+text(7.5, .22, "F = 4.8000\np = .0381")
 ```
 
-@fig-statistical-strands-ch4 keeps three counting rules visible:
+The right-tail probability in @fig-ch04-f-reference is .0381. Under
+the null and model conditions, a ratio at least as large as 4.8000
+occurs with that probability. At a prespecified .05 significance
+level the equality null is rejected. This is evidence about the
+three-mean pattern, not a probability that the null is true and not
+an identification of which particular comparisons differ.
 
-- several outputs for one estimand remain in one statistical strand;
-- two estimands form strands here only because both are jointly required for
-  one integrated answer and neither is owed a separate conclusion; and
-- if either contrast is interpreted or recommended separately, it becomes a
-  separate question--answer pair and argument.
+Statistical software fits this group-mean model from the twelve Massed
+records and reports the same table; the displayed arithmetic explains
+what that table means. The Computer Lab supplies the software routes,
+and Chapter 6 develops them further. A different software interface does not
+change the need to identify the records, factor levels and error model.
 
-The two-format statistical success criterion is **not met** in the
-complete-record analysis and remains unmet in all 289 scale-bounded
-completions under the same model and decision rule,
-so the integrated answer is **inconclusive**. This does not show that the
-package failed or that think-aloud has no effect. It says that the observed
-evidence does not meet the conjunctive rule. The statistically detectable omnibus result and a
-positive average of the two innovative conditions cannot replace the missing
-strand-level support.
+### Read an ANOVA table {#sec-ch04-anova-table}
+
+Every ANOVA table expresses one sentence about the observations:
+
+$$
+\text{Data}=\text{fit}+\text{residual}.
+$$
+
+The *fit* is what the estimated means account for, and the *residual*
+is what is left around them. Squaring and adding turns that sentence
+into the one-way partition already calculated, with a matching
+partition of degrees of freedom:
+
+$$
+SS_T=SS_B+SS_W,\qquad df_T=df_B+df_W,
+$$
+
+$$
+62.0000=32.0000+30.0000,\qquad 11=2+9.
+$$
+
+A balanced two-factor layout keeps the same sentence and divides the
+fit part further, into two factor components and their interaction:
+
+$$
+SS_T=SS_A+SS_B+SS_{AB}+SS_E,\qquad
+df_T=df_A+df_B+df_{AB}+df_E.
+$$
+
+For the complete study in @tbl-ch04-two-way-anova, this reads
+$476.0000=256.0000+96.0000+64.0000+60.0000$ and $23=2+1+2+18$. The
+fit part is therefore $256+96+64=416.0000$ on $2+1+2=5$ df. Both
+additivity checks are useful arithmetic checks on any printed table.
+
+The compact six-column table used here keeps one row for each source
+of interest. Statistical software often prints a longer version of the
+same decomposition, adding rows that serve the fitting algorithm rather
+than the comparison question. @tbl-ch04-table-map maps one layout onto
+the other.
+
+\Needspace{20\baselineskip}
+
+| Extended output row | One-way value here | Read or ignore |
+|:--|:--|:--|
+| Corrected Model | 32.0000 on 2 df | The whole fit part. With one factor it repeats the factor row; in the two-way layout it is 416.0000 on 5 df |
+| Intercept | A grand-mean term | Ignore. It tests whether the overall mean is zero, which is not a comparison question for quiz scores |
+| Factor rows | Feedback 32.0000 on 2 df | Read. In the two-way layout these are 256.0000, 96.0000 and 64.0000 on 2, 1 and 2 df |
+| Error | 30.0000 on 9 df | Read. It supplies $MS_W$, or $MS_E$, and the denominator df of every F ratio |
+| Total | Includes the grand-mean term | Ignore. This uncorrected total does not equal the sum of the rows above |
+| Corrected Total | 62.0000 on 11 df | Read. It equals the fit plus error rows, 476.0000 on 23 df in the two-way layout |
+
+: How the compact table rows correspond to an extended software layout. {#tbl-ch04-table-map tbl-colwidths="[24,29,47]"}
+
+Read the factor rows, the error row and the corrected total; the
+intercept and uncorrected total answer no question asked here. The
+same reading order applies to the factorial table later in this
+chapter, where the interaction row is examined before the two main
+effects.
+
+### Two groups, direction and magnitude
+
+For exactly two independent groups under the common-variance model,
+the classical pooled two-sample t test and one-way F test give
+
+$$
+F(1,N-2)=t_{N-2}^2.
+$$
+
+The tests have the same p-value when the t alternative is two-sided.
+Squaring removes direction: positive and negative t values of the
+same magnitude give the same F. Keep the signed mean difference
+when explaining which group has the higher mean.
+
+For a matched numerical example, use only the Massed Rereading and
+Answer groups. Their mean difference, Rereading minus Answer, is
+$6-8=-2.0000$. Each sample variance is $10/3$, so the pooled
+variance is also $10/3$. These eight students give six residual df:
+
+$$
+t(6)=\frac{-2}{\sqrt{(10/3)(1/4+1/4)}}=-1.5492,
+\qquad F(1,6)=2.4000,
+$$
+
+with the same two-sided $p=.1723$. This reduced fit differs from the
+three-group analysis, which had nine residual df. A selected contrast
+using that three-group error estimate is another calculation. The
+identity also does not equate a Welch t procedure, the default in
+some software, with a classical pooled ANOVA. [Appendix A](#app-ch04-pooled-identity) derives
+the matched identity and Chapter 3 explains the different calibrations.
+
+Magnitude begins on the quiz scale. The observed Answer-minus-Rereading
+difference is 2.0000 points, and the Explanatory-minus-Rereading difference
+is 4.0000 points within Massed practice. Whether a difference of this size
+matters educationally needs a substantive criterion, not only a p-value.
+
+One descriptive summary of the overall separation is **eta squared**:
+
+$$
+\eta^2=\frac{SS_B}{SS_T}=\frac{32}{62}=.5161.
+$$
+
+Group means account for .5161 of the observed squared variation in
+these twelve records. This is a fraction of a sample decomposition,
+not the fraction of learning caused by feedback. It does not replace
+the actual group means or their pairwise differences. A standardized
+mean difference similarly needs its denominator stated: dividing a
+difference by an individual-score SD produces a different quantity
+from dividing it by the SE of that difference. A bias-adjusted
+omnibus summary, omega squared, is described briefly in
+[Appendix B](#app-ch04-weighting).
 
 \Needspace{12\baselineskip}
-::: {.callout-important title="Bounded integrated answer"}
-For the 66 complete records in this secondary teaching reanalysis, DRTA minus
-DRA was 3.09 error-detection points (two-sided 95% Bonferroni simultaneous
-interval [0.88, 5.30]), whereas think-aloud minus DRA was 1.09 points
-([-1.12, 3.30]). The first comparison met the hypothetical positive-difference
-rule and the second was inconclusive. Consequently, the chapter-created
-two-format statistical success criterion was not met; the integrated
-substantive answer remains inconclusive. The same statistical criterion stayed
-unmet when each unavailable outcome was allowed to take every integer score
-from 0 through 16 under the same pooled model. That bounded completed-data
-stress test does not identify the all-assigned effects or replace a missingness
-analysis. This answer is post hoc
-relative to the source study even though the criterion is prospective inside
-the imagined replication. It is conditional on the pooled model and bounded
-completion rule, with missingness unresolved; it is limited to the selected
-outcome and documented setting, and is not a claim that either method failed
-or that effects transport broadly.
-:::
 
-# Read, Evaluate, and Construct the Arguments
+## Contrasts and Multiple Comparisons {#sec-ch04-contrasts}
 
-## Let the design bound the substantive answer
+### State the comparison through its weights
 
-The two examples used different procedures, but the larger difference lies in
-their designs.
-
-| Feature | UCI categorical pair | Baumann quantitative pair |
-|:--------|:---------------------|:---------------------------|
-| Group variable | Observed intention | Randomly assigned instructional condition |
-| Outcome | Recorded pass status | Error-detection score |
-| Argument granularity | One estimand and one statistical strand | One hypothetical integrated question with two subordinate contrast estimands |
-| Immediate estimate | One proportion difference | Two retained DRA-referenced mean differences |
-| Strongest design-based language | Local association | Assignment comparison under stated conditions |
-| Main reservations | Selection, confounding, shared setting, transport | Post hoc application of the teaching criterion, missing outcomes, selected outcome, model-based uncertainty, transport |
-
-: *How design bounds the two group-comparison claims.* {#tbl-design-claim tbl-colwidths="[20,40,40]"}
-
-A small p-value would not turn the UCI comparison into an experiment. A more
-complex model would not create random sampling. Likewise, random assignment in
-the Baumann study supports a comparison of assignment policies in its setting,
-but it does not by itself solve missing outcomes, define educational
-importance, or justify transport.
-
-## A short regression bridge
-
-The same group means, contrasts, and omnibus restriction can also be
-represented using indicator-coded regression. That representation is developed
-with multiple regression, after simple-regression coefficients have been
-introduced. Re-encoding the same comparison does not strengthen its design.
-
-Adding another factor creates adjustment, weighting, and possible interaction
-questions developed in the later regression chapters. Appendix B's blocking discussion stays
-narrower: it shows how blocking can refine
-one declared group-comparison estimand without introducing coordinated
-questions.
-
-Chapter 1 treats one question--answer pair as **one argument with linked
-statistical and substantive layers**. Within either layer,
+The omnibus question asks whether all three model means agree. A
+**contrast** states a particular comparison as a weighted combination
+of means whose weights sum to zero:
 
 $$
-E+J\longrightarrow I\longrightarrow C.
+C=\sum_{j=1}^Jc_j\mu_j,\qquad \sum_{j=1}^Jc_j=0,
+\qquad \widehat C=\sum_{j=1}^Jc_j\bar y_j.
 $$
 
-Reading is the primary use. It asks what content performs each component, where
-that content can be inspected, and what answer the authors or teaching contract
-actually report. It does not yet decide whether the support is adequate.
+The symbol $C$ here names a contrast, and $\widehat C$ its estimate.
+The weights specify both the comparison and its direction. In the order
+Rereading, Answer feedback, Explanatory feedback:
 
-Four documentary statuses keep location separate from quality: **stated in the
-paper**, **located in related materials**, **implicit but traceable**, and
-**not located**. A contradiction across sources is a separate conflict flag.
-The chapter-created questions and analyses below are labeled as such rather
-than misdescribed as documentary traces of the source investigators' choices.
+\Needspace{16\baselineskip}
 
-## Read the UCI single-strand argument
+| Comparison | Weights | Estimate |
+|:--|:--|--:|
+| Answer minus Rereading | $(-1,1,0)$ | $-6+8=2.0000$ |
+| Explanatory minus Rereading | $(-1,0,1)$ | $-6+10=4.0000$ |
+| Equal average of the two feedback approaches minus Rereading | $(-1,1/2,1/2)$ | $-6+4+5=3.0000$ |
 
-| Component | Content identified during reading | Trace and documentary status |
-|:----------|:----------------------------------|:-----------------------------|
-| **STAT-E** | 395 records; intention and pass coding; group counts and denominators; unexplained cluster of 38 final-grade zeros | UCI record and data dictionary: **located in related materials**; a shared meaning for all zeros is **not located** |
-| **STAT-J** | Within-group denominators; declared independent-record approximation for the interval and chi-square reference; all-row coding kept primary and zero-row omission labeled diagnostic | Formula and assumptions are **stated in this chapter**; source-population and zero-grade processes are **not located** |
-| **STAT-I** | Recorded-table difference .338; separate model illustration gives 95% interval [.124, .552] and $X^2(1)=9.82$, $p=.002$; deletion diagnostic gives difference .252 with method-sensitive p-values | Chapter-created analysis, reproducible from the related data |
-| **STAT-C** | A known 33.8-percentage-point difference in the all-row table; model uncertainty is conditional context, and the diagnostic exposes sensitivity to record definition | **Stated in this chapter** |
-| **SUB-E** | Students recorded in two Portuguese secondary schools; observed intention; passing from final grade | UCI documentation: **located in related materials** |
-| **SUB-J** | Observational grouping cannot by itself exclude confounding or establish transport; documentation does not settle the meaning of the zero-grade cluster | Design relation is **implicit but traceable** from the record; broader sampling and zero-grade warrants are **not located** |
-| **SUB-I** | Interpret .338 as a local association, not an effect of intending | **Stated in this chapter** |
-| **SUB-C** | The bounded categorical answer in @sec-categorical-comparison | **Stated in this chapter** |
+: Three contrast meanings within Massed practice. {#tbl-ch04-weights tbl-colwidths="[49,23,28]"}
 
-: *Reading record for the UCI single-strand argument.* {#tbl-uci-argument tbl-colwidths="[14,48,38]"}
+The third comparison gives the two feedback approaches equal weight.
+It is not a substitute for both separate comparisons when both are
+scientifically required. In unequal groups, equal method weights and
+weights proportional to student counts answer different questions.
+The present groups have equal counts, so the two averaging rules
+coincide; [Appendix B](#app-ch04-weighting) develops the distinction.
 
-The primary recorded-table estimand is followed through one statistical strand.
-The count table and proportional plot document it; the model interval and
-chi-square output show what an explicitly conditional inferential extension
-would add. They do not silently turn a known finite-record description into a
-population estimate. A report making a separate process-level conclusion
-would owe a corresponding question--answer pair and its justification.
+A grand mean with weights $(1/3,1/3,1/3)$ is a useful linear combination
+but not a contrast, because those weights sum to 1. Multiplying every
+contrast weight by two doubles the estimate and SE. It preserves a
+zero-null t statistic, but changes the quantity being reported. Naming
+the comparison in ordinary words prevents a correct calculation from
+answering the wrong question.
 
-## Read the hypothetical two-strand argument
+### Calculate the uncertainty for that comparison
 
-The source record supplies study context and outcomes. The integrated success
-criterion is supplied only by the chapter's hypothetical teaching contract.
-No row below attributes that criterion, its contrasts, or its Bonferroni rule
-to Baumann and colleagues.
+Under the independent common-variance model, each estimated group mean
+has variance $\sigma^2/n_j$. The variance of a weighted sum uses the
+**squared weights**. Opposite signs define a difference; they do not
+make independent sources of uncertainty cancel. Replacing $\sigma^2$
+by the full three-group estimate $MS_W$ gives
 
-| Statistical component | Shared core | Strand 1: DRTA minus DRA | Strand 2: Think-aloud minus DRA |
-|:----------------------|:------------|:-------------------------|:--------------------------------|
-| **STAT-E** | Assignment record; 68 assigned; 66 observed scores; one incomplete outcome in each innovative arm | DRA and DRTA observations | DRA and think-aloud observations |
-| **STAT-J** | Assignment rationale; common score; independence and pooled-variance working model; two-comparison Bonferroni family; explicit missingness limitation; bounded completion rule | Complete-record estimator and uncertainty aligned to contrast 1 | Complete-record estimator and uncertainty aligned to contrast 2 |
-| **STAT-I** | Omnibus result retained as context; bounded completed-data stress test across 289 completions; the criterion is prospective only inside the hypothetical contract, while this application to existing data is post hoc | Complete-record estimate 3.09 points and interval [0.88, 5.30]; lower bound stays positive across bounded completions | Complete-record estimate 1.09 points and interval [-1.12, 3.30]; interval includes zero in every bounded completion |
-| **STAT-C** | The joint criterion remains unmet under the complete-record model and every scale-bounded completion; this is not identification of the all-assigned effects | Positive for the directional criterion under the stated calculations | Inconclusive for the directional criterion under the stated calculations |
+$$
+\widehat{SE}(\widehat C)=
+\sqrt{MS_W\sum_{j=1}^J\frac{c_j^2}{n_j}}.
+$$
 
-: *Statistical-layer reading record for the two-strand teaching argument.* {#tbl-baumann-stat-argument tbl-colwidths="[15,29,28,28]"}
+For each Rereading-referenced difference,
 
-The shared source facts are **stated in the paper** or **located in related
-materials**. The exact package values are located in the public *carData*
-record. The teaching question, two estimands, Bonferroni family, and integrated
-rule are **chapter-created analytic content**, not statuses assigned to a
-source decision. A historical trace showing that Baumann and colleagues used
-this exact contract is **not located**; no conflict is claimed.
+$$
+\widehat{SE}=
+\sqrt{\frac{10}{3}\left(\frac14+\frac14\right)}
+=1.2910\text{ points}.
+$$
 
-| Substantive component | Content identified during reading |
-|:----------------------|:----------------------------------|
-| **SUB-E** | Fourth-grade students in one rural Midwestern school; three instructional assignments; error detection as one 0--16 outcome |
-| **SUB-J** | The randomized comparison contextualizes assignment effects in the documented setting; the completion stress test does not supply the missingness mechanism, implementation, educational importance, or wider relevance |
-| **SUB-I** | Interpret both strand results together: one positive comparison cannot erase the other comparison's inconclusive uncertainty; stability of the rule across bounded completions is narrower than identification of effects |
-| **SUB-C** | The statistical package criterion is not met; the integrated substantive answer is inconclusive and bounded to the selected outcome, pooled model, bounded completion exercise, documented setting, and post hoc application of the hypothetical contract |
+The three-group fit supplies nine error df even though each contrast
+uses two of its means. The error variance was estimated from all three
+groups under the common-variance assumption. This differs from refitting
+only two groups, as in the t/F identity above.
 
-: *Substantive-layer reading record for the integrated teaching argument.* {#tbl-baumann-sub-argument tbl-colwidths="[18,82]"}
+For the equal-average contrast, the squared weights give
 
-SUB-E situates the statistical evidence. SUB-J **augments and contextualizes
-the statistical justification**. SUB-I interprets the two statistical results
-without averaging one away. SUB-C carries their uncertainty and conditions
-into one bounded answer. The substantive layer cannot automatically strengthen
-weak statistical support.
+$$
+\widehat{SE}=
+\sqrt{\frac{10}{3}\left(\frac14+\frac{(1/2)^2}{4}
++\frac{(1/2)^2}{4}\right)}=1.1180.
+$$
 
-## Secondary use: evaluate quality
+This smaller SE belongs to a different estimand, an average of two
+means compared with the reference. It does not establish that either
+separate comparison is more precise than before. The
+[NIST contrast explanation](https://www.itl.nist.gov/div898/handbook/prc/section4/prc436.htm)
+develops the same weighted-mean variance calculation.
 
-Quality evaluation begins only after the arguments have been read. Apply all
-six Chapter 1 questions without adding a score.
+### Declare the family before choosing the critical value
 
-| Evaluation question | UCI single-strand pair | Hypothetical two-strand pair |
-|:----------------------------|:-----------------------|:-----------------------------|
-| **Question alignment** | **Adequate for this purpose:** event, denominator, estimand, estimate, and local answer match. | **Adequate for this purpose:** both contrasts and the conjunctive rule address the one integrated question. |
-| **Evidence integrity** | **Needs revision** for broader use: selection, possible within-school dependence, and the zero-grade pattern are not fully documented. | **Needs revision:** two assigned outcomes are unavailable and only one selected outcome is analysed. |
-| **Justification adequacy** | **Insufficient information to judge** a broad repeated-record process or a common meaning for the zero-grade cluster; the literal all-row description itself remains reproducible. | **Needs revision:** pooled variance and observed-to-assigned missingness support are limited; bounded completion is not a missingness mechanism. |
-| **Inferential adequacy** | **Adequate for the stated, limited purpose:** magnitude, interval, omnibus test, and coding diagnostic are distinguished; substantive reasoning remains local and associational. | **Adequate for the stated, limited purpose:** the complete-record model calibrates the family and the bounded completion exercise stress-tests its decision; neither identifies the all-assigned effects. |
-| **Transition fidelity** | **Adequate for this purpose:** the substantive interpretation retains magnitude, model status, and observational scope. | **Adequate for this purpose:** both intervals, the inconclusive strand, the post hoc application to existing data, and missingness survive the transition. |
-| **Claim calibration** | **Adequate for this purpose:** the answer is local and associational. | **Adequate for this purpose:** the answer says the criterion is not established, not that the package failed or that either method is ineffective. |
+Suppose the planned family contains exactly two two-sided comparisons:
+Answer minus Rereading and Explanatory minus Rereading. We want an
+interval procedure with at least 95% **simultaneous coverage** for
+both target contrasts under the model.
 
-: *All six quality-evaluation questions applied after reading.* {#tbl-comparison-evaluation tbl-colwidths="[19,39,39]"}
+Bonferroni allocates the .05 error allowance across these two
+intervals, giving .025 to each interval and .0125 to each tail. Its
+critical value is therefore
 
-For the bounded answers as written in this chapter, the whole-pair evaluation
-conclusion is **supported as stated** for each pair. That conclusion does not
-mean every underlying study feature is strong. It means each reported answer
-already preserves the limitations exposed by the per-question judgments. In
-particular, an inconclusive answer can be supported as stated. Failure to meet
-a hypothetical success rule is not automatically the evaluation conclusion
-**not supported**.
+$$
+t^*=t_{1-.05/(2\times2);9}=t_{.9875;9}=2.6850.
+$$
 
-Authors and analysts have the first responsibility to document and evaluate
-their own reasoning. Readers, collaborators, supervisors, reviewers, and
-editors can then apply the same questions independently.
+Using unrounded values, each margin is
+$2.685010847(1.290994449)=3.4663$. The intervals are
+$\widehat C\pm t^*\widehat{SE}$:
 
-## Auxiliary use: construct the argument
+\Needspace{10\baselineskip}
 
-The six-stage workflow supports conducting research. Here it is applied to how
-a **future hypothetical replication** could construct the integrated argument,
-not to infer an undocumented history for the 1992 study.
+| Comparison | Estimate | SE | Family lower | Family upper |
+|:--|--:|--:|--:|--:|
+| Answer minus Rereading | 2.0000 | 1.2910 | -1.4663 | 5.4663 |
+| Explanatory minus Rereading | 4.0000 | 1.2910 | 0.5337 | 7.4663 |
 
-| Phase and stage | Application to the hypothetical teaching contract | Status when applied to the existing record |
-|:----------------|:--------------------------------------------------|:-------------------------------------------|
-| **Phase 1, Stage 1:** Review problem, setting, and literature | Study the instructional context, outcome meaning, prior evidence, and feasibility of collecting complete follow-up | Source rationale is documented; the replication decision is chapter-created |
-| **Phase 1, Stage 2:** Frame question and candidate answer | Declare one integrated question, both subordinate estimands, and an affirmative answer only if both criteria are met | Prospective only inside the hypothetical contract; post hoc relative to the available data |
-| **Phase 1, Stage 3:** Align design, measurement, estimand, evidence plan, and inference | Align three-arm assignment, common 0--16 measure, complete-outcome procedures, zero benchmark, two-sided 95% Bonferroni intervals, and conjunctive rule | The chapter can demonstrate the analysis but cannot create historical prospectiveness |
-| **Phase 2, Stage 4:** Produce or acquire and document evidence | Assign, deliver, measure, retain flow records, and document deviations | Existing source materials supply 68 assigned and 66 observed cases |
-| **Phase 2, Stage 5:** Estimate, check, and analyse | Inspect raw groups; estimate both complete-record contrasts; compute simultaneous intervals; keep the omnibus test in its contextual role; stress-test all 289 scale-bounded completions | Reproduced in @sec-mean-comparison |
-| **Phase 2, Stage 6:** Contextualize, interpret, and complete the bounded answer | Retain both strands, missingness, analytic status, model conditions, completion-test limits, setting, and the inconclusive integrated result | Completed in the bounded answer |
+: Bonferroni 95% simultaneous intervals for the two stated comparisons in Massed practice. {#tbl-ch04-contrasts tbl-colwidths="[36,16,16,16,16]"}
 
-: *Six-stage construction application for a hypothetical replication.* {#tbl-baumann-workflow tbl-colwidths="[28,45,27]"}
+The two estimates share the Rereading mean and are therefore related.
+Bonferroni's bound does not require their independence: the probability
+of at least one coverage failure is no larger than the sum of the two
+individual failure probabilities. The guarantee concerns repeated use
+of the whole stated procedure, not a 95% probability assigned to the
+two realized intervals. The [NIST Bonferroni reference](https://www.itl.nist.gov/div898/handbook/prc/section4/prc473.htm)
+explains this joint-coverage bound.
+
+**Tukey's method** answers a different family question: simultaneous
+coverage for all three pairwise mean differences. Its intervals and
+adjusted p-values for these data are:
+
+\Needspace{12\baselineskip}
+
+| Pairwise comparison | Estimate | Lower | Upper | Adjusted p |
+|:--|--:|--:|--:|--:|
+| Answer minus Rereading | 2.0000 | -1.6045 | 5.6045 | .3150 |
+| Explanatory minus Rereading | 4.0000 | 0.3955 | 7.6045 | .0310 |
+| Explanatory minus Answer | 2.0000 | -1.6045 | 5.6045 | .3150 |
+
+: Tukey 95% simultaneous intervals for all three pairs. {#tbl-ch04-tukey tbl-colwidths="[36,16,16,16,16]"}
+
+The intervals differ from Bonferroni's because both the protected family
+and its calibration differ. Statistical software returns these all-pairs comparisons from the
+fitted one-way model; the Computer Lab supplies the software routes. Dunnett's method
+addresses comparisons with a common reference; Scheffé's method can
+protect all contrasts in a specified mean-comparison space. The choice
+comes from the comparisons for which coverage is owed, not from which
+method happens to exclude zero [@tukey1953; @kutner2005].
+
+A contrast is a mathematical form. It can be defined before relevant
+results are seen or selected after examining them. Selection matters
+because looking across possibilities can favor unusually large observed
+differences. A reported selected comparison needs uncertainty appropriate
+to that selection. Nor is rejection of an omnibus test a universal
+prerequisite for a prespecified comparison or a simultaneous interval.
+State the question, the family, the selection process and the calibration.
+
+### Read the omnibus and particular results together
+
+The three-group F test concerns equality of all three model means.
+The two Bonferroni intervals concern the two narrower reference
+comparisons. The Explanatory-minus-Rereading interval excludes zero;
+the Answer-minus-Rereading interval includes zero. The latter remains
+compatible with both negative and positive differences and does not
+establish equivalence. No practical equivalence margin was declared.
+
+A connected report would say that, in the Massed slice, observed means
+were 6.0000, 8.0000 and 10.0000 points. The omnibus common-variance
+Normal-model test gave $F(2,9)=4.8000$, $p=.0381$. For the two
+declared reference comparisons, the estimates were 2.0000 and 4.0000
+points, with simultaneous intervals $[-1.4663,5.4663]$ and
+$[0.5337,7.4663]$. These statements preserve magnitude, uncertainty,
+family and the restriction to Massed practice. They describe calculations
+for invented scores, not an empirical educational finding.
+
+## Two-Way ANOVA {#sec-ch04-two-way}
+
+### What interaction means, and why study two factors at once {#sec-ch04-interaction-idea}
+
+Two factors **interact** when the effect of one factor differs across
+the levels of the other. Nothing more technical is required to state
+the idea. A combination of levels then produces a result that the two
+separate comparisons would not have led us to expect.
+
+Here is one invented illustration, outside the quiz study. Suppose a
+short vocabulary preview is given before a reading passage, and that
+students are also grouped by whether they began with weak or strong
+vocabulary. The preview raises comprehension scores substantially for
+the students who began weak, and barely changes them for the students
+who began strong. The effect of the preview *depends on* prior
+vocabulary: that dependence is the interaction. Describing only an
+average preview effect would tell a reader that the preview helps
+somewhat, and would conceal that it helps one group a great deal and
+the other hardly at all.
+
+Studying two factors together in one crossed design has three
+advantages over running two separate one-factor studies.
+
+1. **It is more efficient.** Every student contributes to both factor
+   comparisons at once, because the levels of one factor are spread
+   across the levels of the other. A crossed design therefore needs
+   fewer cases per condition than a series of separate one-factor
+   studies aimed at the same comparisons.
+2. **It reduces residual variation.** A second factor that influences
+   the outcome moves variation out of the error term and into the fit.
+   If all 24 students had been analyzed with feedback as the only
+   factor, the practice and interaction components, 96.0000 and
+   64.0000, would have stayed inside the residual term instead of
+   leaving the 60.0000 within-cell error used below.
+3. **It makes interaction examinable.** Only a crossed design supports
+   the question of whether a comparison changes across the other
+   factor's levels. A series of one-factor studies supplies no
+   estimate of that change, however carefully each one is run.
+
+Adding practice schedule to the quiz study therefore gives each
+comparison a context. We can compare feedback conditions within Massed
+practice, within Spaced practice, or after averaging over the two
+schedules. These are distinct quantities. A **main effect** compares
+one factor's levels after averaging across the other factor with
+stated weights. A **simple effect** makes the comparison at a
+specified level of the other factor. **Interaction** means that a
+comparison changes across those levels.
+
+### Main effects and interaction through graphs
+
+In a two-factor design either main effect, the interaction, or any
+combination of the three can be present. Six schematic two-by-two
+patterns make the whole range visible before we return to the full
+three-by-two data. Each line in @fig-ch04-interaction-patterns
+represents a feedback level, A or B; the horizontal positions
+represent Massed and Spaced practice. These are mean-only drawings,
+not additional observed studies, and they carry no significance claim.
 
 ```{r}
-#| label: fig-baumann-workflow
-#| fig-cap: "The six-stage construction workflow for the hypothetical replication."
-#| fig-alt: "Stages 1 through 3 run left to right in Phase 1. Stage 4 is directly below Stage 3, and Stages 4 through 6 run right to left in Phase 2. Dashed arrows permit iteration within each phase, but no arrow returns from Phase 2 to Phase 1."
-#| fig-width: 6.6
-#| fig-height: 3.7
-#| out-width: "100%"
-
-draw_workflow()
+#| label: fig-ch04-interaction-patterns
+#| fig-cap: "Six schematic patterns of cell means, covering the whole range of main-effect and interaction combinations. Lines identify feedback levels A and B; the drawings illustrate averages and changing differences, without significance claims."
+#| fig-alt: "Six panels. No effects: A and B coincide as one flat line at 10. One main effect: two separated flat lines at 8 and 12. Two main effects: parallel rising lines. Interaction only: crossing lines with equal marginal means. Interaction qualifies: both lines rise from 8, B more steeply. Interaction reverses: A rises from 8 to 10 while B falls from 16 to 10."
+#| fig-width: 7
+#| fig-height: 4.2
+#| out-width: 100%
+patterns <- list(
+  "No effects" = matrix(c(10, 10, 10, 10), 2, byrow = TRUE),
+  "One main effect" = matrix(c(8, 8, 12, 12), 2, byrow = TRUE),
+  "Two main effects" = matrix(c(8, 10, 12, 14), 2, byrow = TRUE),
+  "Interaction only" = matrix(c(8, 14, 14, 8), 2, byrow = TRUE),
+  "Interaction qualifies" = matrix(c(8, 10, 8, 14), 2, byrow = TRUE),
+  "Interaction reverses" = matrix(c(8, 10, 16, 10), 2, byrow = TRUE))
+par(mfrow = c(2, 3), mar = c(3.6, 3.6, 2.6, .8), mgp = c(2.2, .7, 0))
+for (nm in names(patterns)) {
+  matplot(1:2, t(patterns[[nm]]), type = "b", pch = c(16, 1),
+    lty = c(1, 2), col = c("black", "grey40"),
+    ylim = c(6, 19), xlim = c(.85, 2.15), xaxt = "n",
+    xlab = "Practice", ylab = "Mean score", main = nm)
+  axis(1, at = 1:2, labels = c("Massed", "Spaced"))
+  legend("topleft", c("A", "B"), pch = c(16, 1),
+    lty = c(1, 2), col = c("black", "grey40"), bty = "n",
+    cex = .8, horiz = TRUE)
+}
+par(mfrow = c(1, 1))
 ```
 
-Iteration stays within a phase. Rechecking a plot, correcting a table, or
-adding a same-estimand sensitivity analysis can revise Phase 2. Changing an
-estimand, outcome, design, or joint rule after seeing the evidence changes the
-Phase 1 anchor and starts an additional or revised cycle. Defensible material
-from the earlier cycle can be reused with its provenance and changed status
-visible; reuse cannot make a retrospective decision prospective.
+Read each pattern by taking differences, not only by recognizing a
+shape. Define a schedule difference as Spaced minus Massed and a
+difference of differences as B's schedule difference minus A's.
 
-# Summary and Reading Bridge
+\Needspace{16\baselineskip}
 
-## A compact reading route
+| Pattern | A: Massed, Spaced | B: Massed, Spaced | Schedule differences A, B | Difference of differences |
+|:--|:--|:--|:--|--:|
+| No effects | 10, 10 | 10, 10 | 0, 0 | 0 |
+| One main effect | 8, 8 | 12, 12 | 0, 0 | 0 |
+| Two main effects | 8, 10 | 12, 14 | 2, 2 | 0 |
+| Interaction only | 8, 14 | 14, 8 | 6, -6 | -12 |
+| Interaction qualifies | 8, 10 | 8, 14 | 2, 6 | 4 |
+| Interaction reverses | 8, 10 | 16, 10 | 2, -6 | -8 |
 
-When reading a published group comparison:
+: Arithmetic behind the six schematic patterns. {#tbl-ch04-patterns tbl-colwidths="[27,17,17,21,18]"}
 
-1. Identify the unit, analytic sample, groups, outcome, estimand, and design.
-2. For a categorical outcome, inspect counts and choose the denominator before
-   reading percentages.
-3. For a quantitative outcome, inspect raw grouped observations before reading
-   ANOVA output.
-4. State an effect estimate in interpretable units.
-5. Use omnibus evidence only for its joint question.
-6. Count statistical strands by jointly required estimands, not by output rows,
-   coefficients, or tests.
-7. If a result receives its own question-facing conclusion, give it a separate
-   question--answer pair rather than hiding it inside another argument.
-8. Carry uncertainty, analytic status, missingness, and design into the answer.
-9. Read one argument with linked layers for each question--answer pair.
+In the first panel nothing varies: both feedback levels and both
+schedules have mean 10, and the two lines coincide. In the second,
+B exceeds A by 4 points under either schedule while the schedule
+comparison is 0 under either feedback level; there is one main
+effect and no interaction. In the third, B still exceeds A by 4
+points everywhere, and Spaced now exceeds Massed by 2 points
+everywhere: two main effects, again with a zero difference of
+differences. Parallel lines express those constant comparisons.
 
-Reading is the primary use. Quality evaluation is the distinct secondary use
-after reading; the construction workflow is the auxiliary use for conducting
-research.
+The last three panels have a nonzero difference of differences. In
+the crossing panel, both feedback marginal means are 11 and both
+practice marginal means are 11 when cells receive equal weight. Both
+averaged comparisons are zero despite large conditional differences,
+which is why a small main effect need not mean that a factor is
+irrelevant at every level of another factor.
 
-## Compact glossary
+In the qualifying panel the schedule comparison is 2 for A and 6 for
+B. Both are positive, so the averaged 4-point schedule comparison
+points the right way for both feedback levels but describes neither
+exactly. The lines need not cross for interaction to be present. In
+the reversing panel the schedule comparison is 2 for A and $-6$ for
+B, so the averaged comparison of $-2$ points the wrong way for A.
+Reporting only the two main effects would then mislead a reader
+about every conditional comparison. Examine the interaction first,
+and read a main effect as an average whose parts are still visible.
 
-**Analytic sample.** The observations that actually enter a reported analysis.
+These drawings establish only the numerical patterns: significance
+also needs information about variation, sample size and the
+reference distribution.
 
-**Conditional proportion.** A proportion whose denominator is restricted to a
-declared group.
+### Cells, marginal means and the full data
 
-**Estimand.** The precisely specified quantity a study seeks to learn. An
-estimate is the numerical result obtained from observed evidence for it.
+Return to all 24 quiz scores. Each of the six cells contains four
+different students; no person contributes a score under the other
+practice schedule. The first one-way analysis used one three-cell
+slice, whereas the full analysis uses all six groups.
 
-**Expected count.** A cell count implied by a stated null pattern, such as
-independence, given the observed margins.
+Write $\bar y_{jk}$ for a cell mean, with $j=1,2,3$ indexing feedback
+and $k=1,2$ indexing practice. A dot replaces an index that has been
+averaged over: $\bar y_{j\cdot}$ averages a feedback level over
+practice, and $\bar y_{\cdot k}$ averages a practice level over
+feedback.
 
-**Omnibus question.** A joint question about a complete pattern, such as
-whether all declared group means are equal.
+\Needspace{13\baselineskip}
 
-**Statistical strand.** An estimand-specific statistical chain inside one
-argument, used when sibling estimands are jointly required for one integrated
-answer and none is owed a separate conclusion.
+| Feedback | Massed | Spaced | Feedback mean |
+|:--|--:|--:|--:|
+| Rereading | 6.0000 | 6.0000 | 6.0000 |
+| Answer feedback | 8.0000 | 12.0000 | 10.0000 |
+| Explanatory feedback | 10.0000 | 18.0000 | 14.0000 |
+| Practice mean | 8.0000 | 12.0000 | Grand mean 10.0000 |
 
-**Familywise calibration.** An uncertainty or testing procedure that accounts
-for a declared family of comparisons.
+: Cell and equally weighted marginal means for the complete invented study. {#tbl-ch04-cell-means tbl-colwidths="[37,19,19,25]"}
 
-**Design-bounded claim.** An answer whose wording retains the support and
-limitations of sampling, assignment, measurement, analysis, and context.
+Answer feedback averages $(8+12)/2=10.0000$ over schedules. Since
+cell sizes are equal, this equals the mean of its eight student
+scores. The Massed marginal mean is $(6+8+10)/3=8.0000$, and the
+Spaced marginal mean is $(6+12+18)/3=12.0000$. The grand mean is
+10.0000.
 
-**Inconclusive answer.** An answer stating that materially different
-possibilities remain compatible with the evidence under a relevant benchmark
-and the declared conditions. It is not proof of no difference.
+The practice comparison averages $12-8=4.0000$ points across the
+three feedback conditions with equal weights. Its component schedule
+differences are 0.0000, 4.0000 and 8.0000. A four-point main effect
+is therefore a meaningful stated average, but it describes none of
+the conditional comparisons except Answer feedback's.
 
-## Reading bridge
+```{r}
+#| label: fig-ch04-cell-means
+#| fig-cap: "Quiz cell means across practice schedules in the full 3 × 2 example. Each line joins means of different students; the schedule differences are 0, 4 and 8 points."
+#| fig-alt: "Rereading stays at 6 from Massed to Spaced practice. Answer feedback rises from 8 to 12. Explanatory feedback rises from 10 to 18. The nonparallel lines show that the schedule comparison changes across feedback conditions."
+#| fig-width: 7
+#| fig-height: 3.8
+#| out-width: 100%
+par(mar = c(4, 4, 1, 1), cex = .9)
+with(feedback_data,
+  interaction.plot(practice, feedback, score, type = "b",
+    pch = c(16, 1, 17), lty = 1:3,
+    col = c("#202020", "#2B6CA3", "#9B4922"),
+    xlab = "Practice schedule", ylab = "Mean quiz score",
+    trace.label = "Feedback", ylim = c(0, 20)))
+```
 
-These public sources extend the chapter without becoming prerequisites:
+The connected lines in @fig-ch04-cell-means organize cell means. They
+do not show individual students moving from one condition to another.
+The nonparallel pattern describes interaction in the observed means;
+the full model supplies the uncertainty calculation for an inferential
+claim.
 
-- [Introduction to Modern Statistics: Exploring categorical
-  data](https://openintro-ims.netlify.app/explore-categorical) develops counts,
-  proportions, and displays.
-- [Introduction to Modern Statistics: Inference for two-way
-  tables](https://openintro-ims.netlify.app/inference-tables) develops expected
-  counts and chi-square reasoning.
-- [Introduction to Modern Statistics: Inference for many
-  means](https://openintro-ims.netlify.app/inference-many-means) develops the
-  omnibus ANOVA question and follow-up comparisons.
-- [NIST: Assessing a response with
-  contrasts](https://www.itl.nist.gov/div898/handbook/prc/section4/prc436.htm)
-  connects group means to declared contrasts; its [Bonferroni
-  guide](https://www.itl.nist.gov/div898/handbook/prc/section4/prc473.htm)
-  explains simultaneous intervals for a finite comparison family.
-- [FDA guidance on multiple
-  endpoints](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/multiple-endpoints-clinical-trials)
-  supplies a limited analogy for a conclusion that requires every declared
-  component; it is not imported here as a social-science regulatory rule.
-- [UCI Student Performance
-  record](https://archive.ics.uci.edu/dataset/320/student+performance) documents
-  the observational source used here.
-- [The carData package](https://cran.r-project.org/package=carData) documents
-  the public Baumann record. The original report supplies the design context
-  [@baumann1992].
+### Additivity and the full model
 
-\Needspace{8\baselineskip}
-\phantomsection
+An additive prediction combines the grand mean with the two marginal
+departures. For Answer-Spaced, it is
 
-# Exercises {.unnumbered}
+$$
+10+(10-10)+(12-10)=12,
+$$
 
-The exercises contain no answers and require no software. Use only
-**Foundational** and **Integrative** as levels. Keep the question, denominator,
-estimate, uncertainty, and design boundary visible in every response.
+which agrees with that observed cell mean. For Explanatory-Spaced,
+the additive prediction is
 
-\Needspace{6\baselineskip}
-\phantomsection
+$$
+10+(14-10)+(12-10)=16,
+$$
+
+while the cell mean is 18. The extra 2 points are an **interaction
+departure** from that additive prediction. Agreement for one cell
+does not imply that the entire layout is additive.
+
+The full mean model includes such departures:
+
+$$
+Y_{ijk}=\mu+\alpha_j+\beta_k+(\alpha\beta)_{jk}
+        +\varepsilon_{ijk}.
+$$
+
+Here $i=1,\ldots,4$ identifies a student within a cell, $j=1,2,3$
+identifies feedback and $k=1,2$ identifies practice. The grand model
+mean is $\mu$; $\alpha_j$ and $\beta_k$ are the factor effects;
+$(\alpha\beta)_{jk}$ is the interaction departure; and
+$\varepsilon_{ijk}$ is the individual error around the cell mean.
+These indexed effects are distinct from the unindexed error
+probabilities $\alpha$ and $\beta$ used in hypothesis testing.
+
+In the balanced decomposition, main-effect departures sum to zero.
+Interaction departures sum to zero along each row and each column,
+so they contain only the remaining pattern after the two main effects.
+The observed feedback departures are $-4,0,4$, and practice departures
+are $-2,2$. The interaction departures are:
+
+\Needspace{12\baselineskip}
+
+| Feedback | Massed | Spaced |
+|:--|--:|--:|
+| Rereading | 2 | -2 |
+| Answer feedback | 0 | 0 |
+| Explanatory feedback | -2 | 2 |
+
+: Observed interaction departures from the additive prediction. {#tbl-ch04-interaction-departures tbl-colwidths="[50,25,25]"}
+
+With two columns, choosing a departure in the first column fixes
+the opposite departure in the second. Of the three first-column
+departures, only two are free because they sum to zero. Thus the
+interaction has $(3-1)(2-1)=2$ df. It describes a two-dimensional
+pattern, rather than one particular four-cell difference.
+
+For a common cell size $n=4$, the total squared variation splits as
+
+$$
+SS_T=SS_A+SS_B+SS_{AB}+SS_E.
+$$
+
+In this **two-way** table, A denotes feedback and B denotes practice.
+Thus $SS_B$ now means the practice component, not the entire
+between-group component of the one-way table. $SS_E$ is the
+within-cell error sum of squares. Stating the local meanings keeps
+the two familiar uses of B distinct.
+
+$$
+\begin{aligned}
+SS_A&=2n\sum_j(\bar y_{j\cdot}-\bar y)^2=256.0000,\\
+SS_B&=3n\sum_k(\bar y_{\cdot k}-\bar y)^2=96.0000,\\
+SS_{AB}&=n\sum_j\sum_k
+ (\bar y_{jk}-\bar y_{j\cdot}-\bar y_{\cdot k}+\bar y)^2
+ =64.0000,\\
+SS_E&=\sum_j\sum_k\sum_i(y_{ijk}-\bar y_{jk})^2=60.0000.
+\end{aligned}
+$$
+
+For example, the feedback component counts each marginal departure
+eight times: $8\{(-4)^2+0^2+4^2\}=256$. The practice component
+counts each departure twelve times: $12\{(-2)^2+2^2\}=96$. Four
+students share each interaction departure, giving
+$4(4+4+0+0+4+4)=64$. Each cell contributes 10 residual squared
+points, giving $6(10)=60$. Their sum is $SS_T=476$.
+
+Each of six cells has an estimated mean, so error df are
+$24-6=18$. Feedback has two df, practice has one, and interaction
+has two. Together they give $2+1+2+18=23=N-1$.
+
+\Needspace{14\baselineskip}
+
+| Source | SS | df | MS | F | p |
+|:--|--:|--:|--:|--:|--:|
+| Feedback (A) | 256.0000 | 2 | 128.0000 | 38.4000 | <.0001 |
+| Practice (B) | 96.0000 | 1 | 96.0000 | 28.8000 | <.0001 |
+| A × B | 64.0000 | 2 | 32.0000 | 9.6000 | .0015 |
+| Error | 60.0000 | 18 | 3.3333 | | |
+| Total | 476.0000 | 23 | | | |
+
+: Full two-way ANOVA using all 24 students. {#tbl-ch04-two-way-anova}
+
+Read this table with the reading order set out in
+[Read an ANOVA table](#sec-ch04-anova-table): the three source rows,
+the error row and the corrected total. An extended software layout
+prints the same components with a Corrected Model row of 416.0000 on
+5 df, plus an intercept row and an uncorrected total that answer no
+question asked here.
+
+Every displayed F divides its source mean square by the same
+$MS_E=60/18=10/3$. The corresponding null hypotheses address
+different features of the model:
+
+\Needspace{16\baselineskip}
+
+| Source | Null hypothesis | Comparison represented |
+|:--|:--|:--|
+| Feedback | $\mu_{R\cdot}=\mu_{A\cdot}=\mu_{E\cdot}$ | Equal feedback means, each averaging the two schedules equally |
+| Practice | $\mu_{\cdot M}=\mu_{\cdot S}$ | Equal schedule means, each averaging the three feedback levels equally |
+| Interaction | $(\alpha\beta)_{jk}=0$ for every cell | Each feedback comparison is constant across schedules, equivalently each schedule difference is the same across feedback levels |
+
+: Three null hypotheses with their averaging rules. {#tbl-ch04-factorial-nulls tbl-colwidths="[17,37,46]"}
+
+Independent common-variance Normal errors supply the classical F
+references. Under these conditions, the interaction result
+$F(2,18)=9.6000$, $p=.0015$ gives evidence against an additive
+pattern. Both main effects also have small p-values, but their
+meanings remain averaged comparisons. Reading them as “each factor
+works equally well everywhere” would discard the interaction.
+
+The clean component decomposition uses the balanced layout. With
+unequal cell counts, the averaging target and the model comparison
+need more care; different software sums of squares can address
+different hypotheses. The [weighting reference](#app-ch04-weighting)
+explains the first distinction without changing these data.
+
+### Simple effects and a selected interaction contrast
+
+The Answer-feedback schedule comparison is a **simple effect**:
+$12-8=4.0000$ points. Its SE under the full model is
+
+$$
+\widehat{SE}=\sqrt{\frac{10}{3}
+ \left(\frac14+\frac14\right)}=1.2910.
+$$
+
+With 18 residual df, a pointwise 95% interval is
+
+$$
+4\pm t_{.975,18}\sqrt{5/3}
+\approx[1.2877,6.7123].
+$$
+
+This interval is calibrated for the one stated simple comparison.
+It is not protected for every simple effect that a reader might
+inspect after seeing the graph. The two means come from different
+students, so this is an independent-cell calculation, not a paired
+calculation.
+
+Now suppose a reader selects the Answer-versus-Rereading change in
+the schedule comparison after inspecting the pattern. In model means,
+the target is
+
+$$
+C=(\mu_{A,S}-\mu_{A,M})-(\mu_{R,S}-\mu_{R,M}).
+$$
+
+Its estimate is one **difference of differences**:
+
+$$
+\widehat C=(12-8)-(6-6)=4.0000.
+$$
+
+The four independent cell means have weights $1,-1,-1,1$ in the
+displayed expression. Each has variance estimated by $MS_E/4$;
+squaring the weights and adding gives
+
+$$
+\widehat{SE}(\widehat C)=
+\sqrt{\frac{10}{3}\left(\frac14+\frac14+\frac14+\frac14\right)}
+=1.8257.
+$$
+
+To account for selection among interaction contrasts, choose
+Scheffé coverage for **all contrasts in the two-dimensional
+interaction space**. The multiplier is
+$\sqrt{2F_{.95;2,18}}=2.6663$. The complete simultaneous calculation is
+
+$$
+\begin{aligned}
+\widehat C\pm\sqrt{2F_{.95;2,18}}\widehat{SE}(\widehat C)
+ &=4\pm2.666292237\sqrt{10/3}\\
+ &\approx[-0.8680,8.8680].
+\end{aligned}
+$$
+
+The interval includes zero even though the omnibus interaction
+p-value is .0015. There is no contradiction. The joint test assesses
+the entire two-dimensional departure from additivity; the selected
+contrast concerns one direction, with protection for choosing among
+all interaction contrasts. Evidence that some interaction direction
+is nonzero does not establish every selected direction.
+
+The simple Answer schedule effect includes the practice main-effect
+component as well as an interaction component. It therefore lies
+outside this interaction-only Scheffé family. A claim covering all
+simple effects would need a corresponding family and calibration.
+[Appendix B](#app-ch04-families) compares the selected contrast's
+pointwise and simultaneous intervals using the same estimate and SE.
+
+### Give a connected interpretation
+
+The observed schedule differences are 0.0000, 4.0000 and 8.0000
+quiz points for Rereading, Answer feedback and Explanatory feedback.
+The full-model interaction test gives $F(2,18)=9.6000$, $p=.0015$
+under the stated conditions. The selected Answer-versus-Rereading
+change in schedule difference is 4.0000 points, with a 95% Scheffé
+interval $[-0.8680,8.8680]$ over all interaction contrasts. The
+overall result does not establish that particular selected comparison.
+
+Feedback and practice marginal means summarize explicit equal
+weights. The cell means show what those averages can conceal. The
+one-way conclusion concerns only the Massed students, whereas the
+full factorial conclusion uses all 24 students and 18 error df.
+These are analyses of invented data, not empirical evidence that a
+teaching method succeeds in a population of students.
+
+## Conditions and Interpretation {#sec-ch04-conditions}
+
+### Explain the conditions in familiar terms
+
+Three conditions support the classical ANOVA references used here:
+**independent observations**, **similar variances within groups or
+cells**, and **approximately Normal residuals**. More precisely,
+the exact finite-sample F and t results assume independent Normal
+errors with a common variance around the relevant model means.
+Residuals provide observable clues about those errors, together with
+the design and substantive knowledge [@kutner2005].
+
+Independence is principally a design question. It concerns how
+outcomes can share influences, including repeated observations,
+classroom clustering or interference between students. A residual
+plot cannot establish independent assignment or independent errors.
+Similar within-cell spread is a different question: does a common
+error variance reasonably describe each cell? The pooled spread of
+all outcomes need not be small or unimodal, because the groups can
+have different means.
+
+```{r}
+#| label: fig-ch04-residuals
+#| fig-cap: "Residuals around the fitted cell means. The repeated vertical pattern was deliberately built into the invented scores; it is not independent evidence that the model conditions hold."
+#| fig-alt: "At each distinct fitted cell mean, residuals are minus two, minus one, one and two. Some points overlap because two cells share a fitted mean. The repeated pattern is a feature of the teaching construction."
+#| fig-width: 6.6
+#| fig-height: 3.2
+par(mar = c(4, 4, 1, 1))
+plot(fitted(full_fit), residuals(full_fit),
+  xlab = "Fitted cell mean", ylab = "Residual", pch = 16)
+abline(h = 0, lty = 2)
+```
+
+A residual-versus-fitted display can reveal changing spread or an
+unusual residual. Here each cell has residuals $-2,-1,1,2$, because
+we deliberately constructed the scores that way. Four students per
+cell provide very little information for judging a distribution's
+tails. Identical plotted spreads in this example do not validate a
+Normal model for real quiz scores.
+
+A Normal quantile plot compares ordered residuals with quantiles of
+a Normal distribution. It can make pronounced tail departures more
+visible, but a small apparently straight display offers limited
+reassurance. Treat such graphs as information to interpret; a
+sequence of Normality or variance tests should not become an
+automatic permission rule for ANOVA.
+
+\Needspace{25\baselineskip}
+
+| Question | Information to examine | Implication for the calculation |
+|:--|:--|:--|
+| Are observations independent? | Assignment unit, repeated measurements, classes and schools | Dependence changes the covariance and relevant error structure |
+| Is a common variance reasonable? | Group/cell spreads, residual displays and subject-matter knowledge | Unequal-variance procedures use a different uncertainty calibration |
+| Is the error shape adequate for the reference? | Residual distribution, unusual observations and cell sizes | Small samples can be sensitive to departures from the stated reference model |
+| Does the comparison fit the question? | Outcome, factor order, selected records and averaging weights | A correct calculation can otherwise describe a different target |
+
+: Conditions connect design and observed patterns to interpretation. {#tbl-ch04-conditions tbl-colwidths="[28,35,37]"}
+
+Welch's one-way method allows unequal group variances and changes
+the uncertainty calibration. It is not obtained by swapping one
+number in the classical sum-of-squares table. It does not solve
+clustering, and its one-way form does not supply the full factorial
+interaction analysis. Chapter 6 shows the alternative alongside
+the common-variance calculation, with its conditions kept visible.
+
+### Missing outcomes and the scope of the answer
+
+A report should compare assigned and analyzed counts and explain
+known reasons for losses. Missing outcomes can alter who contributes
+to a comparison and can require assumptions beyond the displayed
+ANOVA model. Our invented dataset has all 24 scores, so it supplies
+no missingness experiment or evidence about a deletion rule. In a
+real study, silently analyzing only available records would need
+justification at the intended target.
+
+Keep three claims distinct. The observed means and sums of squares
+describe these records. Intervals and tests express uncertainty
+under a specified model or design-based approximation. Causal and
+population interpretations require support from allocation,
+measurement, participation and the intended scope. A small p-value
+does not complete that support, and a large p-value does not prove
+that an effect is absent or unimportant.
+
+## Reading Bridge {#sec-ch04-bridge}
+
+Comparing several means extends the estimate-and-SE reasoning of
+Chapter 3. ANOVA separates sources of variation to ask an omnibus
+question; a contrast states a narrower question and its uncertainty.
+Main effects average across factor levels, while cell means and
+simple effects show the conditional pattern. A joint interaction
+test and one selected interaction contrast can therefore lead to
+different, compatible conclusions.
+
+The same group-mean model can be written using indicator variables.
+A measured baseline can also enter an adjusted model, called
+analysis of covariance (ANCOVA). Chapter 6 gives their first complete
+applications, with stated comparison targets and conditions.
+Chapters 7--8 develop the regression mathematics, several controls
+and standardized predictions. Baseline adjustment accounts for a measured
+source of score variation and compares fitted outcomes at a stated common
+baseline value, or averages them over the same stated baseline distribution.
+The groups need adequate overlap in those baseline values, often called
+common support, for those comparisons to be informed by observations.
+Adjustment is not a general cure for confounding or missing outcomes.
+
+Blocking organizes comparisons within allocation groups, as in
+Chapter 3's paired-school reference. Repeated measurements and
+classroom clustering change the covariance structure and the
+relevant error term. The shape of a data table cannot settle these
+design questions. Chapters 5--6 now make the statistical foundations
+executable while keeping the question, records and interpretation
+beside each calculation.
+
+### Key terms {.unnumbered}
+
+Use this reference to revisit the concepts principally explained here.
+The Part One introduction collects earlier terms, including estimand,
+SE, confidence interval and familywise error rate.
+
+```{=latex}
+\small
+```
+
+| Term and common alternatives | Meaning |
+|:--|:--|
+| Factor (grouping factor) | In ANOVA, a categorical variable defining groups or conditions; its categories are levels. This meaning differs from a latent factor used to model shared indicator variation. |
+| Analysis of variance (ANOVA) | A method for studying mean differences through sources of variation. One-way and two-way ANOVA use one and two grouping factors, respectively; either factor can have several levels. |
+| Fitted value | The value a fitted model assigns to an observed case. In a one-way group-mean model, it is that case's group mean. |
+| Residual | An observed outcome minus its fitted value. A residual is calculated from the fitted model; an error is the corresponding unknown departure in the population model. |
+| Mean square (MS) | A sum of squares divided by its degrees of freedom. In classical ANOVA, the within-group mean square estimates the common error variance under the model's conditions. |
+| F statistic (F ratio) | In classical ANOVA, a ratio of the mean square for a tested source to the appropriate error mean square. Its null F reference depends on the model and both degrees of freedom. |
+| Omnibus test | A test of one joint null hypothesis about a whole pattern, such as equality of all group means. Rejecting it does not identify which comparisons differ or how large they are. |
+| Standardized mean difference | A difference in means divided by a specified SD. The chosen denominator determines the standardized quantity; the raw difference retains the outcome's original units. |
+| Eta squared | The proportion of total observed variation attributed to a specified source in an ANOVA decomposition. In one-way ANOVA, it is between-group divided by total sum of squares. |
+| Contrast (linear contrast) | A weighted combination of means whose weights sum to zero, expressing a specific comparison. The means, weights, and target population determine the quantity compared. |
+| Simultaneous confidence intervals | A set of intervals calibrated so that, under their conditions, all of them cover their estimands together at the stated familywise rate; Bonferroni, Tukey, and Dunnett are different calibrations for different families. |
+| Cell mean and marginal mean | In a two-factor layout, a cell mean is the mean of the cases sharing one level of each factor; a marginal mean averages the cell means across the levels of the other factor, with stated weights. |
+| Main effect | A comparison across one factor's levels averaged over the other factor's levels, using stated weights. It remains an average when the conditional pattern differs across levels. |
+| Interaction | A pattern in which a comparison across one factor's levels changes with the other factor's level. A difference of differences expresses one such comparison. |
+| Simple effect | A comparison across one factor's levels at a specified level of the other factor. It describes a conditional comparison within the factorial design. |
+
+: Selected concepts for group comparisons and ANOVA. {#tbl-ch04-key-terms tbl-colwidths="[28,72]"}
+
+```{=latex}
+\normalsize
+```
+
+### Further reading {.unnumbered}
+
+- *Introduction to Modern Statistics* develops the transition from
+  grouped observations to [inference for many means](https://openintro-ims.netlify.app/inference-many-means)
+  [@cetinkaya2024].
+- [Penn State STAT 200, Lesson 10](https://online.stat.psu.edu/stat200/Lesson10)
+  provides an introductory ANOVA treatment; its
+  [factorial-design lesson](https://online.stat.psu.edu/stat503/Lesson05)
+  develops main effects and interaction.
+- The NIST handbook explains [contrasts and their SEs](https://www.itl.nist.gov/div898/handbook/prc/section4/prc436.htm)
+  and [Bonferroni simultaneous intervals](https://www.itl.nist.gov/div898/handbook/prc/section4/prc473.htm).
+
+## Exercises {.unnumbered}
+
+The supplied scores and constants support calculator-based work.
+Retain full precision until reporting calculated results to four
+decimal places. State the relevant records, conditions and comparison
+direction in each interpretation.
 
 <!-- prompt-id: CH04-E01 -->
-## Exercise 1: Choose the denominator (Foundational) {.unnumbered #ex-ch04-01}
+### Exercise 1: Read grouped observations (Foundational) {.unnumbered #ex-ch04-01}
 
-A study records the following outcomes:
+Use the twelve Massed-practice scores from the invented study:
 
-| Participation format | Completed | Did not complete | Total |
-|:---------------------|----------:|-----------------:|------:|
-| Online | 84 | 36 | 120 |
-| In person | 63 | 17 | 80 |
-| **Total** | **147** | **53** | **200** |
+- Rereading: 4, 5, 7, 8.
+- Answer feedback: 6, 7, 9, 10.
+- Explanatory feedback: 8, 9, 11, 12.
 
-The question is: "Among participants using each format, how did completion
-differ?"
-
-1. Calculate the completion proportion within each format.
-2. Calculate the proportion using the online format within each outcome
-   category: completed and did not complete.
-3. Identify which pair of proportions answers the stated question and explain
-   why the other pair answers a different question.
-4. State what the four raw counts contribute that percentages alone conceal.
-
-<!-- END EX04-01 PROMPT -->
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Calculate each mean, range and sample SD. Compare the centers,
+   spread and overlap. Use the sample-variance denominator $n_j-1$.
+2. Draw or describe a dotplot displaying every score. Explain what
+   it reveals that a bar chart showing only the means would conceal.
+3. Explain why the identical within-group spreads do not establish
+   that a common-variance Normal model will hold in a real study.
+4. Identify the assignment and measurement units stipulated in this
+   invented study. Explain what the scores alone cannot establish
+   about causal interpretation or generalization.
 
 <!-- prompt-id: CH04-E02 -->
-## Exercise 2: Name the categorical effect (Foundational) {.unnumbered #ex-ch04-02}
+### Exercise 2: Reproduce the one-way calculation (Foundational) {.unnumbered #ex-ch04-02}
 
-Use the participation-format table in Exercise 1.
+Use Exercise 1's scores. There are $J=3$ groups and $N=12$ students.
+The group means are 6, 8 and 10 and the grand mean is 8. For the
+classical test, assume independent Normal errors with a common variance.
 
-1. Calculate the Online-minus-In-person difference in completion proportions.
-2. Interpret its sign, direction, event, and unit in one sentence.
-3. Explain how the numerical value and wording would change if the event were
-   changed from completion to noncompletion.
-4. State one reason a proportion difference is easier to interpret here than
-   an odds ratio.
-
-<!-- END EX04-02 PROMPT -->
-
-{{< pagebreak >}}
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. For the Rereading score of 4, split its deviation from the grand
+   mean into a group-mean departure and a residual. Calculate the
+   squared total deviation, the two squared components and their
+   cross-product. Explain why the sum-of-squares identity applies
+   after summing, rather than to those two squares alone for every
+   individual.
+2. Calculate $SS_B$, $SS_W$ and $SS_T$ from the scores. Explain
+   why the within-group contribution is the same for all three groups.
+3. Find all three df, both mean squares and the F statistic. Explain
+   the constraint behind each df and what the ratio compares.
+4. State the omnibus null. Interpret the supplied right-tail
+   $p=.0381$ at $\alpha=.05$, including the model conditions and
+   what the conclusion leaves unanswered about particular comparisons.
 
 <!-- prompt-id: CH04-E03 -->
-## Exercise 3: Check expected counts and chi-square output (Foundational) {.unnumbered #ex-ch04-03}
+### Exercise 3: Define and estimate contrasts (Foundational) {.unnumbered #ex-ch04-03}
 
-For the participation-format table, the expected counts under independence are:
+The Massed group means are 6, 8 and 10 in the order Rereading, Answer
+feedback, Explanatory feedback. Each group has four students and the
+common-variance estimate is $MS_W=10/3$, with nine residual df.
 
-| Participation format | Completed | Did not complete |
-|:---------------------|----------:|-----------------:|
-| Online | 88.2 | 31.8 |
-| In person | 58.8 | 21.2 |
-
-Pearson's result is $\chi^2(1)=1.89$, $p=.170$.
-
-1. Use the observed table in Exercise 1 to reproduce the Online/Completed
-   expected count, its contribution $(O-E)^2/E$, and the table degrees of
-   freedom. Explain what an expected count represents.
-2. Identify the cells in which the observed count exceeds the expected count.
-3. State the omnibus null in words.
-4. Write one conclusion that distinguishes the observed proportion difference,
-   evidence against independence, association magnitude, and causation.
-5. Explain why $p=.170$ is not proof that format and completion are
-   independent.
-
-<!-- END EX04-03 PROMPT -->
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Identify which weight vectors define contrasts:
+   $(-1,1,0)$, $(-1,0,1)$, $(-1,1/2,1/2)$ and
+   $(1/3,1/3,1/3)$. State the ordinary-language question represented
+   by each contrast.
+2. Calculate each contrast estimate and its SE from
+   $\sqrt{MS_W\sum_j c_j^2/n_j}$. Explain the squared weights
+   and the use of the full three-group error estimate.
+3. Explain why the equal-average contrast cannot replace both
+   separate feedback-versus-Rereading comparisons when both are required.
+4. For a weighting illustration only, suppose Answer and Explanatory
+   means stay at 8 and 10 but their counts are 10 and 30. The
+   Rereading mean stays at 6. Compare the equally weighted
+   method-average difference with the student-weighted difference.
+   State the question answered by each. These illustrative counts
+   do not change the chapter's actual balanced dataset.
 
 <!-- prompt-id: CH04-E04 -->
-## Exercise 4: Connect grouped observations to ANOVA (Foundational) {.unnumbered #ex-ch04-04}
+### Exercise 4: Interpret comparison families (Integrative) {.unnumbered #ex-ch04-04}
 
-Three groups have the following observed scores:
+The declared simultaneous family contains Answer minus Rereading
+and Explanatory minus Rereading in Massed practice. Their estimates
+are 2 and 4, each with $SE=\sqrt{5/3}$ and nine error df. Use
+the Bonferroni critical value 2.685010847 under the independent
+common-variance Normal model.
 
-- Group A: 4, 5, 6, 6, 7, 8, 9, 9
-- Group B: 5, 6, 7, 7, 8, 9, 10, 10
-- Group C: 1, 4, 6, 8, 10, 12, 14, 17
-
-Before considering an ANOVA result:
-
-1. Compare the centers, spreads, overlap, and ranges.
-2. Identify which group makes a common-variance model most questionable and
-   explain why.
-3. Explain what an individual-observation plot would reveal that a bar chart
-   of means would conceal.
-4. State why these observations cannot by themselves determine whether a group
-   difference is causal or generalizable.
-5. A one-way calculation gives $SS_B=20.333333$ and $SS_W=245.000000$.
-   With three groups and 24 scores, calculate the between-group and
-   within-group degrees of freedom, both mean squares, and $F$. Explain
-   what the ratio compares; do not infer a specific pairwise difference from it.
-
-<!-- END EX04-04 PROMPT -->
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Divide a .05 familywise error allowance between the two
+   intervals and their tails. Explain the resulting quantile .9875.
+2. Calculate the two simultaneous intervals and interpret them
+   together. Explain why an interval containing zero does not
+   establish equivalence.
+3. Tukey's all-pairs intervals are $[-1.6045,5.6045]$ for Answer
+   minus Rereading, $[0.3955,7.6045]$ for Explanatory minus
+   Rereading, and $[-1.6045,5.6045]$ for Explanatory minus Answer.
+   Identify its family and explain why its limits differ from those
+   in part 2. Give a reason for choosing a family before inspecting
+   which intervals exclude zero.
+4. Both reference comparisons use the same Rereading mean. Explain
+   why this creates dependence and why it does not invalidate the
+   Bonferroni bound.
+5. Distinguish an omnibus rejection, a prespecified contrast and a
+   contrast selected after inspecting results. State what should
+   accompany uncertainty reported for the selected contrast.
 
 <!-- prompt-id: CH04-E05 -->
-## Exercise 5: Distinguish outputs, strands, and pairs (Integrative) {.unnumbered #ex-ch04-05}
+### Exercise 5: Read the factorial pattern (Foundational) {.unnumbered #ex-ch04-05}
 
-Classify each situation as **several outputs in one strand**, **two statistical
-strands in one argument**, or **two question--answer pairs and arguments**.
-Explain the answer without counting table rows or hypotheses mechanically.
+Use the complete invented study below. There are four different
+students per cell, individually allocated to the six combinations.
 
-1. A report gives a mean difference, standard error, confidence interval,
-   p-value, and sensitivity analysis for the same estimand.
-2. One prespecified package-success question requires two declared estimands
-   to meet their criteria; neither receives a separate conclusion.
-3. A report makes one recommendation about Method A versus control and a
-   separate recommendation about Method B versus control.
-4. An omnibus ANOVA and a contrast interval are printed for one estimand-
-   focused question. Is the omnibus result automatically another strand?
+| Feedback | Massed scores | Spaced scores |
+|:--|:--|:--|
+| Rereading | 4, 5, 7, 8 | 4, 5, 7, 8 |
+| Answer feedback | 6, 7, 9, 10 | 10, 11, 13, 14 |
+| Explanatory feedback | 8, 9, 11, 12 | 16, 17, 19, 20 |
 
-<!-- END EX04-05 PROMPT -->
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Identify the outcome, the two factors and their levels, the
+   assignment unit, the number of cells and the meaning of balance.
+2. Calculate the Answer-Spaced cell mean, the Answer marginal mean,
+   both practice marginal means and the grand mean. Explain why
+   equal-cell and student-weighted averages coincide here.
+3. Calculate the additive prediction for Explanatory-Spaced from
+   the grand mean and the two marginal departures. Compare it
+   with the observed cell mean and identify the interaction departure.
+4. Calculate Spaced minus Massed for each feedback condition.
+   Then calculate Answer's schedule difference minus Rereading's.
+   Explain how these values appear in the cell-mean plot.
+5. Explain why the four-cell difference in part 4 is one interaction
+   contrast, while the full three-by-two interaction has two df.
+   Explain why the connected lines do not represent paired students.
 
 <!-- prompt-id: CH04-E06 -->
-## Exercise 6: Construct and read a two-strand result (Integrative) {.unnumbered #ex-ch04-06}
+### Exercise 6: Distinguish joint and selected results (Integrative) {.unnumbered #ex-ch04-06}
 
-A hypothetical teaching contract requires the lower endpoint of each two-sided
-95% Bonferroni simultaneous interval to be above zero. Its two comparisons are
-Method B minus reference and Method C minus reference. Use these observed
-summaries:
+For the full feedback-by-practice model, the feedback, practice,
+interaction and error sums of squares are 256, 96, 64 and 60.
+Their df are 2, 1, 2 and 18. Assume independent common-variance
+Normal errors. Use $t_{.975,18}=2.100922040$ and the Scheffé
+multiplier $\sqrt{2F_{.95;2,18}}=2.666292237$.
 
-| Group | Mean score | Observed $n$ |
-|:------|-----------:|-------------:|
-| Reference | 6.681818 | 22 |
-| Method B | 9.772727 | 22 |
-| Method C | 7.772727 | 22 |
-
-Assume the independent, common-variance Normal model for this calculation.
-The pooled within-group mean square is $MS_W=10.166667$ with 63 degrees of
-freedom. For this family of two contrasts, the supplied critical value is
-$t^*=2.296$; no software or quantile lookup is needed. In group order
-reference, B, C, the weights are $(-1,1,0)$ and $(-1,0,1)$.
-
-1. Calculate both contrast estimates and use
-   $SE=\sqrt{MS_W(1/n_{\mathrm{method}}+1/n_{\mathrm{reference}})}$
-   to calculate their common standard error.
-2. Form each interval as estimate $\pm2.296(SE)$, round endpoints to two
-   decimal places, and state each strand's result in ordinary language.
-3. Does the integrated statistical criterion succeed? Distinguish that
-   decision from the substantive conclusion, using the declared zero benchmark.
-4. Explain why neither the omnibus ANOVA nor the average of the two estimates
-   can replace either required comparison.
-5. Write one sentence distinguishing **inconclusive** from evidence that
-   Method C failed or had exactly no effect. Name one design or missingness
-   condition that the calculation alone cannot establish.
-
-<!-- END EX04-06 PROMPT -->
-
-{{< pagebreak >}}
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Reconstruct the full ANOVA table, including total SS and df,
+   all mean squares and the three F ratios. The interaction
+   p-value is .0015. State and interpret its joint null.
+2. The schedule marginal means are 8 and 12, but the conditional
+   schedule differences are 0, 4 and 8. Explain what the practice
+   main effect averages and why it does not describe every condition.
+3. Form the pointwise interval for Answer's 4-point schedule
+   difference using $SE=\sqrt{5/3}$. State the family limitation
+   of this single-comparison interval.
+4. After inspecting the plot, a reader selects Answer's schedule
+   difference minus Rereading's, estimated as 4. Calculate its
+   SE from four independent cell means of size 4 and $MS_E=10/3$.
+   Form its Scheffé interval and identify the protected family.
+5. Explain why the interval in part 4 can contain zero when the
+   omnibus interaction test is significant, and why that
+   interaction-only family does not also protect part 3's simple effect.
 
 <!-- prompt-id: CH04-E07 -->
-## Exercise 7: Repair two group-comparison claims (Integrative) {.unnumbered #ex-ch04-07}
+### Exercise 7: Repair a claim about teaching (Integrative) {.unnumbered #ex-ch04-07}
 
-Repair each claim using the evidence in this chapter.
+Repair this claim about the invented study:
 
-> Higher-education intention caused students to pass because the chi-square
-> test was significant.
+> Spaced practice improves every student's learning by four points,
+> whatever feedback is provided. The significant interaction proves
+> that Answer feedback benefits more from spacing than Rereading,
+> and the results apply to all students.
 
-> Both innovative instructional methods improve reading achievement for all
-> fourth-graders.
+All 24 quiz scores are observed. The stipulated design allocates
+four different students to each cell. The equal-weight practice
+main effect is 4.0000 points; conditional schedule differences
+are 0.0000, 4.0000 and 8.0000. The interaction test gives
+$F(2,18)=9.6000$, $p=.0015$. The selected
+Answer-minus-Rereading difference of schedule differences is
+4.0000, with a 95% interaction-family Scheffé interval
+$[-0.8680,8.8680]$.
 
-For each claim:
-
-1. identify at least three words or omissions that exceed the evidence;
-2. retain the relevant magnitude and uncertainty;
-3. retain the analytic sample, design, hypothetical status, and missingness
-   where relevant; and
-4. write one bounded replacement answer.
-
-<!-- END EX04-07 PROMPT -->
-
-\Needspace{6\baselineskip}
-\phantomsection
+1. Identify at least four words or claims that exceed the
+   supplied statistical and design information.
+2. Write a bounded replacement retaining the conditional pattern,
+   the joint interaction result, the selected estimate and interval,
+   the 0--20 quiz scale, and the invented nature of the example.
+3. Explain what random allocation could support in a real study
+   and what it would not establish about population sampling or
+   individual treatment effects.
+4. Explain how class-level assignment, repeated observations or
+   missing outcomes would affect the information needed for the
+   analysis. Do not invent losses in the present dataset. State
+   why four observations per cell limit diagnostic reassurance.
 
 <!-- prompt-id: CH04-E08 -->
-## Exercise 8: Read, evaluate, then trace construction (Integrative) {.unnumbered #ex-ch04-08}
+### Exercise 8: Match the analysis to the design (Integrative) {.unnumbered #ex-ch04-08}
 
-Use the hypothetical two-strand teaching argument in this chapter.
+The Massed Rereading scores are 4, 5, 7, 8 and the Massed Answer
+scores are 6, 7, 9, 10. They belong to eight different students.
+The pooled within-group variance is $10/3$. For these matched
+classical calculations, the two-sided p-value is .1723.
 
-1. Identify shared STAT-E and STAT-J content, each strand's STAT-I and STAT-C,
-   and the one SUB-E/J/I/C chain.
-2. Give a documentary status for the source assignment counts, the package
-   scores, and the chapter-created integrated criterion. Explain why the last
-   item must not be attributed to the source investigators.
-3. Apply all six quality-evaluation questions. Keep documentary status,
-   per-question judgments, and the whole-pair evaluation conclusion distinct.
-4. Classify correcting a mislabeled plot as a Phase 2 revision. Then explain
-   why changing an estimand or the joint rule after seeing results requires an
-   additional or revised cycle.
-5. Identify evidence that could be reused in that cycle and explain why reuse
-   cannot make a retrospective choice prospective.
+1. Calculate Rereading minus Answer, its SE, the pooled t statistic
+   and the corresponding one-way F statistic. State both tests'
+   df and explain why their p-values agree although F loses direction.
+2. Suppose instead that two measurements came from each of four
+   students. Explain why a paired analysis would use within-student
+   differences and why the independent-group calculation in part 1
+   would no longer be the appropriate starting point. Name the
+   dependence information needed to calculate its SE.
+3. Explain how assigning one class to each condition within each
+   school creates a blocked comparison. Identify the comparison
+   units in Chapter 3's paired-school illustration and distinguish
+   an allocation block from a sampling stratum.
+4. A researcher proposes measuring a fractions pretest before
+   assigning feedback. Explain what baseline adjustment adds,
+   why an adjusted comparison needs a specified common value or
+   averaging distribution, and why adjustment alone does not
+   establish a causal interpretation.
 
-<!-- END EX04-08 PROMPT -->
+## Appendix A: Reproducing the ANOVA Arithmetic {.unnumbered #app-ch04-calculations}
 
-\Needspace{8\baselineskip}
-\phantomsection
+The calculations here use the same scores as the main text. They
+show why the decompositions work and how the two-group identity
+follows. The numerical identities describe observed data; the model
+conditions are added when a reference distribution is used.
 
-# Appendix A: Further Categorical Comparisons {.unnumbered}
+### A.1 Reconstruct the one-way decomposition {.unnumbered #app-ch04-small-data}
 
-\Needspace{6\baselineskip}
-\phantomsection
+For the Massed slice, the grand mean is 8. The table separates
+each group's contribution to the total.
 
-## Difference, ratio, and odds scales {.unnumbered}
+\Needspace{16\baselineskip}
 
-For event probabilities $p_1$ and $p_0$:
+| Feedback | Mean | $n_j(\bar y_j-8)^2$ | Within-group SS | Total deviations from 8 |
+|:--|--:|--:|--:|--:|
+| Rereading | 6.0000 | 16.0000 | 10.0000 | 26.0000 |
+| Answer feedback | 8.0000 | 0.0000 | 10.0000 | 10.0000 |
+| Explanatory feedback | 10.0000 | 16.0000 | 10.0000 | 26.0000 |
+| Total | | 32.0000 | 30.0000 | 62.0000 |
 
-$$
-\text{difference}=p_1-p_0,\qquad
-\text{ratio}=\frac{p_1}{p_0},\qquad
-\text{odds ratio}=
-\frac{p_1/(1-p_1)}{p_0/(1-p_0)}.
-$$
+: Contributions to the one-way sums of squares. {#tbl-ch04-ss-contributions tbl-colwidths="[29,15,20,18,18]"}
 
-```{r}
-#| label: tbl-uci-scales
-#| tbl-cap: "Three descriptive scales for passing in the UCI record"
-
-uci_scale_display <- data.frame(
-  "Scale" = c(
-    "Proportion difference",
-    "Proportion ratio",
-    "Odds ratio"
-  ),
-  "Estimate" = c(
-    sprintf("%.3f", uci_rd),
-    sprintf("%.2f", uci_rr),
-    sprintf("%.2f", uci_or)
-  ),
-  "Reading" = c(
-    "Percentage-point separation",
-    "Ratio of passing probabilities",
-    "Ratio of passing odds"
-  ),
-  check.names = FALSE
-)
-
-knitr::kable(
-  uci_scale_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "l")
-)
-```
-
-The scales are not interchangeable. Passing is common in the intention-yes
-group, so the odds ratio lies farther from 1 than the probability ratio.
-Reversing the group order takes the reciprocal of a ratio and changes the sign
-of a difference. Reversing the event changes the substantive story and the
-sign of the difference. A report must name the event and direction.
-
-\Needspace{6\baselineskip}
-\phantomsection
-
-## Larger and sparse categorical tables {.unnumbered}
-
-For an $R\times C$ table, Pearson's statistic remains an omnibus comparison
-of observed and expected counts. Standardized residuals help locate cells that
-contribute to the pattern, while Cramer's
+For Rereading, the within-group calculation is
 
 $$
-V=\sqrt{\frac{X^2}{n\min(R-1,C-1)}}
+(4-6)^2+(5-6)^2+(7-6)^2+(8-6)^2
+=4+1+1+4=10.
 $$
 
-gives a unitless whole-table description. Neither supplies causal evidence or
-a universal practical-importance threshold.
-
-Sparse tables need more care than a single expected-count slogan. In the
-artificial table
-
-| Group | Event yes | Event no |
-|:------|----------:|---------:|
-| A | 1 | 9 |
-| B | 7 | 3 |
-
-each expected count is 4 or 6. The usual chi-square reference can be poor.
-Fisher's exact test gives an exact conditional probability calculation for
-fixed margins. It is not exact about sampling, measurement, independence,
-causation, or truth.
-
-\Needspace{8\baselineskip}
-\phantomsection
-
-# Appendix B: Further Mean Comparisons {.unnumbered}
-
-\Needspace{6\baselineskip}
-\phantomsection
-
-## A complete small-data decomposition {.unnumbered}
-
-The following six artificial scores isolate the arithmetic without adding
-another study narrative: group A has 1, 3; B has 3, 5; and C has 5, 7. Their
-means are 2, 4, and 6, and the grand mean is 4. Thus
+Its total squared deviation from the grand mean is
 
 $$
-SS_B=2(2-4)^2+2(4-4)^2+2(6-4)^2=16,
-\qquad SS_W=6(1^2)=6.
+(4-8)^2+(5-8)^2+(7-8)^2+(8-8)^2
+=16+9+1+0=26.
 $$
 
-Every score is one point above or below its own group mean. Directly around
-the grand mean, $SS_T=9+1+1+1+1+9=22=16+6$. The mean squares are
-$MS_B=16/(3-1)=8$ and $MS_W=6/(6-3)=2$, giving $F=8/2=4$.
-This illustrates the calculation; six artificial scores do not establish
-that the Normal common-variance model is suitable for a real study.
+The between-group contribution is $4(6-8)^2=16$, and
+$26=16+10$. The same calculation for Explanatory feedback gives
+26 because its group mean is equally far above 8. The Answer
+mean equals the grand mean, so its between-group contribution is
+zero although its individual scores still vary.
 
-The algebra behind the identity is equally short. Expanding the square of
-$(\bar Y_j-\bar Y)+(Y_{ij}-\bar Y_j)$ adds a cross-term. Within group $j$,
-that term sums to
-$2(\bar Y_j-\bar Y)\sum_i(Y_{ij}-\bar Y_j)=0$ because deviations from a
-group's own mean sum to zero. What remains is exactly $SS_B+SS_W$.
-
-\Needspace{6\baselineskip}
-\phantomsection
-
-## Simultaneous comparison families {.unnumbered}
-
-The main text's Bonferroni intervals use
+The general proof begins by squaring the deviation split:
 
 $$
-\widehat\Delta_k
-\mathbin{\pm}
-t_{1-.05/(2g),63}\,SE(\widehat\Delta_k),
-\qquad g=2.
+\begin{aligned}
+(y_{ij}-\bar y)^2
+={}&(\bar y_j-\bar y)^2+(y_{ij}-\bar y_j)^2\\
+&+2(\bar y_j-\bar y)(y_{ij}-\bar y_j).
+\end{aligned}
 $$
 
-The family contains exactly the two DRA-referenced contrasts. Bonferroni is
-transparent and valid for this declared finite family, but it is not uniquely
-required. A Dunnett procedure can use the shared-reference dependence more
-efficiently; Tukey instead calibrates all pairwise comparisons. The family must
-follow the question rather than a software default.
-
-The two contrasts share the DRA mean. Under independent groups with common
-variance their covariance is
+Within group $j$, its mean departure is constant. Summing the
+cross-products therefore gives
 
 $$
-\operatorname{Cov}(\bar Y_2-\bar Y_1,\bar Y_3-\bar Y_1)
-=\operatorname{Var}(\bar Y_1)=\frac{\sigma^2}{n_1}.
+2(\bar y_j-\bar y)\sum_i(y_{ij}-\bar y_j)=0.
 $$
 
-Terms involving means from different groups have zero covariance; the shared
-reference contributes positively. Bonferroni remains valid without
-independence between contrasts because the probability that either interval
-misses cannot exceed the sum of their individual miss probabilities.
-This guarantee still requires each component interval's model justification.
+The last sum is zero by the definition of a group mean. Summing
+the remaining terms over groups establishes $SS_T=SS_B+SS_W$.
+For the individual score 4, however, the squared total deviation
+is 16 while the two squared components sum to $4+4=8$; its
+cross-product contributes another 8. The cancellation is a
+property of the full sum, not of each record separately.
 
-```{r}
-#| label: tbl-baumann-bonferroni
-#| tbl-cap: "Bonferroni simultaneous intervals for the two declared teaching contrasts"
+Dividing by $N-1$ yields the total sample variance
+$62/11=5.6364$. By contrast, the common within-group variance
+estimate is $30/9=3.3333$. These denominators and targets differ:
+the first describes variation around one grand mean, the second
+estimates error variation around the three fitted group means.
 
-bonf_display <- data.frame(
-  "Comparison" = reading_contrast_names,
-  "Estimate" = sprintf("%.2f", reading_contrast_est),
-  "SE" = sprintf("%.2f", reading_contrast_se),
-  "Lower" = sprintf("%.2f", reading_contrast_low),
-  "Upper" = sprintf("%.2f", reading_contrast_high),
-  check.names = FALSE
-)
+### A.2 Reconstruct the balanced two-way table {.unnumbered #app-ch04-two-way-arithmetic}
 
-knitr::kable(
-  bonf_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "r", "r")
-)
-```
+The six cell means are $(6,6)$, $(8,12)$ and $(10,18)$ in feedback
+rows and practice columns. For each observed score,
 
-```{r}
-#| label: tbl-baumann-tukey
-#| tbl-cap: "Tukey 95% familywise intervals for observed Baumann outcomes"
+$$
+\begin{aligned}
+y_{ijk}-\bar y={}&
+(\bar y_{j\cdot}-\bar y)+(\bar y_{\cdot k}-\bar y)\\
+&+(\bar y_{jk}-\bar y_{j\cdot}-\bar y_{\cdot k}+\bar y)\\
+&+(y_{ijk}-\bar y_{jk}).
+\end{aligned}
+$$
 
-tukey_display <- data.frame(
-  "Comparison" = rownames(reading_tukey),
-  "Difference" = sprintf("%.2f", reading_tukey[, "diff"]),
-  "Lower" = sprintf("%.2f", reading_tukey[, "lwr"]),
-  "Upper" = sprintf("%.2f", reading_tukey[, "upr"]),
-  "Adjusted p" = sprintf("%.3f", reading_tukey[, "p adj"]),
-  check.names = FALSE
-)
+The four parts are the feedback departure, practice departure,
+interaction departure and individual residual. Consider the
+Explanatory-Spaced student scoring 16. The grand mean is 10,
+the two marginal means are 14 and 12, and the cell mean is 18:
 
-knitr::kable(
-  tukey_display,
-  booktabs = TRUE,
-  row.names = FALSE,
-  align = c("l", "r", "r", "r", "r")
-)
-```
+$$
+16-10=(14-10)+(12-10)+(18-14-12+10)+(16-18)
+=4+2+2-2.
+$$
 
-The realized ANOVA summaries are
-$\eta^2=SS_B/SS_T=.144$ and
-$\omega^2=[SS_B-(J-1)MS_W]/[SS_T+MS_W]=.116$.
-They describe how much observed score
-variation the fitted grouping accounts for under these formulas. They do not
-replace an outcome-scale contrast, define practical importance, or say what
-proportion of variation was caused by instruction.
+The observed total departure is 6. Balance and the zero-sum
+constraints make the cross-products cancel when the full set
+of squared decompositions is summed. This yields the four
+components in the ANOVA table.
 
-\Needspace{6\baselineskip}
-\phantomsection
+\Needspace{16\baselineskip}
 
-## Blocking within one comparison question {.unnumbered}
+| Feedback | Additive Massed | Additive Spaced | Interaction departures | Observed means |
+|:--|--:|--:|:--|:--|
+| Rereading | 4 | 8 | $2,-2$ | $6,6$ |
+| Answer feedback | 8 | 12 | $0,0$ | $8,12$ |
+| Explanatory feedback | 12 | 16 | $-2,2$ | $10,18$ |
 
-A blocking variable can improve precision when it records a feature related to
-the outcome and the assignment process respects the blocks. It does not create
-a second research question automatically. For one declared contrast estimand,
-an unadjusted group comparison and a block-adjusted comparison are alternative
-analyses of the **same** estimand, and therefore remain in one statistical
-strand, only when the adjustment preserves the declared units, contrast,
-target, and weighting. If adjustment changes the target or the weighting, it
-is not merely another analysis within the same strand.
+: Add the interaction departures to reconstruct every cell mean. {#tbl-ch04-cell-reconstruction tbl-colwidths="[29,17,17,20,17]"}
 
-Readers should ask:
+The feedback term uses two free marginal departures, the practice
+term one, and the interaction two. The full model therefore fits
+one grand mean plus $2+1+2=5$ effects, equivalent to six separate
+cell means. Within each of six cells, the four residuals have
+one sum constraint, leaving $6(4-1)=18$ error df.
 
-- What was the unit of assignment, and what defined a block?
-- Was assignment carried out within blocks or was the variable merely added
-  later to a model?
-- Does adjustment preserve the original estimand or change its weighting?
-- Is uncertainty aligned with the actual assignment and dependence structure?
+The total can also be checked directly by centering every score
+at 10. The six cells contribute $74,74,26,26,10,266$ in table
+order, which sum to 476. Equivalently, their mean departures
+from 10 are $-4,-4,-2,2,0,8$, so
 
-Blocking may strengthen precision or reveal sensitivity; the label itself is
-not design evidence. Two-way factorial questions, interactions, marginal
-weighting, and coordinated question sequences belong in Chapters 8--9.
+$$
+SS_T=4(16+16+4+4+0+64)+60=416+60=476.
+$$
 
-\Needspace{8\baselineskip}
-\phantomsection
+The between-cell quantity 416 divides into feedback 256,
+practice 96 and interaction 64. This gives the independent
+checks $256+96+64+60=476$ and $2+1+2+18=23$.
 
-# References {.unnumbered}
+### A.3 Derive the matched pooled-t identity {.unnumbered #app-ch04-pooled-identity}
 
-\begingroup\footnotesize
+For two independent groups, let
+$\widehat{\Delta\mu}=\bar y_1-\bar y_2$ and $N=n_1+n_2$. Their grand mean is
+
+$$
+\bar y=\frac{n_1\bar y_1+n_2\bar y_2}{N}.
+$$
+
+Subtracting it from each group mean gives
+
+$$
+\bar y_1-\bar y=\frac{n_2}{N}\widehat{\Delta\mu},
+\qquad
+\bar y_2-\bar y=-\frac{n_1}{N}\widehat{\Delta\mu}.
+$$
+
+Consequently,
+
+$$
+\begin{aligned}
+SS_B
+&=n_1\left(\frac{n_2}{N}\widehat{\Delta\mu}\right)^2
+  +n_2\left(-\frac{n_1}{N}\widehat{\Delta\mu}\right)^2\\
+&=\frac{n_1n_2}{N}\widehat{\Delta\mu}^2.
+\end{aligned}
+$$
+
+There is one numerator df, so $MS_B=SS_B$. Define the pooled
+variance $s_p^2=SS_W/(N-2)$. Then
+
+$$
+F=\frac{SS_B}{s_p^2}
+=\frac{\widehat{\Delta\mu}^2}{s_p^2(1/n_1+1/n_2)}=t^2.
+$$
+
+For the Rereading/Answer subset, $n_1=n_2=4$, $\widehat{\Delta\mu}=-2$,
+$SS_B=8$, $SS_W=20$ and $s_p^2=20/6=10/3$. Thus
+$F=8/(10/3)=2.4000$, equal to the square of
+$t=-2/\sqrt{5/3}=-1.5492$. Under the matched Normal
+common-variance model, the upper-tail $F(1,6)$ probability
+equals the two-sided $t_6$ probability, .1723.
+
+This algebra does not supply a paired-data SE: paired inference
+works on within-pair differences and their variation. A Welch
+test also has its own variance estimate and reference df. The
+identity requires matching the data, pooled error estimate,
+degrees of freedom and two-sided alternative.
+
+## Appendix B: Families, Weighting and Magnitude {.unnumbered #app-ch04-comparisons}
+
+### B.1 What each interval family covers {.unnumbered #app-ch04-families}
+
+A coverage statement needs both a target and a family. The
+following procedures used in the chapter make different promises.
+
+\Needspace{16\baselineskip}
+
+| Procedure | Family specified here | Interpretation |
+|:--|:--|:--|
+| Pointwise t interval | One comparison specified without selection over relevant results | Covers that target at the stated rate under the model |
+| Bonferroni | The two declared Rereading-referenced comparisons | Joint coverage of both targets is at least .95 under the model |
+| Tukey | All three pairwise feedback differences | Simultaneous coverage for the all-pairs family |
+| Scheffé | All contrasts in the two-dimensional interaction space | Simultaneous coverage across this entire space permits a selected interaction direction |
+
+: The family is part of the inferential statement. {#tbl-ch04-family-reference tbl-colwidths="[20,39,41]"}
+
+For the selected difference of differences, retain the same
+estimate 4.0000, $SE=\sqrt{10/3}$ and 18 error df throughout.
+Only the calibration changes:
+
+$$
+\begin{aligned}
+\text{Pointwise: }&4\pm2.100922040\sqrt{10/3}
+  \approx[0.1643,7.8357],\\
+\text{Interaction family: }&4\pm2.666292237\sqrt{10/3}
+  \approx[-0.8680,8.8680].
+\end{aligned}
+$$
+
+The pointwise interval excludes zero and the simultaneous interval
+does not. Selecting the narrower one because it produces a
+preferred conclusion would discard the selection protection. The
+width difference reflects the broader coverage obligation, not a
+change in the observed contrast.
+
+The interaction-only family has two dimensions here. It is narrower
+than all possible contrasts among six arbitrary cell means, which
+would have five dimensions. An interaction contrast cancels both
+main-effect components through its row and column weight sums.
+The difference of differences does this; a single schedule effect
+within one feedback condition does not. This explains why one
+multiplier cannot be applied indiscriminately to every comparison.
+
+The two one-way reference estimates also illustrate dependence.
+Writing them as $\bar Y_A-\bar Y_R$ and $\bar Y_E-\bar Y_R$,
+their covariance under independent group means is
+$\operatorname{Var}(\bar Y_R)=\sigma^2/4$. A low reference mean
+increases both differences. Bonferroni remains valid because its
+joint-coverage bound uses the sum of individual failure probabilities
+without assuming independence.
+
+### B.2 Unequal-cell weights and effect-size denominators {.unnumbered #app-ch04-weighting}
+
+In the chapter's balanced data, equal-cell and student-weighted
+marginal means coincide. For unequal cell counts, define them
+separately:
+
+$$
+\bar y_{j\cdot}^{\text{students}}
+=\frac{\sum_kn_{jk}\bar y_{jk}}{\sum_kn_{jk}},
+\qquad
+\bar y_{j\cdot}^{\text{equal cells}}
+=\frac1K\sum_k\bar y_{jk}.
+$$
+
+The first describes the mixture of students observed in that
+feedback group. The second gives each of the $K$ practice conditions
+the same weight. Neither is automatically the right target for
+every question.
+
+For an illustration, retain Answer's cell means 8 and 12 but
+imagine counts of 2 Massed and 6 Spaced students. The equally
+weighted mean is $(8+12)/2=10.0000$; the student-weighted mean is
+$(2\times8+6\times12)/8=11.0000$. These are hypothetical weights,
+not changes to the actual four-per-cell dataset. A comparison of
+feedback groups using different schedule mixtures can combine a
+feedback comparison with a weighting difference. Adjusted means in
+later chapters make their common profile or averaging distribution
+explicit for this reason.
+
+The main one-way effect-size summary was $\eta^2=SS_B/SS_T=.5161$.
+A common reference correction, **omega squared**, subtracts an
+estimated noise contribution from the between-group sum of squares:
+
+$$
+\omega^2=
+\frac{SS_B-(J-1)MS_W}{SS_T+MS_W}
+=\frac{32-2(10/3)}{62+10/3}=.3878.
+$$
+
+The subtraction recognizes that group means vary even under equal
+model means. This correction is motivated by the common-variance
+model; it is not the same descriptive fraction as eta squared,
+and it does not establish causation. In some samples its numerator
+can be negative, illustrating its role as an estimator rather
+than a literal nonnegative share of observed variation. The raw
+mean differences remain necessary for understanding the outcome
+scale.
+
+In factorial software output, **partial eta squared** often uses
+a term-specific denominator:
+
+$$
+\eta^2_{\text{partial, term}}=
+\frac{SS_{\text{term}}}{SS_{\text{term}}+SS_E},
+\qquad
+\eta^2_{\text{term}}=\frac{SS_{\text{term}}}{SS_T}.
+$$
+
+They agree in one-way ANOVA because the total contains only
+that factor and error. In our factorial model, interaction has
+$64/(64+60)=.5161$ partial eta squared but $64/476=.1345$
+ordinary eta squared. The former excludes the other factor
+components from its denominator. Always name the summary and
+its denominator before interpreting a software effect-size column.
+
+## References {.unnumbered}
+
 ::: {#refs}
 :::
-\endgroup

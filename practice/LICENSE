@@ -1,0 +1,65 @@
+Browser statistics — QMSBR
+Copyright (c) 2026 Jinsong Chen
+
+Original prose and figures: Creative Commons Attribution 4.0 International.
+https://creativecommons.org/licenses/by/4.0/
+Credit Jinsong Chen and QMSBR, link to https://jinsong-chen.github.io/QMSBR/,
+and identify changes. No institutional endorsement is implied.
+
+Original R and JavaScript code: MIT, with the full notice below.
+
+Synthetic data/chapter_03_special_practice.csv: CC0 1.0 Universal.
+https://creativecommons.org/publicdomain/zero/1.0/
+The records are fictional teaching data.
+
+data/chapter_03_uci_groups.csv: derived from Cortez, P. (2008), Student
+Performance, UCI Machine Learning Repository. https://doi.org/10.24432/C5TG7T
+Source and extract: CC BY 4.0. The extract retains all mathematics-file rows,
+adds artificial identifiers, selects/renames fields, and derives pass status
+from G3 >= 10. Full field and transformation notes: data-notes.html.
+
+carData::Baumann is obtained from the upstream WebR package repository at run
+time; no Baumann extract or package is distributed in this project. The
+package retains its GPL version 2 or later terms. Its sources and the original
+study are described in data-notes.html. The research article is not distributed.
+HSB is not distributed by this website.
+
+data/resource_timing.csv preserves 36 numerical records from SPSS_2way.sav
+in the 6020-25F26S teaching archive. The educational setting, labels and
+assignment are invented for Chapter 4; the scores are preserved, not newly
+simulated. Retain the attribution and codebook. No new licence for the donor
+data is asserted here, and the Special Practice CC0 dedication does not apply
+to these archived scores. Original QMSBR descriptions/code retain the terms
+above. See data-notes.html for provenance and coding.
+
+Quarto Live release tag v0.2.0 (commit
+d1459f7968efca5ccdb3cb8a993a399ec6d3e102; upstream manifest says 0.1.3-dev):
+Copyright (c) 2024 quarto-live authors. MIT, with the full
+notice below. The extension's unchanged upstream licence is also retained at
+_extensions/r-wasm/live/LICENSE.md in the source project.
+QMSBR adapts the two editor OJS templates to load command-runner.js;
+the bundled upstream runtime is unchanged. The adapter adds selection and
+current-command controls with persistent per-cell R objects.
+Quarto-generated libraries retain their upstream notices in their assets.
+
+MIT LICENSE
+Applies to original code (Copyright (c) 2026 Jinsong Chen) and Quarto Live
+(Copyright (c) 2024 quarto-live authors).
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

@@ -1,5 +1,5 @@
 ---
-title: "Understanding Data, Variation, and Sampling"
+title: "Data, Distributions, and Variation"
 author: "Jinsong Chen"
 
 bibliography: ../references.bib
@@ -25,7 +25,6 @@ format:
     toc: true
     toc-depth: 2
     fig-cap: true
-    tbl-cap: true
     fig-align: center
     include-in-header:
       - text: |
@@ -119,7 +118,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   fig.align = "center",
-  out.width = "88%"
+  fig.width = 6,
+  out.width = "100%"
 )
 if (knitr::is_latex_output()) {
   knitr::opts_chunk$set(dev = "cairo_pdf")
@@ -254,7 +254,10 @@ grade_summary <- data.frame(
 )
 
 same_mean <- data.frame(
-  Pattern = rep(c("Concentrated", "Spread", "Right-skewed"), each = 9),
+  Pattern = factor(
+    rep(c("Concentrated", "Spread", "Right-skewed"), each = 9),
+    levels = c("Concentrated", "Spread", "Right-skewed")
+  ),
   Value = c(
     8, 9, 9, 10, 10, 10, 11, 11, 12,
     2, 4, 6, 8, 10, 12, 14, 16, 18,
@@ -305,302 +308,446 @@ sampling_means <- do.call(rbind, lapply(sample_sizes, function(n) {
   )
 }))
 sampling_split <- split(sampling_means$Sample_mean, sampling_means$Sample_size)
-sampling_summary <- do.call(rbind, lapply(sampling_split, function(x) {
-  c(
-    Center = mean(x),
-    Empirical_SE = sd(x),
-    Skewness = mean((x - mean(x))^3) / sd(x)^3
-  )
-}))
 sampling_summary <- data.frame(
   n = sample_sizes,
-  Theoretical_SE = 10 / sqrt(sample_sizes),
-  sampling_summary,
-  row.names = NULL,
-  check.names = FALSE
+  Mean_of_means = vapply(sampling_split, mean, numeric(1)),
+  Empirical_SE = vapply(sampling_split, sd, numeric(1)),
+  Model_SE = 10 / sqrt(sample_sizes),
+  row.names = NULL
 )
 
-set.seed(60204)
-lln_draws <- rexp(400, rate = 1 / 10)
-lln <- data.frame(
-  Draw = seq_along(lln_draws),
-  Running_mean = cumsum(lln_draws) / seq_along(lln_draws)
+group_times <- data.frame(
+  Group = factor(c("A", "A", "B", "B", "B", "B")),
+  Minutes = c(1, 3, 3, 3, 5, 9)
+)
+intention_counts <- table(
+  factor(students$higher_education, levels = c("no", "yes")),
+  factor(students$pass, levels = c("Yes", "No"))
+)
+stopifnot(
+  identical(as.integer(intention_counts), c(7L, 258L, 13L, 117L)),
+  abs(cor(students$absences, students$final_grade) - 0.03424731615) < 1e-8,
+  abs(mean(group_times$Minutes) - 4) < 1e-12
 )
 ```
 
 {{< pagebreak >}}
 
-::: {.callout-tip title="Chapter box"}
-**Central question.** Among the 395 students recorded in two Portuguese
-secondary schools, how strong is the linear relationship between recorded
-absences and final mathematics grade, as summarized by Pearson's correlation,
-and what visible features, coding sensitivity, and scope limits must accompany
-that summary?
+::: {.callout-note title="Chapter overview"}
 
-**Focal concepts.** Represented observations, distributions, graphical and
-numerical summaries, relationships, and repeated-sampling variation.
+Chapter 1 explained what study observations represent and how they
+arise. This chapter develops their descriptive use: how to read the
+recorded data and turn measurements into useful displays and summaries.
+Its small invented examples make the arithmetic visible before we
+return to a larger school dataset. A final simulation extends the same
+ideas of center, spread, and shape to summaries from repeated samples,
+preparing us to understand statistical uncertainty.
 
-**Main evidence.** The documented two-school student-performance record, in
-which one row represents one student and both focal variables are present for
-all 395 rows [@cortez2008data].
-
-**Defensible scope.** An exploratory, observational, local description. The
-record does not estimate an effect of changing attendance and does not by itself
-support generalization to other students.
-
-Reading the focal associational argument is the **primary use** of this chapter;
-the evidence for it is analysed descriptively. Quality evaluation follows
-reading as a separate and dependent **secondary use**. For researchers, the
-discussion also supports selected stages of the construction workflow as an
-**auxiliary use**.
-
-Chapter 1 is the sole conceptual prerequisite. Chapter 1a is optional and is
-not needed to read or use this chapter.
+By the end of the chapter you will be able to read a dataset as cases,
+variables, and values, recognize long and wide layouts, and identify
+the denominator and sample-selection procedure; see and summarize one
+distribution by shape, center, and spread; compare groups while keeping
+their variation visible; connect variable forms to probability models,
+calculate transformations and Normal areas, and describe a relationship
+with a graph, covariance, correlation and linear adjustment; interpret
+each description within its study setting;
+explain what a sampling distribution and standard error show about
+repeated samples; and distinguish one sample's sampling error from
+that distribution and its standard error.
 :::
 
-## Start with the Question, Not the Statistic
+## Understanding the Dataset
 
-A short school report might say:
+Chapter 1 connected study units and measurement procedures to the
+observations available for analysis. Here we examine the resulting
+records: how observations are arranged, what scales and codes mean,
+and which cases and denominator support each summary. These details
+turn the study's account of its evidence into data we can describe.
 
-> Recorded absences were almost uncorrelated with final mathematics grades, so
-> attendance does not matter for achievement.
+Schools often want to know whether students with more absences tend to
+receive lower grades. Before choosing a statistical method, it helps to
+see what information is actually available.
 
-The reported number in the first clause could be correct while the sentence as
-a whole is not. A coefficient summarizes only a specified feature of recorded
-values. The second clause changes the language from a local description to a
-much broader conclusion about what matters. Before accepting the sentence, ask
-four questions:
+Our main example uses the mathematics dataset from Cortez and Silva's
+student-performance study, based on school reports and questionnaires
+from two Portuguese secondary schools [@cortez2008using; @cortez2008data].
+It contains data for **395 students**, including their absence counts and
+final mathematics grades. The repository also provides a separate
+Portuguese-language dataset; the calculations here use the mathematics
+data.
 
-1. What exactly is being asked?
-2. What do the available records represent?
-3. What pattern is visible, and how should it be summarized?
-4. What answer remains after design and scope constraints are retained?
+We will ask: **Among these 395 students, how do recorded absences and final
+mathematics grades vary together?** To answer, we first describe grades
+on their own, then compare groups and examine relationships. We put that
+description back into its school setting before asking a related question:
+how could a summary change if we observed a different sample?
 
-These questions keep the study question visible while we learn descriptive
-tools. They also prevent the statistic from deciding the question after the
-result is known.
+### Cases, variables, values, and data layout
 
-### The focal question and estimand
+A **dataset** brings together information about people, objects, or
+measurement occasions. A **case** is the entity or occasion being
+described. In this dataset each case is one student. A **variable** is a
+feature that can differ across students, such as absences or final grade;
+a **value** is the measurement or category for a particular student.
 
-The focal question asks how two measured variables vary together, so its mode
-is **associational**. It is analysed descriptively within a fixed analytic
-record. Its **estimand** is the declared linear association: the Pearson
-correlation between recorded absences and final mathematics grade for the
-defined group of 395 students. An estimand is the precisely specified quantity
-that would answer the question if it could be known. Here all 395 rows contain
-numeric entries; taking them literally, the calculated correlation, $r=.034$,
-is the value of that finite-record estimand under the recorded coding. No
-sampling error is attached to this complete-record description. Numeric
-completeness does not establish coding validity, and the zero-grade pattern
-examined below remains unresolved. Because the records are not established as a
-probability sample from a wider population, this value is not automatically an
-estimate of a wider-population correlation.
+@tbl-student-preview shows six selected students. The student IDs are
+labels added for this tutorial. School codes GP and MS identify the two
+schools. Reading across U001's row gives six absences and a final grade
+of six: the same numeral for two different measurements, a count and a
+score. Reading down the Absences column compares that count across
+students. The identifier keeps the two measurements linked to the
+student they describe.
 
-A graph remains necessary. Pearson's $r$ compresses a two-variable pattern
-to one number and targets linear form. It cannot show whether observations form
-a curve or clusters, whether most absences occupy a narrow range, or whether a
-few observations strongly influence the result. The scatterplot and smooth
-serve as checks on the scalar summary. Covariance explains the
-unstandardized cross-product behind $r$. These tools serve one declared
-estimand; they do not create extra question--answer pairs.
-
-A wider-population correlation or the causal effect of preventing absence would
-be a different estimand. Each would require additional support. A reader should
-therefore identify the question, estimand, and reported answer before deciding
-what a result means.
-
-### A compact study record
-
-The data were adapted from a documented student-performance resource based on
-two Portuguese secondary schools [@cortez2008data], distributed under the
-Creative Commons Attribution 4.0 licence. The values embedded here are
-unchanged; the adaptation selects and renames the columns this chapter
-analyses. @tbl-study-record gives the minimum record needed before
-calculation.
-
-| Feature | Recorded information | Why it matters |
-|:--------|:---------------------|:---------------|
-| Case and unit | One row per student; 395 rows | One point in the scatterplot represents one recorded student |
-| Focal explanatory variable | Absences, recorded as a count from 0 to 75 | A large count is unusual but not automatically an error |
-| Focal response variable | Final mathematics grade, recorded from 0 to 20 | The bounded scale constrains interpretation |
-| Numeric-entry completeness | Both focal fields contain numeric values in all 395 rows | The literal recorded-value denominator is 395; coding validity remains separate |
-| Source and design | Observational school records; no probability sample or attendance intervention is established | Population and causal interpretations require support not supplied here |
-| Analytic status | Exploratory local description | The graph and summaries describe the accessible record |
-
-: *Compact record for the focal absence--grade description.* {#tbl-study-record tbl-colwidths="[20,35,45]"}
-
-The original source documents variables and study context, but a publicly
-available file is not the same as a random sample from an unlimited population.
-Nor does a complete pair of columns guarantee that the measurements capture
-every substantive meaning a reader might attach to the words *attendance* and
-*achievement*.
-
-### Reading support before evaluating it
-
-Chapter 1 taught a reader to locate a question--answer pair, identify one
-argument with linked statistical and substantive layers, and trace Evidence,
-Justification, Inference, and bounded Claim. This chapter applies that approach.
-Sections 1--5 accumulate relevant component content and representative
-documentary traces. Only after the argument is visible will we ask selected
-quality-evaluation questions. Reading records what the accessible study says
-and where its support can be found; it does not silently repair or grade the
-study.
-
-## What the Data Represent
-
-A dataset is not merely a rectangular collection of numbers. Each row, column,
-code, and missing entry represents a decision about what was observed and how
-it was recorded. These decisions determine what later summaries can mean.
-
-### Cases, units, and occasions
-
-A **case** is the entity or occasion represented by one row. The
-**observational unit** is the unit on which information is observed. Sometimes
-they are the same; sometimes a person supplies several rows across visits,
-trials, or waves. If each of 120 students is recorded before and after a course,
-240 rows do not represent 240 independent students.
-
-In the focal record, one row represents one student and the student is the
-observational unit. There is one occasion per row. The identifier distinguishes
-rows; it is not a score to average. @tbl-student-preview makes those
-roles concrete.
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
 
 ```{r}
 #| label: tbl-student-preview
-#| tbl-cap: "Selected fields from six records in the student-performance data."
-#| tbl-colwidths: [16, 16, 22, 22, 18]
-
-preview <- students[1:6, c(
-  "student_id", "school", "absences", "final_grade", "pass"
-)]
-names(preview) <- c("Student ID", "School", "Absences", "Final grade", "Pass")
-knitr::kable(preview, booktabs = TRUE, align = c("l", "l", "r", "r", "l"))
+#| tbl-cap: "Selected students from the mathematics dataset"
+#| tbl-colwidths: [23, 19, 25, 33]
+preview <- students[c(1, 2, 3, 350, 351, 352),
+                    c("student_id", "school", "absences", "final_grade")]
+names(preview) <- c("Student ID", "School", "Absences", "Final grade")
+knitr::kable(preview, booktabs = TRUE, row.names = FALSE,
+             align = c("l", "l", "r", "r"))
 ```
 
-### Variable form and substantive role
-
-A **variable** records a feature that can differ across cases. A **value** is
-the recorded entry for one case. Variable form and variable role answer
-different questions:
-
-- **Form** asks how values are represented: quantitative, nominal categorical,
-  or ordered categorical.
-- **Role** asks what the variable does in the present question: explanatory,
-  response, grouping, or identifier.
-- **Scale and units** ask what a difference or ratio can mean.
-
-Absences and final grade are quantitative in recorded form. Absences plays the
-explanatory role and final grade the response role for the focal associational
-question. Those roles do not establish causal direction. Another question
-could reverse them or use either variable only to define groups.
-
-| Recorded feature | Form | Role in the focal question | Interpretive caution |
-|:-----------------|:-----|:---------------------------|:---------------------|
-| Student ID | Nominal label | Identifier: links and checks records | Numerical-looking labels are not quantities |
-| School | Nominal categorical | Possible grouping information | Codes name categories; their order has no arithmetic meaning |
-| Absences | Quantitative count | Explanatory variable | Counts are bounded below and strongly right-skewed |
-| Final grade | Quantitative bounded score | Response variable | A score is not identical to every meaning of achievement |
-| Pass | Binary categorical | Derived grouping variable | Its definition depends on the documented cut point |
-
-: *Recorded form and substantive role are different properties of a variable.* {#tbl-variable-form-role tbl-colwidths="[20,20,24,36]"}
-
-### Coding, missingness, and the denominator
-
-Coding translates observations into analyzable values. A code can preserve or
-distort substantive meaning. The numbers 1 through 4 may label ordered study
-time categories without establishing equal-hour intervals. A value of zero may
-mean a genuine measured zero, an absence, a score below a threshold, or a
-missing-value code. The documentation must decide which.
-
-The focal file contains 38 final-grade zeros. The UCI repository identifies the
-final grade as a value from 0 to 20 and reports no missing values
-[@cortez2008data]. Yet every zero-grade row also records zero absences, and 25
-have nonzero second-period grades from 4 to 10. The accessible documentation
-does not explain that joint pattern. We retain the values for the primary
-as-recorded description, flag their meaning as unresolved, and use an explicit
-deletion sensitivity rather than silently treating them as either invalid
-zeros or missing values.
-
-**Missingness** changes the set of cases supporting a summary. If 1,240 clinic
-visits contain 36 missing waiting times and 81 missing return statuses, the
-complete-case denominator is not determined by subtracting 36 and 81 unless the
-overlap is known. If 10 visits are missing both, the denominator with both
-variables observed is
+The two numerical columns can also be written as a **data matrix**,
+with one row for each displayed student and one column for each variable.
+Let $x_{ij}$ denote the entry in row $i$ and column $j$: here $j=1$
+means absences and $j=2$ final grade. The first index numbers these six
+displayed rows, rather than their positions in the original dataset.
+Thus $x_{31}=10$ absences and $x_{42}=13$ grade points.
 
 $$
-1240-(36+81-10)=1133.
+\mathbf X=(x_{ij})=
+\begin{pmatrix}6&6\\4&6\\10&10\\10&13\\8&8\\2&13\end{pmatrix},
+\qquad i=1,\ldots,6,\quad j=1,2.
 $$
 
-Always report the denominator that actually supports the graph, table, or
-coefficient. A source record, observed record, and analytic sample can differ.
-Both focal fields contain numeric entries in all 395 student rows. Even so, how
-the denominator works when values are absent is important because later studies
-will rarely be this tidy.
+Each column can be summarized separately. The symbol $\sum$ means to
+add the indicated entries. For example, the sum for the first column is
+$\sum_{i=1}^6 x_{i1}=6+4+10+10+8+2=40$, so its mean is
+$40/6=6.6667$ absences. The grade column has mean $56/6=9.3333$
+grade points. These summarize the six displayed cases; the later
+summaries use all 395 students. In general, for $n$ rows,
 
-### Follow the representation path
+$$
+\bar x_j=\frac1n\sum_{i=1}^n x_{ij},\qquad
+s_j^2=\frac1{n-1}\sum_{i=1}^n(x_{ij}-\bar x_j)^2.
+$$
 
-The representation path asks how the analytic cases came to stand for the
-people, occasions, or events named in a claim. @fig-representation-path shows
-the minimum sequence.
+The first formula gives a column's mean. The second gives its sample
+variance, developed through a small calculation in Section 2.2. This
+notation organizes numerical entries; identifiers and school labels
+still have their own meanings and are not quantities to average.
+For two named variables we can write $x_i=x_{i1}$ and $y_i=x_{i2}$.
+Subscripts have locally stated meanings: an index for a column here
+can have a different declared use in a later grouped-data calculation.
 
-```{r}
-#| label: fig-representation-path
-#| fig-cap: "A representation path separates the intended population from the analytic sample."
-#| fig-alt: "Five boxes run from target population through frame or source, eligible or invited units, observed or responding units, and analytic sample. A note says to mark nonapplicable steps instead of inventing them."
-#| fig-height: 2.5
-#| out-width: "94%"
+Chapter 1 distinguished the units a study observes from the occasions
+on which they are measured. We can recognize that connection in a
+dataset's arrangement. Suppose a separate, invented study records a
+score for each of 120 students at the beginning and end of a term,
+with both scores observed for every student. There are 120 students
+and 240 measurement occasions. In a **long layout**, each row describes
+one student on one occasion; an occasion column identifies when the
+score was recorded. In a **wide layout**, each row describes one
+student, and separate columns hold the beginning and end scores.
+@tbl-ch02-layout-long and @tbl-ch02-layout-wide show the same six
+invented scores for three of the students.
 
-old <- par(mar = rep(.15, 4), xpd = NA)
-plot.new()
-plot.window(xlim = c(0, 10), ylim = c(0, 2.2))
-xs <- seq(1, 9, length.out = 5)
-labs <- c(
-  "Target\npopulation",
-  "Frame or\nsource",
-  "Eligible or\ninvited",
-  "Observed or\nresponding",
-  "Analytic\nsample"
-)
-for (i in seq_along(xs)) {
-  rect(xs[i] - .78, .85, xs[i] + .78, 1.62,
-       col = c("#E9F1F5", "#DDEAF0", "#E8E6F3", "#E6F0E2", "#F7E8D5")[i],
-       border = "#28424F", lwd = 1.2)
-  text(xs[i], 1.235, labs[i], cex = .73)
-  if (i < length(xs)) {
-    arrows(xs[i] + .8, 1.235, xs[i + 1] - .8, 1.235,
-           length = .08, col = "#50646D", lwd = 1.2)
-  }
-}
-text(5, .35, "Mark a step not applicable; do not invent a sampling step.",
-     cex = .75, col = "#5A4141")
-par(old)
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
 ```
 
-For the focal resource, the two schools and their recorded students provide a
-source and analytic record. The accessible documentation does not establish a
-probability sample from a wider target population. We should therefore leave
-unsupported links open instead of assuming that 395 cases represent all
+| Student ID | Occasion | Score |
+|:--|:--|--:|
+| S001 | Beginning | 52 |
+| S001 | End | 58 |
+| S002 | Beginning | 61 |
+| S002 | End | 64 |
+| S003 | Beginning | 47 |
+| S003 | End | 53 |
+
+: Invented repeated scores in long form {#tbl-ch02-layout-long tbl-colwidths="[30,40,30]"}
+
+```{=latex}
+\Needspace{10\baselineskip}
+\phantomsection
+```
+
+| Student ID | Beginning score | End score |
+|:--|--:|--:|
+| S001 | 52 | 58 |
+| S002 | 61 | 64 |
+| S003 | 47 | 53 |
+
+: The same invented scores in wide form {#tbl-ch02-layout-wide tbl-colwidths="[30,35,35]"}
+
+For all 120 students, the long table contains 240 rows and the wide
+table contains 120 rows. Both contain 240 scores from the same 120
+people. The identifier links each student's two scores, whether they
+occupy two rows or two columns. Reshaping changes the arrangement while
+preserving the observations and their connections. The 240 scores
+describe repeated observations of 120 students. Treating every score
+as independent would ignore the pairing used to describe change. In
+longitudinal or panel data, these identifiers let us follow the same people. Repeated
+cross-sectional data instead describe different samples on successive
+occasions, so they cannot by themselves show each person's change.
+Group identifiers, such as school, can accompany either layout. In our
+main dataset, each student's absence count and final grade contribute
+one pair to the relationship we examine.
+
+### Variable forms and roles
+
+Numerical, or **quantitative**, variables describe amounts. Counts such
+as absences take discrete values: a student can have two or three counted
+absences. An absence count also depends on the number of scheduled
+sessions in its measurement period. Elapsed time can vary continuously,
+even if a device rounds it to whole seconds. Equal differences in
+minutes represent equal amounts of elapsed time: from 20 to 25 minutes
+and from 40 to 45 minutes both add five minutes. Final grades here are
+discrete numerical scores on a 0--20 scale, recorded in whole points.
+A one-point difference is a difference on that grading scale; its
+meaning for learning also depends on what the assessment measures.
+
+**Categorical** variables place cases in groups. A nominal category,
+such as school, names a group without ranking it. An ordinal category
+also has an order, as with low, moderate, and high satisfaction.
+Numerical codes can represent these categories, but an average of school
+codes would have no useful meaning. For ordered categories, the spacing
+between codes need not represent equal differences in the underlying
+experience.
+
+Variable form helps us choose a description: counts and proportions
+show how cases fall into categories, while a graph or numerical
+summary can show the distribution of amounts. Roles come from the question.
+For the absence--grade question, absences is the **predictor** and final
+grade is the **outcome**. These are the explanatory and response roles
+developed in Chapter 1, Section 2.1. The roles organize the comparison; the study
+design determines whether a causal interpretation is justified. School
+could instead define groups for a comparison of grade distributions.
+
+A **codebook** explains the variables, their units, coding rules, and
+measurement periods. Here it identifies the final grade as G3,
+recorded from 0 to 20, and the
+second-period grade as G2. We use readable variable names in the
+calculations while preserving the source values. A binary pass indicator
+will later distinguish grades of 10 or above from grades below 10.
+
+### Coding, missing values, and denominators
+
+A codebook distinguishes a recorded value from its meaning. Zero can
+be an observed count; a missing value means the intended measurement
+is unavailable. The UCI documentation reports no missing values, but
+the joint pattern of zero grades and zero absences needs contextual
+checking, as Section 3.4 explains.
+
+The **analysis sample** is the set of cases contributing to a particular
+calculation. Its denominator can change with the measurements that
+calculation needs. In a separate invented clinic dataset of 1,240
+visits, 36 lack waiting times, 81 lack return statuses, and 10 lack both.
+The available counts are
+
+$$
+n_{\text{wait}}=1240-36=1204,\qquad
+n_{\text{return}}=1240-81=1159,
+$$
+
+$$
+n_{\text{both}}=1240-(36+81-10)=1133.
+$$
+
+Adding 36 and 81 counts the 10 visits missing both measurements twice;
+subtracting that overlap once counts each incomplete visit once.
+These denominators describe visits, not necessarily distinct patients.
+Likewise, 20% of sessions and 20% of students answer different questions.
+Name the contributing cases and measurement period with each summary.
+
+### The students observed and the population of interest
+
+Chapter 1 distinguished whom a study's question concerns from the
+units that supply its observations. Consider an invented school system
+that wants to describe all 20,000 students enrolled on a particular
+date and selects 100 of them. The 20,000 students form the **population**,
+the collection about which the system wants to learn; the 100 selected
+students form its **sample**. A sample may come from a probability
+selection process, volunteers, or an available source. How the students
+enter the sample matters for extending a description to the population.
+
+The next subsection compares selection procedures in this invented
+system, and Section 4 returns to it to examine repeated samples. Our
+395-student dataset comes instead from two schools. Its source supports
+a description of these students, while extending the description to all
+secondary students would need an additional basis.
+
+The distinction is practical. The mean calculated from all 395 supplied
+grades describes that collection directly. A statement about students
+elsewhere asks more of the study. For now, we will develop the
+description first and revisit its scope at the end.
+
+The Student Performance resource is distributed under
+[Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+[@cortez2008data]. This tutorial selects and renames variables, adds
+identifiers and a pass indicator, and retains the original selected
+values.
+
+### How samples are selected
+
+Chapter 1, Section 3.2 explained how study entry differs from the
+allocation of conditions among participants. We now make the selection
+procedure visible in the invented school system. This example lets us
+compare ways of selecting students; the source of the separate
+Portuguese dataset does not establish a probability sample of all
 secondary students.
 
-A small evidence audit before calculation is often enough:
+The school system's population contains 20,000 eligible students. A
+**sampling frame** is the list or other operational record used to
+identify units for selection: here it could be an up-to-date student
+register. The **sampling design**, also called the **sampling scheme**,
+specifies how selection proceeds. It can include several stages and
+use information about the students or their schools.
 
-1. What does one row represent?
-2. Which variables, scales, roles, and units serve the question?
-3. Which values need documentary checking?
-4. Which cases enter each summary, and what is its denominator?
-5. What path connects the analytic sample to the scope of the claim?
+Chapter 1 introduced **random sampling**, also called **probability
+sampling**. Under such a design, every eligible unit in the population
+covered by the frame has a known, nonzero chance of inclusion. That
+unit's chance of entering the sample is its **inclusion probability**;
+the probabilities need not be equal. Coverage matters: if eligible
+students are absent from the register, random selection from that
+register cannot select them.
 
-These are reading questions about represented evidence. They do not yet decide
-whether the study's support is adequate.
+Designs can use groups in different ways. **Strata** partition the
+population into defined groups, such as school types, with a sample
+selected within every stratum. **Clusters** are groups that can be
+selected as units, such as schools whose students will be observed.
+@tbl-ch02-sampling-schemes compares five probability designs
+[@statcan2021probability]; its illustrations use our invented school
+system.
 
-## See and Summarize a Distribution
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
+| Scheme | Selection rule | Invented school-system illustration |
+|:--|:--|:--|
+| Simple random sampling | Every possible sample of the specified size has the same probability. | Select 100 distinct students from the full register, giving every possible set of 100 the same chance. |
+| Systematic sampling | Choose a random start, then every $k$th unit. | Select a start at random from 1 to 200, then every 200th student on the 20,000-student list. |
+| Stratified random sampling | Select a probability sample within every defined stratum. | Divide the register by school type, then randomly select students within each type. |
+| Cluster sampling | Select groups through a probability mechanism; in the simplest version, include all eligible units in them. | Randomly select schools from the school list and include all their eligible students. |
+| Multistage sampling | Use probability selection at each stage. | Randomly select schools, then randomly select students within each selected school. |
+
+: Probability sampling schemes in one invented school system {#tbl-ch02-sampling-schemes tbl-colwidths="[22,37,41]"}
+
+The distinction between simple random and systematic sampling concerns
+the possible samples. In the systematic design, a random start from 1
+to 200 followed by every 200th student gives each student an inclusion
+probability of $1/200$. There are only 200 possible samples, one for each
+starting position. Simple random sampling permits every possible set
+of 100 students. Equal individual chances alone therefore do not define
+simple random sampling. The ordering of a systematic-sampling list
+also matters: a repeating pattern that matches the interval can make
+the selected students unusually alike.
+
+Stratification samples within every stratum, while cluster sampling
+selects some clusters. A design can combine these features, such as
+stratifying schools before selecting schools and then their students.
+
+**Convenience sampling** might use students available in a nearby
+classroom. Their inclusion probabilities are not supplied by a
+probability design [@statcan2021nonprobability]. Similarly, an open
+invitation describes how volunteers enter a dataset, rather than a
+probability selection mechanism. After random selection, some selected
+students may decline to participate. Frame coverage, selection and
+subsequent nonresponse are distinct parts of the account.
+
+Groups also enter three different parts of a study. Clustered data
+describe relationships among observations, such as students sharing a
+school. Cluster sampling selects groups into the sample. Cluster
+random assignment allocates participating groups to conditions. The
+same study may use more than one of these features, so identifying
+grouped observations alone does not establish how groups were selected
+or assigned.
+
+Selection and dependence matter when a sample supports a population
+summary. If students have unequal inclusion probabilities, the
+calculation can require weights to account for how they were selected.
+If observations are related, their contribution to precision differs
+from that of independent observations. Chapter 3 develops uncertainty
+for paired and clustered observations and for finite-population
+sampling without replacement. Section 4.1 below repeats the simple
+random sampling procedure from this overview. Its later waiting-time
+illustration uses a separate independent-observation model; an SE from
+that model does not apply unchanged to every sampling scheme.
+
+## Describing Distributions and Groups
 
 A **distribution** describes how a variable's values are arranged across cases.
-A useful beginner sequence is: identify the variable, display the observations,
-describe visible structure, choose center and spread, and say what the summary
-leaves unresolved.
+When it describes observed data, we call it an **empirical distribution**.
+We begin with the distribution of final mathematics grades. A graph shows
+where students' values cluster and how far they spread; the numerical
+summaries then give concise descriptions of those features.
 
 ### See shape before reducing it
+
+
+A display is useful when its features answer the descriptive question.
+@tbl-ch02-graph-choices gives a small guide. A **histogram** counts
+quantitative values in adjacent intervals; changing the intervals can
+change the visible shape. A **boxplot** marks the median inside a box
+spanning the middle half of the values. In the convention used here,
+whiskers reach the most extreme observations within 1.5 IQRs of the
+box ends, and more distant observations appear separately. These are
+potential outliers to investigate, not automatic errors. The plotting
+quartiles use R's convention, which can differ from a hand-calculation
+convention in a small sample.
+
+| Data and question | Useful display | What to read |
+|:--|:--|:--|
+| Category frequencies | Bar chart; pie chart for a simple part-to-whole display | Counts or proportions with their denominator; bars ease comparisons |
+| Quantitative values | Dot plot or histogram | Individual values or counts in intervals; inspect gaps, tails and bin choices |
+| Center and spread across groups | Side-by-side boxplots with points where feasible | Medians, IQRs, overlap and potential outliers |
+| Smoothed shape | Density curve | Area across a range; height is not the probability of one exact value |
+| Two quantitative variables | Scatterplot | Paired positions; developed in Section 3.2 |
+
+: Graphs answer different descriptive questions. {#tbl-ch02-graph-choices tbl-colwidths="[27,31,42]"}
+
+@fig-ch02-graph-gallery shows how those choices work with invented
+learning records. Bars ease comparisons between category counts;
+a pie chart emphasizes shares of a whole. The four displays of
+completion times use the same sixteen values. A **density curve**
+smooths their shape, with the degree of smoothing controlled by a
+bandwidth. Its height is not the probability of one exact time.
+Here the smoother is shown only over feasible positive times; it is
+an exploratory summary rather than a fitted probability law. Individual
+points keep the observations visible in a small sample.
+
+```{r}
+#| label: fig-ch02-graph-gallery
+#| fig-cap: "Several views of invented learning records: category proportions and the distribution of completion times."
+#| fig-alt: "Bar and pie panels show counts four, seven and five for three learning formats. A histogram, density curve and boxplot show the same sixteen completion times, with a long right tail. The final panel shows individual times."
+#| fig-height: 5.5
+#| fig-pos: "H"
+
+times <- c(2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9, 11, 14, 20)
+formats <- c(Reading = 4, Practice = 7, Discussion = 5)
+op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
+          mgp = c(2.2, .7, 0))
+barplot(formats, names.arg = c("Read", "Practice", "Discuss"),
+        cex.names = .9, ylab = "Number", main = "Categories: bars")
+pie(formats, main = "Categories: shares")
+hist(times, breaks = seq(0, 24, 4), xlab = "Minutes",
+     main = "Quantitative: histogram")
+plot(density(times, from = 0), xlab = "Minutes", main = "Density curve")
+boxplot(times, ylab = "Minutes", main = "Boxplot")
+stripchart(times, method = "stack", xlab = "Minutes",
+           main = "Individual observations", pch = 19)
+par(op)
+```
 
 @fig-grade-distribution displays all 395 final grades. The graph makes
 several features visible: the score is bounded between 0 and 20, centered near
@@ -608,9 +755,10 @@ several features visible: the score is bounded between 0 and 20, centered near
 
 ```{r}
 #| label: fig-grade-distribution
-#| fig-cap: "Distribution of final mathematics grades for the 395 recorded students."
+#| fig-cap: "Distribution of final mathematics grades for the 395 students. Dashed and dotted lines mark the mean and median, respectively."
 #| fig-alt: "A histogram of grades from zero to twenty is centered near eleven, bounded at both ends, and shows a visible group at zero."
-#| fig-height: 3.4
+#| fig-height: 3
+#| fig-pos: "H"
 
 ggplot(students, aes(x = final_grade)) +
   geom_histogram(
@@ -635,22 +783,85 @@ Describe a distribution with four kinds of language:
 - **Shape:** symmetry or skewness, clusters, gaps, and discreteness.
 - **Center:** where a typical or balancing value lies.
 - **Spread:** how widely observations vary.
-- **Unusual observations:** values or patterns needing contextual checking.
+- **Striking patterns and potential outliers:** values, clusters or gaps
+  needing contextual checking.
 
 An unusual value is not automatically a mistake. Its recorded meaning and
 provenance should be investigated before it is changed or removed.
 
 ### Five summaries with distinct jobs
 
-The main route uses exactly five numerical summaries: mean, median, sample
-variance, sample standard deviation, and interquartile range. They are a
-selected family, not the **five-number summary** of minimum, first quartile,
-median, third quartile, and maximum.
+We use five summaries to describe center and spread: mean, median, variance,
+standard deviation, and interquartile range. A small example shows what each
+one contributes before we write the general formulas.
 
-For observations $x_1,\ldots,x_n$, $n$ is their number and $x_i$ is observation
-$i$. The symbol $\sum$ means "add the indicated terms":
-$\sum_{i=1}^n x_i=x_1+x_2+\cdots+x_n$. The mean, sample variance, sample
-standard deviation, and IQR are
+Consider four invented completion times, already ordered: **1, 3, 3, and 5
+minutes**. Their sum is $1+3+3+5=12$. The **mean** shares that total equally
+across the four observations, giving $\bar x=12/4=3.0000$ minutes. The **median**
+is the middle of the ordered values: here the two middle observations are both
+3, so their average is also 3.0000 minutes.
+
+**Quartiles** locate the lower and upper quarters of an ordered distribution.
+The first quartile $Q_1$ is approximately the 25th percentile and the third
+quartile $Q_3$ approximately the 75th. For these small examples, use the median
+of the lower half and the median of the upper half, excluding the overall
+middle observation when the number of values is odd. Here,
+
+$$
+Q_1=(1+3)/2=2.0000,\qquad Q_3=(3+5)/2=4.0000,\qquad
+\operatorname{IQR}=4-2=2.0000\text{ minutes}.
+$$
+
+The **interquartile range (IQR)** is the width of the middle half of the
+distribution. Software may interpolate between ordered values instead; the
+large-data summaries in this chapter use R's default quartile convention.
+Different conventions can give slightly different answers in small datasets.
+
+To describe spread around the mean, consider each observation's **deviation**:
+its value minus the mean. The deviations sum to zero because positive and
+negative distances cancel. Squaring them preserves the contribution of each
+distance to spread.
+
+| Observation $x_i$ | Deviation $x_i-3$ | Squared deviation $(x_i-3)^2$ |
+|-----------------:|-----------------:|----------------------------:|
+| 1 | $-2.0000$ | 4.0000 |
+| 3 | 0.0000 | 0.0000 |
+| 3 | 0.0000 | 0.0000 |
+| 5 | 2.0000 | 4.0000 |
+| **Sum** | **0.0000** | **8.0000** |
+
+: *Working from observations to squared-deviation spread.* {#tbl-worked-variance tbl-colwidths="[25,30,45]"}
+
+The conventional **sample variance** divides this sum of squared deviations
+by $n-1$, where $n$ is the number of observations. The **sample standard
+deviation (SD)** is its square root:
+
+$$
+s^2=\frac{8}{4-1}=\frac83=2.6667\text{ squared minutes},\qquad
+s=\sqrt{\frac83}=1.6330\text{ minutes}.
+$$
+
+Keep the unrounded variance while taking its square root. Variance expresses
+spread in squared units; SD returns to the units of the observations and gives
+a scale for their deviations from the mean.
+
+```{=latex}
+\Needspace{10\baselineskip}
+\phantomsection
+```
+
+Why does $n-1$ appear? Deviations from their own mean must sum to zero. Once
+the first three deviations $-2,0,0$ are known, the last must be 2. Only three
+can vary freely. More generally, estimating the center uses one **degree of
+freedom**, leaving $n-1$. This explains how many deviations can vary freely
+under the zero-sum constraint.
+The formula can summarize a fixed set of observed values. Its further role
+in estimating a population variance, including the sampling reason for this
+divisor, will be developed with estimation.
+
+We can now write the general formulas. In $x_1,\ldots,x_n$, the subscript
+$i$ identifies an observation. The symbol $\sum$ means to add the indicated
+terms: $\sum_{i=1}^n x_i=x_1+x_2+\cdots+x_n$.
 
 $$
 \bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i,\qquad
@@ -658,69 +869,31 @@ s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2,
 $$
 
 $$
-s=\sqrt{s^2},\qquad
-\operatorname{IQR}=Q_3-Q_1.
+s=\sqrt{s^2},\qquad \operatorname{IQR}=Q_3-Q_1.
 $$
 
-The **median** is the middle ordered observation when $n$ is odd and the
-average of the two middle observations when $n$ is even. The first quartile
-$Q_1$ marks approximately the 25th percentile; the third quartile $Q_3$ marks
-approximately the 75th. They bracket the middle half of the distribution.
-For the small hand examples, take the median of each ordered half, excluding
-the overall middle observation when $n$ is odd. Software may interpolate
-between values instead; the large-data summaries here use R's default
-interpolation convention. These rules can differ slightly in small datasets.
+For any ordered dataset, the median is the middle observation when $n$ is
+odd and the average of the two middle observations when $n$ is even.
+@tbl-five-summaries brings the five summaries together.
 
 | Summary | Interpretive job | Units | Main caution |
 |:--------|:-----------------|:------|:-------------|
-| Mean $\bar{x}$ | Arithmetic balance point; center used by much later algebra | Original units | Can move strongly with skewness or extreme values |
+| Mean $\bar{x}$ | Arithmetic balance point | Original units | Can move strongly with skewness or extreme values |
 | Median | Ordered midpoint | Original units | Does not describe spread or tail shape |
-| Sample variance $s^2$ | Sum of squared deviations divided by $n-1$ | Squared units | Magnitude is hard to read directly in original units |
-| Sample standard deviation $s$ | Typical scale of deviation around the mean | Original units | Can be influenced by extreme values |
-| IQR | Width of the middle half, $Q_3-Q_1$ | Original units | Does not show what happens in the tails |
+| Sample variance $s^2$ | Squared-deviation spread, using divisor $n-1$ | Squared units | Harder to interpret directly on the original scale |
+| Sample standard deviation $s$ | Scale of deviation around the mean | Original units | Can be influenced by extreme values |
+| IQR | Width of the middle half | Original units | Leaves the tails undescribed |
 
 : *Five selected summaries and the questions they answer.* {#tbl-five-summaries tbl-colwidths="[19,33,17,31]"}
 
-To make the formulas concrete, consider four illustrative completion times:
-1, 3, 3, and 5 minutes. The sum is $1+3+3+5=12$, so
-$\bar x=12/4=3$ minutes. The middle two values are both 3, giving median 3.
-The lower-half median is $Q_1=(1+3)/2=2$ and the upper-half median is
-$Q_3=(3+5)/2=4$, so $\operatorname{IQR}=4-2=2$ minutes.
+These five summaries differ from the **five-number summary**, which lists
+the minimum, $Q_1$, median, $Q_3$, and maximum.
 
-```{=latex}
-\Needspace{14\baselineskip}
-```
-
-| Observation $x_i$ | Deviation $x_i-3$ | Squared deviation $(x_i-3)^2$ |
-|-----------------:|-----------------:|----------------------------:|
-| 1 | $-2$ | 4 |
-| 3 | 0 | 0 |
-| 3 | 0 | 0 |
-| 5 | 2 | 4 |
-| **Sum** | **0** | **8** |
-
-: *Working from observations to squared-deviation spread.* {#tbl-worked-variance tbl-colwidths="[25,30,45]"}
-
-Thus $s^2=8/(4-1)=8/3=2.67$ squared minutes, and
-$s=\sqrt{8/3}=1.63$ minutes. Keep the unrounded variance while taking its
-square root. Variance measures spread on a squared scale; SD restores the
-original units.
-
-Why $n-1$? Deviations from their own mean must sum to zero. Here, once the
-first three deviations $-2,0,0$ are known, the last must be 2. In general,
-only $n-1$ deviations can vary freely: one **degree of freedom** is used by
-estimating the center. This zero-sum constraint explains the lost degree of
-freedom, but is not by itself a proof of unbiasedness. Section 5 supplies the
-sampling-model justification after defining expectation.
-
-For a fixed observed distribution, dividing the same squared-deviation sum by
-$n$ instead gives its mean squared deviation ($8/4=2$ here). Both conventions
-can describe spread when clearly labelled. We use the conventional sample
-variance $s^2$ throughout; the name and denominator do not establish a random
-sample or justify population claims. Nor is $n-1$ the finite-population
-correction discussed in Appendix C.
-
-@tbl-grade-summary applies all five summaries to final grade.
+A fixed set of values also has a mean squared deviation obtained by dividing
+by $n$: $8/4=2.0000$ squared minutes here. Both conventions describe spread when
+clearly named. We use the conventional sample variance throughout, including
+when describing the 395 grades. The choice of divisor alone says
+nothing about how the observations were selected.
 
 ```{r}
 #| label: tbl-grade-summary
@@ -728,40 +901,34 @@ correction discussed in Appendix C.
 #| tbl-colwidths: [32, 24, 28]
 
 grade_print <- grade_summary
-grade_print$Value <- c("10.42", "11.00", "20.99", "4.58", "6.00")
+grade_print$Value <- sprintf("%.4f", grade_summary$Value)
 knitr::kable(
   grade_print,
-  names = c("Summary", "Value", "Units"),
   booktabs = TRUE,
   align = c("l", "r", "l")
 )
 ```
 
-The mean is 10.42 and the median is 11. The sample variance is 20.99 squared
-grade points, while the standard deviation is 4.58 grade points. The IQR is 6
-grade points. These numbers summarize the recorded distribution; they do not
-make the score scale continuous, validate the zeros, or establish a probability
-model.
+The mean grade is 10.4152 and the median is 11.0000. The variance is 20.9896 squared
+grade points; SD is 4.5814 grade points, and IQR is 6.0000 grade points. The graph
+helps us interpret these summaries, particularly the visible group at zero.
 
-Omitting the 38 zero-grade rows only as a coding sensitivity leaves
-`r unname(grade_zero_sensitivity["n"])` records: mean
-`r sprintf("%.2f", grade_zero_sensitivity["mean"])`, median
-`r sprintf("%.0f", grade_zero_sensitivity["median"])`, variance
-`r sprintf("%.2f", grade_zero_sensitivity["variance"])`, SD
-`r sprintf("%.2f", grade_zero_sensitivity["sd"])`, and IQR
-`r sprintf("%.0f", grade_zero_sensitivity["IQR"])`. These are diagnostic
-quantities, not replacement summaries.
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
 
-### Equal means can describe different empirical worlds
+### Equal means can hide different distributions
 
-@fig-same-mean shows three constructed distributions with the same mean
+@fig-same-mean shows three invented distributions with the same mean
 of 10. Their shapes and spreads are plainly different.
 
 ```{r}
 #| label: fig-same-mean
-#| fig-cap: "Three constructed distributions share a mean of 10 but differ in shape and spread."
+#| fig-cap: "Three invented distributions share a mean of 10.0000 but differ in shape and spread."
 #| fig-alt: "Faceted dot plots show a concentrated distribution around ten, a broad evenly spaced distribution, and a right-skewed distribution. Each has mean ten."
-#| fig-height: 3.0
+#| fig-height: 2.1
+#| fig-pos: "H"
 
 ggplot(same_mean, aes(x = Value, y = 0)) +
   geom_dotplot(binaxis = "x", stackdir = "up", binwidth = .55,
@@ -772,94 +939,455 @@ ggplot(same_mean, aes(x = Value, y = 0)) +
   labs(x = "Observed value")
 ```
 
-A center cannot replace a distribution. Report mean with standard deviation
-when that pair serves the question and the visible shape. Report median with
-IQR when resistant summaries communicate center and spread more honestly. In
-either case, retain a graph. Resistant summaries are not repairs for invalid
-measurement, selection bias, or unexplained exclusions.
+The mean gives a balance point, while the graph shows how the values are
+arranged around it. Mean and SD are useful when the center and spread around
+that center serve the question. Median and IQR are **resistant** summaries:
+they change relatively little when a small number of extreme values changes.
+They often describe a skewed distribution more clearly. In either case,
+the graph supplies information about tails, gaps, and clusters.
 
-### A brief Normal-model and z-score bridge
 
-The **Normal distribution** is a symmetric, bell-shaped probability model
-located by a mean $\mu$ and scaled by a standard deviation $\sigma$. It is
-not the default shape of every dataset. The **standard Normal distribution** has
-mean 0 and standard deviation 1.
+@fig-ch02-skew-centers compares three further invented shapes without
+holding their means fixed. The symmetric values have mean and median
+6.0000. For the right-skewed values, the longer upper tail pulls the
+mean to 5.1111 while the median is 4.0000. Reflecting those values gives
+the left-skewed panel, with mean 4.8889 and median 6.0000. The dashed
+and dotted lines mark the mean and median. This ordering is a common
+pattern to interpret alongside the graph, not a theorem for every
+distribution described as skewed.
 
-If a modeled variable follows $X\sim N(\mu,\sigma^2)$, then
+```{r}
+#| label: fig-ch02-skew-centers
+#| fig-cap: "Three invented shapes: the mean moves toward the longer tail."
+#| fig-alt: "The symmetric values have mean and median six. Right-skewed values have mean 5.1111 and median four; reflected left-skewed values have mean 4.8889 and median six. Dashed and dotted lines mark mean and median."
+#| fig-height: 2.5
+#| fig-pos: "H"
+
+shapes <- list(Symmetric = c(2, 3, 4, 5, 6, 7, 8, 9, 10),
+               Right = c(1, 2, 2, 3, 4, 5, 6, 8, 15))
+shapes$Left <- 10 - shapes$Right
+op <- par(mfrow = c(1, 3), mar = c(4, 2, 2, 1))
+for (nm in names(shapes)) {
+  v <- shapes[[nm]]
+  stripchart(v, method = "stack", pch = 19, xlim = c(-5, 15),
+             xlab = "Value", main = nm)
+  abline(v = mean(v), lty = 2, col = "firebrick")
+  abline(v = median(v), lty = 3, col = "navy")
+}
+par(op)
+```
+
+### Comparing groups while keeping their variation visible
+
+A single distribution can combine groups with different centers or
+spreads. In the school data, grades might be displayed separately by
+school. Before doing that with many students, consider six invented
+task-completion times from two training groups:
+
+| Group | Completion times (minutes) | Number of learners | Mean (minutes) |
+|:------|:---------------------------|-------------------:|---------------:|
+| A | 1, 3 | 2 | 2.0000 |
+| B | 3, 3, 5, 9 | 4 | 5.0000 |
+
+: *A small grouped dataset for describing center and spread* {#tbl-ch02-group-times tbl-colwidths="[15,39,24,22]"}
+
+A **grouping variable** identifies the groups being compared. The
+two-category variable here is **binary**, or **dichotomous**. We can
+represent it by an **indicator**, also called a **dummy variable**:
+let $D_i=1$ for Group B and $D_i=0$ for Group A. In row order,
+
+$$
+(D_1,\ldots,D_6)=(0,0,1,1,1,1),\qquad
+\bar D=\frac46=.6667.
+$$
+
+The mean of a 0/1 indicator is the proportion in the coded-one category.
+Reversing the coding changes that category and the direction used for
+a difference between the group means; the observed groups remain the
+same. With three or more categories, codes 1, 2 and 3 do not establish
+quantitative spacing. Later regression uses a declared set of indicators
+to represent such group membership.
+
+Group B takes three minutes longer on average, but its learners are
+also more spread out. The dotplot in @fig-ch02-groups keeps both
+features visible. Some learners in different groups have the same time,
+and the group means summarize rather than replace those observations.
+
+```{r}
+#| label: fig-ch02-groups
+#| fig-cap: "Completion times and group means in the invented six-learner example"
+#| fig-alt: "Group A has times one and three, with mean two. Group B has times three, three, five, and nine, with mean five. The two three-minute learners in group B are shown separately. Diamonds mark group means."
+#| fig-height: 2.7
+#| fig-pos: "H"
+group_plot <- group_times
+group_plot$Position <- c(.96, 1.04, 1.94, 2.06, 2.14, 2)
+ggplot(group_plot, aes(x = Minutes, y = Position)) +
+  geom_point(size = 2.6, color = "#315D70") +
+  geom_point(data = data.frame(Minutes = c(2, 5), Position = c(1, 2)),
+             shape = 18, size = 3.5, color = "#A24B2A") +
+  scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
+  scale_y_continuous(breaks = c(1, 2), labels = c("A", "B"),
+                     limits = c(.6, 2.4)) +
+  labs(x = "Completion time (minutes); diamonds mark means", y = "Group")
+```
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+The **grand mean** is the mean across all six learners:
+
+$$
+\bar x=\frac{1+3+3+3+5+9}{6}=\frac{24}{6}=4.0000\text{ minutes}.
+$$
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+We can obtain it from the group means too, provided each group receives
+its learner count as a weight:
+
+$$
+\bar x=\frac{2(2)+4(5)}{2+4}=4.0000.
+$$
+
+The unweighted average $(2+5)/2=3.5000$ would give the two groups equal
+influence despite their different sizes. That answers a different
+averaging question. When the aim is to describe all learners equally,
+the larger group contributes more to the grand mean.
+
+There is also variation **within** each group. For Group A, the squared
+deviations from 2 are 1 and 1, so its sample variance is
+$2/(2-1)=2.0000$ and its SD is 1.4142 minutes. For Group B, deviations from
+5 are $-2,-2,0,4$. Thus,
+
+$$
+s_B^2=\frac{4+4+0+16}{4-1}=8.0000,\qquad
+s_B=\sqrt{8}=2.8284\text{ minutes}.
+$$
+
+Keeping each group's spread makes the comparison more informative than
+reporting two means alone. These calculations describe the groups; they
+do not assume a common variance.
+
+Finally, one learner's distance from the grand mean can be understood
+in two steps. The nine-minute learner belongs to Group B, whose mean
+is five minutes. That learner is four minutes above the group mean,
+and the group mean is one minute above the grand mean:
+
+$$
+9-4=(9-5)+(5-4)=4+1=5.0000\text{ minutes}.
+$$
+
+In words, the total deviation combines the learner's position
+**within the group** and the group's position relative to the
+**overall mean**. This elementary identity prepares the later
+analysis of between-group and within-group variation. For now,
+the displays, means, and separate SDs give the descriptive comparison.
+Appendix A develops weighted means and squared deviations a little
+further.
+
+### Common probability models
+
+An empirical distribution describes recorded observations. A
+**probability model** instead describes possible observations and their
+probabilities. A **random variable** gives a numerical description of a
+possible observation: uppercase $X$ denotes the variable, and lowercase
+$x$ an observed or specified value. A categorical observation can be
+recorded by a label or represented by indicators; arbitrary category
+codes do not become quantitative measurements.
+
+The model mean, or **expectation**, $E(X)$ is a probability-weighted
+average. With finitely many possible values,
+
+$$
+E(X)=\sum_x xP(X=x).
+$$
+
+For a Bernoulli response, $X=1$ means correct and $X=0$ incorrect. If
+$P(X=1)=p$, its mean is $0(1-p)+1p=p$. A correct-response probability
+of .7 therefore gives a model mean of .7, even though each individual
+response is either zero or one. The model variance,
+$\operatorname{Var}(X)$, describes squared spread around that mean.
+@tbl-ch02-models connects several familiar variable forms to useful
+models [@nistDistributionGallery]. The mathematical properties in the
+last column describe those models; an observed shape alone does not
+establish that a model is appropriate.
+
+| Model and support | Meaning and educational example | Parameters and useful properties |
+|:--|:--|:--|
+| Bernoulli: $X=0,1$ | One correct/incorrect response | $P(X=1)=p$; $E(X)=p$, $\operatorname{Var}(X)=p(1-p)$ |
+| Binomial: $X=0,\ldots,m$ | Number correct in $m$ independent trials with common success probability; item heterogeneity can violate the model | $X\sim\operatorname{Bin}(m,p)$; mean $mp$, variance $mp(1-p)$ |
+| Categorical: one of $K$ labels | A student's selected learning format | Probabilities $\pi_1,\ldots,\pi_K$ sum to one; each category has an indicator; numerical means of arbitrary labels are not meaningful |
+| Poisson: $X=0,1,\ldots$ | Number of help requests during a specified observation period | $X\sim\operatorname{Pois}(\lambda)$; mean and variance $\lambda$; different exposures require explicit treatment |
+| Normal: real values | A continuous score model when its symmetric shape is adequate | $X\sim N(\mu,\sigma^2)$; mean $\mu$, SD $\sigma$ |
+| Lognormal: positive values | A positive completion time under a multiplicative model | $\log X\sim N(\mu_{\log},\sigma_{\log}^2)$; median $\exp(\mu_{\log})$, mean $\exp(\mu_{\log}+\sigma_{\log}^2/2)$ |
+
+: Models for different kinds of possible observations. {#tbl-ch02-models tbl-colwidths="[23,40,37]"}
+
+The notation $\sim$ means "is distributed as." For example,
+$X\sim\operatorname{Bin}(m,p)$ states a Binomial model with $m$ trials
+and common success probability $p$. Here $m$ counts trials within one
+modeled observation, while $n$ counts recorded cases. One Bernoulli
+trial is a Binomial with $m=1$ and also a two-category categorical model.
+A Binomial count has an upper bound $m$; a Poisson count has no fixed
+upper bound. Observation periods matter for counts: a help-request
+rate for one lesson cannot be applied unchanged to a whole term.
+The Lognormal describes positive values whose logarithms follow a
+Normal model; its log-scale SD differs from its original-scale SD.
+
+For **discrete** outcomes, probabilities at the possible values add to
+one. For a **continuous** variable, a density curve has total area one,
+and the probability of a range is its area. A curve height is not a
+probability at one exact value. @fig-ch02-model-gallery shows masses
+and densities separately. The displayed axes show informative ranges;
+they do not make a Normal, Lognormal or Poisson tail end at the plot
+boundary. Positive skew alone establishes none of these models.
+
+```{r}
+#| label: fig-ch02-model-gallery
+#| fig-cap: "Six probability models with declared parameters: masses for discrete outcomes and density curves for continuous outcomes."
+#| fig-alt: "Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD .5 is positive and right-skewed."
+#| fig-height: 5.5
+#| fig-pos: "H"
+
+op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
+          mgp = c(2.2, .7, 0))
+plot(0:1, dbinom(0:1, size = 1, prob = .7), type = "h", lwd = 4,
+     ylim = c(0, 1), xlab = "Outcome", ylab = "Probability",
+     main = "Bernoulli: p = .7", xaxt = "n")
+axis(1, at = 0:1)
+plot(0:10, dbinom(0:10, size = 10, prob = .7), type = "h", lwd = 3,
+     xlab = "Number correct", ylab = "Probability", main = "Binomial")
+barplot(c(Reading = .2, Practice = .5, Discussion = .3),
+        names.arg = c("Read", "Practice", "Discuss"), cex.names = .9,
+        ylim = c(0, 1), ylab = "Probability", main = "Categorical")
+plot(0:12, dpois(0:12, lambda = 3), type = "h", lwd = 3,
+     xlab = "Requests per period", ylab = "Probability", main = "Poisson")
+curve(dnorm(x, mean = 50, sd = 10), from = 10, to = 90,
+      xlab = "Score", ylab = "Density", main = "Normal")
+curve(dlnorm(x, meanlog = 2, sdlog = .5), from = 0, to = 35,
+      xlab = "Minutes", ylab = "Density", main = "Lognormal")
+par(op)
+```
+
+The **cumulative distribution function (CDF)**,
+$F(x)=P(X\le x)$, gives the probability up to a specified value.
+A **quantile** is a value reaching a stated cumulative probability.
+These ideas let us ask both "What proportion is below this score?"
+and "What score marks the upper 5%?" The next subsection works both
+questions with a Normal model.
+
+A brief preview connects this catalogue to later regression. The
+**logistic distribution** is continuous and symmetric, with location
+$\mu_L$ and positive scale $s_L$ [@rCoreLogistic]:
+
+$$
+F(x)=\frac{1}{1+\exp[-(x-\mu_L)/s_L]},\qquad
+SD(X)=\frac{\pi s_L}{\sqrt3}.
+$$
+
+Its scale is therefore different from its SD. With location zero and
+scale one, its S-shaped CDF is the inverse-logit mapping used in
+Chapter 11 to turn a linear predictor into a probability. The binary
+outcome in logistic regression follows a Bernoulli model; it is not
+itself a continuous logistic variable.
+
+### Linear transformations, standardized values, and Normal areas
+
+Changing measurement units connects numerical summaries to the scale
+on which we read them. Suppose $w_i=a+bx_i$: every value is multiplied
+by the same constant $b$, then shifted by $a$. Substitution into the mean
+gives
+
+$$
+\bar w=\frac1n\sum_{i=1}^n(a+bx_i)
+=a+b\bar x.
+$$
+
+Each deviation becomes $w_i-\bar w=b(x_i-\bar x)$. Squaring the
+deviations therefore multiplies their sum by $b^2$, so
+
+$$
+s_w^2=b^2s_x^2,\qquad s_w=|b|s_x.
+$$
+
+The four completion times 1, 3, 3 and 5 minutes have mean 3.0000
+minutes and SD 1.6330 minutes. Converting to seconds multiplies the
+mean by 60 to give 180.0000 seconds and the unrounded SD by 60 to give
+97.9796 seconds. Adding a constant moves the center without changing
+the spread. A negative multiplier reverses the order, while its absolute
+value scales SD. A zero multiplier produces a constant with zero spread.
+The corresponding model properties are
+
+$$
+E(a+bX)=a+bE(X),\qquad
+\operatorname{Var}(a+bX)=b^2\operatorname{Var}(X).
+$$
+
+A **standardized score**, or **z score**, expresses distance from a
+specified mean in SD units. In an invented commute sample with mean
+26 minutes and SD 6 minutes, a 38-minute commute gives
+
+$$
+z=\frac{38-26}{6}=2.0000.
+$$
+
+For observed values, $z_i=(x_i-\bar x)/s$. Subtracting the mean
+changes the origin and dividing by a positive SD changes the scale.
+The ordering and shape remain the same; standardizing skewed values
+leaves them skewed. Standardization is undefined when the SD is zero.
+
+A Normal model supplies the additional information needed for Normal
+probability calculations. If $X\sim N(\mu,\sigma^2)$, then
 
 $$
 Z=\frac{X-\mu}{\sigma}\sim N(0,1).
 $$
 
-For observed sample values, a standardized score is often written
+The **standard Normal distribution** has mean zero and SD one. Its
+symmetry and density let us read central probabilities in
+@fig-standard-normal:
 
 $$
-z_i=\frac{x_i-\bar{x}}{s}.
+P(|Z|\le1)=.6827,\quad P(|Z|\le2)=.9545,\quad P(|Z|\le3)=.9973.
 $$
-
-It records how far an observed value lies from the sample mean in sample
-standard-deviation units. For example, a sample of commute times has mean
-26 minutes and SD 6 minutes. A 38-minute commute has
-$z=(38-26)/6=12/6=2$: it is two sample standard deviations above the sample
-mean. Model standardization would instead use the declared model parameters
-$\mu$ and $\sigma$. Subtracting a center changes location; dividing by a
-positive SD changes scale, not shape. Computing z scores does **not** make a
-skewed dataset Normal.
 
 ```{r}
 #| label: fig-standard-normal
-#| fig-cap: "The standard Normal model centers distance at zero and measures it in standard-deviation units."
-#| fig-alt: "A symmetric bell curve is centered at zero with vertical markers at minus one, zero, and one standard deviation."
-#| fig-height: 2.9
+#| fig-cap: "Central Normal probabilities within one, two and three SDs."
+#| fig-alt: "Three identical standard Normal curves shade the areas between minus and plus one, two, and three. Their central probabilities are .6827, .9545 and .9973."
+#| fig-height: 2.6
+#| fig-pos: "H"
 
-ggplot(normal_grid, aes(x = Z, y = Density)) +
-  geom_area(fill = "#DDEAF0", color = "#325A6A", linewidth = .7) +
-  geom_vline(xintercept = c(-1, 0, 1),
-             linetype = c(3, 2, 3),
-             color = c("#6A6A6A", "#9B3D45", "#6A6A6A")) +
-  annotate("text", x = c(-1, 0, 1), y = c(.06, .43, .06),
-           label = c("z = -1", "z = 0", "z = 1"), size = 3.2) +
-  scale_x_continuous(breaks = -3:3) +
-  labs(x = "Standardized value, z", y = "Density")
+op <- par(mfrow = c(1, 3), mar = c(4, 4, 2, 1),
+          mgp = c(2.2, .7, 0))
+for (k in 1:3) {
+  curve(dnorm(x), from = -4, to = 4, ylim = c(0, .42),
+        xlab = "z", ylab = "Density",
+        main = sprintf("Within %d SD: %.4f", k, 2 * pnorm(k) - 1))
+  zz <- seq(-k, k, length.out = 300)
+  polygon(c(-k, zz, k), c(0, dnorm(zz), 0),
+          col = "lightblue", border = NA)
+  curve(dnorm(x), add = TRUE)
+}
+par(op)
 ```
 
-This is a preview of a probability distribution, not a normality test or a
-tail-area exercise. Section 5 distinguishes the observed data distribution
-from a modeled probability distribution and from a sampling distribution.
+These give the familiar approximate 68%, 95%, 99.7% rule. The exact
+central 95% range uses approximately $\pm1.9600$ rather than exactly
+$\pm2$. Let $\Phi$ denote the standard Normal CDF and $\Phi^{-1}$ its
+quantile function. Under a score model $X\sim N(50,10^2)$, a score of
+65 is $(65-50)/10=1.5000$ SDs above the mean. Therefore,
 
-### Choose a graph and summary from the question
+$$
+P(X\le65)=P(Z\le1.5)=\Phi(1.5)=.9332.
+$$
 
-| Variable forms | Useful first display | Initial graph-reading focus |
-|:---------------|:---------------------|:---------------------------|
-| One quantitative variable | Dotplot, histogram, or boxplot | What shape, center, spread, and unusual observations are visible? |
-| Quantitative and quantitative | Scatterplot | What form, direction, strength, support, and unusual observations are visible? |
-| Quantitative and categorical | Grouped distributions | How do distributions differ across groups? |
-| Categorical and categorical | Counts with declared conditional percentages | Which denominator answers the comparison question? |
+About 93.3193% of values lie at or below 65 under this model. To find the
+95th percentile, begin with the standard Normal value
+$\Phi^{-1}(.95)=1.6449$ and transform back, retaining its unrounded
+value during calculation:
 
-: *A graph-and-summary decision guide.* {#tbl-graph-choice tbl-colwidths="[26,31,43]"}
+$$
+x_{.95}=50+10\Phi^{-1}(.95)=66.4485.
+$$
 
-A graph is evidence, not decoration. Numerical summaries are purposeful
-reductions of that evidence. A good description names what the chosen reduction
-reveals and what it omits.
+The subscript on $x_{.95}$ marks a percentile, rather than a case
+number. About 95% of the model's values are at or below 66.4485.
+The calculations use a supplied probability table or quantile value.
+Applying them to recorded scores requires a suitable Normal model;
+computing sample z scores alone does not establish that suitability.
 
-## See and Summarize a Relationship
+## Describing and Interpreting Relationships
 
-A relationship asks how values of one variable are arranged with values of
-another. The first display follows the variable forms and the question. This
-section develops a quantitative--quantitative relationship because it serves
-the focal absence--grade question. Grouped distributions and categorical
-percentages are introduced later when they can receive full treatment.
+Describing a relationship means keeping two measurements together.
+The useful summary depends on what those measurements represent. We
+first use two categorical variables from the school dataset to show how
+counts become meaningful percentages. We then return to the chapter's
+absence--grade question, which pairs two quantitative variables. The
+last two subsections interpret the resulting description in the study
+setting that produced it.
+
+### Counts and proportions for two categorical variables
+
+The dataset includes whether each student wanted to pursue higher
+education. This is a reported intention, not a record of eventual
+enrollment. We can compare it with **pass status**, defined here as a
+final mathematics grade of 10 or higher. The following table counts
+every student once.
+
+```{r}
+#| label: tbl-ch02-intention-pass
+#| tbl-cap: "Higher-education intention and mathematics pass status for the 395 students"
+#| tbl-colwidths: [40, 20, 22, 18]
+counts_print <- data.frame(
+  "Intends higher education" = c("No", "Yes", "Total"),
+  "Passed" = c(intention_counts[, 1], sum(intention_counts[, 1])),
+  "Did not pass" = c(intention_counts[, 2], sum(intention_counts[, 2])),
+  "Total" = c(rowSums(intention_counts), sum(intention_counts)),
+  check.names = FALSE
+)
+knitr::kable(counts_print, booktabs = TRUE, row.names = FALSE,
+             align = c("l", "r", "r", "r"))
+```
+
+A **two-way frequency table** groups cases by two categorical variables.
+Here the counts tell us that 20 students reported no intention to pursue
+higher education and 375 reported that intention. Because the groups
+are so different in size, their raw passing counts are an incomplete
+comparison.
+
+To compare passing within the two groups, divide each passing count by
+the size of its own group:
+
+$$
+\frac{7}{20}=.3500=35.0000\%,\qquad
+\frac{258}{375}=.6880=68.8000\%.
+$$
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+These are **conditional proportions**: each describes passing among
+students meeting a stated condition. The difference is
+
+$$
+68.8000\%-35.0000\%=33.8000\text{ percentage points}.
+$$
+
+Thus the passing proportion is higher among the students reporting a
+higher-education intention. Percentage points express the subtraction
+of two percentages; the calculation above is not a relative percentage
+increase.
+
+Changing the question changes the denominator. Among the 265 passing
+students, the proportion reporting higher-education intention is
+$258/265=97.3585\%$, rather than the 68.8000% passing within the
+intention group. For reference, $258/395=65.3165\%$ of all students both
+report that intention and pass, while overall passing is
+$265/395=67.0886\%$. The word *among* identifies the conditioning group.
+These are descriptions of observed counts. Intention was not randomly
+assigned, so their difference alone does not establish a causal effect.
 
 ### Form before coefficient
 
-Four small displays in @fig-relationship-forms show why *form* comes
-before a coefficient.
+For two quantitative variables, a scatterplot shows one point for each
+paired observation. The four invented examples in @fig-relationship-forms
+show how different relationships can look before we summarize them with
+a coefficient.
 
 ```{r}
 #| label: fig-relationship-forms
 #| fig-cap: "Linear, curvilinear, and patternless relationships require different descriptions."
 #| fig-alt: "Four panels show a positive line, a negative line, a U-shaped curve, and no clear pattern."
-#| fig-height: 4.0
+#| fig-height: 3.4
+#| fig-pos: "H"
 
 ggplot(relationship_patterns, aes(x = X, y = Y)) +
   geom_point(alpha = .55, size = 1.2, color = "#2F6073") +
@@ -881,58 +1409,97 @@ unimportant, or causal. A strong U-shaped relationship can have Pearson's
 correlation near zero because its negative and positive linear tendencies
 cancel.
 
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
 ### Covariance and Pearson's correlation
 
-For paired observations $(x_i,y_i)$, the sample covariance is
+**Covariance** describes how paired deviations vary together. Deviations
+on the same side of their respective means give a positive product:
+both values can be above their means or both can be below them.
+Deviations on opposite sides give a negative product. A value exactly
+at its mean contributes a zero deviation and hence a zero product.
+
+Consider measurements on four invented learners with $x=(1,3,3,5)$ practice hours
+and $y=(2,2,4,4)$ score points. Both means are 3.0000. The deviations and their
+products are
+
+$$
+x_i-\bar x=(-2,0,0,2),\qquad y_i-\bar y=(-1,-1,1,1),
+$$
+
+$$
+(x_i-\bar x)(y_i-\bar y)=(2,0,0,2).
+$$
+
+The first pair shows why two below-mean values contribute positively:
+$(-2)(-1)=2$. The products sum to 4. Dividing by $n-1=3$ gives the sample covariance
+$s_{xy}=4/3=1.3333$ hour-points. The positive value agrees with the pattern: the
+larger practice values tend to accompany the larger scores.
+
+For any paired observations, the calculation is
 
 $$
 s_{xy}=\frac{1}{n-1}\sum_{i=1}^{n}
 (x_i-\bar{x})(y_i-\bar{y}).
 $$
 
-Positive covariance means paired deviations tend to have the same sign;
-negative covariance means they tend to have opposite signs. Its magnitude
-depends on the units of both variables. Pearson's correlation standardizes
-covariance:
+Covariance carries the product of the two measurement units. To express the
+linear relationship on a common, unit-free scale, **Pearson's correlation**
+divides covariance by the two SDs:
 
 $$
-r=\frac{s_{xy}}{s_xs_y}
-=\frac{\sum_i(x_i-\bar{x})(y_i-\bar{y})}
+r=\frac{s_{xy}}{s_xs_y}.
+$$
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+For the four pairs, $s_x=\sqrt{8/3}$ and $s_y=\sqrt{4/3}$. Substitution gives
+
+$$
+r=\frac{4/3}{\sqrt{8/3}\sqrt{4/3}}
+=\frac{4}{\sqrt{8\times4}}=0.7071.
+$$
+
+The units cancel as well: hour-points divided by hours times points is
+unit-free. If hours become minutes, both covariance and $s_x$ are multiplied
+by 60. Covariance becomes $60(4/3)=80.0000$ minute-points, while $r$ remains .7071.
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+The formula also has a useful squared-deviation form:
+
+$$
+r=\frac{\sum_i(x_i-\bar{x})(y_i-\bar{y})}
 {\sqrt{\sum_i(x_i-\bar{x})^2\sum_i(y_i-\bar{y})^2}}.
 $$
 
-The second form follows because the $n-1$ factors cancel. Consider four paired
-records with $x=(1,3,3,5)$ practice hours and $y=(2,2,4,4)$ score points.
-Both means are 3. The $x$ deviations are $-2,0,0,2$ and the $y$ deviations
-are $-1,-1,1,1$. Their cross-products are $2,0,0,2$, summing to 4. Hence
+The $n-1$ factors cancel between covariance and the two SDs. This connection
+between paired variation and squared deviations will also be useful in
+regression.
 
-$$
-s_{xy}=\frac{4}{3},\quad s_x=\sqrt{\frac83},\quad
-s_y=\sqrt{\frac43},\quad
-r=\frac{4}{\sqrt{8\times4}}=0.707.
-$$
-
-Covariance has hour-point units; dividing by the two SDs cancels those units.
-If hours become minutes, each $x$ deviation and $s_x$ is multiplied by 60.
-Covariance therefore becomes $60(4/3)=80$ minute-points, but the same factor
-cancels in $r$, which stays .707.
-
-Equivalently, write $z_{xi}=(x_i-\bar x)/s_x$ and
-$z_{yi}=(y_i-\bar y)/s_y$. Then
+A second connection uses standardized values. With
+$z_{xi}=(x_i-\bar x)/s_x$ and $z_{yi}=(y_i-\bar y)/s_y$,
 
 $$
 r=\frac{1}{n-1}\sum_{i=1}^n z_{xi}z_{yi}.
 $$
 
-These are standardized cross-products, with divisor **$n-1$, not $n$**, because
-the z scores use sample SDs. Positive products support a positive linear
-association and negative products support a negative one. The bound
-$-1\le r\le1$ follows from a property of these squared-deviation sums, not
-merely from averaging; Appendix C gives a short explanation. Correlation is
-unchanged by positive rescaling, reverses sign if one scale is reversed, and
-is undefined if either variable has zero SD. Independence implies zero
-covariance when second moments exist, but zero covariance does not imply
-independence: the curved example already shows why.
+Positive standardized products contribute to a positive linear association;
+negative products contribute to a negative one. The divisor is $n-1$
+because these z scores use sample SDs. Correlation ranges from $-1$ to $1$,
+keeps its value under positive rescaling, and reverses sign when one scale
+is reversed. If either SD is zero, the denominator is zero and correlation
+is undefined. Appendix A explains the mathematical bound and why zero correlation can
+coexist with a relationship.
 
 | Feature | Sample covariance $s_{xy}$ | Pearson correlation $r$ |
 |:--------|:-------------------------------|:--------------------------|
@@ -944,12 +1511,84 @@ independence: the curved example already shows why.
 
 : *Covariance and Pearson's correlation have connected but different jobs.* {#tbl-covariance-correlation tbl-colwidths="[23,38,39]"}
 
-For the focal records, the sample covariance is 1.26
-absence-count-by-grade-point units and Pearson's $r=.034$. Converting absences
-from counts to a positively rescaled unit would change the covariance magnitude
-but not $r$. Neither number should be read without the graph.
 
-### The focal relationship
+The graph remains essential: covariance and correlation summarize a linear
+pattern, while a display shows curvature, clusters, sparse regions, and
+unusual observations.
+
+```{=latex}
+\Needspace{8\baselineskip}
+\phantomsection
+```
+
+
+@fig-ch02-r-gallery makes direction and strength visible on common
+axes. Each panel contains 80 simulated pairs, and each label reports
+the correlation actually computed from its displayed points. Moving
+from a strong negative to a strong positive coefficient changes the
+linear pattern. The earlier U-shaped example remains a reminder that
+one linear summary cannot describe every form of relationship.
+
+```{r}
+#| label: fig-ch02-r-gallery
+#| fig-cap: "Six simulated scatterplots show different directions and strengths of linear association; labels report the sample correlation of each panel."
+#| fig-alt: "Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation."
+#| fig-height: 4.8
+#| fig-pos: "H"
+
+set.seed(60206)
+targets <- c(-.9, -.5, 0, .3, .6, .9)
+panels <- lapply(targets, function(rho) {
+  x <- rnorm(80)
+  y <- rho * x + sqrt(1 - rho^2) * rnorm(80)
+  data.frame(x = x, y = y)
+})
+lim <- range(unlist(panels))
+op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
+          mgp = c(2.2, .7, 0))
+for (d in panels) {
+  plot(d$x, d$y, pch = 19, cex = .6, xlim = lim, ylim = lim,
+       xlab = "x", ylab = "y",
+       main = sprintf("Sample r = %.4f", cor(d$x, d$y)))
+}
+par(op)
+```
+
+Different questions can motivate different correlations
+[@rCoreCorrelation]. **Ranks** replace each value by its ordered
+position. Spearman correlation applies Pearson's calculation to those
+ranks, so it can summarize a monotonic pattern that consistently rises
+or falls without being straight. For Kendall's coefficient, consider
+two cases at a time: their ordering is concordant if the case with the
+higher value of one variable also has the higher value of the other,
+and discordant if the order reverses. A tie-aware version handles equal
+values. @tbl-ch02-correlation-types places these summaries beside
+Pearson's coefficient.
+
+| Correlation | Useful question | Key qualification |
+|:--|:--|:--|
+| Pearson $r$ | How strongly do two quantitative variables follow a linear pattern? | Always inspect their scatterplot and influential values |
+| Spearman rank correlation $r_s$ | Do larger ranks on one variable tend to accompany larger ranks on the other? | Pearson correlation of ranks; describes monotonic rather than specifically linear association |
+| Kendall $\tau_K$ | Do pairs of cases tend to have concordant rather than discordant ordering? | Use a version accounting for ties when needed; its scale is not numerically interchangeable with Pearson's |
+| Point-biserial correlation | How does a quantitative outcome relate to a binary group indicator? | Pearson correlation with a 0/1 variable; reversing the coding reverses its sign |
+
+: Different correlations summarize different patterns. {#tbl-ch02-correlation-types tbl-colwidths="[23,39,38]"}
+
+We use $\tau_K$ for Kendall's coefficient to distinguish it from a
+later mean-difference estimand. Point-biserial correlation is the
+ordinary Pearson correlation when one variable is coded zero/one;
+reversing the group coding reverses its sign. A non-Normal histogram
+by itself does not determine which coefficient answers the relationship
+question. Inspect the paired pattern, variable meaning and unusual
+observations before choosing a summary.
+
+### Returning to absences and grades
+
+We can now specify the **estimand** for the school comparison: the Pearson
+correlation between recorded absences and final mathematics grade among the
+395 students. An estimand is the precisely specified quantity
+sought by the question. Here it describes the linear relationship in this
+complete paired dataset.
 
 @fig-absence-grade preserves all 395 paired observations. Jitter makes
 overlapping integer-valued points visible; it does not change the values used
@@ -957,10 +1596,12 @@ for the coefficient.
 
 ```{r}
 #| label: fig-absence-grade
-#| fig-cap: "Recorded absences and final mathematics grade in the observational two-school record."
-#| fig-alt: "A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. A smooth line is nearly flat over the dense region."
-#| fig-height: 4.1
+#| fig-cap: "Recorded absences and final mathematics grade in the observational two-school dataset."
+#| fig-alt: "A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. The smooth rises from zero absences to low positive counts, then declines, with fewer students in the high-absence tail."
+#| fig-height: 3.1
+#| fig-pos: "H"
 
+set.seed(60205)
 ggplot(students, aes(x = absences, y = final_grade)) +
   geom_jitter(width = .35, height = .18, alpha = .48,
               color = "#28536B", size = 1.35) +
@@ -970,485 +1611,546 @@ ggplot(students, aes(x = absences, y = final_grade)) +
   scale_y_continuous(breaks = seq(0, 20, 5), limits = c(-.5, 20.5)) +
   labs(
     x = "Recorded absences (count)",
-    y = "Final mathematics grade (0--20)"
+    y = "Final mathematics grade\n(0--20)"
   )
 ```
 
-Most observations occupy low absence counts, several much larger counts extend
-the support, and the overall linear pattern is weak. The smooth does not reveal
-a strong simple curve that would overturn the near-zero linear summary, but it
-is a descriptive check rather than proof that no localized or subgroup pattern
-exists.
+Most students have relatively few recorded absences; a smaller number have
+much larger counts. The sample covariance is 1.2557 absence-count-by-grade-point
+units, and Pearson's $r=.0342$. The coefficient is positive but small: the overall linear
+association among these students is close to zero. A **smooth** is a curve
+summarizing nearby observations, helping us inspect a relationship's form.
+Here it rises from zero absences to the low positive counts, then declines
+gradually. The high-absence tail contains fewer students and supplies less
+information about the curve's shape. The overall linear coefficient and
+the local curve therefore describe different features of the same data.
 
-The concentrated zero set is consequential. Omitting the 38 unresolved
-zero-grade rows leaves `r unname(grade_zero_sensitivity["n"])` records and
-changes the correlation from $.034$ to
-$`r sprintf("%.3f", grade_zero_sensitivity["correlation"])`$. The literal
-result is therefore not robust to this coding pattern.
-That sensitivity does not establish that omission is correct; it establishes
-that the pattern must remain visible in the answer.
+Because all 395 pairs defining this estimand are observed, the
+calculated correlation gives its value for this dataset directly. Coding and measurement questions remain relevant to its meaning.
+Extending the result to students outside this dataset would require an
+appropriate sampling design or other explicit basis for that inference.
 
-A bounded statistical description is:
+All 38 zero-grade students also have zero absences; 25 have positive
+second-period grades from 4 to 10. The accessible codebook leaves this
+joint pattern unexplained. A **sensitivity analysis** examines how a
+result changes when an analytical choice changes. Omitting these 38
+records gives $r=-.2131$ among 357 students, compared with $.0342$
+among all 395. Relative to the original means, the $(0,0)$ observations
+contribute positive products of deviations; removing them also changes
+the means used for every remaining deviation.
 
-> Across these 395 paired records, the calculated Pearson correlation between
-> absences and final grade was $r=.034$, indicating almost no overall linear
-> association. The scatterplot shows dense overlap at low absence counts and a
-> few much larger counts. Omitting the 38 source-coded zero grades as a
-> diagnostic changes the correlation to $r=-.213$; because the available
-> documentation does not explain why every zero grade is paired with zero
-> absences, the as-recorded coefficient does not settle a coding-insensitive
-> direction or exclude every nonlinear or subgroup pattern.
+The omission is a diagnostic of a different record set, rather than
+evidence that the zeros are errors. Its 357-student correlation describes
+a different set from the original estimand. We keep the full set primary
+and use the contrast to show why the unexplained coding pattern matters.
 
-The substantive interpretation must retain the observational design, recorded
-measures, and local scope:
+### Relationships after linear adjustment
 
-> In these two-school records as coded, absence counts and final mathematics
-> grades show little overall linear association. A diagnostic omission of the
-> 38 zero-grade records yields a modest negative association, so the unresolved
-> coding context is material. Neither result establishes that attendance is
-> unimportant, that changing attendance would leave grades unchanged, or that
-> the same pattern holds for other students.
+A different descriptive question keeps the same cases and accounts for
+a third variable. Consider separate, invented summaries of practice
+time $x$, final score $y$, and baseline score $z$. Suppose the Pearson
+correlations are $r_{xy}=.60$, $r_{xz}=.50$, and $r_{yz}=.60$, all
+calculated from the same complete set of students. These are stipulated
+summary inputs, not correlations from the Portuguese school dataset.
 
-### One estimand, complementary checks
+The **partial correlation** of practice time and final score after
+linear adjustment for baseline is
 
-The graph, smooth, covariance, and correlation play different supporting roles
-in one argument. The declared question-facing association--the Pearson
-correlation for the defined group of 395 records--is the estimand. The
-calculated correlation, $r=.034$, gives its value for the as-recorded analytic
-set. The graph and smooth check whether that scalar summary hides visible
-form or support problems. Covariance exposes the scale-dependent quantity
-standardized by $r$.
+$$
+r_{xy\cdot z}=\frac{r_{xy}-r_{xz}r_{yz}}
+ {\sqrt{(1-r_{xz}^2)(1-r_{yz}^2)}}
+=\frac{.60-(.50)(.60)}{\sqrt{(1-.50^2)(1-.60^2)}}
+=.4330.
+$$
 
-The zero-grade diagnostic changes the analytic set and therefore the
-finite-record quantity. It is a sensitivity check on the interpretation of the
-primary as-recorded estimand, not a second estimate of that identical estimand.
-Adopting the exclusion as the target analysis would require an explicitly
-revised record definition and justification.
+To understand the operation, imagine removing each variable's fitted
+straight-line relationship with baseline score, then correlating the
+two remaining parts. Those remaining parts are **residuals**. Chapter 7
+develops fitted lines and their residual calculations, while Chapter 8
+extends the adjustment to several variables. The formula above gives
+the descriptive calculation directly. In this example, adjustment
+reduces the correlation from .6000 to .4330.
 
-Several displays, summaries, and checks serving the same estimand do not create
-additional question--answer pairs or arguments. A question can also need more
-than one estimand: parallel statistical strands can then contribute to its
-one integrated substantive answer. A separate argument is needed when the
-study owes a separate substantive answer to a different question, not merely
-because it reports another statistic. This focal question declares just one
-estimand.
+The result describes association after this specified linear adjustment.
+It does not establish a direct causal effect, remove every influence of
+baseline, repair an ambiguous code or adjust for omitted variables.
+Choosing what to adjust for depends on the study question and design.
+A variable along the process from practice to the outcome, or one
+affected by both quantities, can change or distort the intended
+comparison when included as a control.
 
-### Three necessary criteria for a causal claim
+The two descriptions therefore answer different questions: the
+zero-code check changes the cases being described; partial correlation
+keeps the same cases and removes their linear relationships with a
+stated third variable. Neither operation replaces the other.
 
-A causal interpretation must address three necessary criteria:
+### Interpret and report the relationship
 
-1. **Association.** The proposed cause and outcome differ or co-vary in the
-   relevant comparison.
-2. **Temporal order.** The proposed cause precedes the outcome over a defensible
-   time scale.
-3. **Credible handling of alternative explanations.** The design and analysis
-   make confounding, selection, measurement, history, and other plausible
-   explanations sufficiently implausible for the claim being made.
+The calculations now give us a description of the school dataset. To explain
+what it means, we connect the patterns to the way the students were observed
+and the measurements were made. This develops Chapter 1's design discussion
+through the data we have just examined.
 
-These are criteria, not three mechanical proofs. The focal records do not
-establish when every absence occurred relative to the assessed outcome and do
-not credibly rule out alternative explanations. Even a visible association
-would not be enough for a causal answer.
+Before reporting the relationship, ask what could have produced it.
+Prior academic difficulty, motivation, or illness could influence both
+attendance and final performance, providing common-cause explanations
+of the observed relationship. Earlier low grades might instead lead
+to disengagement and later absence, illustrating reverse direction.
+These are possibilities to investigate. The recorded pairs alone do
+not establish which explanation applies; we need the timing of the
+absences and assessments and a design that supports the intended
+comparison. Chapter 1, Section 3.2 explains how sampling and assignment
+contribute to that design.
 
-For example, prior academic difficulty, motivation, or illness could influence
-both later attendance and final performance, creating a **common-cause**
-explanation. Earlier low grades might instead lead to later disengagement and
-absence, illustrating **reverse direction**. Students represented in these two
-schools may also differ from students elsewhere, so **selection** can limit the
-scope of the pattern. These are candidate structures to investigate, not facts
-established by this file.
+Association in a causal comparison need not appear as a nonzero
+Pearson correlation or a statistically significant result in the
+sense Chapter 1 defines. A near-zero overall correlation can conceal
+curvature or different subgroup patterns. Its value summarizes the
+linear relationship among the recorded measurements; it does not
+settle what would happen if attendance were changed.
 
-Association here means a difference or relationship in the relevant causal
-comparison, not necessarily a nonzero Pearson correlation or a statistically
-significant result. A near-zero overall correlation can hide a nonlinear
-relationship or different effects in subgroups; it does not rule out causation.
+We can now answer the chapter's question about how absences and grades
+vary together in this set of students. A near-zero
+linear correlation cannot settle the effect of changing attendance, and
+the omission check shows why the coding context matters.
 
-**Random assignment** is a powerful design route for the third criterion
-because it balances pre-assignment alternatives in expectation and establishes
-assignment before an outcome. It does not automatically prove faithful
-intervention delivery, valid measurement, harmless attrition or noncompliance,
-absence of interference, or transport to other settings. **Random selection**
-addresses population representation instead. Confusing the two changes what a
-study can claim.
+A results paragraph can state both the primary description and the
+sensitivity:
 
-## From One Dataset to Repeated Samples
+> Among the 395 students recorded in two secondary schools, recorded absences
+> and final mathematics grades showed almost no overall linear association
+> ($r=.0342$). Omitting the 38 unexplained zero-grade students as a diagnostic
+> gave a modest negative correlation ($r=-.2131$). The interpretation is
+> therefore sensitive to those values. These observational results do not
+> establish the effect of changing attendance or its importance for students
+> in other settings.
 
-The focal record addresses a finite-record associational question with
-descriptive analysis. Many studies instead use a sample to learn about a wider
-population or compare outcomes under a chance-based design. Readers then need
-to distinguish three distributions and understand why a statistic varies
-across repeated samples.
+Each qualification has a concrete role. The named students identify who was
+described; *linear* identifies the feature summarized; the omission check
+makes the sensitivity visible; and *observational* connects the
+interpretation to the design. Rather than repeat a generic caution, explain the particular
+limitation that matters for the result.
 
-### Three distributions answer three questions
+Further investigation would first seek an explanation of the joint zero
+pattern in the codebook or source records. A newly discovered coding error
+could be corrected and the calculations repeated with the change documented.
+A causal question about improving attendance would instead need a design
+that supports that comparison. These are different research tasks, even
+when some data can be reused.
 
-| Object | What varies | Question answered | Example |
-|:-------|:------------|:------------------|:--------|
-| Data distribution | Values across observed cases | What pattern is present in these observations? | The 395 recorded grades |
-| Probability distribution | Possible outcomes under a stated model | What could happen, and with what modeled chances? | A Normal model or a fair-die model |
-| Sampling distribution | A statistic across comparable repeated samples or assignments | How would this statistic vary across repetitions? | Sample means from repeated random samples of size 30 |
+### From describing these students to learning about others
 
-: *Data, probability, and sampling distributions answer different questions.* {#tbl-three-distributions tbl-colwidths="[20,25,30,25]"}
+In the school dataset, no attendance intervention was assigned, and
+the accessible source does not establish random sampling from all
+secondary students. These features bound what the results can tell us
+about changing attendance or describing students elsewhere.
 
-A data histogram contains observed individual values. A Normal curve represents
-a model for possible values. A sampling distribution contains statistics, such
-as sample means, produced across comparable repetitions. A Normal-looking
-sampling distribution does not imply that the observed individual values are
-Normal.
+This still leaves a useful task: describing these students accurately.
+The analysis identifies the grade distribution, a difference in passing
+proportions, and an absence--grade correlation that changes when a
+particular set of values is omitted. Each result names what it
+describes and supplies a starting point for further investigation.
 
-A probability statement is incomplete without a generating story. The story
-might be random sampling, randomized assignment, repeated measurement error, or
-an explicitly assumed model. The arrows in @fig-sampling-sequence
-describe such a process; they do not assert that the focal school records were
-randomly sampled from every population a reader can imagine.
+If we instead selected another sample from a defined population, its
+grades and summaries could differ. We can begin to understand that
+repeat-to-repeat variation using the same tools we have already used:
+graphs, means, and standard deviations. The next section makes the
+repetition explicit, first through an invented school system and then
+through a simulation whose behavior we can inspect.
+
+## From One Sample to Repeated Samples
+
+Until now, our distributions have described measurements from the
+students or other cases in a dataset. A second kind of distribution
+describes what happens to a summary when the sample changes. Seeing
+this distinction is an important step toward understanding uncertainty:
+a mean calculated from one sample is useful, but another sample could
+give a different mean.
+
+### From one sample to several sample means
+
+Return to the invented school system introduced in Section 1.4 and the
+selection procedure described in Section 1.5. The system contains
+**20,000 enrolled students** on a specified date. We want their mean grade and select
+100 students by simple random sampling without replacement. Each
+possible set of 100 students has the same chance of selection, and a
+student can appear only once in that sample. This setting supplies a
+stated sampling design; it makes no additional claim about the
+selection of the 395 students in the Portuguese dataset.
+
+The mean grade of all 20,000 students is a **parameter**: a numerical
+characteristic of the defined population. It is the estimand for this
+question. The mean calculated from the 100 selected students is a
+**statistic**: a numerical summary calculated from sample data. It
+provides an estimate of the population mean. The contrast is simple:
+the population mean is what we want to know, while the sample mean is
+what we can calculate from the selected students.
+
+Suppose the first sample mean is 10.6 grade points. If we could repeat
+the same selection process, a second sample might give 11.2 and a third
+10.9. These are illustrative values, not results calculated from the
+Portuguese dataset. The population and its mean stay the same across
+these imagined selections; the selected students, and therefore the
+sample means, change. Students selected in one sample can appear
+again in another, because each repetition starts from the full
+population.
+
+There are now two different sets of numbers to keep in view. Within
+the first sample, the 100 individual grades have a distribution. Across
+repetitions, the sample means 10.6, 11.2, 10.9, and so on have another
+distribution. A dot in the first distribution represents a student's
+grade; a dot in the second represents the mean from an entire sample
+of 100 students.
 
 ```{r}
-#| label: fig-sampling-sequence
-#| fig-cap: "Repeated sampling links a defined population or chance process to a sampling distribution."
-#| fig-alt: "A defined population or process leads to one sample and one statistic. Repeating that process produces many statistics whose distribution is the sampling distribution."
-#| fig-height: 3.0
-#| out-width: "92%"
-
-old <- par(mar = rep(.15, 4), xpd = NA)
+#| label: fig-ch02-sampling-process
+#| fig-cap: "Repeating the same sampling process produces a distribution of sample means. The grade values are invented illustrations."
+#| fig-alt: "The same population of twenty thousand students supplies three repeated samples of one hundred. Their sample means are ten point six, eleven point two, and ten point nine. The individual grades within a sample and the sample means across repetitions form different distributions."
+#| fig-height: 3.1
+#| fig-pos: "H"
+par(mar = c(0, 0, 0, 0), family = "sans")
 plot.new()
-plot.window(xlim = c(0, 12), ylim = c(0, 4))
-box <- function(x, y, w, h, label, fill) {
-  rect(x - w/2, y - h/2, x + w/2, y + h/2,
-       col = fill, border = "#28424F", lwd = 1.2)
-  text(x, y, label, cex = .78)
+plot.window(xlim = c(0, 10), ylim = c(0, 5), xaxs = "i", yaxs = "i")
+rect(0.1, 1.5, 3.0, 3.5, col = "#E9F0F5", border = "#44657D")
+text(1.55, 2.5, "Same population\n20,000 students", cex = 1.05)
+sample_y <- c(4.2, 2.5, 0.8)
+for (j in seq_along(sample_y)) {
+  arrows(3.1, 2.5, 4.0, sample_y[j], length = .07, col = "#44657D")
+  rect(4.1, sample_y[j] - .55, 7.0, sample_y[j] + .55,
+       col = "#F3F5F5", border = "#647780")
+  text(5.55, sample_y[j], paste0("Sample ", j, "\n100 students"), cex = 1.0)
+  arrows(7.1, sample_y[j], 8.0, sample_y[j], length = .07,
+         col = "#44657D")
 }
-box(1.7, 2, 2.5, 1.0, "Defined population\nor chance process", "#E2EEF3")
-box(5.1, 3, 2.0, .9, "One sample", "#E5EBDD")
-box(8.1, 3, 2.0, .9, "One statistic", "#F4E5CF")
-box(5.1, 1, 2.0, .9, "Many comparable\nsamples", "#E5EBDD")
-box(9.7, 1, 3.0, .9, "Sampling distribution\nof the statistic", "#F4E5CF")
-arrows(3.0, 2.2, 4.05, 2.8, length = .08, col = "#52666F")
-arrows(6.12, 3, 7.05, 3, length = .08, col = "#52666F")
-arrows(3.0, 1.8, 4.05, 1.2, length = .08, col = "#52666F")
-arrows(6.12, 1, 8.15, 1, length = .08, col = "#52666F")
-text(6.8, .35, "Repeat the same stated process", cex = .72, col = "#5A4141")
-par(old)
+text(9, 4.8, "Sample mean", cex = 1.0)
+text(rep(9, 3), sample_y, c("10.6", "11.2", "10.9"), cex = 1.15)
 ```
 
-### Population, sample, parameter, statistic, and estimand
+The **sampling distribution** of a statistic describes its possible
+values under a specified repetition of the sampling or data-generating
+process. Here the statistic is the mean, the sample size is 100, and
+the process is simple random selection from the school system. Naming
+these features matters: changing the sample size or selecting whole
+classes instead of individual students would change the repetition we
+are considering.
 
-These terms describe different parts of the question and evidence. They should
-not be treated as interchangeable vocabulary.
+In practice, researchers usually have one sample. Repeated sampling
+helps us reason about the variation behind that one result. Simulation
+makes this idea visible by creating many samples under conditions we
+have explicitly chosen.
 
-| Concept | Beginner meaning | Important distinction |
-|:--------|:-----------------|:----------------------|
-| Population | Defined collection of units, occasions, or outcomes about which a question is posed | Must be named; it is not automatically everyone |
-| Sample | Units or outcomes selected or observed under a stated process | The analytic sample may be smaller than the observed record |
-| Parameter | Fixed, usually unknown feature of a defined population or probability model | It may be the estimand when the question targets it |
-| Statistic | Numerical function calculated from sample data | It becomes an estimate when used to learn about an estimand |
-| Estimand | Precisely specified quantity the question seeks | What the study seeks, not the observed numerical answer |
-| Estimator | Rule applied to each comparable sample to estimate an estimand | The same rule can produce different estimates |
-| Estimate | Observed numerical result used for an estimand | One realized statistic, not its sampling distribution |
-| Sampling distribution | Distribution of a specified statistic across comparable repetitions | Its observations are statistics, not people or scores |
-| Sampling variability | How a statistic differs across repetitions | Repeat-to-repeat variation, not a data-entry mistake |
-| Realized sampling error | Difference between one estimate and its estimand under the stated model | Usually unknown; not systematic bias or measurement error |
-| Standard error | Standard deviation of a statistic's sampling distribution, or an estimate of that spread | Variability of a statistic, not spread among individuals |
+### See repeated sampling in a waiting-time model
 
-: *A linked family of sampling concepts.* {#tbl-sampling-concepts tbl-colwidths="[19,39,42]"}
+We now change from bounded grades to waiting times in an invented
+service where people wait for assistance. The chosen model allows
+nonnegative waiting times without a fixed upper limit, making a
+right-skewed distribution and its repeated means easy to inspect.
+We use an **exponential probability model** for
+individual waiting times. This model allows many short waits and
+occasional long waits, giving a right-skewed distribution. We choose a
+population mean of 10 minutes and a population SD of 10 minutes. The
+two values are equal for this particular model; means and SDs generally
+describe different features and need not be equal.
 
-Suppose a defined population contains all 20,000 students enrolled in a system
-on a specified date. Its mean grade $\mu$ is a parameter. If the question seeks
-that mean, $\mu$ is also the estimand. A probability sample of 100 students
-produces a sample mean $\bar{x}$, a statistic used as an estimate. The
-**estimator** is the rule "add the selected grades and divide by 100."
-Before a sample is drawn, $\bar X$ denotes the value that this rule will
-produce; after observing it, $\bar x$ denotes its realized value. Suppose the
-observed mean is 10.6 grade points. Repeating the same sample design produces
-many sample means, perhaps 10.6, 11.2, 10.9, and so on; their distribution is
-the sampling distribution. Its SD is the SE, not the SD among 100 students.
+Each simulated waiting time is generated independently from that same
+model. This simplifies the example: actual service data might show
+dependence because several people arrive during the same busy period.
+The simulation asks what happens under the specified independent
+process, rather than claiming that all waiting-time data behave this
+way.
 
-If we knew that the population mean were 11.0, the **realized sampling error**
-would be $\bar x-\mu=10.6-11.0=-0.4$ grade points. The negative sign means
-this estimate falls below the estimand. In practice that difference is
-usually unknown because $\mu$ is unknown. **Sampling variability** describes the
-spread across all repetitions. **Systematic bias** concerns a procedure that
-tends to miss the estimand in a direction. Undercoverage, nonresponse,
-dependence, invalid measurement, and processing mistakes are nonsampling
-problems; larger $n$ does not automatically repair them.
-
-```{=latex}
-\Needspace{10\baselineskip}
-```
-
-For the model illustration that follows, suppose observations are independent
-draws from the same distribution, with finite mean $\mu$ and finite variance
-$\sigma^2$. Its center and spread can be written
-
-$$
-\mu=\mathbb E[X],\qquad
-\sigma^2=\operatorname{Var}(X)=\mathbb E[(X-\mu)^2].
-$$
-
-Here $\mathbb E$ means **expectation**, the probability-weighted average over
-possible outcomes, not an Evidence component such as STAT-E. Variance is the
-expected squared distance from the model mean. This is an explicit sampling
-model for teaching; it is not a newly assumed population model for the 395
-school records. A simple random sample without replacement from a finite list
-is a different design, treated briefly in Appendix C.
-
-We can now finish the $n-1$ explanation. Under these independent,
-identically distributed, finite-variance conditions, $\mathbb E[s^2]=\sigma^2$:
-the conventional sample variance is **unbiased** for the model variance.
-Across repeated samples its average equals $\sigma^2$; a particular $s^2$
-can be too high or too low. Dividing the squared-deviation sum by $n$ instead
-has expectation $(n-1)\sigma^2/n$ and is downward biased for that model
-variance. The zero-sum mnemonic and this sampling property answer different
-questions; Appendix C provides the short derivation [@moore2014].
-
-### Repeated sampling, standard error, and stabilization
-
-To see repeated sampling clearly, imagine a stable right-skewed population with
-mean 10 and standard deviation 10. Take independent random samples of size
-$n$, calculate the mean, replace the sample, and repeat 5,000 times.
-@fig-sampling-means and @tbl-clt-summary summarize the resulting sample
-means.
+The procedure is straightforward. First generate five waiting times,
+then calculate their mean. Start afresh and do this 5,000 times,
+saving one mean from each repetition. Next repeat the procedure with
+30 waiting times per sample, and finally with 100. Each panel in
+@fig-ch02-sampling-means therefore summarizes **5,000 sample means**,
+not 5,000 individual waiting times.
 
 ```{r}
-#| label: fig-sampling-means
-#| fig-cap: "Sampling distributions of the mean from a right-skewed population narrow and become more symmetric as sample size grows."
-#| fig-alt: "Three histograms of five thousand sample means at sample sizes five, thirty, and one hundred share an axis. They remain centered near ten, become narrower, and become more symmetric."
-#| fig-height: 3.7
-
+#| label: fig-ch02-sampling-means
+#| fig-cap: "Simulated sampling distributions of the mean waiting time. Each panel contains 5,000 sample means from independent exponential waiting times with population mean and SD both 10 minutes. The dashed line marks the population mean."
+#| fig-alt: "Three histograms share an axis from zero to thirty-five minutes. For samples of five, sample means are broad and right-skewed. For samples of thirty they are narrower and more symmetric. For samples of one hundred they are tightly concentrated around ten and approximately bell-shaped."
+#| fig-height: 3.4
+#| fig-pos: "H"
 ggplot(sampling_means, aes(x = Sample_mean)) +
-  geom_histogram(bins = 38, fill = "#B9D5E5", color = "white") +
-  geom_vline(xintercept = 10, linetype = 2, color = "#9B3D45") +
-  facet_wrap(~ Sample_size, nrow = 1, labeller = label_both) +
-  coord_cartesian(xlim = c(0, 28)) +
-  labs(
-    x = "Sample mean across repeated samples",
-    y = "Number of repetitions"
-  )
+  geom_histogram(binwidth = .5, boundary = 0,
+                 fill = "#527D98", color = "white", linewidth = .15) +
+  geom_vline(xintercept = 10, linetype = "dashed", color = "#9D4938") +
+  facet_wrap(~ Sample_size, nrow = 1,
+             labeller = labeller(Sample_size = function(x) paste("n =", x))) +
+  scale_x_continuous(breaks = c(0, 10, 20, 30)) +
+  coord_cartesian(xlim = c(0, 35)) +
+  labs(x = "Sample mean waiting time (minutes)", y = "Number of sample means") +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        strip.text = element_text(size = 12))
 ```
 
-```{=latex}
-\Needspace{10\baselineskip}
-```
+All three distributions are centered near 10 minutes, the mean built
+into the model. With only five people per sample, the means vary
+considerably and the distribution still has a noticeable right tail.
+One long wait can pull a small sample's mean upward. With 100 people
+per sample, individual long waits have less influence on the average,
+and sample means tend to be closer to 10.
+
+The simulation also connects with the Normal model introduced earlier.
+The individual waiting times are right-skewed, yet the sample means
+become more nearly bell-shaped as sample size increases. The variable
+being graphed has changed: it is now a mean calculated from several
+waiting times. Neither collecting more cases nor standardizing their
+values makes the distribution of the individual waiting times Normal.
+
+### Standard error as the spread of sample means
+
+We can summarize each histogram just as we summarized grades: find its
+center and its spread. The mean of the 5,000 sample means describes
+the center. Their SD describes how much those means vary across the
+simulated repetitions.
+
+This introduces **standard error (SE)**: the standard deviation of a
+statistic's sampling distribution. For a sample mean, SE describes
+variation among sample means under the specified repetition. In this
+simulation, the SD of the 5,000 means is an empirical approximation
+to that SE. Statistical procedures can also calculate or estimate SE
+from a model and the information in one sample; those calculations
+build on the meaning we can see here.
 
 ```{r}
-#| label: tbl-clt-summary
-#| tbl-cap: "Repeated-sampling summaries under the stated right-skewed population model."
-#| tbl-colwidths: [14, 22, 23, 22, 19]
-
+#| label: tbl-ch02-sampling-summary
+#| tbl-cap: "Center and spread of the simulated sample means, in minutes"
+#| tbl-colwidths: [18, 27, 28, 27]
 sampling_print <- sampling_summary
-sampling_print$Center <- sprintf("%.2f", sampling_print$Center)
-sampling_print$Empirical_SE <- sprintf("%.2f", sampling_print$Empirical_SE)
-sampling_print$Theoretical_SE <- sprintf("%.2f", sampling_print$Theoretical_SE)
-sampling_print$Skewness <- sprintf("%.2f", sampling_print$Skewness)
-names(sampling_print) <- c(
-  "Sample size", "Model SE", "Mean of sample means",
-  "Empirical SE", "Skewness"
+sampling_print[-1] <- lapply(sampling_print[-1], function(x) sprintf("%.4f", x))
+knitr::kable(
+  sampling_print,
+  col.names = c("Sample size", "Mean of sample means", "Empirical SE", "Model SE"),
+  align = "rrrr", booktabs = TRUE, row.names = FALSE
 )
-knitr::kable(sampling_print, booktabs = TRUE, align = c("r", "r", "r", "r", "r"))
 ```
 
-The sample means remain centered near 10. Under the stated independent,
-identically distributed model, averaging $n$ observations with expectation
-$\mu$ still has expectation $\mu$. Independence makes their variances add,
-and dividing a sum by $n$ divides its variance by $n^2$:
+The empirical SE column in @tbl-ch02-sampling-summary comes from the
+simulation. The model SE column gives the corresponding reference
+values for the independent waiting-time model; the general calculation
+is developed with statistical inference. Comparing the two columns
+checks whether the simulation is behaving as expected. Their small
+differences reflect the finite number of simulation repetitions.
 
-$$
-\mathbb E[\bar X]=\mu,\qquad
-\operatorname{Var}(\bar X)=\frac{n\sigma^2}{n^2}
-=\frac{\sigma^2}{n},\qquad
-SE(\bar X)=\frac{\sigma}{\sqrt n}.
-$$
+For samples of five, a mean varies on a scale of about 4.4721 minutes.
+For samples of 100, that scale is about 1.0000 minute. Both are much smaller
+than the **10-minute SD of individual waiting times**, which stays the
+same in all three conditions. SD and SE are therefore answering
+different questions: how much do people's waiting times differ, and
+how much would the mean differ across samples of the stated size?
 
-The **Model SE** column uses that last formula: $10/\sqrt5=4.47$ and
-$10/\sqrt{100}=1.00$. The **Empirical SE** column is the observed SD of the
-5,000 simulated sample means. Its close, but not exact, agreement with Model
-SE is the intended check; a finite simulation introduces some fluctuation.
-Neither column is the SD of individual observations, which stays 10 in the
-generating model.
+It also helps to distinguish SE from the discrepancy in one particular
+sample. Suppose one sample of 100 has a mean of 11.3 minutes. Because
+the model's population mean is known to be 10, this sample's estimation
+error is $11.3-10=1.3000$ minutes. **Sampling error** is the part of an
+estimate's departure from the population quantity that arises from
+observing a sample rather than the whole population. Under this
+illustration's stated model, the 1.3000-minute departure is attributable
+to sampling. Other samples can have positive or
+negative errors. SE describes the spread across those possible
+results; it is neither the signed error of this one result nor a bound
+that every error must fall within. In an actual study the population
+mean is usually unknown, so the exact error of the observed estimate
+is unknown too.
 
-Quadrupling sample size halves the SE because $\sqrt{4n}=2\sqrt n$.
-When $\sigma$ is unknown, $s/\sqrt n$ estimates the mean's SE under these
-conditions. Positively related observations, such as repeated visits from one
-person, supply less independent information: the iid formula can then be too
-small. A larger row count is not a substitute for the independence assumption.
+Coverage, nonresponse, and measurement error are separate sources of
+error. A missing group in the sampling frame, a selected student's
+nonresponse, or an inaccurate measurement can change what an estimate
+describes. SE characterizes sampling spread under the stated process;
+it does not encompass every source of error in a study.
 
-The **law of large numbers** says, under independent, identically distributed
-sampling with a finite mean, that the sample mean becomes increasingly likely
-to lie close to the population mean as $n$ grows. In @tbl-clt-summary,
-increasing concentration around 10 is the visible lesson.
-The law does not force later observations to compensate for earlier ones, make
-individual values less variable, or turn a large convenience sample into a
-representative one.
+### Sample size and number of repetitions
 
-The decreasing skewness in the table illustrates a different lesson: in this
-example, the sampling distribution of the mean becomes more nearly Normal as
-$n$ grows. Under independent, identically distributed sampling with finite,
-nonzero variance, the **central limit theorem** explains this approximate
-Normal shape after centering the means and scaling by their SE. It supplies
-no universal sample-size cutoff. **Concentration** and **approximate shape**
-are not the same claim.
-Neither theorem repairs poor measurement, dependence, selection, or causal
-design.
+The simulation has two counts with different jobs. **Sample size** is
+the number of people whose waits enter one mean: 5, 30, or 100.
+**Number of repetitions** is the number of independently generated
+samples used to display how that mean varies: 5,000 for each condition.
 
-No interval or p-value is used to convert the fixed observational school record
-into a population inference. These concepts prepare the repeated-sampling
-foundation needed when later studies develop estimators, estimates, standard
-errors, intervals, and tests more fully.
+Increasing sample size changes the statistic's sampling distribution.
+Each mean combines more observations, and in this independent model
+its spread becomes smaller. Increasing the number of repetitions gives
+a clearer picture of the sampling distribution for the existing
+sample size. For example, generating 20,000 samples of five would make
+the first histogram smoother and its empirical SE more stable. It
+would still describe means based on five people, with an SE close to
+4.4721 minutes.
 
-### Complete the bounded answer and make the argument visible
+The model SE column shows a useful square-root regularity. Moving
+from 5 to 100 people multiplies sample size by 20, while SE falls
+from about 4.4721 to 1.0000, a reduction by about $\sqrt{20}=4.4721$ rather
+than by 20. Under the same independent model, quadrupling sample
+size from 100 to 400 would halve SE from 1.0000 to 0.5000 minute. This
+explains why substantial gains in precision can require substantial
+increases in sample size.
 
-@tbl-ch02-argument is a reading checkpoint, not an evaluation scorecard.
-The four rows are argument components. The linked columns show their statistical
-and substantive content, followed by representative documentary traces. A
-single source may support several components; a component may have several
-traces.
+The conditions remain important. Sampling students in the same class
+or observing patients during the same busy period can supply less
+independent information than the same number of unrelated observations.
+More cases can improve precision while leaving a systematic selection
+problem in place. A very large volunteer sample may describe its
+volunteers precisely and still differ from the population of interest.
 
-| Component | Statistical layer | Substantive layer | Representative documentary trace and status |
-|:----------|:------------------|:------------------|:---------------------------------------------|
-| Evidence | 395 numeric pairs for absences and final grade; visible distributions; 38 zero grades all paired with zero absences | Two-school student records; documented 0--20 final-grade scale and recorded absence counts; unexplained joint zero pattern | Adapted data file and variable documentation: **located in related materials**; zero-pattern explanation: **not located**; displayed pattern: generated in this chapter from that file |
-| Justification | The declared finite-record Pearson correlation matches the requested linear association; the paired-record denominator and coding rule identify the calculation's scope | Recorded variables are interpreted as absence counts and final mathematics grade, within the documented schools and scale | Analysis rationale: stated in this chapter; source meanings: **located in related materials** |
-| Inference | The plot and $r=.034$ indicate almost no overall linear association as recorded; $r=-.213$ after the diagnostic omission shows material sensitivity to the zero pattern | The numerical and graphical results are interpreted as local observational descriptions with unresolved coding context, not intervention effects | Figure and summaries: generated in this chapter; zero-pattern explanation: **not located**; interpretation: stated in this chapter |
-| Bounded Claim | Almost no overall linear association in all 395 source-coded records, with a modest negative diagnostic after omitting zero grades; no preferred deletion or exclusion of hidden forms | The as-recorded direction does not settle a coding-insensitive attendance--performance relationship; no conclusion that attendance is unimportant, causal, or population-wide | Opening overclaim: hypothetical wording introduced in this chapter; revised sensitivity-bounded answer: constructed in this chapter; no source-paper contradiction is claimed |
+### What stabilizes and what becomes more nearly Normal
 
-: *Reading one associational argument, analysed descriptively, with linked statistical and substantive layers.* {#tbl-ch02-argument tbl-colwidths="[14,27,29,30]"}
+Two changes are visible as sample size increases, and it helps to
+describe them separately. First, the means concentrate more closely
+around 10. Larger samples are less likely to give a mean far from the
+model's population mean. This illustrates the stabilization of an
+average: short and long waits tend to balance more effectively across
+many observations.
 
-The statistical layer establishes what was calculated and inferred from the
-record. The substantive layer builds on and contextualizes that support. Its
-Justification augments and contextualizes the statistical justification by
-connecting the recorded variables, school setting, and question; it does not
-duplicate or automatically strengthen the statistical work. The transitions
-must preserve magnitude, visible form, design status, and scope.
+Second, the distribution of sample means becomes more nearly symmetric
+and bell-shaped. Shape and spread are different features. A narrow
+distribution need not be Normal, and a Normal distribution can be wide
+or narrow. Here the three panels show both concentration and a change
+in shape, under one explicitly stated model.
 
-The opening school report is hypothetical, so this worked example has no source
-paper to which the analysis, figures, interpretation, or revised answer can be
-attributed. The external documentary traces used here are the adapted data file
-and its source documentation; the chapter generates and interprets its own
-analysis. In a real study, if a relevant component cannot be found, record
-**not located** as the documentary status. That label does not mean the work was
-never done. The pair-level phrase **not assessable from the accessible record**
-belongs to quality evaluation, not documentary tracing.
+The law of large numbers and the central limit theorem provide formal
+accounts of these ideas under their respective conditions. The
+simulation gives us something concrete to attach to those later
+accounts: averages settling near a population value, and the shape of
+their variation across samples becoming more nearly Normal. A sample
+size such as 30 is not a universal threshold; the behavior depends on
+the distribution and dependence of the observations.
 
-::: {.callout-note title="Secondary use: selected quality-evaluation questions"}
-Only after reading the argument do we evaluate its support. Four of Chapter
-1's six questions are especially informative here:
+The progression from grades to sample means is now complete. We began
+by describing variation among cases, then used the same descriptive
+tools to examine variation among summaries. The next step is to use a
+stated sampling or data-generating process to quantify uncertainty
+about an estimand from the one sample actually available.
 
-| Quality-evaluation question | Judgment and reason |
-|:----------------------------|:--------------------|
-| **Evidence integrity** | **Insufficient information to judge.** The underlying measurement cannot be settled: numeric entries, documented ranges, and the denominator are traceable, but the sources do not explain why all 38 final-grade zeros pair with zero absences. The as-recorded analysis and sensitivity preserve rather than resolve that limitation, and neither establishes wider representation. |
-| **Inferential adequacy** | **Adequate for this purpose.** For the as-recorded estimand after reporting sensitivity, the graph, smooth, covariance, and primary correlation address visible form and the declared all-record quantity; the diagnostic omission shows that a coding-insensitive interpretation remains unsupported. |
-| **Transition fidelity** | **Needs revision.** The opening move from near-zero recorded correlation to what attendance “matters” for drops the observational and local limits. |
-| **Claim calibration** | **Needs revision.** “Attendance does not matter” is stronger and broader than a near-zero finite-record linear association supports. |
+## Reading Bridge
 
-These judgments form a profile, not a summed score. The pair-level evaluation
-conclusion is **supported only after narrowing or revision**: the same
-associational question can be answered defensibly by replacing the opening
-overclaim with the bounded local answer above, provided that the unresolved
-zero-pattern sensitivity remains attached.
-:::
+This chapter began by reading cases, variables, layouts, denominators,
+and sample-selection procedures. We then turned measurements into
+descriptions: the shape, center, and spread of one distribution;
+group means with separate spreads and a count-weighted grand mean;
+conditional proportions for two categorical variables; and a
+scatterplot with covariance and correlation for two quantitative ones.
+Grouping indicators made category membership explicit. Probability models
+describe possible values; transformations and Normal areas connect
+measurement scales with probabilities. Partial correlation adds a
+specified linear adjustment while retaining the same cases.
 
-{{< pagebreak >}}
+We then interpreted a description in its study setting and watched the
+same tools describe sample means under a stated repetition. A sampling
+distribution shows how a statistic varies, and its standard error
+describes that spread. One sample's sampling error is its particular
+departure attributable to sampling. The selection design matters to
+the repetition and its spread.
+Larger samples and more simulation repetitions change different things.
 
-::: {.callout-note title="Auxiliary use: selected construction stages"}
-For a researcher conducting a similar study, this chapter illuminates parts of
-Stages 3--6:
+Chapter 3 uses the stated repetition and its conditions to calculate
+uncertainty for an estimate from one sample, through standard errors,
+confidence intervals, and tests. Chapter 4 uses group means, deviations,
+and spread to compare several groups with one-way and two-way analysis
+of variance.
 
-- **Stage 3:** Align design, measurement, estimand, evidence-production or
-  acquisition plan, and inferential plan.
-- **Stage 4:** Produce or acquire, and document, empirical and contextual
-  evidence.
-- **Stage 5:** Estimate, check, and analyse.
-- **Stage 6:** Contextualize, interpret, and complete the bounded answer.
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
 
-Here Stage 5 includes the graph-first description.
+### Key terms {.unnumbered #sec-ch02-key-terms}
 
-Adding jitter or a complementary display after checking the data is a
-within-Phase-2 repair: the Phase 1 anchor has not changed. Retroactively
-changing the question to a causal effect changes the anchored question, mode,
-estimand, and design obligation. The existing cycle must receive an explicit
-outcome, and an additional or revised cycle is required. Defensible elements
-may be reused only with their provenance and changed status visible.
-:::
+Use this short reference to revisit the main concepts as needed. The
+Part One introduction gives the broader reference and the principal
+home of each concept; familiar alternative labels appear there when
+helpful.
 
-## Summary and Reading Bridge
+| Term and common alternatives | Meaning |
+|:--|:--|
+| Case | The entity or measurement occasion described in a dataset. Depending on the study, a case may be a student, a class, or one measurement occasion for a student. |
+| Variable | A characteristic that can take different values across cases or occasions. A dataset records values of one or more variables for its cases. |
+| Quantitative variable (numerical variable) | A variable expressing an amount, including continuous measurements and discrete counts or scores. Its units and scale determine what numerical differences mean. |
+| Categorical variable | A variable whose values identify categories. Nominal categories have no intrinsic order; ordinal categories have an order; a binary variable has two categories. |
+| Population | The collection of units a question concerns. It may be the participating students themselves or a wider collection to which the findings might extend. |
+| Sample | A selected set of units from a larger collection. Calling a set a sample does not by itself explain how it was selected or which population it represents. |
+| Analysis sample | The units whose data contribute to a particular analysis. Eligibility, missing measurements, and exclusions can make this set and its denominator differ across analyses. |
+| Sampling design (sampling scheme) | The specified procedure for selecting a sample, including selection stages, grouping, and, for probability sampling, the selection probabilities. |
+| Simple random sampling | Selection in which every possible sample of the specified size has the same probability of being chosen. |
+| Empirical distribution (observed distribution; data distribution) | How the observed values are distributed across values or intervals, including their frequencies, center, spread, and shape. A probability model is a separate description of possible values. |
+| Mean (arithmetic mean) | The sum of the numerical values divided by their count. Every included value contributes, so unusual values can shift the mean. |
+| Median | The middle value after ordering the data, or the average of the two middle values when the count is even. It describes the center by position. |
+| Quartile | A cut point dividing ordered data into quarters. The first and third quartiles mark approximately the lower and upper edges of the middle half; calculation conventions can differ. |
+| Interquartile range (IQR) | The third quartile minus the first quartile: the width of the middle half of the ordered data, expressed in the variable's original units. |
+| Variance | A measure of spread based on squared deviations from the mean. The usual sample variance divides their sum by $n - 1$ and is expressed in squared units. |
+| Standard deviation (SD) | The square root of the variance, expressing spread around the mean in the variable's original units. Applied to individual observations, it describes variation among their values; applied to a statistic's sampling distribution, it is the SE. |
+| Grand mean | The mean across all included cases. It equals the average of the group means weighted by their group counts, so larger groups contribute more. |
+| Degrees of freedom (df) | A count reflecting freely varying information after constraints or fitted quantities are taken into account. The $n$ deviations from their own mean sum to zero, leaving $n - 1$ free. |
+| Standardized value (z score) | A value minus a specified mean, divided by a specified standard deviation. It expresses distance in SD units; standardizing alone preserves the distribution's shape. |
+| Normal distribution (Gaussian distribution) | A symmetric, bell-shaped probability model described by a mean and standard deviation. The standard Normal has mean zero and SD one; observed data need not follow this model. |
+| Conditional proportion | The proportion in one category among cases satisfying a stated condition. Its denominator is the count in that conditioning group, such as students in one education-intention category. |
+| Covariance | A summary based on products of paired deviations from the two means. Its sign shows the direction of joint variation; its magnitude depends on both variables' units and spreads. |
+| Pearson's correlation (Pearson's r; product-moment correlation) | Covariance divided by the product of the two SDs. For variables with nonzero spread, it describes direction and strength of linear association on a scale from -1 to 1. |
+| Sampling distribution | The distribution of a statistic, such as a sample mean, across repeated samples generated by a stated sampling procedure or model. Repeated sample summaries in a simulation approximate this distribution. |
+| Sampling error | The part of an estimate's departure from the population quantity that arises from observing a sample rather than the whole population. It varies across repetitions, and its spread is the SE; coverage, nonresponse, and measurement error are separate. |
+| Standard error (SE) | The standard deviation of a statistic's sampling distribution under a stated sampling procedure or model. It describes spread across repeated sample summaries, distinct from individual-value SD and one sample's difference from the population quantity. |
+| Data matrix | A rectangular arrangement with cases in rows and variables in columns; $x_{ij}$ denotes case $i$ on variable $j$. |
+| Binary variable (0/1 coding) | A binary variable has two possible categories; a 0/1 coding marks membership or occurrence. Its sample mean is the proportion coded 1. |
+| Linear transformation | $Y=a+bX$ changes the center to $a+bE(X)$ and the SD to $\lvert b\rvert SD(X)$; a negative $b$ also reverses order. |
+| Bernoulli; binomial; categorical; Poisson; lognormal; logistic | Respectively a binary outcome, a count of successes in fixed independent equal-probability trials, one category, an event count under a specified rate model, a positive variable with Normal log, and a continuous symmetric distribution used here as a preview. Logistic regression later models Bernoulli outcomes. |
+| Density; cumulative distribution function; quantile | Density determines probability by area for a continuous variable; the CDF gives $P(X\le x)$; a quantile is a value reaching the stated cumulative probability. |
+| Rank correlation; point-biserial correlation | Spearman uses ranks; Kendall summarizes concordance; point-biserial is Pearson correlation with one binary variable coded 0/1. Each addresses a specified relationship. |
+| Partial correlation | Correlation between two variables after their linear relationships with stated controls are removed by regression; it describes residual association and does not establish causal adjustment. |
+| Parameter | A numerical characteristic of a population or probability model, such as a population mean. A parameter may be the estimand; the question determines which quantity is sought. |
+| Statistic | A quantity calculated from sample data, such as a sample mean or proportion. The same statistic can summarize the sample or serve as an estimate for a wider target. |
 
-A careful reading of an associational question analysed descriptively follows
-the support from question to bounded answer:
+: Selected concepts for describing data and sampling variation {#tbl-ch02-key-terms tbl-colwidths="[28,72]"}
 
-1. State the question, estimand, and intended answer mode.
-2. Identify what each row, variable, value, scale, and denominator represents.
-3. See the observations before reducing them.
-4. Choose graphs and summaries that fit the question, variable forms, and
-   visible shape.
-5. Distinguish linear association from curvilinear form and from causation.
-6. Distinguish a statistic in one sample from its sampling distribution.
-7. Carry measurement, design, uncertainty, and scope limits into the bounded
-   answer.
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
 
-For the focal record, the answer is modest: absences and final grades show
-almost no overall linear association among all 395 source-coded records, while
-a diagnostic omission of the 38 zero grades gives a modest negative
-association. Because the documentation does not explain that joint zero
-pattern, neither result licenses the stronger claims that attendance is
-unimportant, that changing attendance would not affect grades, or that the same
-result holds elsewhere.
+### Further reading {.unnumbered #sec-ch02-further-reading}
 
-Reading the argument is the primary use. Evaluating its quality is a dependent
-secondary use, illustrated by four selected questions. The construction
-workflow is an auxiliary use for researchers and was invoked only where the
-chapter's descriptive work illuminates Stages 3--6.
-
-### Essential glossary
-
-**Case.** The entity or occasion represented by one row.
-
-**Distribution.** The arrangement of values across observed cases, possible
-model outcomes, or repeated statistics, depending on the object named.
-
-**Estimand.** The precisely specified quantity the question seeks.
-
-**Estimate.** The observed numerical result used to learn about an estimand.
-
-**IQR.** The distance $Q_3-Q_1$, covering the middle half of ordered
-observations.
-
-**Pearson's correlation.** A unit-free summary of linear direction and strength
-between two quantitative variables.
-
-**Sample variance and standard deviation.** Squared and original-unit measures,
-respectively, of spread around the sample mean.
-
-**Sampling distribution.** The distribution of a specified statistic over
-comparable repeated samples or assignments.
-
-**Standard error.** The standard deviation of a statistic's sampling
-distribution, or an estimate of that spread.
-
-### Further reading
-
-- The ASA GAISE College Report emphasizes statistical problem solving through
-  questions, data, analysis, and interpretation [@asa2016gaise].
-- OpenIntro's free materials connect data graphics, numerical summaries, and
+- OpenIntro connects graphical descriptions, numerical summaries, and
   foundations for inference [@cetinkaya2024].
-- [NIST's exploratory-data guidance](https://www.itl.nist.gov/div898/handbook/eda/section1/eda15.htm)
-  emphasizes graphical examination before model reduction.
-- The UCI student-performance source documents the variables and provenance of
-  the worked record [@cortez2008data].
+- The ASA GAISE College Report emphasizes learning statistics through
+  questions, data, analysis, and interpretation [@asa2016gaise].
+- Moore, McCabe, and Craig develop the connections among descriptive
+  summaries, sampling, and inference [@moore2014].
+- NIST's distribution gallery and the R reference explain distribution
+  properties and correlation definitions [@nistDistributionGallery;
+  @rCoreCorrelation; @rCoreLogistic].
+- The UCI source supplies the student-performance data and codebook
+  [@cortez2008data].
+- Statistics Canada's introductory sampling overview compares probability
+  schemes and nonprobability selection
+  [@statcan2021probability; @statcan2021nonprobability].
 
-## Exercises {.unnumbered}
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
 
-The exercises are modular and code independent. Use only the evidence provided
-unless a prompt explicitly invites outside material.
+## Exercises {.unnumbered #sec-ch02-exercises}
+
+These exercises can be completed by hand with a standard calculator.
+Each supplies its own data or study description.
+
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
 
 <!-- prompt-id: CH02-E01 -->
-### Exercise 1: Identify the evidence structure (Foundational) {.unnumbered #ex-ch02-01}
+### Exercise 1: Understand the cases and variables (Foundational) {.unnumbered #ex-ch02-01}
 
-A clinic report contains one row per visit. Some patients appear in several
-rows. The file records patient ID, clinic, visit date, waiting time in minutes,
+An invented clinic dataset contains information for individual visits. Some
+patients have several visits. The variables are patient ID, clinic, visit
+date, waiting time in minutes,
 and whether the patient returned within 30 days. Of 1,240 visits, waiting time
 is missing for 36, return status is missing for 81, and 10 visits are missing
 both.
 
 Identify:
 
-1. the case represented by one row;
+1. the case represented by each observation;
 2. the observational unit or occasion;
 3. one identifier, one quantitative variable, and one categorical variable;
 4. why 1,240 visits should not be described as 1,240 independent patients;
@@ -1456,10 +2158,15 @@ Identify:
    status; and
 6. one question that must be answered before generalizing beyond these visits.
 
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
 <!-- prompt-id: CH02-E02 -->
 ### Exercise 2: See and summarize one distribution (Foundational) {.unnumbered #ex-ch02-02}
 
-Eight recorded completion times, in minutes, are:
+Eight invented completion times, in minutes, are:
 
 > 2, 4, 4, 4, 5, 5, 7, 9
 
@@ -1471,8 +2178,13 @@ Eight recorded completion times, in minutes, are:
    choose a pair of summaries and explain why.
 5. Name one feature that the chosen pair does not show.
 
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
 <!-- prompt-id: CH02-E03 -->
-### Exercise 3: Read a Normal model and standardized value (Foundational) {.unnumbered #ex-ch02-03}
+### Exercise 3: Interpret a Normal model and standardized value (Foundational) {.unnumbered #ex-ch02-03}
 
 A reference model for a score is Normal with mean 50 and standard deviation 10.
 A learner receives 65.
@@ -1485,10 +2197,15 @@ A learner receives 65.
 4. State one question that cannot be answered without additional probability
    information or a Normal table.
 
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
 <!-- prompt-id: CH02-E04 -->
 ### Exercise 4: Compare a graph, covariance, and correlation (Foundational) {.unnumbered #ex-ch02-04}
 
-A scatterplot of weekly practice hours and assessment score follows a clear
+In an invented study, a scatterplot of weekly practice hours and assessment score follows a clear
 U-shaped curve. The sample covariance is 0.80 hour-points and Pearson's
 correlation is .03.
 
@@ -1498,257 +2215,239 @@ correlation is .03.
    units?
 4. If hours are converted to minutes, what happens to the covariance and to
    Pearson's correlation?
-5. Write one bounded descriptive sentence that respects the graph.
+5. Write one descriptive sentence that reflects the pattern in the graph.
 
-<!-- prompt-id: CH02-E05 -->
-### Exercise 5: Apply the three causal criteria (Integrative) {.unnumbered #ex-ch02-05}
-
-An observational study finds that students who voluntarily attend tutoring
-have higher end-of-term scores than students who do not. Attendance is recorded
-during the term; the outcome is measured at the end.
-
-1. Which of the three necessary causal criteria are partly visible from this
-   information?
-2. Give two plausible alternative explanations.
-3. Explain how random assignment to a tutoring offer could strengthen the
-   design.
-4. Name two problems random assignment would not automatically solve.
-5. Write an associational answer supported by the stated evidence.
-
-<!-- prompt-id: CH02-E06 -->
-### Exercise 6: Interpret population, sample, and repeated sampling (Integrative) {.unnumbered #ex-ch02-06}
-
-A school system defines its population as all 20,000 enrolled students on
-1 September. It draws a simple random sample of 100 students without replacement and
-uses their mean attendance rate to estimate the population mean. Across many
-such samples, the mean of the sample means is 91.0%, their standard deviation is
-1.2 percentage points, and the realized sample mean is 89.7%.
-
-1. Identify the population, sample, parameter, statistic, estimand, estimator, estimate,
-   sampling distribution, sampling variability, realized sampling error, and
-   standard error.
-2. If the true population mean is 91.0%, calculate the realized sampling error.
-3. If the sample size increased from 100 to 400, use the square-root rule to
-   approximate the new SE. Explain why this is an approximation for sampling
-   without replacement, rather than an exact independent-sampling result.
-4. State why a larger sample would not repair an invalid attendance measure or
-   an incomplete sampling frame.
-5. Relate the increasing concentration of sample means to the law of large
-   numbers without using a compensation story.
-
-<!-- prompt-id: CH02-E07 -->
-### Exercise 7: Read and then evaluate a bounded argument (Integrative) {.unnumbered #ex-ch02-07}
-
-A report asks: “Among 260 volunteers in an online training course, how strong
-is the linear relationship between logged study minutes and final quiz score?”
-It documents one row per volunteer, 18 missing quiz scores, a Pearson
-correlation of .41 among 242 complete pairs, and a scatterplot showing a
-moderate positive linear pattern with two high-leverage observations. The
-report concludes: “More study time raises scores for online learners
-everywhere.” The course platform's data dictionary is available, but the
-recruitment notice and analysis script are not located.
-
-1. State the question--answer pair and its intended estimand for all 260
-   volunteers, preserving what the report actually asks and claims.
-2. Fill the Evidence, Justification, Inference, and bounded Claim rows for the
-   statistical and substantive layers.
-3. Identify representative documentary traces and give each a documentary
-   status. Record any contradiction separately.
-4. State the report's answer before judging it.
-5. Apply Evidence integrity, Inferential adequacy, Transition fidelity, and
-   Claim calibration using Chapter 1's judgment labels. At this evaluation
-   stage, explain whether the complete-pair correlation identifies the
-   260-volunteer estimand without additional assumptions.
-6. Give one pair-level evaluation conclusion for the original 260-volunteer
-   pair and state what, if anything, the accessible record supports. If you
-   formulate an answer for the 242 complete pairs, state whether it belongs to
-   the original pair or to an additional or revised pair.
-7. Is checking the two high-leverage observations a within-Phase-2 repair, or
-   does it require an additional or revised cycle? Explain.
-8. Would changing the question to the causal effect of assigning extra study
-   time preserve the Phase 1 anchor? Explain.
-
-## Appendix A: Conditional Probability and Independence {.unnumbered}
-
-Conditional probability changes the reference set. For events $A$ and $B$,
-$A\cap B$ means "both $A$ and $B$ occur," and $P(A\mid B)$ means "the
-probability of $A$ given that $B$ occurred."
-
-$$
-P(A\mid B)=\frac{P(A\cap B)}{P(B)},\qquad P(B)>0.
-$$
-
-The denominator is the number or probability of cases satisfying $B$, not the
-whole record. Suppose a study records the following support and pass counts:
-
-| Recorded school support | Passed | Did not pass | Total |
-|:------------------------|-------:|-------------:|------:|
-| Yes | 14 | 37 | 51 |
-| No | 218 | 126 | 344 |
-| Total | 232 | 163 | 395 |
-
-: *Hypothetical two-way display of support and pass status for denominator practice.* {#tbl-conditional-example tbl-colwidths="[38,20,22,20]"}
-
-The joint empirical proportion for support and passing is $14/395=.0354$
-(3.54%). The conditional proportion passing among support recipients is
-$14/51=.2745$ (27.45%). The marginal proportion passing is
-$232/395=.5873$ (58.73%). Each answers a different question. These are empirical
-probabilities for a uniformly selected record from this table, not automatically
-population probabilities.
-
-Events are independent in a probability model when
-
-$$
-P(A\cap B)=P(A)P(B),
-$$
-
-or, when the conditioning probability is positive,
-$P(A\mid B)=P(A)$. An observed difference between proportions is descriptive.
-Whether it reflects chance, bias, confounding, or a stable population
-difference requires further support. Empirical independence in one finite table
-is also different from assuming independence in a probability model.
-
-## Appendix B: Random Variables and Probability-Model Detail {.unnumbered}
-
-A **random variable** assigns a number to each outcome of a stated chance
-process. A probability model should name its repeatable story, possible
-outcomes, parameters, and conditions.
-
-For example, let $X$ be the number of successful submissions in 10
-hypothetical independent attempts, each with constant success probability
-$p=.70$. Then
-
-$$
-X\sim\operatorname{Binomial}(10,.70),\qquad
-P(X=x)={10\choose x}(.70)^x(.30)^{10-x}.
-$$
-
-The expression ${10\choose x}$ counts the different ways to place $x$
-successes among 10 attempts. For exactly nine successes, any one attempt could
-be the failure, giving 10 possible arrangements:
-$P(X=9)=10(.70)^9(.30)=.1211$, about 12.1%. For this model,
-$\mathbb E[X]=10(.70)=7$ and
-$\operatorname{Var}(X)=10(.70)(.30)=2.1$, so its SD is
-$\sqrt{2.1}=1.45$ successes. The expectation is a model average, not a promise
-that a particular set of 10 attempts contains seven successes.
-
-The model is plausible only if the number of attempts is fixed, each outcome is
-meaningfully binary, trials are independent for the purpose at hand, and the
-success probability remains constant. Real repeated attempts may violate these
-conditions through learning, fatigue, feedback, or shared conditions.
-Simulation can expose the implications of assumptions; it cannot validate the
-assumptions from the data alone.
-
-A Normal model likewise has a story and parameters. Its symmetric density may
-be useful for a measurement model or sampling approximation, but the density
-does not prove that observed values are Normal. Tail probabilities answer
-model-based questions only after the model and its conditions are defended.
-
-## Appendix C: Stabilization, Sampling Shape, and Formal Results {.unnumbered}
-
-The main text used one repeated-sampling table to distinguish concentration
-from approximate sampling shape. A running mean gives another view of
-stabilization.
-
-```{r}
-#| label: fig-running-mean
-#| fig-cap: "One running mean from independent right-skewed draws stabilizes near the population mean of 10."
-#| fig-alt: "The running mean varies widely early and gradually settles near a horizontal line at ten by four hundred draws."
-#| fig-height: 3.0
-
-ggplot(lln, aes(x = Draw, y = Running_mean)) +
-  geom_line(color = "#2F6073", linewidth = .65) +
-  geom_hline(yintercept = 10, linetype = 2, color = "#9B3D45") +
-  labs(x = "Number of draws included", y = "Running sample mean")
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
 ```
 
-Under independent, identically distributed sampling with a finite absolute
-mean ($\mathbb E[|X|]<\infty$),
-the law of large numbers formalizes the concentration of $\bar X_n$ near
-$\mu$ as $n$ increases: $\bar X_n\xrightarrow{p}\mu$. The arrow means
-**convergence in probability**: for any fixed positive tolerance, the chance
-of falling outside it tends to zero as $n$ grows. It does not say that
-short-run imbalances must reverse.
+<!-- prompt-id: CH02-E05 -->
+### Exercise 5: Choose the denominator for a categorical comparison (Foundational) {.unnumbered #ex-ch02-05}
 
-Under common conditions including finite nonzero variance $\sigma^2$, the
-central limit theorem describes the standardized sampling shape:
+In the mathematics dataset, 375 students reported an intention to pursue
+higher education: 258 passed and 117 did not. Of the 20 students without
+that intention, 7 passed and 13 did not.
+
+1. Organize the counts in a two-way table with totals.
+2. Calculate the passing proportion within each intention group and
+   their difference in percentage points.
+3. Among students who passed, what proportion reported a
+   higher-education intention? Explain why its denominator differs
+   from the denominators in part 2.
+4. Explain why comparing 258 passes with 7 passes alone would be
+   misleading.
+5. Give one plausible reason for the association other than a causal
+   effect of the reported intention.
+
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH02-E06 -->
+### Exercise 6: Describe groups and their grand mean (Integrative) {.unnumbered #ex-ch02-06}
+
+An invented task produces the following completion times, in minutes:
+
+- Group A: 2, 4.
+- Group B: 4, 4, 6, 10.
+
+1. Display the observations by group and calculate each group mean.
+2. Calculate the grand mean from all six times, then reproduce it
+   using the group means and group sizes.
+3. Explain why an unweighted average of the two group means gives a
+   different answer.
+4. Calculate each group's sample variance and SD. Describe the
+   difference in both center and spread.
+5. Split the ten-minute learner's deviation from the grand mean into
+   a within-group deviation and the group mean's deviation from the
+   grand mean.
+6. Does the difference in group means establish that membership in
+   Group B caused a longer completion time? State the design
+   information you would need.
+
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH02-E07 -->
+### Exercise 7: Interpret an incomplete observational dataset (Integrative) {.unnumbered #ex-ch02-07}
+
+A report asks: "Among 260 volunteers in an online training course, how strong
+is the linear relationship between logged study minutes and final quiz score?"
+It documents measurements for each volunteer, 18 missing quiz scores, a Pearson
+correlation of .41 among 242 complete cases, and a scatterplot showing a
+moderate positive linear pattern and two volunteers whose study times are
+much higher than those of the other volunteers.
+The report concludes: "More study time raises scores for online learners
+everywhere." The course platform's codebook is available, but the recruitment
+notice and analysis script are not supplied.
+
+1. Identify the predictor and outcome, their observational unit,
+   and the group named by the research question. What precisely is the
+   estimand for that group?
+2. Explain why the calculated correlation uses 242 rather than 260 volunteers.
+   Does it describe the relationship among all 260 without further information
+   or assumptions about the missing scores?
+3. Interpret $r=.41$ alongside the scatterplot. Explain what the coefficient
+   summarizes and what inspecting the two unusually high study times could add.
+4. Identify two things you would seek in the codebook, methods, or analysis
+   details before interpreting the result more broadly. Explain why each
+   would matter.
+5. Explain the difficulty with "raises scores" and "online learners everywhere."
+   Which features of the design and participant selection would be needed to
+   support those claims?
+6. Rewrite the conclusion for the 242 complete cases, preserving the
+   distinction from the original 260-volunteer question and the uncertainty
+   created by the missing scores.
+7. Suppose checking those two volunteers' measurements reveals a coding error.
+   Explain how you would correct and report the analysis. How would this
+   differ from asking a new causal question about assigning additional
+   study time?
+
+
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
+<!-- prompt-id: CH02-E08 -->
+### Exercise 8: Distinguish individual variation from sampling variation (Integrative) {.unnumbered #ex-ch02-08}
+
+Use the same kind of independent waiting-time model as in Section 4,
+with population mean and SD both 10 minutes. For this exercise, suppose
+a simulation generates 5,000 samples of 100 waiting times each and
+supplies the following illustrative results: the mean of the 5,000
+sample means is 10.02 minutes, their SD is 1.01 minutes, and one sample
+has a mean of 11.3 minutes. These supplied results serve the exercise;
+the chapter's particular seeded run has its own reported summaries.
+The model SE for samples of 100 is 1.00 minute.
+
+1. Identify the population parameter being estimated and the statistic
+   calculated in each sample. What does one value in the simulated
+   sampling distribution represent?
+2. Explain the different meanings of the individual SD of 10 minutes
+   and the empirical SE of 1.01 minutes. What does comparing 1.01 with
+   the model SE of 1.00 help you check?
+3. Calculate the estimation error of the sample mean 11.3. Explain how
+   this one error differs from SE, and why its exact value is known in
+   this simulation but usually unknown in a study.
+4. Under the same independent model, what approximate SE would you
+   expect for samples of 400? Explain using the square-root regularity.
+   What would change instead if you kept sample size at 100 but
+   generated 20,000 simulation repetitions?
+5. A student concludes that individual waiting times must become
+   Normally distributed when the sample size is large. Use the
+   simulation to distinguish the distribution of individual waits
+   from the distribution of their sample mean.
+
+```{=latex}
+\Needspace{12\baselineskip}
+\phantomsection
+```
+
+## Appendix A: Weighted Means and Descriptive Identities {.unnumbered #sec-ch02-appendix}
+
+These short developments explain relationships used in the main text.
+They concern observed values and can be followed without a probability
+model.
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+### Why the grand mean uses group sizes {.unnumbered #sec-ch02-weighted-mean}
+
+Let group $j$ contain $n_j$ observations with mean $\bar x_j$. The
+sum of its observations is $n_j\bar x_j$. Adding those sums over $J$
+groups and dividing by the total number of observations gives
 
 $$
-\frac{\bar X_n-\mu}{\sigma/\sqrt{n}}\xrightarrow{d}N(0,1).
+\bar x=\frac{\sum_{j=1}^{J}n_j\bar x_j}{\sum_{j=1}^{J}n_j}.
 $$
 
-The arrow means **convergence in distribution**: the centered mean, expressed
-in its own SE units, approaches a standard Normal distribution as $n$ grows.
-This is the sampling analogue of a z score, not a transformation of the raw
-data into a Normal population. The exact
-conditions and the quality of an approximation matter. Dependence, very heavy
-tails, complex sampling, or a statistic other than the mean can require
-different results.
+For the two training groups, this is $(2\times2+4\times5)/6=4.0000$.
+Equal group sizes make the simple average of group means agree with
+the grand mean. Unequal sizes require the learner counts when each
+learner is to contribute equally. Equal weighting of groups is also
+possible, but it describes an average across groups rather than across
+all learners.
 
-Here **standardized** means mathematical centering and scaling used to compare
-sampling shapes. It is unrelated to the substantive standardization choices
-sometimes used in regression. Neither theorem repairs selection, dependence,
-measurement, processing, or causal-design weaknesses.
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
 
-### Why the sample-variance correction works {.unnumbered}
+### Why the mean is a useful center for squared deviations {.unnumbered #sec-ch02-squared-deviations}
 
-For independent observations $X_1,\ldots,X_n$ with common mean $\mu$ and
-variance $\sigma^2$, the squared-deviation decomposition is
+Take any proposed center $a$. Write each deviation as
 
 $$
-\sum_{i=1}^n(X_i-\bar X)^2
-=\sum_{i=1}^n(X_i-\mu)^2-n(\bar X-\mu)^2.
+x_i-a=(x_i-\bar x)+(\bar x-a).
 $$
 
-Taking expectations gives $n\sigma^2-n(\sigma^2/n)=(n-1)\sigma^2$.
-The first term sums $n$ expected squared distances from the population mean;
-the second uses the variance of the unbiased sample mean. Dividing by $n-1$
-therefore gives $\mathbb E[s^2]=\sigma^2$. This is the expectation calculation
-that the zero-sum mnemonic alone does not provide.
-
-The corresponding observed-data identity, for any proposed center $a$, is
-$\sum_i(x_i-a)^2=\sum_i(x_i-\bar x)^2+n(\bar x-a)^2$.
-Its final term is nonnegative and is zero at $a=\bar x$. Thus the mean
-minimizes the sum of squared deviations: the **least-squares center**. This
-property prepares the logic of regression without requiring a population model.
-
-### Why correlation is bounded {.unnumbered}
-
-When both sample SDs are positive, $\sum z_{xi}^2=\sum z_{yi}^2=n-1$.
-Because a sum of squared numbers cannot be negative,
-$\sum_i(z_{xi}-z_{yi})^2=2(n-1)(1-r)\ge0$, giving $r\le1$.
-Likewise, $\sum_i(z_{xi}+z_{yi})^2=2(n-1)(1+r)\ge0$, giving $r\ge-1$.
-Equality requires perfectly aligned or reversed standardized observations.
-
-### When the independent-sampling SE changes {.unnumbered}
-
-For observations with finite variances, the more general expression is
+After squaring and adding, the cross-products cancel because
+$\sum_i(x_i-\bar x)=0$. Therefore,
 
 $$
-\operatorname{Var}(\bar X)=\frac{1}{n^2}
-\left[\sum_i\operatorname{Var}(X_i)
-+2\sum_{i<j}\operatorname{Cov}(X_i,X_j)\right].
+\sum_i(x_i-a)^2
+=\sum_i(x_i-\bar x)^2+n(\bar x-a)^2.
 $$
 
-The second sum runs over each distinct pair of observations once. Independence
-makes all of those covariance terms zero. Positive total covariance increases
-the variance relative to the independent case; repeated records from the same
-person can therefore yield less precision than their row count suggests.
+The last term is nonnegative and equals zero when $a=\bar x$.
+Thus the mean gives the smallest sum of squared deviations.
 
-Sampling without replacement from a fixed list is another case. For a simple
-random sample of $n$ units from $N$ units, let $S_N^2$ be the list's squared
-deviations from its mean divided by $N-1$. Then
+For the four completion times $1,3,3,5$, the squared deviations around
+their mean of 3 sum to 8. Around a proposed center of 4 they sum to
+$9+1+1+1=12$. The identity gives the same answer:
+$8+4(3-4)^2=12$. This is the descriptive basis for the least-squares
+idea developed with statistical models.
+
+The conventional sample variance is the sum around the observed mean
+divided by $n-1$. Dividing by $n$ instead gives the mean squared
+deviation of that fixed set. Which convention is reported should be
+clear; the additional reason for using $n-1$ to estimate a population
+variance belongs with sampling and estimation.
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+### Why correlation is bounded {.unnumbered #sec-ch02-correlation-bound}
+
+When both sample SDs are positive, the standardized values satisfy
+$\sum_i z_{xi}^2=\sum_i z_{yi}^2=n-1$.
+From the main-text correlation formula,
 
 $$
-SE(\bar X)=\sqrt{1-\frac nN}\,\frac{S_N}{\sqrt n}.
+\sum_i(z_{xi}-z_{yi})^2=2(n-1)(1-r).
 $$
 
-The square-root factor is the **finite-population correction**: uncertainty
-vanishes when every unit is observed. It is unrelated to the $n-1$ denominator
-in the sample variance. With 100 of 20,000 students, the factor is
-$\sqrt{1-.005}=.9975$; with 400, it is $\sqrt{1-.02}=.9899$.
-Ignoring these small corrections makes the simple square-root rule a close
-approximation here, but not an exact statement for the without-replacement
-design [@moore2014].
+The left side is a sum of squares and cannot be negative, so $r\le1$.
+Similarly,
 
-## References {.unnumbered}
+$$
+\sum_i(z_{xi}+z_{yi})^2=2(n-1)(1+r)\ge0,
+$$
+
+which gives $r\ge-1$. The endpoints require standardized values that
+align perfectly, either in the same or the opposite direction.
+
+Zero correlation can still accompany a fully patterned relationship.
+For invented values $x=(-2,-1,0,1,2)$ and $y=x^2=(4,1,0,1,4)$,
+the means are 0 and 2. The products of deviations are
+$(-4,1,0,-1,4)$ and sum to zero. The covariance and correlation
+therefore equal zero, although each $y$ value is determined by its
+paired $x$ value. The U-shaped graph supplies the relationship that
+the linear coefficient leaves out.
+
+```{=latex}
+\Needspace{6\baselineskip}
+\phantomsection
+```
+
+## References {.unnumbered #sec-ch02-references}

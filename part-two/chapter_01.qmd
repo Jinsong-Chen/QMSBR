@@ -463,60 +463,73 @@ pt2_bifactor_diagram <- function(assign, m = NULL, general_label = "eta[G]",
 
 {{< pagebreak >}}
 
-::: {.callout-tip title="Chapter box"}
-**Five themes.**
-
-*A latent variable is introduced, not found.* It is an unobserved random
-variable in a model, distinct from the construct that names it, from a
-composite of the items, and from any score computed for a person.
-
-*One model, four representations.* The common-factor model can be written
-as scalar equations, as matrices, as a path diagram, and as a sentence.
-The four must agree, and moving between them is how a specification is
-checked.
-
-*A factor has no scale of its own.* Units, sign and origin are not inherited
-from anything; conventions supply them, and several different metrics
-describe the same observed covariance equally well.
-
-*Covariance splits into two parts.* The model implies
-$\boldsymbol{\Sigma}=\boldsymbol{\Lambda}\boldsymbol{\Phi}
-\boldsymbol{\Lambda}^{\mathsf T}+\boldsymbol{\Theta}$: a common part
-carried by the factors and a residual part. Communality and uniqueness are
-conditional on the declared model, and a residual is not the same thing as
-measurement error.
-
-*Restrictions make a model refutable.* A model with fewer free parameters
-than distinct moments asserts something about those moments that could turn
-out false. Exact reproduction shows compatibility; it does not establish
-that the factors are the attributes they are named for.
-
-**Prerequisites.** Variance, covariance, correlation, random variables, and
-linear regression notation. Part One Chapter 1 is an optional reference for
-the collection's general reading method; no argument framework vocabulary is
-required for the core chapter.
-
-**Scope.** We formulate, translate and interrogate a common-factor model
-using exact teaching matrices. No data are estimated and no learner-facing
-software is used. Indicators are treated as continuous throughout Part Two;
-methods for ordered-categorical indicators belong elsewhere and receive one
-short scope note.
+::: {.callout-note title="Chapter overview"}
+This chapter builds the common-factor model and marks the edge of what it can
+show. We first separate four things a study easily confuses: the construct in
+the research question, the unobserved variable the model introduces, the
+parameters that connect it to the recorded answers, and the residual. We then
+write one two-factor, six-indicator system four times over, as scalar
+equations, as parameter matrices, as a path diagram and as a sentence, and
+check the four against one another. A factor arrives with no units, no origin
+and no direction of its own, so we ask next what a scaling convention
+supplies and what it cannot decide. Expanding the model gives the covariance
+it implies, which splits observed covariance into a common part and a
+residual part and lets us count the information a set of indicators supplies
+against the parameters a model spends. Numbers arrive late: two constructed
+correlation records, one that a single factor reproduces exactly and one that
+no single factor can, and a tetrad that shows how a matrix refutes a
+one-factor account. A short optional closing section audits a published-style
+sentence that reads exact reproduction as evidence for two named constructs.
+By the end you will be able to state a common-factor model in any of its four
+representations, derive and reconstruct the covariance it implies with its
+communalities and uniquenesses, count free parameters and degrees of freedom,
+and say what exact reproduction does and does not establish. The chapter asks
+for variance, covariance, correlation, random variables and regression
+notation and nothing further: it estimates no data and uses no software, its
+indicators are continuous throughout, and the collection's argument
+vocabulary is needed only in the optional section.
 :::
+
+Suppose a study of study skills reports that its six-item questionnaire
+"measures two distinct constructs, Planning and Strategy", and supports the
+sentence with a correlation table whose items fall into two clean blocks.
+Sentences of that shape are written constantly, about reading tests, symptom
+checklists, job-satisfaction scales and course evaluations alike.
+
+The table is real. The two constructs are not in it. No column of the records
+holds a student's planning ability and none holds their strategy use; what
+the study has is a pattern among six recorded answers and a proposal about
+what produced it. Whether that proposal is a useful statistical account of
+the pattern, and whether it licenses the words "two distinct constructs", are
+separate questions with separate answers, and a report that runs them
+together can be exactly right about its arithmetic and quite wrong about its
+conclusion.
+
+\Needspace{6\baselineskip}
+
+So this chapter asks:
+
+> When several indicators covary, when is a latent factor a useful
+> statistical account of that covariance, and when may it be interpreted as
+> the construct named in a study?
+
+Part One asked what a set of records supports about variables that were
+recorded. Here the variable of primary interest was not recorded at all, so
+the first half of the answer is a model explicit enough to say what an
+unrecorded variable would imply for the recorded ones, and the second half is
+a limit on how far that implication reaches.
 
 # Latent variables and what they model {#sec-lvm}
 
 ## Observed responses, an unobserved account {#sec-what-is-latent}
 
-**Guiding question.** When several indicators covary, when is a latent
-factor a useful statistical account, and when may it be interpreted as the
-construct named in a study?
-
-**Provisional answer.** A common-factor model can represent their covariance
-through unobserved factors and residuals. Compatibility with that covariance
-supports the statistical representation. Interpreting a factor as a construct
-additionally requires a defensible account of the indicator domain, response
-process, population, and intended use. Naming a factor, obtaining a simple
-pattern, or even reproducing covariance exactly is not enough.
+**Provisional answer.** When several indicators covary, a common-factor model
+can represent their covariance through unobserved factors and residuals.
+Compatibility with that covariance supports the statistical representation.
+Interpreting a factor as a construct additionally requires a defensible
+account of the indicator domain, response process, population, and intended
+use. Naming a factor, obtaining a simple pattern, or even reproducing
+covariance exactly is not enough.
 
 Behavioral and social research often concerns attributes that are not
 recorded directly. A dataset may contain responses to several planning
@@ -1099,7 +1112,11 @@ The distinction matters because the two are easy to conflate. Choosing a
 factor's scale is supplying a metric to something that has none.
 Changing an indicator's units is re-expressing something that already
 had them. The same distinction governs the relationship between analysing
-a covariance matrix and analysing a correlation matrix.
+a covariance matrix and analysing a correlation matrix. Chapter 3 treats
+that relationship directly: it carries out the algebra of a change of
+observed units and the reparameterization that turns a covariance
+structure into a correlation structure, which is what lets one say
+exactly which parameters move, and by how much, when the metric changes.
 
 # The model-implied covariance structure {#sec-implied}
 
@@ -1324,10 +1341,13 @@ df=u-t,
 $$ {#eq-df}
 
 with $t$ the number of free parameters. For the two-factor simple-structure
-model of @sec-scenario-two, with the factor variances fixed at one, $t$ counts
-six loadings, one factor correlation and six residual variances: $t=13$ and
-$df=21-13=8$. The one-factor model of @sec-scenario-one has six loadings and
-six residual variances, so $t=12$ and $df=9$.
+model of @sec-simple, with the factor variances fixed at one and $\phi_{12}$
+free, $t$ counts six loadings, one factor correlation and six residual
+variances: $t=13$ and $df=21-13=8$. The one-factor model of
+@sec-scenario-one has six loadings and six residual variances, so $t=12$ and
+$df=9$, and the orthogonal record of @sec-scenario-two, which fixes
+$\phi_{12}$ at zero rather than estimating it, has the same count, $t=12$
+and $df=9$.
 
 Those nine degrees of freedom are the sense in which the one-factor model
 *forbids* something, and @sec-tetrad makes one of the prohibitions visible: a
@@ -1527,12 +1547,22 @@ $$
 $$
 
 so no one-factor model with uncorrelated residuals can reproduce that
-matrix exactly, whatever values its loadings take. The result concerns
-exact reproduction of this known-value matrix; approximate fit to a
-sample covariance matrix is a different question. This is the first
-genuine model comparison in the book: a restriction with observable
-consequences, and a set of numbers that violates it. Degrees of freedom are a
-systematic count of restrictions of exactly this kind.
+matrix exactly, whatever values its loadings take.
+
+Both the quadruple and its pairing are chosen rather than arbitrary: of
+the 15 four-indicator subsets of this record, each of the 9 that take two
+indicators from each block has one pairing — the block-matching one —
+whose product is $.2304$ and two whose products are $0$, so two of its
+three tetrads equal $\pm.2304$ and the third is $0$, while every tetrad
+of the 6 three-and-one subsets is $0$; one nonzero tetrad anywhere
+refutes the one-factor representation.
+
+The result concerns exact reproduction of this known-value matrix;
+approximate fit to a sample covariance matrix is a different question.
+This is the first genuine model comparison in the book: a restriction
+with observable consequences, and a set of numbers that violates it.
+Degrees of freedom are a systematic count of restrictions of exactly
+this kind.
 
 ## Letting the factors correlate {#sec-correlated}
 
@@ -1579,7 +1609,7 @@ factor-score estimates and principal components more closely.
 |:--|:--|:--|
 | **Construct** | A concept in the research question, such as planning; its meaning comes from theory, item content, response processes, population and intended use | Not made observable by naming a factor |
 | **Common factor** $\eta_{ik}$ | An unobserved random variable in the model | No |
-| **Factor-score estimate** $\hat{\eta}_{ik}$ | A prediction from observed responses, a fitted model and a scoring rule | Computed, but not the factor itself |
+| **Factor-score estimate** $\widehat{\eta}_{ik}$ | A prediction from observed responses, a fitted model and a scoring rule | Computed, but not the factor itself |
 | **Principal component** | A weighted composite of observed variables chosen to summarize variance | Computed from the data |
 | **Prespecified composite** | A declared rule such as a sum or mean of items | Computed from the data |
 
@@ -1708,8 +1738,9 @@ choice be made deliberately and stated, not made by default.
 
 # Applying the argument-based approach to latent variables (Optional) {#sec-argument}
 
-This optional section returns to the Chapter Box using the argument
-vocabulary of Part One Chapters 1 and 1a. It may be skipped without loss.
+This optional section returns to the chapter's guiding question using the
+argument vocabulary of Part One Chapter 1. It may be skipped
+without loss.
 
 ## Can covariance select a unique set of factor axes?
 

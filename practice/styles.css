@@ -1,0 +1,43 @@
+:root { --practice-ink: #20364a; --practice-accent: #236c75; }
+body { color: #243441; line-height: 1.55; }
+h1, h2, h3, .navbar-title { color: var(--practice-ink); }
+h1 { font-weight: 650; }
+h2 { margin-top: 1.8rem; }
+a { color: #146477; }
+.navbar { border-bottom: 3px solid var(--practice-accent); }
+main { max-width: 940px; }
+table { font-size: .95rem; }
+.exercise-cell { margin: 1rem 0; }
+.exercise-editor-header { flex-wrap: wrap; gap: .5rem; }
+.exercise-cell .cm-editor { border: 1px solid #b9c8ce; border-radius: 5px; }
+details { margin: .8rem 0; }
+summary { cursor: pointer; color: var(--practice-ink); font-weight: 600; padding: .4rem 0; }
+summary:focus-visible { outline: 3px solid #c17c21; outline-offset: 2px; }
+.qmsbr-workspace { padding: 1.2rem; border: 1px solid #bbcdd1; border-radius: 8px; background: #f5f9fa; }
+.qmsbr-workspace label { display: block; font-weight: 600; margin-top: .7rem; }
+.qmsbr-workspace textarea { width: 100%; padding: .7rem; border: 1px solid #91aab3; border-radius: 4px; background: white; }
+.qmsbr-code { min-height: 12rem; font: .91rem/1.55 Consolas, monospace; tab-size: 2; }
+.qmsbr-notes { min-height: 4rem; }
+.qmsbr-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0; align-items: center; }
+.qmsbr-workspace button { padding: .4rem .75rem; border: 1px solid #698a96; border-radius: 4px; background: #fff; color: #20364a; }
+.qmsbr-workspace button[data-action="run"] { background: #236c75; color: white; }
+.qmsbr-workspace button:disabled { opacity: .55; }
+.qmsbr-workspace :focus-visible { outline: 3px solid #c17c21; outline-offset: 2px; }
+.qmsbr-status { font-size: .92rem; }
+.qmsbr-output, .qmsbr-preview { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 36rem; overflow: auto; background: white; border: 1px solid #cfdbdf; padding: .8rem; }
+.qmsbr-plots canvas { width: 100%; height: auto; max-width: 720px; }
+.qmsbr-note { font-size: .93rem; }
+.qmsbr-fallback { border-left: 4px solid #b4822c; padding: .7rem 1rem; margin: 1rem 0; background: #fffaef; }
+.qmsbr-runtime-unavailable > :not(.qmsbr-fallback),
+.qmsbr-engine-failed .exercise-loading-indicator { display: none !important; }
+@media (max-width: 600px) {
+  .qmsbr-workspace { padding: .7rem; }
+  .qmsbr-code { font-size: .85rem; }
+  table { font-size: .88rem; }
+}
+@media print {
+  .qmsbr-controls, .qmsbr-workspace input, .qmsbr-workspace button, .exercise-loading-indicator { display: none !important; }
+  .qmsbr-output { max-height: none; overflow: visible; }
+  .qmsbr-workspace { background: white; }
+  .exercise-cell { display: none; }
+}

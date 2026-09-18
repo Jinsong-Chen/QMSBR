@@ -1,17 +1,19 @@
 # QMSBR website. Everything the site needs is in this one file.
 # To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/,
-# add it to `render:` and to the sidebar below, add a row to library.qmd, push.
+# add it to `render:` and to the sidebar below, add its line to the
+# matching collection column on index.qmd, push.
 
 project:
   type: website
   output-dir: _site
+  resources:
+    - practice
+    - part-one/realinho2022_students.csv
   render:
     - index.qmd
-    - library.qmd
     - about.qmd
     - part-one/part_one_introduction.qmd
     - part-one/chapter_01.qmd
-    - part-one/chapter_01a.qmd
     - part-one/chapter_02.qmd
     - part-one/chapter_03.qmd
     - part-one/chapter_04.qmd
@@ -19,6 +21,7 @@ project:
     - part-one/chapter_06.qmd
     - part-one/chapter_07.qmd
     - part-one/chapter_08.qmd
+    - part-one/chapter_09.qmd
     - part-two/part_two_introduction.qmd
     - part-two/chapter_01.qmd
     - part-two/chapter_02.qmd
@@ -36,8 +39,8 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: library.qmd
-        text: Library
+      - href: practice/index.html
+        text: R support
       - href: about.qmd
         text: About
     right:
@@ -53,7 +56,6 @@ website:
         contents:
           - part-one/part_one_introduction.qmd
           - part-one/chapter_01.qmd
-          - part-one/chapter_01a.qmd
           - part-one/chapter_02.qmd
           - part-one/chapter_03.qmd
           - part-one/chapter_04.qmd
@@ -61,6 +63,7 @@ website:
           - part-one/chapter_06.qmd
           - part-one/chapter_07.qmd
           - part-one/chapter_08.qmd
+          - part-one/chapter_09.qmd
       - section: "Part Two — Factor Analysis and SEM"
         contents:
           - part-two/part_two_introduction.qmd
