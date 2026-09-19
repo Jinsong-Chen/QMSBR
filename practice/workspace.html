@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Your R workspace – QMSBR R support</title>
+<title>Your R workspace – QMSBR</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -123,8 +123,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">QMSBR R support</span>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -134,10 +134,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
 <span class="menu-text">Part One</span></a>
   </li>  
@@ -146,11 +142,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Part Two</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">R support</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html#argument-approach"> 
+    <a class="nav-link" href="./../argument-approach.html"> 
 <span class="menu-text">Argument Approach</span></a>
   </li>  
   <li class="nav-item">
@@ -171,9 +171,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./workspace.html">Your R workspace</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
   </nav>
 </header>
@@ -181,11 +178,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -229,6 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#your-r-work" id="toc-your-r-work" class="nav-link active" data-scroll-target="#your-r-work">Run and save your code</a></li>
+  <li><a href="#around-the-site" id="toc-around-the-site" class="nav-link" data-scroll-target="#around-the-site">What else is on this site</a></li>
   <li><a href="#run-code" id="toc-run-code" class="nav-link" data-scroll-target="#run-code">How to run code</a></li>
   <li><a href="#supplied-output" id="toc-supplied-output" class="nav-link" data-scroll-target="#supplied-output">Fixed code and output</a>
   <ul class="collapse">
@@ -261,9 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Use the workspace below for a complete exercise, Computer Lab, or homework script, and read <a href="#supplied-output">the fixed code and output</a> for every example on the two chapter pages. For command explanations and short demonstrations, open <a href="./chapter-03.html">Chapter 3</a> or <a href="./chapter-04.html">Chapter 4</a>. Save your code and results before leaving: each page has a separate R session.</p>
-<p>The <a href="./data-notes.html">data notes</a> identify the available data and their columns. The supplied public CSVs are available at <code>data/</code> paths; every example on this site uses base R only. Open a private course CSV with <strong>Open a CSV</strong>, then run its supplied import and coding commands. The file stays in this browser session. Keep original data as <code>d0</code> and use <code>dat</code> for a working copy when changing records.</p>
-<p>Calculate at full precision and report statistical results to four decimal places. Rounded inputs or software rounding may slightly change the last digits. Native R output can show a different number of digits; counts remain integers.</p>
+<p>R runs inside this page. Nothing is installed, and nothing you open or write leaves your browser. Start with the panel below; the sections after it explain the buttons, the data and the fixed results.</p>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
@@ -276,16 +267,26 @@ eyJhdHRyIjp7ImVjaG8iOmZhbHNlLCJlZGl0IjpmYWxzZSwiZXZhbCI6dHJ1ZSwiaW5jbHVkZSI6ZmFs
 </div>
 <section id="your-r-work" class="level2">
 <h2 class="anchored" data-anchor-id="your-r-work">Run and save your code</h2>
+<div class="qmsbr-first-time">
+<p>First time here</p>
+<ol>
+<li>Wait for the line above <strong>Your R code</strong> to say that R is ready. R starts by itself when you open the page, which takes a few seconds.</li>
+<li>Read the starting code in the <strong>Your R code</strong> box. It makes five scores, then asks for their mean and their standard deviation.</li>
+<li>Click <strong>Run All</strong>. The answers appear under <strong>Most recent workspace output</strong>.</li>
+<li>Replace the starting code with your own, or click <strong>Open a CSV</strong> to bring in a data file, and run it again.</li>
+<li>Write what the result tells you under <strong>Your interpretation</strong>, then click <strong>Save R script</strong> and <strong>Save results and interpretation</strong> to keep both.</li>
+</ol>
+</div>
 <details class="qmsbr-workspace-panel" open="">
 <summary>Open workspace for your own code or CSV</summary>
-<p>Paste the complete code for an exercise, Computer Lab, or homework question here, including its data-loading lines. To save edits from an example, copy that example's code here first.</p>
+<p>Paste the complete code for an exercise, a lab task or a homework question here, including its data-loading lines. To save edits from an example on a chapter page, copy that example's code here first.</p>
 <div class="qmsbr-workspace" id="r-workspace">
   <p class="qmsbr-status" role="status" aria-live="polite">R is starting. You can edit and save code while it loads.</p>
   <div class="qmsbr-controls">
     <label>Open a CSV <input type="file" accept=".csv,text/csv" data-file="csv" disabled=""></label>
     <label>Open an R script <input type="file" accept=".R,.r,text/plain" data-file="script"></label>
   </div>
-  <p class="qmsbr-note">Use a CSV with column names in the first row (up to 5 MB). Files stay in this browser session. For course-supplied HSB, open the CSV, then use <code>hsb &lt;- read.csv("hsb.csv")</code>.</p>
+  <p class="qmsbr-note">Use a CSV with column names in the first row (up to 5 MB). Files stay in this browser session. For a course-supplied HSB file, open the CSV, then use <code>hsb &lt;- read.csv("hsb.csv")</code>.</p>
   <pre class="qmsbr-preview" aria-label="Imported data preview" hidden=""></pre>
   <label for="workspace-code">Your R code</label>
   <textarea class="qmsbr-code" id="workspace-code" spellcheck="false"># Paste your complete code here.
@@ -310,7 +311,7 @@ sd(scores)
 </details>
 <noscript><p class="qmsbr-fallback">JavaScript is off. Use <a href="#supplied-output">the supplied code and output</a>, or run the code on desktop R.</p></noscript>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="90" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 89;"><span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>workspace_ready <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrWorkspace</span><span class="op">.</span><span class="fu">attach</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="83" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 82;"><span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>workspace_ready <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrWorkspace</span><span class="op">.</span><span class="fu">attach</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
@@ -318,19 +319,25 @@ sd(scores)
 </div>
 </div>
 </section>
+<section id="around-the-site" class="level2">
+<h2 class="anchored" data-anchor-id="around-the-site">What else is on this site</h2>
+<p>Use the workspace for a complete script, and read <a href="#supplied-output">the fixed code and output</a> for every example on the two chapter pages. For command explanations and short demonstrations, open <a href="./chapter-03.html">Chapter 3</a> or <a href="./chapter-04.html">Chapter 4</a>. The <a href="./data-notes.html">data sources</a> page lists every data file the site uses, with its columns and its reuse terms; the public CSVs are available at <code>data/</code> paths. Open a private course CSV with <strong>Open a CSV</strong>, then run its supplied import and coding commands. The file stays in this browser session.</p>
+<p>Save your code and results before leaving: each page has its own R session, and objects do not travel between pages.</p>
+<p>Every example on this site uses base R with the standard <code>stats</code> and <code>graphics</code> commands; no package is loaded or installed. Programming examples use short, meaningful names such as <code>group</code>, <code>score</code> and <code>id</code>; when records are changed, <code>d0</code> holds the starting data and <code>dat</code> the working copy. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits. Native R output can show a different number of digits, and counts remain whole numbers.</p>
+</section>
 <section id="run-code" class="level2">
 <h2 class="anchored" data-anchor-id="run-code">How to run code</h2>
 <p><strong>Run a complete example.</strong> Click <strong>Run All</strong> to run the whole code block or workspace script, including its data-loading commands.</p>
 <p><strong>Try commands one by one.</strong> Click inside a code box and place the cursor on the first command. Press <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS, or click <strong>Run Code</strong>. This runs the current complete command and advances the cursor. Select several commands first to run just that selection. Enter/Return alone adds a new line.</p>
 <p>Objects remain available for later commands in the same code box. An assignment such as <code>dat &lt;- d0</code> usually prints nothing; run <code>head(dat)</code> to inspect the result. A command spanning several lines, such as a model or plot call with several arguments, runs together. When selecting text, include the entire command; an incomplete selection produces an R error. After changing data, rerun every calculation that uses them. <strong>Start Over</strong> restores a chapter block’s original code and clears that block’s objects.</p>
 <p><strong>Use desktop RStudio.</strong> Put the complete code in an R script. With the cursor on a command, <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS runs the current line or selected code. Select the whole command when it spans several lines. The <a href="https://docs.posit.co/ide/user/ide/reference/shortcuts.html">RStudio shortcut reference</a> gives further details. In the R console, type a complete command and press Enter/Return. Run the data-loading commands before commands that use them.</p>
-<p><strong>If R shows an error.</strong> Read the last line of the message first: it usually names the problem, and nothing is damaged. Five common causes:</p>
+<p><strong>If R shows an error.</strong> An error stops the command. It damages nothing: your code, your objects and your imported file are all still there. Read the last line of the message first, because that line usually names the problem. Five messages come up again and again.</p>
 <ul>
-<li><em>unexpected numeric constant</em> or <em>unexpected symbol</em>: a missing comma between two values or arguments, such as <code>c(50 54)</code> instead of <code>c(50, 54)</code>.</li>
-<li><em>unexpected ‘)’</em>: one closing bracket too many, such as <code>c(50, 54))</code>.</li>
-<li><em>could not find function</em> or a name R does not recognise: a misspelled name. R matches names exactly, so <code>t.tset</code> is not <code>t.test</code> and <code>Mean</code> is not <code>mean</code>.</li>
-<li>A <code>+</code> prompt, or a result that never appears: an unmatched quote or bracket, so the command is still unfinished. Complete the quote or bracket, or press <strong>Esc</strong> to cancel, then run the command again.</li>
-<li><em>object ‘dat’ not found</em>: that object does not exist in this session, usually because its setup line has not been run. Rerun the cell’s setup lines, or choose <strong>Run All</strong>, before the command that uses the object.</li>
+<li><em>R says <code>unexpected numeric constant</code> or <code>unexpected symbol</code>.</em> Two things sit side by side with nothing between them, usually a missing comma: <code>c(50 54)</code> should be <code>c(50, 54)</code>. Put the comma in and run the line again.</li>
+<li><em>R says <code>unexpected ')'</code>.</em> There is one closing bracket too many, as in <code>c(50, 54))</code>. Count the brackets from the left and delete the extra one.</li>
+<li><em>R says <code>could not find function</code>, or does not recognise a name you are sure you typed.</em> R matches names letter for letter, so <code>t.tset</code> is not <code>t.test</code> and <code>Mean</code> is not <code>mean</code>. Check the spelling and the capital letters.</li>
+<li><em>A <code>+</code> sign appears instead of a result.</em> The command is not finished: a quotation mark or a bracket is still open and R is waiting for the rest. Complete it, or press <strong>Esc</strong> to cancel, and run the command again.</li>
+<li><em>R says <code>object 'dat' not found</code>.</em> That object does not exist yet in this session, usually because the line that creates it has not been run. Run the setup lines above it, or choose <strong>Run All</strong>, and then run the command that uses the object.</li>
 </ul>
 <p>Correct the line and run it again. If a code box has drifted too far from its starting code, <strong>Start Over</strong> restores it.</p>
 <details>
@@ -1172,7 +1179,7 @@ Schedule differences and the selected Scheffe interval
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImNhckRhdGEiLCJnZ3Bsb3QyIl0sInJlcG9zIjpbXX0sInJlbmRlcl9kZiI6ImRlZmF1bHQifQ==
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8xO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJfd2Vicl92YWx1ZV8xID0ge1xuICBjb25zdCB7IGhpZ2hsaWdodFIsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICAvLyBEZWZhdWx0IGV2YWx1YXRpb24gY29uZmlndXJhdGlvblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7XG4gICAgaWQ6IFwid2Vici0xLWNvbnRlbnRzXCIsXG4gICAgZWNobzogdHJ1ZSxcbiAgICBvdXRwdXQ6IHRydWVcbiAgfSwgYmxvY2suYXR0cik7XG5cbiAgLy8gRXZhbHVhdGUgdGhlIHByb3ZpZGVkIFIgY29kZVxuICBjb25zdCByZXN1bHQgPSB3ZWJST2pzLnByb2Nlc3Moe2NvZGU6IGJsb2NrLmNvZGUsIG9wdGlvbnN9LCB7fSk7XG5cbiAgLy8gRWFybHkgeWllbGQgd2hpbGUgd2Ugd2FpdCBmb3IgdGhlIGZpcnN0IGV2YWx1YXRpb24gYW5kIHJlbmRlclxuICBpZiAob3B0aW9ucy5vdXRwdXQgJiYgIShcIjFcIiBpbiB3ZWJST2pzLnJlbmRlcmVkT2pzKSkge1xuICAgIGNvbnN0IGNvbnRhaW5lciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIik7XG4gICAgY29uc3Qgc3Bpbm5lciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIik7XG5cbiAgICBpZiAob3B0aW9ucy5lY2hvKSB7XG4gICAgICAvLyBTaG93IG91dHB1dCBhcyBoaWdobGlnaHRlZCBzb3VyY2VcbiAgICAgIGNvbnN0IHByZUVsZW0gPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwicHJlXCIpO1xuICAgICAgY29udGFpbmVyLmNsYXNzTmFtZSA9IFwic291cmNlQ29kZVwiO1xuICAgICAgcHJlRWxlbS5jbGFzc05hbWUgPSBcInNvdXJjZUNvZGUgclwiO1xuICAgICAgcHJlRWxlbS5hcHBlbmRDaGlsZChoaWdobGlnaHRSKGJsb2NrLmNvZGUpKTtcbiAgICAgIHNwaW5uZXIuY2xhc3NOYW1lID0gXCJzcGlubmVyLWdyb3cgc3Bpbm5lci1ncm93LXNtIG0tMiBwb3NpdGlvbi1hYnNvbHV0ZSB0b3AtMCBlbmQtMFwiO1xuICAgICAgcHJlRWxlbS5hcHBlbmRDaGlsZChzcGlubmVyKTtcbiAgICAgIGNvbnRhaW5lci5hcHBlbmRDaGlsZChwcmVFbGVtKTtcbiAgICB9IGVsc2Uge1xuICAgICAgc3Bpbm5lci5jbGFzc05hbWUgPSBcInNwaW5uZXItYm9yZGVyIHNwaW5uZXItYm9yZGVyLXNtXCI7XG4gICAgICBjb250YWluZXIuYXBwZW5kQ2hpbGQoc3Bpbm5lcik7XG4gICAgfVxuXG4gICAgeWllbGQgY29udGFpbmVyO1xuICB9XG5cbiAgd2ViUk9qcy5yZW5kZXJlZE9qc1tcIjFcIl0gPSB0cnVlO1xuICB5aWVsZCBhd2FpdCByZXN1bHQ7XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici1wcmVsdWRlIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoid2ViUk9qcyA9IHtcbiAgY29uc3QgeyBXZWJSLCBDaGFubmVsVHlwZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZS5XZWJSO1xuICBjb25zdCB7XG4gICAgV2ViUkV2YWx1YXRvcixcbiAgICBXZWJSRW52aXJvbm1lbnRNYW5hZ2VyLFxuICAgIHNldHVwUixcbiAgICBiNjREZWNvZGUsXG4gICAgY29sbGFwc2VQYXRoXG4gIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuXG4gIGNvbnN0IHN0YXR1c0NvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKFwiZXhlcmNpc2UtbG9hZGluZy1zdGF0dXNcIik7XG4gIGNvbnN0IGluZGljYXRvckNvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKFwiZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGluZGljYXRvckNvbnRhaW5lci5jbGFzc0xpc3QucmVtb3ZlKFwiZC1ub25lXCIpO1xuXG4gIGxldCBzdGF0dXNUZXh0ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICBzdGF0dXNUZXh0LmNsYXNzTGlzdCA9IFwiZXhlcmNpc2UtbG9hZGluZy1kZXRhaWxzXCI7XG4gIHN0YXR1c1RleHQgPSBzdGF0dXNDb250YWluZXIuYXBwZW5kQ2hpbGQoc3RhdHVzVGV4dCk7XG4gIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5pdGlhbGlzZWA7XG5cbiAgLy8gSG9pc3QgaW5kaWNhdG9yIG91dCBmcm9tIGZpbmFsIHNsaWRlIHdoZW4gcnVubmluZyB1bmRlciByZXZlYWxcbiAgY29uc3QgcmV2ZWFsU3RhdHVzID0gZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgLmV4ZXJjaXNlLWxvYWRpbmctaW5kaWNhdG9yXCIpO1xuICBpZiAocmV2ZWFsU3RhdHVzKSB7XG4gICAgcmV2ZWFsU3RhdHVzLnJlbW92ZSgpO1xuICAgIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoXCIucmV2ZWFsID4gLnNsaWRlc1wiKS5hcHBlbmRDaGlsZChyZXZlYWxTdGF0dXMpO1xuICB9XG5cbiAgLy8gTWFrZSBhbnkgcmV2ZWFsIHNsaWRlcyB3aXRoIGxpdmUgY2VsbHMgc2Nyb2xsYWJsZVxuICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKFwiLnJldmVhbCAuZXhlcmNpc2UtY2VsbFwiKS5mb3JFYWNoKChlbCkgPT4ge1xuICAgIGVsLmNsb3Nlc3QoJ3NlY3Rpb24uc2xpZGUnKS5jbGFzc0xpc3QuYWRkKFwic2Nyb2xsYWJsZVwiKTtcbiAgfSlcblxuICAvLyB3ZWJSIHN1cHBsZW1lbnRhbCBkYXRhIGFuZCBvcHRpb25zXG4gIGNvbnN0IGRhdGFDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItZGF0YVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGRhdGEgPSBKU09OLnBhcnNlKGI2NERlY29kZShkYXRhQ29udGVudCkpO1xuXG4gIC8vIEdyYWIgbGlzdCBvZiByZXNvdXJjZXMgdG8gYmUgZG93bmxvYWRlZFxuICBjb25zdCBmaWxlc0NvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwidmZzLWZpbGVcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBmaWxlcyA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGZpbGVzQ29udGVudCkpO1xuXG4gIC8vIEluaXRpYWxpc2Ugd2ViUiBhbmQgc2V0dXAgZm9yIFIgY29kZSBldmFsdWF0aW9uXG4gIGxldCB3ZWJSUHJvbWlzZSA9IChhc3luYyAod2ViUikgPT4ge1xuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgd2ViUmA7XG4gICAgYXdhaXQgd2ViUi5pbml0KCk7XG5cbiAgICAvLyBJbnN0YWxsIHByb3ZpZGVkIGxpc3Qgb2YgcGFja2FnZXNcbiAgICAvLyBFbnN1cmUgd2ViUiBkZWZhdWx0IHJlcG8gaXMgaW5jbHVkZWRcbiAgICBkYXRhLnBhY2thZ2VzLnJlcG9zLnB1c2goXCJodHRwczovL3JlcG8uci13YXNtLm9yZ1wiKVxuICAgIGF3YWl0IGRhdGEucGFja2FnZXMucGtncy5tYXAoKHBrZykgPT4gKCkgPT4ge1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyBwYWNrYWdlOiAke3BrZ31gO1xuICAgICAgcmV0dXJuIHdlYlIuZXZhbFJWb2lkKGBcbiAgICAgICAgd2Vicjo6aW5zdGFsbChwa2csIHJlcG9zID0gcmVwb3MpXG4gICAgICAgIGxpYnJhcnkocGtnLCBjaGFyYWN0ZXIub25seSA9IFRSVUUpXG4gICAgICBgLCB7IGVudjoge1xuICAgICAgICBwa2c6IHBrZyxcbiAgICAgICAgcmVwb3M6IGRhdGEucGFja2FnZXMucmVwb3MsXG4gICAgICB9fSk7XG4gICAgfSkucmVkdWNlKChjdXIsIG5leHQpID0+IGN1ci50aGVuKG5leHQpLCBQcm9taXNlLnJlc29sdmUoKSk7XG5cbiAgICAvLyBEb3dubG9hZCBhbmQgaW5zdGFsbCByZXNvdXJjZXNcbiAgICBhd2FpdCBmaWxlcy5tYXAoKGZpbGUpID0+IGFzeW5jICgpID0+IHtcbiAgICAgIGNvbnN0IG5hbWUgPSBmaWxlLnN1YnN0cmluZyhmaWxlLmxhc3RJbmRleE9mKCcvJykgKyAxKTtcbiAgICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgcmVzb3VyY2U6ICR7bmFtZX1gO1xuICAgICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBmZXRjaChmaWxlKTtcbiAgICAgIGlmICghcmVzcG9uc2Uub2spIHtcbiAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBDYW4ndCBkb3dubG9hZCBcXGAke2ZpbGV9XFxgLiBFcnJvciAke3Jlc3BvbnNlLnN0YXR1c306IFwiJHtyZXNwb25zZS5zdGF0dXNUZXh0fVwiLmApO1xuICAgICAgfVxuICAgICAgY29uc3QgZGF0YSA9IGF3YWl0IHJlc3BvbnNlLmFycmF5QnVmZmVyKCk7XG5cbiAgICAgIC8vIFN0b3JlIFVSTHMgaW4gdGhlIGN3ZCB3aXRob3V0IGFueSBzdWJkaXJlY3Rvcnkgc3RydWN0dXJlXG4gICAgICBpZiAoZmlsZS5pbmNsdWRlcyhcIjovL1wiKSkge1xuICAgICAgICBmaWxlID0gbmFtZTtcbiAgICAgIH1cblxuICAgICAgLy8gQ29sbGFwc2UgaGlnaGVyIGRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGZpbGUgPSBjb2xsYXBzZVBhdGgoZmlsZSk7XG5cbiAgICAgIC8vIENyZWF0ZSBkaXJlY3RvcnkgdHJlZSwgaWdub3JpbmcgXCJkaXJlY3RvcnkgZXhpc3RzXCIgVkZTIGVycm9yc1xuICAgICAgY29uc3QgcGFydHMgPSBmaWxlLnNwbGl0KCcvJykuc2xpY2UoMCwgLTEpO1xuICAgICAgbGV0IHBhdGggPSAnJztcbiAgICAgIHdoaWxlIChwYXJ0cy5sZW5ndGggPiAwKSB7XG4gICAgICAgIHBhdGggKz0gcGFydHMuc2hpZnQoKSArICcvJztcbiAgICAgICAgY29uc3QgYW5hbHlzaXMgPSBhd2FpdCB3ZWJSLkZTLmFuYWx5emVQYXRoKHBhdGgpO1xuICAgICAgICBpZiAoIWFuYWx5c2lzLmV4aXN0cykge1xuICAgICAgICAgIHRyeSB7XG4gICAgICAgICAgICBhd2FpdCB3ZWJSLkZTLm1rZGlyKHBhdGgpO1xuICAgICAgICAgIH0gY2F0Y2ggKGUpIHtcbiAgICAgICAgICAgIHRocm93IG5ldyBFcnJvcihgRmlsZXN5c3RlbSBFcnJvcjogXCIke2UubWVzc2FnZX1cIi5gKTtcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgIH1cblxuICAgICAgLy8gV3JpdGUgdGhpcyBmaWxlIHRvIHRoZSBWRlNcbiAgICAgIHJldHVybiBhd2FpdCB3ZWJSLkZTLndyaXRlRmlsZShmaWxlLCBuZXcgVWludDhBcnJheShkYXRhKSk7XG4gICAgfSkucmVkdWNlKChjdXIsIG5leHQpID0+IGN1ci50aGVuKG5leHQpLCBQcm9taXNlLnJlc29sdmUoKSk7XG5cbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYEluc3RhbGxpbmcgd2ViUiBzaGltc2A7XG4gICAgYXdhaXQgd2ViUi5ldmFsUlZvaWQoYHdlYnI6OnNoaW1faW5zdGFsbCgpYCk7XG5cbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYFdlYlIgZW52aXJvbm1lbnQgc2V0dXBgO1xuICAgIGF3YWl0IHNldHVwUih3ZWJSLCBkYXRhKTtcblxuICAgIHN0YXR1c1RleHQucmVtb3ZlKCk7XG4gICAgaWYgKHN0YXR1c0NvbnRhaW5lci5jaGlsZHJlbi5sZW5ndGggPT0gMCkge1xuICAgICAgc3RhdHVzQ29udGFpbmVyLnBhcmVudE5vZGUucmVtb3ZlKCk7XG4gICAgfVxuICAgIHJldHVybiB3ZWJSO1xuICB9KShuZXcgV2ViUihkYXRhLm9wdGlvbnMpKTtcblxuICAvLyBLZWVwIHRyYWNrIG9mIGluaXRpYWwgT0pTIGJsb2NrIHJlbmRlclxuICBjb25zdCByZW5kZXJlZE9qcyA9IHt9O1xuXG4gIGNvbnN0IHByb2Nlc3MgPSBhc3luYyAoY29udGV4dCwgaW5wdXRzKSA9PiB7XG4gICAgY29uc3Qgd2ViUiA9IGF3YWl0IHdlYlJQcm9taXNlO1xuICAgIGNvbnN0IGV2YWx1YXRvciA9IG5ldyBXZWJSRXZhbHVhdG9yKHdlYlIsIGNvbnRleHQpXG4gICAgYXdhaXQgZXZhbHVhdG9yLnByb2Nlc3MoaW5wdXRzKTtcbiAgICByZXR1cm4gZXZhbHVhdG9yLmNvbnRhaW5lcjtcbiAgfVxuXG4gIHJldHVybiB7XG4gICAgcHJvY2VzcyxcbiAgICB3ZWJSUHJvbWlzZSxcbiAgICByZW5kZXJlZE9qcyxcbiAgfTtcbn1cbiJ9XX0=
@@ -1625,6 +1632,30 @@ window._ojs.runtime.interpretFromScriptTags();
 </footer>
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This is the practice copy of the book site's assets/disabled-links.html;
+     the script below is identical to the one there. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
 
 
 

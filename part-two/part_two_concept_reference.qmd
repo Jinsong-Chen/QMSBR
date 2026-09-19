@@ -1,0 +1,336 @@
+---
+title: "Part Two Concept Reference"
+subtitle: "Central concepts and notation for Chapters 1--4"
+author: "Jinsong Chen"
+
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    output-file: part_two_concept_reference.pdf
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      text: |
+        % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+        % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+        % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+        % https://github.com/latex3/graphics-def/pull/48
+        % https://github.com/latex3/graphics-def/issues/47
+        % The upstream PR was unmerged when this local backport was made.
+        % Original driver copyright: LaTeX3 Project and its listed contributors.
+        % This adaptation is distributed under LPPL 1.3c or later:
+        % https://www.latex-project.org/lppl.txt
+        %
+        % Preserve the imported PDF's transparency group. Put the driver's additional
+        % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+        % keys. Do not replace this with PDF post-processing or disabling transparency.
+        % Exact-token patches deliberately fail on an unexpected/new driver: review
+        % whether the upstream fix is then installed before removing this backport.
+        \usepackage{etoolbox}
+        \makeatletter
+        \newcommand{\QMSBRgraphicsPatchError}[1]{%
+          \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+            {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+        \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+        \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+        \patchcmd{\Gread@@pdftex}
+          {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+          {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+           \ifGread@transgroup
+             \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+             \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+           \fi}
+          {}{\QMSBRgraphicsPatchError{3}}
+        \patchcmd{\Gread@@pdftex}
+          {\useimageresource\the\lastsavedimageresourceindex}
+          {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+          {}{\QMSBRgraphicsPatchError{4}}
+        \makeatother
+        \setlength{\parindent}{0pt}
+        \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+        \ifdefined\pdftrailerid\pdftrailerid{}\fi
+        \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+        \ifdefined\pdfvariable
+          \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+        \fi
+        \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+        \addtokomafont{sectionentry}{\small}
+        \let\chapteroldtableofcontents\tableofcontents
+        \renewcommand{\tableofcontents}{\begingroup\small
+          \setlength{\parskip}{0pt}\chapteroldtableofcontents\endgroup}
+        \usepackage{caption}
+        \captionsetup[table]{
+          position=above,
+          format=plain,
+          justification=raggedright,
+          singlelinecheck=false,
+          labelsep=newline,
+          labelfont=bf,
+          textfont=it
+        }
+        \usepackage{booktabs}
+        \usepackage{longtable}
+        \usepackage{array}
+        \usepackage{float}
+        \usepackage{needspace}
+        \AddToHook{cmd/section/before}{\Needspace{12\baselineskip}\phantomsection}
+        \AddToHook{cmd/subsection/before}{\Needspace{12\baselineskip}\phantomsection}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+This reference gives one agreed meaning for each concept the four chapters of
+Part Two use. It exists so that a reader who meets a term in Chapter 3 can find
+the chapter and section that explains it, and so that the chapters need not
+define a term again each time they use it. The four concept tables gather
+related terms into broad groups and give each term's meaning or essential
+distinction; the closing table records the notation the chapters share. It is
+written for lookup rather than for reading through.
+
+A row is read from left to right. The preferred name comes first, with the
+common alternatives a reader will meet elsewhere beside it. The meaning cell
+states the essential distinction rather than a full explanation. The final cell
+of a concept table, **Main explanation**, is a destination: the chapter and
+section where the term is principally explained, with a first use elsewhere
+noted where one exists. In the notation table the **Main use** column carries
+that destination and a further column records alternative symbols and the
+cautions attached to them. Terms that name the same concept in context share an
+entry, related concepts with different meanings have separate entries, and a
+symbol whose preferred form carries a qualifier takes a row of its own that
+names its other uses. This reference records the vocabulary rather than
+teaching it: first-use explanations, worked examples and the reasons behind each
+distinction stay in the chapters themselves.
+
+\small
+
+## Latent Variables and the Common-Factor Model {#sec-p2-concepts-latent }
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Latent-variable modeling | Latent variable (common factor, $\eta_k$) | An unobserved random variable introduced by a model and given a distribution over units. It is not a parameter, not a score, and not made observable by being named. | Chapter 1, Sec. 1.1 |
+| Latent-variable modeling | Construct | A substantive idea in the research question. Its meaning comes from theory, item content, response processes, population and intended use, none of which a covariance matrix supplies. | Chapter 1, Sec. 1.1 |
+| Latent-variable modeling | Indicator (item, observed response $Y_j$) | An observed variable proposed to bear on a factor; an item response is the value recorded for one unit. | Chapter 1, Sec. 1.1 |
+| Latent-variable modeling | Domain sampling (content or behavioral domain coverage) | Defensible coverage of the domain a construct names. It supports a broad construct interpretation and is usually systematic rather than a literal probability sample; it is a different question from sampling units from a population. | Chapter 1, Sec. 1.1 |
+| Latent-variable modeling | Reflective direction (formative alternative) | The modelling choice that writes each indicator as a function of the factors plus a residual. It states a direction of representation, not a causal finding, and it fails for constructs whose indicators produce them. | Chapter 1, Sec. 1.1 |
+| Latent-variable modeling | Classical true score ($X_{ir}=T_i+E_{ir}$) | The expected score of a person over repetitions of a specified procedure. It is a property of a person and a procedure, so a stable irrelevant influence stays inside it; it equals a common factor only under added assumptions. | Chapter 1, Sec. 1.2 |
+| Common-factor model | Common-factor model (linear factor model) | $\mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i+\boldsymbol\epsilon_i$ with the moment assumptions on $\boldsymbol\eta_i$ and $\boldsymbol\epsilon_i$. Its predictors are not columns of the dataset, which is what separates it from a regression. | Chapter 1, Sec. 2.1--2.2 |
+| Common-factor model | Loading (pattern coefficient, $\lambda_{jk}$) | A fixed unknown parameter relating indicator $j$ to factor $k$ on a chosen factor metric. It is not a person's score and not a direct measure of how much attribute a person has. | Chapter 1, Sec. 2.1 |
+| Common-factor model | Residual (unique part, $\epsilon_j$) and residual covariance $\theta_{jk}$ | The part of an indicator the declared factors do not represent, which may hold random fluctuation, item-specific content, method or occasion effects, an omitted factor, or misspecification. A residual covariance is a pair-specific relation outside the common part. | Chapter 1, Sec. 2.3 |
+| Common-factor model | Factor covariance matrix ($\boldsymbol\Phi$) | The $m\times m$ variance-covariance matrix of the factors, symmetric and positive semidefinite. It is total latent covariance, distinct from a disturbance covariance in a later structural model. | Chapter 1, Sec. 2.2 |
+| Common-factor model | Local independence (conditional independence) | Indicators being independent given the factors. It is stronger than zero conditional residual covariance, which is stronger than the zero unconditional covariance a diagonal $\boldsymbol\Theta$ supplies; none of the three says the observed items are unrelated. | Chapter 1, Sec. 2.3 |
+| Specification | Simple structure and cross-loading | A loading pattern in which each indicator relates to one factor, the remaining entries being fixed at zero; a cross-loading is a nonzero entry outside that pattern. Each zero is a restriction, not a drawing convenience. As a rotation criterion the same pattern favours relatively few substantial relations per item and identifiable indicator groups; it is not a criterion of fit to the observed covariance matrix, and rotation does not improve $F_{\mathrm{ML}}$. | Chapter 1, Sec. 3.1; as a rotation criterion Chapter 2, Sec. 5.2 |
+| Specification | Fixed, free and constrained parameter (parameter restriction) | Three distinct statuses an entry of $\boldsymbol\Lambda$, $\boldsymbol\Phi$ or $\boldsymbol\Theta$ can hold: fixed at a declared value, freely estimated, or tied to another parameter. A path diagram does not distinguish them. | Chapter 1, Sec. 3.2 |
+| Factor scale | Scale setting (marker variable, fixed factor) | Supplying a metric to a factor that has none, either by fixing one loading per factor or by fixing the factor variance. Neither convention is superior, and the implied covariance among indicators is the same under both. | Chapter 1, Sec. 4.1 |
+| Factor scale | Sign indeterminacy | Reversing a factor's direction and every one of its loadings leaves every product, and therefore the implied covariance, unchanged. A negative sign is a convention, and a sign flip between equivalent solutions is not a change in results. | Chapter 1, Sec. 4.2 |
+| Factor scale | Location convention (latent intercept $\boldsymbol\alpha$) | Fixing the origin of the factors, usually by setting the single-group factor means at zero, because observed means cannot determine unrestricted intercepts and unrestricted factor means together. $\boldsymbol\alpha$ is a latent intercept and coincides with $E(\boldsymbol\eta_i)$ only without structural paths. | Chapter 1, Sec. 4.2 |
+| Factor scale | Observed-unit change | Re-expressing recorded indicators in different units, which changes loadings, residual variances and implied covariances coherently and predictably. Nothing is indeterminate; this is not a latent-coordinate convention. | Chapter 1, Sec. 4.3 |
+| Factor scale | Rotational freedom (coordinate change, $\mathbf Q$) | The freedom, with two or more factors, to replace the axes while corresponding changes to $\boldsymbol\Lambda$ and $\boldsymbol\Phi$ leave the observed covariance unchanged. It resolves a representation choice and establishes nothing substantive. | Chapter 1, Sec. 4.1 and 7 |
+| Covariance structure | Model-implied covariance $\boldsymbol\Sigma(\boldsymbol\vartheta)$ (covariance structure analysis) | $\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta$: the covariance the model implies, split into a common and a residual part. It needs finite second moments and the stated moment restrictions, not normality. | Chapter 1, Sec. 5 |
+| Covariance structure | Pattern matrix and structure matrix ($\boldsymbol\Lambda\boldsymbol\Phi$) | $\boldsymbol\Lambda$ holds the coefficients of the indicator equations; $\boldsymbol\Lambda\boldsymbol\Phi$ holds indicator-factor covariances. They coincide under orthogonal unit-variance factors and must be read side by side in an oblique solution. | Chapter 1, Sec. 5; oblique reading Chapter 2, Sec. 6.1 |
+| Covariance structure | Communality ($h_j^{2}$) | The common part of an indicator's variance, $\boldsymbol\lambda_j^{\mathsf T}\boldsymbol\Phi\boldsymbol\lambda_j$, under the declared model. The shortcut $\lambda_j^{2}$ holds only for one nonzero loading on a unit-variance factor; correlated factors add a cross term. | Chapter 1, Sec. 5.1 |
+| Covariance structure | Uniqueness (residual variance; Heywood case) | $\theta_{jj}=1-h_j^{2}$ for a standardized indicator: variance the declared common factors do not represent, which is not the same as random error. A negative estimate is an improper, or Heywood, solution. | Chapter 1, Sec. 5.1 |
+| Covariance structure | Moment structure ($\boldsymbol\mu(\boldsymbol\vartheta)$) | The modeled object is the mean and covariance pair; $\boldsymbol\mu=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\alpha$. Analysing covariances alone sets the mean structure aside, which is a choice rather than an absence. | Chapter 1, Sec. 5.2 |
+| Covariance structure | Distinct moment and degrees of freedom ($u=p(p+1)/2$, $df=u-t$) | The number of distinct entries a covariance matrix supplies, and its difference from the free-parameter count. More respondents estimate the same moments more precisely; $df\ge0$ is necessary for, and never proof of, identification. | Chapter 1, Sec. 5.3 |
+| Covariance structure | Tetrad restriction | The vanishing of $\sigma_{jk}\sigma_{lm}-\sigma_{jm}\sigma_{lk}$, which one common factor with uncorrelated residuals forces for every four indicators. A nonzero tetrad refutes exact reproduction by that model, whatever its loadings. | Chapter 1, Sec. 6.3 |
+| Covariance structure | SS loading (column sum of squared loadings) | A summary of one factor column across indicators, read after rotation as a column statistic of the oriented solution. It is not in general an eigenvalue of the analysed correlation matrix, the matrix being decomposed must always be named, and with correlated factors it gives no unique additive partition of common variance. | Chapter 1, Sec. 6.1; post-rotation reading Chapter 2, Sec. 3.2 |
+| Neighboring objects | Factor-score estimate ($\widehat{\eta}_{ik}$) | A prediction of an unobserved factor value from responses, a fitted model and a scoring rule. Different rules give different numbers from the same fit, and no rule makes it an error-free measurement. | Chapter 1, Sec. 6.5 |
+| Neighboring objects | Principal component and prespecified composite | Weighted composites of observed variables, one chosen to capture observed variance and one declared as a rule such as a sum or mean. Neither decomposes covariance into common and residual parts, so neither answers the common-factor model's question. | Chapter 1, Sec. 6.5 |
+| Analytic orientation | Exploratory, confirmatory and hybrid orientation | Names for how much is declared before the focal analysis, not for unrelated models. Both use the same covariance decomposition; the restrictions and the history of the decisions separate them. | Chapter 1, Sec. 1.4 and 6.6 |
+| Analytic orientation | Analytic status (development versus confirmation evidence) | The record of which body of evidence informed each decision. A specification chosen on one body of evidence receives a genuinely new test only from evidence not used to choose it; analyses move from confirmatory to exploratory status and never back. | Chapter 1, Sec. 6.6--6.7 |
+
+: Latent variables and the common-factor model. {#tbl-intro-p2-concepts-latent tbl-colwidths="[16,23,45,16]"}
+
+## Exploratory Factor Analysis and Model Development {#sec-p2-concepts-efa }
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Exploratory analysis | Exploratory factor analysis (EFA) | A common-factor analysis that leaves most loading restrictions open while seeking a comparatively low-dimensional representation of shared covariation. It is not assumption-free: the indicator set, population, association matrix, residual restriction, dimensional range and rotation criterion all shape what it can reveal. | Chapter 2, Sec. 1 |
+| Exploratory analysis | Development sample (development record) | The sample whose inspection produces a model. A model developed after inspecting these observations is exploratory with respect to them whatever fitting function is used, so the same records cannot confirm it. | Chapter 2, Sec. 1 |
+| Extraction | Squared multiple correlation (SMC) | For indicator $j$, the $R^2$ from regressing it on all other indicators, computed as $1-1/(\mathbf R^{-1})_{jj}$. It is a regression summary of the observed matrix used as a communality start, not a known common variance. | Chapter 2, Sec. 2.3 |
+| Extraction | Reduced correlation matrix (SMC-reduced matrix) | The correlation matrix with communality estimates replacing the unit diagonal. It need not be positive semidefinite, and its eigenvalues are on a different scale from the full matrix's. | Chapter 2, Sec. 2.3 |
+| Extraction | Principal-axis factoring (PAF) | Iterative extraction that decomposes a reduced matrix, forms loadings from its leading positive roots and updates the diagonal from row sums of squared loadings. The diagonal start, nonpositive-root handling and stopping rule are implementation choices. | Chapter 2, Sec. 2.3 |
+| Extraction | Minimum-residual extraction (minres) | Extraction minimizing the sum of squared off-diagonal correlation residuals, giving each displayed discrepancy equal weight. It is a common-factor method but not another name for PAF. | Chapter 2, Sec. 2.4 |
+| Retention | Kaiser--Guttman rule (eigenvalue-greater-than-one) | Retaining roots above one in a unit-diagonal correlation analysis. Sampling variation alone produces roots above one, and applying the threshold to a reduced matrix changes the comparison. | Chapter 2, Sec. 3.3 |
+| Retention | Scree plot | An ordered plot of eigenvalues read for where large decreases give way to a flatter sequence. It supplies no sampling reference, and full- and reduced-matrix plots need not agree. | Chapter 2, Sec. 3.3 |
+| Retention | Parallel analysis (permutation parallel analysis) | Comparing each observed eigenvalue with the same-rank eigenvalues of datasets built to have no common factors but the same sample size and marginal distributions, and retaining the leading consecutive run that clears its reference. The eigenvalue basis, the null generator, the reference statistic and the replication count and seed all belong to the specification. | Chapter 2, Sec. 3.4 |
+| Retention | Empirical Kaiser criterion (EKC) | A sample-adjusted repair of Kaiser--Guttman using the Marchenko--Pastur bound $(1+\sqrt{p/n})^2$ for the first root, correcting later roots for variance already accounted for and flooring the reference at one. | Chapter 2, Sec. 3.5 |
+| Retention | Sequential model tests | Fitting successive factor counts and stopping at the first non-significant exact-fit test. The sequence is trustworthy only while still under-fitting, because the $\chi^2$ reference fails once the count exceeds the true number. | Chapter 2, Sec. 3.5 |
+| Retention | Combination rule | Using two criteria with different references together, and treating their disagreement as evidence that the dimensions are hard to detect rather than as a tie to be broken by vote. | Chapter 2, Sec. 3.5 |
+| Counting | Effective EFA parameter count ($t_m$) | $pm+p-m(m-1)/2$ for an unrestricted common-factor covariance model at regular points, with $df_m=p(p+1)/2-t_m$. The subtraction removes rotational redundancy; an oblique rotation adds no parameters because it re-expresses the same fitted covariance. | Chapter 2, Sec. 4.1 |
+| Counting | Ledermann bound | The largest factor count the covariance moments can generically support, $m\le(2p+1-\sqrt{8p+1})/2$. It is a counting limit, not a recommendation, a positive-root count or a proof of identification. | Chapter 2, Sec. 4.1 |
+| Rotation | Inverse-paired transformation | The general nonsingular change of factor coordinates $\boldsymbol\Lambda\mathbf T^{-1}$ with $\mathbf T\boldsymbol\Phi\mathbf T^{\mathsf T}$, which leaves the fitted common covariance unchanged. Multiplying loadings while leaving $\boldsymbol\Phi$ alone is not an equivalent oblique rotation. | Chapter 2, Sec. 5.1 |
+| Rotation | Varimax | An orthogonal criterion maximizing the dispersion of squared loadings within columns. A clean varimax pattern does not establish that the substantive attributes are unrelated. | Chapter 2, Sec. 5.2 |
+| Rotation | Direct oblimin (quartimin at $\gamma=0$) | An oblique criterion discouraging large squared coefficients in several columns of one row while permitting factor correlations. The name alone is not a specification: $\gamma$, normalization, tolerance, iteration limit, starts and seed all matter. | Chapter 2, Sec. 5.2 |
+| Rotation | Kaiser normalization | Dividing each loading row by its communality-based length before optimizing and restoring the scale afterward, which reweights indicators in the criterion. It is not the same operation as standardizing the observed variables. | Chapter 2, Sec. 5.2 |
+| Reading an oblique solution | Pattern coefficient (pattern matrix $\mathbf P$) | The coefficient of a factor in the simultaneous decomposition of a standardized indicator, read conditional on the other factors in the same representation. | Chapter 2, Sec. 6.1 |
+| Reading an oblique solution | Structure correlation (structure matrix $\mathbf C=\mathbf P\boldsymbol\Phi$) | The zero-order indicator--factor correlation, which can be appreciable where the pattern coefficient is near zero because part of the relation travels through the factor correlation. Pattern and structure coincide only in an orthogonal solution. | Chapter 2, Sec. 6.1 (defined as $\boldsymbol\Lambda\boldsymbol\Phi$ in Chapter 1, Sec. 5) |
+| Reading an oblique solution | Oblique communality as a quadratic form | $h_j^2=\mathbf p_j^{\mathsf T}\boldsymbol\Phi\mathbf p_j$, whose factor-correlation cross-products are part of the common variance. A row sum of squared pattern coefficients omits them and is a different quantity. | Chapter 2, Sec. 6.2 |
+| Residual evidence | Correlation residual matrix ($\mathbf E$) and off-diagonal RMS | Observed minus reproduced correlations, summarized by $\sqrt{2\sum_{j<k}e_{jk}^2/[p(p-1)]}$, which excludes variances. The largest absolute residual and the location of discrepancy carry information an average conceals, and this summary is not automatically any software statistic named RMSR or SRMR. | Chapter 2, Sec. 7.1 |
+| Residual evidence | Uniqueness boundary (bound-constrained uniqueness) | A fitted uniqueness at the implementation's lower bound rather than in the interior. It can signal too many factors, a redundant pair, sampling fluctuation or misspecification, and is different evidence from an interior estimate. | Chapter 2, Sec. 4.3 |
+| Preliminary summaries | KMO (Kaiser--Meyer--Olkin measure of sampling adequacy) | The ratio of summed squared zero-order correlations to that sum plus the summed squared partial correlations. It describes the input; it selects no factor count and is no minimum-sample-size calculation. | Chapter 2, Sec. 7.2 |
+| Preliminary summaries | Bartlett's test of sphericity | A normal-theory test of $H_0:\mathbf R_{\mathrm{population}}=\mathbf I$ on $p(p-1)/2$ df. Rejection says the indicators are not mutually uncorrelated, not that a low-dimensional factor model fits. | Chapter 2, Sec. 7.2 |
+| Analytic sensitivity | Tucker's congruence coefficient | The cosine between two loading-column vectors, compared after column order and sign are aligned. It compares coefficient directions, not participant scores, and near-one congruence can hide an important difference for one item. | Chapter 2, Sec. 7.3 |
+| Analytic sensitivity | Analytic sensitivity comparison | Changing one declared analytic choice at a time on the same records and comparing aligned solutions. It is same-sample evidence about analytic robustness, never an independent replication or a sampling interval. | Chapter 2, Sec. 7.3 |
+| Analytic status | Frozen candidate specification | The exact item order, free and fixed relations, scaling, covariance and mean settings, estimation family and named rivals recorded before any confirmation evidence is inspected. Freezing is what makes a later comparison interpretable. | Chapter 2, Sec. 8 |
+| Analytic status | Planned rival model | A restriction or broader alternative named before the confirmation outcome, distinguished from a post-hoc change, which changes analytic status and requires new evidence. | Chapter 2, Sec. 8 |
+
+: Exploratory factor analysis and model development. {#tbl-intro-p2-concepts-efa tbl-colwidths="[16,23,45,16]"}
+
+## Confirmatory Specification, Identification, and Estimation {#sec-p2-concepts-cfa }
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Confirmatory specification | Confirmatory factor analysis (restricted factor model; CFA) | A common-factor model whose loading, residual, and factor-covariance entries are restricted before estimation, giving testable implications beyond the number of factors. The label describes restrictions and analytic history, not a favorable conclusion or a function name. | Chapter 3, Sec. 1 |
+| Confirmatory specification | Exclusion restriction (fixed zero loading; absent arrow) | A loading entry set to zero as a substantive claim that the indicator has no direct relation to that factor. It does not state that the indicator and factor are uncorrelated, because correlated factors still induce a nonzero structure coefficient. | Chapter 3, Sec. 1 |
+| Parameter status | Free, fixed, equality-constrained, bounded, and defined parameter | Estimated under the other restrictions; assigned a constant; required to share a value; restricted to a range; or computed from fitted parameters without adding freedom. A diagram shows which relations exist, not which status each has. | Chapter 3, Sec. 3 |
+| Parameter status | Residual covariance (correlated residual; correlated uniqueness) | A freely estimated off-diagonal entry of $\boldsymbol\Theta$, occupying two symmetric cells and adding one free parameter. It changes one indicator pair's implied covariance, unlike a cross-loading, which changes a whole row and column. | Chapter 3, Sec. 3 |
+| Latent metric | Marker scaling (reference indicator; unit loading identification) | Fixing one loading per factor at one, so the factor is expressed in that indicator's units and the factor variance is estimated. It does not set the factor variance to one and does not make the marker error-free. | Chapter 3, Sec. 4 |
+| Latent metric | Fixed-factor scaling (unit variance identification; `std.lv = TRUE`) | Fixing each factor variance at one and estimating every target loading, so a factor unit is one model standard deviation in a single-group model. It does not standardize the observed indicators. | Chapter 3, Sec. 4 |
+| Latent metric | Factor-scale reparameterization ($\mathbf D$ transformation) | The diagonal rescaling $\boldsymbol\Lambda^*=\boldsymbol\Lambda\mathbf D^{-1}$, $\boldsymbol\Phi^*=\mathbf D\boldsymbol\Phi\mathbf D^{\mathsf T}$, which leaves the implied covariance and $\boldsymbol\Theta$ unchanged. Equivalence fails if a constraint is not transformed with the metric or a factor variance is on a boundary. | Chapter 3, Sec. 4 |
+| Observed units | Observed-unit rescaling ($\boldsymbol\Delta$ rescaling) | Replacing $\mathbf y$ by $\mathbf b+\boldsymbol\Delta\mathbf y$, which multiplies an indicator's intercept and loading by its factor, its variance and residual variance by that factor squared, and its covariance with an unchanged indicator by the factor. It changes the record, not the latent coordinates, and leaves fit unchanged under a consistently transformed model. | Chapter 3, Sec. 4 |
+| Observed units | Correlation reparameterization (standardized-indicator model) | Writing $\mathbf R=\mathbf D_y^{-1/2}\boldsymbol\Sigma\mathbf D_y^{-1/2}$ with rescaled loading and residual matrices. It standardizes the indicators, not the factors, and its moment count differs from the covariance form because the unit diagonal is fixed. | Chapter 3, Sec. 4 |
+| Coefficient metrics | Latent-standardized and fully standardized loading (`std.lv`; `std.all`) | $\lambda\sqrt{\phi_{aa}}$ expresses a factor change in standard-deviation units in the indicator's raw unit; $\lambda\sqrt{\phi_{aa}}/\sqrt{\sigma_{jj}}$ standardizes both. A raw standard error is not the standardized coefficient's standard error, because the transformation uses estimated quantities. | Chapter 3, Sec. 4 |
+| Moment accounting | Observed moments, free parameters, and model degrees of freedom ($u$, $t$, $df=u-t$) | The distinct sample moments a declared representation supplies, the free coordinates the model estimates, and their difference. Necessary bookkeeping for one stated representation; neither identification nor quality, and unique covariance entries are not observations. | Chapter 3, Sec. 6 |
+| Moment accounting | Unrestricted-EFA dimension | The count of distinct covariance-model axes in an unrestricted $m$-factor solution, $pm+p-m(m-1)/2$ at regular full-rank points, which subtracts the continuous rotational freedom that changes the display without changing the reproduced covariance. | Chapter 3, Sec. 6 |
+| Identification | Identification (global, local, and generic; empirical or weak identification) | Whether the moments determine the parameters: uniquely over the admissible space, in a neighborhood, or except at exceptional values. Weak identification describes a recoverable model whose parameters are poorly distinguished, showing as unstable estimates and very large standard errors rather than an error message. | Chapter 3, Sec. 6 |
+| Identification | Two- and three-indicator sufficient conditions (connectedness) | A factor with at least three exclusive indicators is identified under a fixed scale and diagonal residuals; a factor with two exclusive indicators needs a nonzero covariance with another identified factor. Both are sufficient and neither is necessary, and the second depends on an estimated quantity. | Chapter 3, Sec. 6 |
+| Identification | Moment Jacobian rank check | Full column rank of $\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$ at a regular fitted point, a local diagnostic that supports local identification. It does not prove global uniqueness or uniform stability, and it is a check on the fitted solution rather than a structural proof. | Chapter 3, Sec. 6 |
+| Model relations | Nested, nonnested, and equivalent models (observational equivalence) | Nesting requires that every covariance matrix one model generates belongs to the other's set, shown by the restrictions producing the inclusion. Equal degrees of freedom imply neither nesting nor equivalence, and observational equivalence limits what covariance data can distinguish. | Chapter 3, Sec. 6 |
+| Estimation | Normal-theory ML discrepancy ($F_{\mathrm{ML}}$) | $\log|\boldsymbol\Sigma(\boldsymbol\vartheta)|+\operatorname{tr}\{\mathbf S\boldsymbol\Sigma(\boldsymbol\vartheta)^{-1}\}-\log|\mathbf S|-p$, minimized over the admissible parameter space and normalized to zero at $\boldsymbol\Sigma=\mathbf S$. The covariance equation needs no normality; the conventional standard errors and test do. | Chapter 3, Sec. 7 (first used Chapter 2, Sec. 2.4) |
+| Estimation | Covariance divisor convention ($\mathbf S_N$ against $\mathbf S_{N-1}$; normal against Wishart) | $\mathbf S_N=\{(N-1)/N\}\mathbf S_{N-1}$ is the normal-likelihood convention; the Wishart convention uses an $N-1$ covariance and multiplier. A supplied covariance matrix communicates neither the sample size nor the divisor, so the convention must be disclosed and never applied twice. | Chapter 3, Sec. 7 |
+| Mean structure | Indicator intercepts and the latent location convention | Free indicator intercepts with latent intercepts fixed at zero add $p$ moments and $p$ parameters, leaving the covariance restrictions and degrees of freedom unchanged. Freeing both at once identifies no latent origin, because $\boldsymbol\alpha+\mathbf c$ with $\boldsymbol\nu-\boldsymbol\Lambda\mathbf c$ reproduces the same means. | Chapter 3, Sec. 5 |
+| Solution quality | Convergence, admissibility, and the Heywood case | Convergence is an optimizer's stopping statement; admissibility requires positive residual variances and positive definite factor and implied covariance matrices. A negative or zero residual variance is a symptom of the whole decomposition and is neither a cosmetic warning nor something to replace by zero in a report. | Chapter 3, Sec. 8 |
+| Inference | Wald test of a linear restriction ($\mathbf R\boldsymbol\vartheta=\mathbf r$) | A $\chi^2_q$ test computed from the estimates and their covariance matrix, requiring the covariance between estimates and not only their variances. It tests the stated restriction conditional on the rest of the model; it is not a global-fit test and need not equal a refitted likelihood-ratio statistic. | Chapter 3, Sec. 8 |
+| Transition record | Evaluation transition record (handoff record) | What evaluation begins from: evidence identity, specification, parameter conventions, estimation settings, data handling, numerical status, parameter output, fitted moments, stored evaluation fields, and reproduction metadata. Storing those fields is not interpreting them. | Chapter 3, Sec. 8 |
+| Observed system | Parceling (item aggregation) | Fitting $\mathbf z=\mathbf A\mathbf y$ with $\operatorname{Var}(\mathbf z)=\mathbf A\boldsymbol\Sigma\mathbf A^{\mathsf T}$. Reducing dimension lets different item-level patterns give the same parcel covariance, so a well-fitting parcel model does not establish the item-level restrictions. | Chapter 3, Appendix |
+
+: Confirmatory specification, identification, and estimation. {#tbl-intro-p2-concepts-cfa tbl-colwidths="[16,23,45,16]"}
+
+## Evaluation, Comparison, Reliability, and Extensions {#sec-p2-concepts-evaluation }
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Global fit | Model chi-square (exact-fit test; likelihood-ratio model test) | $T_M=N\widehat F_{\mathrm{ML}}$ referred to $\chi^2_{df_M}$, testing whether some admissible parameter vector reproduces the population moment structure exactly. Nonrejection is not acceptance of the model, and rejection at large $N$ is evidence against exact fit rather than a measure of its magnitude. | Chapter 4, Sec. 2 |
+| Global fit | RMSEA (root mean square error of approximation) with its 90% interval | Estimated discrepancy per degree of freedom, $\sqrt{\max\{(T_M-df_M)/(N\,df_M),0\}}$, comparable across models of different size, with an interval obtained by inverting a noncentral chi-square reference. A zero estimate is a truncation, not zero residuals; the convention ($N$ or $N-1$) must be named. | Chapter 4, Sec. 2 |
+| Global fit | Incremental fit index (CFI; TLI or NNFI) with its independence baseline | Improvement of the model relative to a stated reference rather than relative to exact fit. The usual baseline frees the observed variances and fixes all covariances to zero, so a high value depends on how poor that baseline is; TLI is not bounded by one. | Chapter 4, Sec. 2 |
+| Global fit | SRMR (standardized root mean square residual) | Root mean square of observed-SD-standardized covariance residuals over one triangle including the diagonal. Not a mean absolute residual; a small value can hide a few large cells among many near-zero ones. | Chapter 4, Sec. 3 |
+| Local diagnosis | Covariance residual (raw; observed-SD-standardized; correlation residual) | Observed minus implied covariance, either in the product of the two indicators' units, divided by the product of observed SDs, or as a difference of separately formed correlations. None is a residual divided by its sampling standard error, so none is automatically a $z$ statistic. | Chapter 4, Sec. 3 |
+| Local diagnosis | Modification index (score statistic; Lagrange multiplier) and expected parameter change (EPC; standardized EPC) | A local one-parameter approximation to the improvement from releasing one fixed restriction, with the approximate value the released parameter would take. Read with the residual pattern, the parameter's meaning, and the status of the search; not the exact LR change, and not an instruction. | Chapter 4, Sec. 6 |
+| Comparison | Nested difference test ($\chi^2$ difference; likelihood-ratio difference test) | $\Delta T=T_R-T_U$ on $\Delta df=df_R-df_U$ for regularly nested, compatible ML fits on identical cases, outcomes, scale, mean structure, and likelihood convention. A smaller parameter count is not proof of nesting, and failure to reject is not equivalence. | Chapter 4, Sec. 4 |
+| Comparison | Information criteria for covariance structures (AIC; BIC) eligibility | $-2\ell+2q$ and $-2\ell+q\log N$ with $q$ the effective free-parameter count. They rank eligible candidates fitted to the same observations and outcomes under one likelihood convention, including nonnested ones; neither is a test or an adequacy index. | Chapter 4, Sec. 4 |
+| Comparison | Score, Wald, and likelihood-ratio views of one restriction | Three statistics for one null: slope and information at the restricted fit; distance of the unrestricted estimate from the restriction relative to its uncertainty; difference of optimized likelihoods. Asymptotic equivalence is not finite-sample equality. | Chapter 4, Sec. 4 |
+| Comparison | Equivalent models (covariance-equivalent representation) | Distinct specifications that imply the same fitted covariance matrix, and hence the same statistic, df, and every fit index. No amount of covariance data can choose between them; only theory and evidence beyond reproduced covariance can. | Chapter 4, Sec. 5 |
+| Extensions | Higher-order factor model (second-order factor; first-order disturbance) | A model in which one further latent variable accounts for the covariances among first-order factors, $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$. The first-order disturbances are not indicator residuals, and the form imposes $m(m-3)/2$ restrictions, hence none when $m=3$. | Chapter 4, Sec. 5 |
+| Extensions | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. | Chapter 4, Sec. 5 |
+| Extensions | Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain splits its common variance in the ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. | Chapter 4, Sec. 5 |
+| Extensions | Method effect; testlet effect | Common variance among items sharing a format (reverse keying, response scale, informant) or a stimulus (passage, vignette, apparatus). Both are design-known groupings and the least controversial motivation for a specific factor, which generalizes a freed residual covariance to several items. | Chapter 4, Sec. 5 |
+| Reliability | Model-based omega for a declared score, $\omega(\mathbf w)$ (composite reliability) | The proportion of a declared weighted composite's model-implied variance attributable to all modeled common factors. It retains cross-loadings, factor correlations, and modeled residual covariances, and is conditional on model, weights, and sample. | Chapter 4, Sec. 8 |
+| Reliability | Omega-hierarchical, $\omega_h(\mathbf w)$ | The share of a declared score's variance attributable specifically to a bifactor general factor. Its complement within total omega is modeled reliable specific-factor variance, not error, and a substantial value does not establish essential unidimensionality. | Chapter 4, Sec. 5 |
+| Reliability | Average variance extracted (AVE) and coefficient $H$ as bounded neighbours | AVE summarizes average communality for a simple fully-standardized single-factor item set; $H=a/(1+a)$ with $a=\boldsymbol\lambda^{\mathsf T}\boldsymbol\Theta^{-1}\boldsymbol\lambda$ is a maximum over optimally weighted composites. Neither is the reliability of a stated unit-weighted score, and neither applies unqualified to a cross-loading subscale. | Chapter 4, Appendix |
+| Scores | Factor score (regression or conditional-mean score; Bartlett score) and factor-score determinacy | A model-dependent linear prediction of a latent variable from the indicators, whose weights use the whole fitted structure; determinacy is the model-based correlation between factor and prediction. A score is a prediction with nonzero conditional variance, not an observed latent value. | Chapter 4, Sec. 8 |
+| Analytic history | Pseudo-true (population-ML) parameter and population discrepancy ($F_0$; population RMSEA) | The optimum of a misspecified model fitted to the exact generating covariance, and the discrepancy remaining there. Displacement at this optimum is deterministic under two stated specifications, not sampling fluctuation and not finite-sample estimator bias. | Chapter 4, Sec. 7 |
+| Analytic history | Post-selection revision and independent revalidation | A change suggested by inspecting a body of evidence is exploratory with respect to that evidence, whatever function fits it; only records not used to suggest it can support it, and a retest that fails to support it does not prove the parameter is zero. | Chapter 4, Sec. 6 |
+
+: Evaluation, comparison, reliability, and extensions. {#tbl-intro-p2-concepts-evaluation tbl-colwidths="[16,23,45,16]"}
+
+## Notation for Chapters 1--4 {#sec-p2-concepts-notation }
+
+| Group | Symbol (preferred form) | Meaning | Main use | Alternatives and notes |
+|:--|:--|:--|:--|:--|
+| Indices and counts | $i$, $j$, $k$; $n$, $p$, $m$ | Unit, indicator and factor indices; numbers of units, indicators and factors | Chapter 1, Sec. 2.1 | $p=6$ and $m=2$ throughout Chapter 1's running system; $N$ writes the analysis sample size in the likelihood conventions of Chapter 3, Sec. 7 and Chapter 4, Sec. 2; $a$ also serves as a factor index in Chapters 2--3 |
+| Observed | $y_{ij}$, $\mathbf y_i$, $Y_j$ | One response, the $p\times1$ response vector for unit $i$, and the indicator as a random variable | Chapter 1, Sec. 2.1--2.2 | Uppercase only where the distinction from an observed value matters |
+| Model | $\boldsymbol\nu$, $\nu_j$ | The $p\times1$ vector of indicator intercepts | Chapter 1, Sec. 2.1--2.2 | --- |
+| Model | $\boldsymbol\Lambda$, $\boldsymbol\lambda_j$, $\lambda_{jk}$ | The $p\times m$ loading (pattern) matrix, its $j$th row as a column vector, and the entry relating indicator $j$ to factor $k$ | Chapter 1, Sec. 2.2, 3 | Rows are indicators and columns are factors; $\boldsymbol\Lambda_{\text{simple}}$ for the restricted pattern; $\boldsymbol\Lambda_l$ is the first-order loading matrix of Chapter 4, Sec. 5; Part One's notation uses $\lambda$ for the Poisson rate (Part One Chapters 2 and 12) and the penalty size (Part One Chapter 13), so the loading reading is stated at first use |
+| Model | $\boldsymbol\eta_i$, $\eta_{ik}$ | The $m\times1$ vector of common factors for unit $i$ and one factor value | Chapter 1, Sec. 2.1 | $\boldsymbol\eta_i^{*}$ for a rescaled, sign-reversed, shifted or rotated version; $\eta$ is the GLM linear predictor in Part One's notation (Part One Chapter 11) and $\eta^{2}$ an ANOVA effect size (Part One Chapter 4), so the factor reading is stated at first use |
+| Model | $\boldsymbol\epsilon_i$, $\epsilon_{ij}$ | The $p\times1$ residual vector and one residual | Chapter 1, Sec. 2.1 | Never called measurement error without an argument |
+| Model | $\boldsymbol\alpha$ | The $m\times1$ latent intercept vector; the factor mean only where no structural paths exist | Chapter 1, Sec. 2.2 | With $\mathbf B$ present, $E(\boldsymbol\eta_i)=(\mathbf I-\mathbf B)^{-1}\boldsymbol\alpha$; no $\boldsymbol\kappa$ convention; Part One's notation uses $\alpha$ for the Type I error probability (Part One Chapter 3) and the elastic-net mixing parameter (Part One Chapter 13) |
+| Model | $\boldsymbol\Phi$, $\phi_{jk}$ | The $m\times m$ factor covariance matrix and its entries; $\boldsymbol\Phi_{2\rho}$ for the correlated two-factor case | Chapter 1, Sec. 2.2, 6.4 | Total latent covariance across the series, not a disturbance covariance $\boldsymbol\Psi$; $\boldsymbol\Phi_l$ is the first-order factor covariance matrix of Chapter 4, Sec. 5; Part One's notation uses $\Phi$ for the standard Normal distribution function (Part One Chapter 2) |
+| Model | $\boldsymbol\Theta$, $\theta_{jk}$ | The $p\times p$ residual covariance matrix and its entries | Chapter 1, Sec. 2.2--2.3 | $\operatorname{diag}(\theta_{11},\ldots,\theta_{pp})$ for the diagonal working version; the parameter space is $\mathcal P$, never another $\Theta$; Part One's notation uses $\theta$, $\widehat\theta$ for a generic estimand (Part One Chapter 3) and the negative-binomial dispersion (Part One Chapter 12) |
+| Implied moments | $\boldsymbol\vartheta$, $\boldsymbol\Sigma(\boldsymbol\vartheta)$, $\boldsymbol\mu(\boldsymbol\vartheta)$ | The free-parameter vector and the implied covariance and mean it produces | Chapter 1, Sec. 5 | $\boldsymbol\Sigma$ alone where the argument is clear; Chapter 3, Sec. 1 reads $\boldsymbol\vartheta$ as the complete free-parameter vector, distinct from $\boldsymbol\Theta$ |
+| Implied moments | $h_j^{2}$ | The communality of indicator $j$ under the declared model | Chapter 1, Sec. 5.1 | $\theta_{jj}=1-h_j^{2}$ for a standardized indicator; written as the quadratic form $\mathbf p_j^{\mathsf T}\boldsymbol\Phi\mathbf p_j$ in Chapter 2, Sec. 6.2 and for a cross-loading indicator in Chapter 3, Sec. 8; $u_j^{2}$ writes the matching uniqueness in Chapter 2 |
+| Counting | $u$, $t$, $df$ | Distinct observed moments, free parameters, and their difference | Chapter 1, Sec. 5.3 | $df$ upright; $u=21$ for six indicators; reused in Chapter 3, Sec. 6; the subscripted $u_j^{2}$ of Chapter 2 is a uniqueness, not a moment count; an unsubscripted $t$ here is the free-parameter count, distinct from the Part One $t_{df}$ reference distribution (Part One Chapter 3) |
+| Counting | $u_{\mathrm{cov}}$, $u_{\mathrm{mean+cov}}$ | Moment counts without and with an unrestricted mean vector | Chapter 3, Sec. 5 | Free indicator intercepts with latent intercepts fixed add equally to moments and parameters, leaving $df$ unchanged |
+| Counting | $t_m$ | The effective parameter count of an unrestricted $m$-factor solution, $pm+p-m(m-1)/2$ | Chapter 2, Sec. 4.1 | The unrestricted-EFA dimension of Chapter 3, Sec. 6 is the same count; an unsubscripted $t$ is the free-parameter count of Chapter 1, Sec. 5.3 |
+| Coordinates | $a$, $\mathbf c$, $\mathbf Q$ | A nonzero rescaling constant, an $m\times1$ location shift, and an orthogonal coordinate matrix | Chapter 1, Sec. 4.1--4.2, 7 | $\mathbf T$ for the general invertible transformation is Chapter 2's; $\mathbf Q$ is the orthogonal rotation matrix of Chapter 2, Sec. 5.2; $a$ also indexes factors in $p_{ja}$, $\lambda_{ja}$ and $\phi_{aa}$ (Chapters 2--3) and names $\boldsymbol\lambda^{\mathsf T}\boldsymbol\Theta^{-1}\boldsymbol\lambda$ in coefficient $H$ (Chapter 4, Appendix), so the setting is stated at first use |
+| Coordinates | $\mathbf T$ | The general nonsingular change of factor coordinates, $\boldsymbol\Lambda\mathbf T^{-1}$ paired with $\mathbf T\boldsymbol\Phi\mathbf T^{\mathsf T}$ | Chapter 2, Sec. 5.1 | Reused for the rotational family in Chapter 3, Sec. 6; the orthogonal case keeps Chapter 1's $\mathbf Q$ |
+| Coordinates | $\gamma$, $\delta$ | The oblimin parameter and the geomin parameter of the rotation criteria | Chapter 2, Sec. 5.2 | Plain letters; the bold $\boldsymbol\gamma$ and $\boldsymbol\delta$ of Chapter 4, Sec. 5 are second-order loadings and first-order disturbances |
+| Classical test theory | $X_{ir}$, $T_i$, $E_{ir}$ | Observed score on repetition $r$, true score, and error | Chapter 1, Sec. 1.2 | $E_r(\cdot\mid i)$ averages over repetitions with the person fixed |
+| Scores | $\widehat{\eta}_{ik}$ | A factor-score estimate for unit $i$ on factor $k$ | Chapter 1, Sec. 6.5 | The hat marks a prediction from a fitted model, never the factor; $\mathbf A_R$ and $\mathbf A_B$ of Chapter 4, Appendix supply the weights |
+| Fixed arrays | $\mathbf I_p$, $\mathbf 1_p$, $\operatorname{diag}(\cdot)$ | The $p\times p$ identity, the $p\times1$ vector of ones, and the diagonal matrix formed from the listed entries | Chapter 1, Sec. 6.1--6.2 | $\mathbf 1_6$ writes the one-factor record's equal loadings as $.70\,\mathbf 1_6$ |
+| Sample records | $\mathbf S$, $\mathbf R$ | The sample covariance matrix, divisor $n-1$, and the sample Pearson correlation matrix | Chapter 2 | Reserved in Chapter 1, which has no sample and uses $\mathbf S$ only for its rescaling anchor; the structure matrix is written $\boldsymbol\Lambda\boldsymbol\Phi$ and given no symbol; Part One's notation homes both as observed-variable matrices |
+| Sample records | $\mathbf D_S$ | The diagonal matrix of sample variances | Chapter 2 | $\mathbf D_y$ is the observed-variance counterpart in the correlation reparameterization of Chapter 3, Sec. 4 |
+| Sample records | $\mathbf V$, $\mathbf D$, $d_k$ | Eigenvectors, the eigenvalue matrix, and the $k$th eigenvalue of $\mathbf R$ | Chapter 2 | A spectral eigenvalue matrix; the $\mathbf D$ of Chapter 3, Sec. 4 is the diagonal factor-scale transformation and Part One's notation uses $\mathbf D$ for a diagonal SD matrix, $\widehat{\mathbf V}$ for estimated coefficient covariance (Part One Chapter 8) and $d$ for Cohen's $d$ (Part One Chapter 3), so the setting is named at first use |
+| Sample records | $\mathbf R_c^{(t)}$ | The reduced correlation matrix at iteration $t$ | Chapter 2, Sec. 2.3 | The superscript is an iteration index, not the free-parameter count $t$; the reduced matrix need not be positive semidefinite |
+| Extraction | $\mathbf A$, $\mathbf A_m$ | The unrotated loading matrix and its rank-$m$ PCA counterpart | Chapter 2 | $\mathbf A$ is the parcel weight matrix in Chapter 3, Appendix and $\mathbf A_R$, $\mathbf A_B$ are factor-score weight matrices in Chapter 4, Appendix; each use is declared locally |
+| Extraction | $F_{\mathrm{minres}}$ | The minimum-residual extraction discrepancy | Chapter 2, Sec. 2.4 | A common-factor criterion, not another name for principal-axis factoring |
+| Retention | $SS_k$ | The sum of squared loadings in column $k$ | Chapter 2, Sec. 3.2 | Generally not a spectral eigenvalue, and distinct from the Part One ANOVA $SS$ family |
+| Retention | $B$, $Q_{.95}$ | The number of permutation replications and the 95th-percentile null reference | Chapter 2, Sec. 3.4 | The bold $\mathbf B$ of Chapter 4, Sec. 8 is the latent structural path matrix |
+| Retention | $\text{EKC}_j$ | The empirical Kaiser reference for root $j$ | Chapter 2, Sec. 3.5 | Built on the Marchenko--Pastur bound $(1+\sqrt{p/n})^2$ and floored at one |
+| Retention | $T_m$, $df_m$ | The corrected exploratory model statistic for $m$ factors and its degrees of freedom | Chapter 2, Sec. 3.5 | Lowercase $m$ marks the exploratory sequence; the uppercase $T_M$, $df_M$ of Chapter 4, Sec. 2 are the confirmatory model statistic and its degrees of freedom |
+| Rotation | $\mathbf P$, $p_{ja}$ | The pattern matrix and the pattern coefficient of indicator $j$ on factor $a$ | Chapter 2, Sec. 6.1 | $\boldsymbol\Lambda$ names the same object in the model equations of Chapter 1 and Chapter 3 |
+| Rotation | $\mathbf C$ | The structure matrix $\mathbf C=\mathbf P\boldsymbol\Phi$ of indicator--factor correlations | Chapter 2, Sec. 6.1 | Defined as $\boldsymbol\Lambda\boldsymbol\Phi$ in Chapter 1, Sec. 5, which gives it no symbol |
+| Residual evidence | $\mathbf E$, $e_{jk}$, $\mathrm{RMS}_{\mathrm{off}}$ | The correlation residual matrix, its entries, and the off-diagonal summary $\sqrt{2\sum_{j<k}e_{jk}^2/[p(p-1)]}$ | Chapter 2, Sec. 7.1 | In Chapter 4, Sec. 3 $e_{jk}$ is the raw covariance residual and $e^{(s)}_{jk}$, $e^{(r)}_{jk}$ the standardized and correlation scales, so the scale is always named; this summary is not automatically any software RMSR or SRMR |
+| Residual evidence | $\widehat r_{jk}$ | A reproduced correlation | Chapter 2, Sec. 7.1 | The hat marks a model-implied value, not a sample statistic |
+| Preliminary summaries | $a_{jk}$ | A partial correlation entering the KMO ratio | Chapter 2, Sec. 7.2 | Distinct from the rescaling constant $a$ of Chapter 1, Sec. 4.1 and from the factor index $a$ |
+| Preliminary summaries | $T_B$, $df_B$ | Bartlett's sphericity statistic and its $p(p-1)/2$ degrees of freedom | Chapter 2, Sec. 7.2 | In Chapter 4, Sec. 2 the same pair names the independence-baseline statistic of the incremental indices, a different null |
+| Analytic sensitivity | $c(\mathbf a,\mathbf b)$ | Tucker's congruence coefficient between two loading columns $\mathbf a$ and $\mathbf b$ | Chapter 2, Sec. 7.3 | Compared after column order and sign are aligned; these are loading columns, not the shift vector $\mathbf b$ of Chapter 3, Sec. 4 |
+| Parameter space | $\mathcal P$ | The admissible parameter space | Chapter 3, Sec. 7 | Never written $\Theta$, which is the residual covariance matrix |
+| Latent metric | $\mathbf D$ (factor scale) | The diagonal factor-scale transformation, $\boldsymbol\Lambda^*=\boldsymbol\Lambda\mathbf D^{-1}$ with $\boldsymbol\Phi^*=\mathbf D\boldsymbol\Phi\mathbf D^{\mathsf T}$ | Chapter 3, Sec. 4 | Carries its qualifier, because $\mathbf D$ is also the eigenvalue matrix of Chapter 2 |
+| Latent metric | $\lambda_{ja}^{(\mathrm{lv})}$, $\lambda_{ja}^{(\mathrm{all})}$ | Latent-standardized and fully standardized loadings | Chapter 3, Sec. 4 | $\lambda\sqrt{\phi_{aa}}$ and $\lambda\sqrt{\phi_{aa}}/\sqrt{\sigma_{jj}}$; a raw standard error is not the standardized coefficient's standard error |
+| Observed units | $\boldsymbol\Delta$, $\mathbf b$ | The diagonal observed-unit conversion matrix and its shift vector, giving $\mathbf b+\boldsymbol\Delta\mathbf y$ | Chapter 3, Sec. 4 | Reserved for observed-unit rescaling across Part Two and named without algebra in Chapter 1; the moment Jacobian is written $\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$, never $\boldsymbol\Delta$. Chapter 3, Sec. 6.5 writes the moment Jacobian in that form, and the Chapter 4 local-rank check inherits it; Part Two keeps the two symbols separate |
+| Observed units | $\mathbf D_y$ | The diagonal matrix of observed variances used in the correlation reparameterization | Chapter 3, Sec. 4 | $\mathbf R=\mathbf D_y^{-1/2}\boldsymbol\Sigma\mathbf D_y^{-1/2}$; $\mathbf D_S$ of Chapter 2 is the sample counterpart |
+| Observed units | $\mathbf R$ (implied correlation) | The model-implied correlation matrix | Chapter 3, Sec. 4 | Carries its qualifier: an unqualified $\mathbf R$ is the sample correlation matrix of Chapter 2 |
+| Identification | $\mathbf s(\boldsymbol\vartheta)$, $\partial\mathbf s/\partial\boldsymbol\vartheta^{\mathsf T}$ | The stacked implied moments and their Jacobian | Chapter 3, Sec. 6 | Full column rank at a regular fitted point supports local identification only |
+| Estimation | $F_{\mathrm{ML}}$ | The normal-theory ML discrepancy | Chapter 3, Sec. 7 (first used Chapter 2, Sec. 2.4) | $\widehat F_{\mathrm{ML}}$ at the fitted point enters $T_M=N\widehat F_{\mathrm{ML}}$ in Chapter 4, Sec. 2; rotation does not change it |
+| Estimation | $\mathbf S_N$, $\mathbf S_{N-1}$ | The sample covariance matrix under the two divisor conventions, $\mathbf S_N=\{(N-1)/N\}\mathbf S_{N-1}$ | Chapter 3, Sec. 7 | $\mathbf S_N$ is reused in Chapter 4, Sec. 2; the convention is disclosed and never applied twice |
+| Inference | $\mathbf R$ (restriction), $\mathbf r$, $q$, $W$ | The restriction rows, their values, their number, and the Wald statistic for $\mathbf R\boldsymbol\vartheta=\mathbf r$ | Chapter 3, Sec. 8 | Carries its qualifier; this $q$ counts restrictions, while the $q$ of Chapter 4, Sec. 4 is an effective free-parameter count |
+| Parcels | $\mathbf A$ (parcel), $\mathbf z$ | The parcel weight matrix and the parcel score vector, with $\operatorname{Var}(\mathbf z)=\mathbf A\boldsymbol\Sigma\mathbf A^{\mathsf T}$ | Chapter 3, Appendix | Carries its qualifier beside the extraction and factor-score uses of $\mathbf A$ |
+| Global fit | $T_M$, $df_M$ | The model test statistic $N\widehat F_{\mathrm{ML}}$ and the model degrees of freedom of the declared covariance model | Chapter 4, Sec. 2 | Uppercase $M$; the lowercase $T_m$, $df_m$ of Chapter 2, Sec. 3.5 belong to the exploratory sequence |
+| Global fit | $T_B$ (baseline), $df_B$ | The independence-baseline statistic and its degrees of freedom in CFI and TLI | Chapter 4, Sec. 2 | Carries its qualifier; the same pair is Bartlett's sphericity test in Chapter 2, Sec. 7.2 |
+| Local diagnosis | $e_{jk}$, $e^{(s)}_{jk}$, $e^{(r)}_{jk}$ | Raw, observed-SD-standardized, and correlation covariance residuals | Chapter 4, Sec. 3 | None is divided by a sampling standard error, so none is a $z$ statistic; $e_{jk}$ is the correlation residual in Chapter 2, Sec. 7.1, so the scale is named |
+| Comparison | $\Delta T$, $\Delta df$ | The nested difference statistic and its degrees of freedom | Chapter 4, Sec. 4 | For regularly nested, compatible ML fits on identical cases, outcomes, scale, mean structure, and likelihood convention |
+| Comparison | $\ell(\widehat{\boldsymbol\vartheta})$, $q$ | The maximized log likelihood and the effective free-parameter count in $-2\ell+2q$ and $-2\ell+q\log N$ | Chapter 4, Sec. 4 | This $q$ is a parameter count; the $q$ of Chapter 3, Sec. 8 counts restriction rows |
+| Extensions | $\boldsymbol\gamma$ | The $m\times1$ second-order loading vector | Chapter 4, Sec. 5 | Bold; the plain $\gamma$ of Chapter 2, Sec. 5.2 is the oblimin parameter |
+| Extensions | $\boldsymbol\delta$, $\boldsymbol\Psi_h$, $\psi_{h,k}$ | First-order disturbances, their diagonal covariance matrix, and its $k$th diagonal entry, with $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$ | Chapter 4, Sec. 5 | Bold; the plain $\delta$ of Chapter 2, Sec. 5.2 is the geomin parameter. First-order disturbances are not indicator residuals |
+| Extensions | $\boldsymbol\Lambda_l$, $\boldsymbol\Phi_l$ | The first-order loading matrix and first-order factor covariance matrix of the higher-order form | Chapter 4, Sec. 5 | The subscript $l$ marks the first-order level |
+| Extensions | $\lambda_{jg}$, $\lambda_{js}$; $G$, $S_{is}$ | Bifactor general and specific loadings for item $j$; the general factor and the specific factor for unit $i$ in domain $s$ | Chapter 4, Sec. 5 | $S_{is}$ is a specific factor, not an entry of the sample covariance matrix $\mathbf S$ |
+| Reliability and scores | $\mathbf w$, $c_i$ | Declared score weights and the composite for unit $i$ | Chapter 4, Sec. 8 | The weights are declared before any coefficient is calculated |
+| Reliability and scores | $\omega(\mathbf w)$, $\omega_h(\mathbf w)$ | The model-based common-variance proportion for those weights and omega-hierarchical | Chapter 4, Secs. 8 and 5 | Both are conditional on model, weights, and sample |
+| Reliability and scores | $H$ | Coefficient $H$ under a restrictive one-factor model, $H=a/(1+a)$ with $a=\boldsymbol\lambda^{\mathsf T}\boldsymbol\Theta^{-1}\boldsymbol\lambda$ | Chapter 4, Appendix | Plain; Part One's notation uses the bold $\mathbf H$ for the regression hat matrix |
+| Reliability and scores | $\mathbf A_R$, $\mathbf A_B$ | Regression and Bartlett factor-score weight matrices | Chapter 4, Appendix | $\widehat{\eta}_{ik}$ of Chapter 1, Sec. 6.5 is the resulting prediction |
+| Population audit | $\boldsymbol\Sigma_0$, $\boldsymbol\Sigma^{*}$ | The exact generating covariance and its pseudo-true fitted counterpart | Chapter 4, Sec. 7 | Displacement at the pseudo-true optimum is deterministic, not sampling fluctuation |
+| Population audit | $F_0$, $\operatorname{RMSEA}_0$ | The population discrepancy and the population RMSEA $\sqrt{F_0/df}$ | Chapter 4, Sec. 7 | Not the sample RMSEA formula |
+| Structural extension | $\mathbf B$, $\boldsymbol\Gamma$, $\boldsymbol\zeta$, $\boldsymbol\Psi$ | Latent structural paths, exogenous links, the structural disturbance, and its covariance | Chapter 4, Sec. 8 | Bold $\mathbf B$; the plain $B$ of Chapter 2, Sec. 3.4 is a replication count. The bare $\boldsymbol\Psi$ is the structural disturbance covariance and nothing else: the Schmid-Leiman equations of Chapter 4, Sec. 5.5 write the first-order disturbance covariance as $\boldsymbol\Psi_h$ |
+
+: Notation for Chapters 1--4. {#tbl-intro-p2-concepts-notation tbl-colwidths="[12,20,32,10,26]"}

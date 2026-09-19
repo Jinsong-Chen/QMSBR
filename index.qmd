@@ -18,20 +18,35 @@ A modular quantitative-methods series
 
 # Quantitative reasoning that keeps the claim connected to the evidence
 
-QMSBR is a modular learning library for social and behavioral research. Its
-primary goal is to help readers understand how quantitative studies answer
-their questions. It connects research design, statistical reasoning,
-interpretation, and reproducible computing—without letting a software result
-stand in for an argument.
+QMSBR is a modular learning library for social and behavioral research. It is
+written for readers who have to make sense of quantitative studies: students
+meeting these methods for the first time, researchers returning to them, and
+anyone who has to judge whether a reported answer is warranted. Its first aim
+is to show how a quantitative study answers its question, so that research
+design, statistical reasoning, interpretation, and reproducible computing stay
+connected and a software result never stands in for an argument.
+
+The material is organized in parts. A part opens with a short **introduction**,
+keeps its central concepts, symbols, and notation in a **concept reference**
+you can consult while reading, and then works through its **chapters** in
+reading order. **Part One** covers foundations, regression, and generalized
+linear models; **Part Two** covers factor analysis and structural equation
+modeling. The **R support** pages run R inside the browser, so there is nothing
+to install before trying something out.
+
+If you are new here, begin with the Part One introduction and then Chapter 1,
+which sets up the reading that every later chapter uses. If you already know
+where you are going, the collections below link to every page and its PDF.
 
 ::: {.hero-actions}
 [Browse the collections](#collections){.btn .btn-primary .btn-lg}
-[Understand the approach](about.qmd#the-approach){.btn .btn-outline-light .btn-lg}
+[Start with Part One](part-one/part_one_introduction.qmd){.btn .btn-outline-light .btn-lg}
 :::
 
 ::: {.release-strip}
-Part One, Introduction and Chapters 1–9 · Part Two, Introduction and Chapters
-1–4 · R support for Chapters 3 and 4 · Read online or download the PDF
+Part One, Introduction, Concept Reference, and Chapters 1–9 · Part Two,
+Introduction, Concept Reference, and Chapters 1–4 · R support for Chapters 3
+and 4 · Read online or download the PDF
 :::
 :::
 
@@ -46,6 +61,7 @@ Foundations, Regression, and Generalized Linear Models
 :::
 
 - [Introduction](part-one/part_one_introduction.qmd) [PDF](part-one/part_one_introduction.pdf){.pdf-link}
+- [Concept Reference](part-one/part_one_concept_reference.qmd) [PDF](part-one/part_one_concept_reference.pdf){.pdf-link}
 - [1. The Quantitative Research Journey](part-one/chapter_01.qmd) [PDF](part-one/chapter_01.pdf){.pdf-link}
 - [2. Data, Distributions, and Variation](part-one/chapter_02.qmd) [PDF](part-one/chapter_02.pdf){.pdf-link}
 - [3. Estimates, Uncertainty, and Statistical Tests](part-one/chapter_03.qmd) [PDF](part-one/chapter_03.pdf){.pdf-link}
@@ -65,10 +81,27 @@ Factor Analysis and Structural Equation Modeling
 :::
 
 - [Introduction](part-two/part_two_introduction.qmd) [PDF](part-two/part_two_introduction.pdf){.pdf-link}
+- [Concept Reference](part-two/part_two_concept_reference.qmd) [PDF](part-two/part_two_concept_reference.pdf){.pdf-link}
 - [1. From Latent-Variable Modeling to Factor Analysis](part-two/chapter_01.qmd) [PDF](part-two/chapter_01.pdf){.pdf-link}
 - [2. Exploratory Factor Analysis and Model Development](part-two/chapter_02.qmd) [PDF](part-two/chapter_02.pdf){.pdf-link}
 - [3. Specifying and Estimating Confirmatory Factor Models](part-two/chapter_03.qmd) [PDF](part-two/chapter_03.pdf){.pdf-link}
 - [4. Evaluating and Comparing Confirmatory Factor Models](part-two/chapter_04.qmd) [PDF](part-two/chapter_04.pdf){.pdf-link}
+:::
+
+::: {#part-three .collection-card .unavailable aria-disabled="true"}
+### Part Three
+
+::: {.collection-subtitle}
+Multilevel and Longitudinal Models
+:::
+
+[Not yet available]{.badge-unavailable}
+
+Part Three is reserved for data with a nested or repeated structure:
+multilevel models for units grouped inside classes, schools, or sites, and
+longitudinal models for the same units measured more than once.
+
+The collection has no pages yet. It will appear here when it does.
 :::
 
 ::: {.collection-card}
@@ -79,137 +112,97 @@ Practice R in the browser, nothing to install
 :::
 
 - [R support home](practice/index.html)
-- [Chapter 3: Estimates and uncertainty](practice/chapter-03.html)
-- [Chapter 4: Comparing groups](practice/chapter-04.html)
+- [3: Estimates and uncertainty](practice/chapter-03.html)
+- [4: Comparing groups](practice/chapter-04.html)
 - [Your R workspace](practice/workspace.html)
 - [Data sources](practice/data-notes.html)
 :::
 
-::: {.collection-card .unavailable aria-disabled="true"}
+::: {.collection-card}
 ### Argument Approach
 
 ::: {.collection-subtitle}
-Supplementary chapters
+Reading a study as a question–answer contract
 :::
 
+- [The argument-based approach](argument-approach.qmd)
+
+::: {.card-muted-block}
 [Not yet available]{.badge-unavailable}
 
 - A. How to Read a Quantitative Study as an Argument
 - B. Extending the Argument-Based Approach to Quantitative Studies
 
-Both chapters are in preparation and will appear here when they are ready.
-:::
-:::
-
-## Choose a starting route
-
-::: {.route-grid}
-::: {.route-card}
-### Learn the reasoning
-
-Begin with an empirical problem, turn it into a quantitative question, and keep
-evidence, variation, uncertainty, and the boundary between a statistical result
-and a substantive claim visible.
-
-[Start with Part One →](part-one/part_one_introduction.qmd)
-:::
-
-::: {.route-card}
-### Work with data in R
-
-Chapters 5 and 6 build auditable R workflows and reconnect computation to
-units, denominators, estimands, and research claims.
-
-[Start with Chapter 5: Description and Basic Inference with R →](part-one/chapter_05.qmd)
-:::
-
-::: {.route-card}
-### Read regression evidence
-
-Move from simple comparison to conditional interpretation, checking,
-sensitivity, and design-aware reporting.
-
-[Start with Chapter 7: Simple Linear Regression →](part-one/chapter_07.qmd)
-:::
-
-::: {.route-card}
-### Model what you cannot measure directly
-
-Part Two turns to latent variables: how factor models represent a construct
-behind several indicators, and how a confirmatory model is specified,
-estimated, and judged.
-
-[Start with Part Two →](part-two/part_two_introduction.qmd)
-:::
-:::
-
-::: {.framework-feature}
-::: {.framework-copy}
-## One question--answer pair, one argument, linked layers
-
-The **argument-based approach** treats a quantitative study as a
-question--answer contract. Each pair has one argument with linked statistical
-and substantive layers. In each layer, Evidence and Justification support
-Inference, which supports a bounded Claim. Across layers, substantive reasoning
-situates the records, evaluates their relevance, interprets the statistical
-result, and keeps the final answer within its design, measurement, uncertainty,
-and population boundaries.
-
-Chapter 1 supplies the complete basic route, including a simple construction
-workflow and six evaluation questions. The supplementary chapters A and B will
-extend the approach to coordinated questions, deeper evaluation, and
-regression-based methods when they are published; no chapter in the series
+The two supplementary chapters extend the approach. No numbered chapter
 depends on them.
-
-[See the argument-based approach](about.qmd#the-approach)
 :::
-
-::: {.evidence-flow aria-label="Evidence to bounded claim sequence"}
-`STAT-E` **record** + `STAT-J` **justify** → `STAT-I` **infer** → `STAT-C` **bound**
-
-↓ *situate · augment/evaluate · interpret · bound/calibrate*
-
-`SUB-E` **contextualize** + `SUB-J` **justify** → `SUB-I` **interpret** → `SUB-C` **answer**
 :::
 :::
 
-## Designed for more than one course
+## How to use this site
 
-The chapter identities and public links stay stable while instructors choose a
-route that fits their students. QMSBR provides the canonical readings
-and their computing resources. Moodle or
-another course system can hold the term sequence, classroom notes,
-announcements, and assessment.
+**Read online, or take the PDF.** Every chapter is a web page, which is the
+better format for reading: responsive layout, a table of contents, search,
+descriptive link text, and selectable code. The same chapter sits beside it as
+a PDF for printing and annotation. Both carry the same content, and the PDF
+link is on the chapter's line in the collections above.
 
-::: {.trust-grid}
-::: {.trust-item}
-**Current, not duplicated**  
-One current version at each stable URL, with the full history in Git.
-:::
-::: {.trust-item}
-**Traceable reasoning**  
-Examples keep design, evidence, uncertainty, interpretation, and limitations
-connected to the question each chapter addresses.
-:::
-::: {.trust-item}
-**Selective publication**  
-Public chapters and examples are separated from instructor materials and
-course-specific teaching assets.
-:::
-:::
+**Look a concept up in the concept reference.** Each part gathers its central
+concepts, symbols, and notation into one page of tables. Read a chapter for the
+lesson; open the concept reference when you meet a symbol or a term and want
+its definition and the chapter that develops it.
+
+**Run the code in the browser.** The R support pages carry a live R session, so
+you can run a chapter's analysis, change it, and see what changes without
+installing anything. Your R workspace explains how to open, save, and reload
+your own work, and the data sources page says where every dataset on the site
+comes from and on what terms.
+
+**A course may add its own materials.** QMSBR is a source library, not a
+syllabus. Chapter identities and public links stay stable, so a course can
+choose its own sequence and keep its schedule, announcements, assessment, and
+answer keys in its own space while linking here for the readings.
 
 ## What comes next
 
-Part One continues with Chapters 10–14, extending through interaction,
-generalized linear models, prediction, and the pitfalls of regression-based
-claims. Part Two continues into structural equation modeling, and Part Three is
-reserved for multilevel and longitudinal models. Later collections can join
-this same site when their scope is clear and real material is ready.
+::: {.roadmap-grid}
+::: {.roadmap-card}
+### Part One, Chapters 10–14
+
+10. Interaction and Moderation
+11. Binary Logistic Regression
+12. Extending the GLM: Nominal, Ordinal, and Count Outcomes
+13. Prediction, Cross-Validation, and Regularization
+14. Regression Pitfalls and Causal Design
+:::
+
+::: {.roadmap-card}
+### Part Two and Part Three
+
+Part Two continues from confirmatory factor analysis into structural equation
+modeling: models that relate latent variables to one another rather than only
+to their indicators.
+
+Part Three is reserved for multilevel and longitudinal models.
+:::
+
+::: {.roadmap-card}
+### Supplementary chapters
+
+A. How to Read a Quantitative Study as an Argument, and B. Extending the
+Argument-Based Approach to Quantitative Studies, extend the argument-based
+approach to coordinated questions, deeper evaluation, and regression-based
+methods.
+:::
+:::
+
+Later collections can join this same site when their scope is clear and their
+material is ready.
 
 [Browse the collections](#collections){.btn .btn-outline-primary}
 
 ::: {.author-band}
-**Jinsong Chen** · Faculty of Education, The University of Hong Kong  
+**Jinsong Chen** · Faculty of Education, The University of Hong Kong
 [jinsong.chen@live.com](mailto:jinsong.chen@live.com)
 
 QMSBR is an independently maintained educational resource. Affiliation is

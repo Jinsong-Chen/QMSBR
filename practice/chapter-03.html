@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Chapter 3 R support – QMSBR R support</title>
+<title>Chapter 3 R support – QMSBR</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -123,8 +123,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">QMSBR R support</span>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -134,10 +134,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
 <span class="menu-text">Part One</span></a>
   </li>  
@@ -146,11 +142,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Part Two</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">R support</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html#argument-approach"> 
+    <a class="nav-link" href="./../argument-approach.html"> 
 <span class="menu-text">Argument Approach</span></a>
   </li>  
   <li class="nav-item">
@@ -171,9 +171,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./chapter-03.html">3: Estimates and uncertainty</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
   </nav>
 </header>
@@ -181,11 +178,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -265,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Use these short examples beside Chapter 3 and its lecture, or adapt them while working on an exercise, Computer Lab or homework. Computer Lab 3 uses one Special Practice comparison and a change from 95% to 90% confidence in the final classroom activity round. This page is a selectable reference menu, not a checklist: choose the example the assigned work needs. Choose one software route: R here, desktop R, or the lab’s SPSS instructions. The lab contains the activity and its worked answers; this page supplies reusable method support.</p>
-<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete example. <strong>Start Over</strong> restores that cell’s starting code. Calculate at full precision and report statistical results to four decimal places. Rounded inputs or different software rounding choices can produce small differences in the last digits. For keyboard shortcuts and individual commands, see <a href="./workspace.html#run-code">how to run code</a>.</p>
+<p>Every example on this site uses base R with the standard <code>stats</code> and <code>graphics</code> commands; no package is loaded or installed. Choose <strong>Run All</strong> to run a complete cell and <strong>Start Over</strong> to restore its starting code. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits. For the buttons, the keyboard shortcuts and what to do when R reports an error, see <a href="./workspace.html#run-code">how to run code</a>.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -329,7 +321,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <noscript><p class="qmsbr-fallback">JavaScript is off, so the code boxes on this page cannot run. Read <a href="workspace.html#supplied-output-03">the fixed code and output for Chapter 3</a>, or run the code in desktop R.</p></noscript>
 <section id="before-you-start" class="level2">
 <h2 class="anchored" data-anchor-id="before-you-start">Before you start</h2>
-<p>A <strong>command</strong> is one instruction for R, such as <code>mean(score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>score</code>. The assignment arrow <code>&lt;-</code> creates one: <code>score &lt;- 60</code> stores 60 under the name <code>score</code>, and typing <code>score</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c(50, 54, 48)</code> holds three scores. <code>$</code> takes one named column out of a table: <code>dat$score</code> is the score column of <code>dat</code>. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>t.test(special, usual, var.equal = FALSE)</code> the first two arguments supply the data and <code>var.equal = FALSE</code> is a named setting; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Mean</code> is not <code>mean</code>. See <a href="./workspace.html#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
+<p>A <strong>command</strong> is one instruction for R, such as <code>mean(score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>score</code>. The assignment arrow <code>&lt;-</code> creates one: <code>score &lt;- 60</code> stores 60 under the name <code>score</code>, and typing <code>score</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c(50, 54, 48)</code> holds three scores. <code>$</code> takes one named column out of a table: <code>dat$score</code> is the score column of <code>dat</code>. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>t.test(special, usual, var.equal = FALSE)</code> the first two arguments supply the data and <code>var.equal = FALSE</code> is a named setting; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Mean</code> is not <code>mean</code>. For the buttons, the keyboard shortcuts and what to do when R reports an error, see <a href="./workspace.html#run-code">how to run code</a>.</p>
 </section>
 <section id="normal-areas" class="level2">
 <h2 class="anchored" data-anchor-id="normal-areas">Normal areas and z scores</h2>
@@ -406,7 +398,7 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 </section>
 <section id="two-groups" class="level2">
 <h2 class="anchored" data-anchor-id="two-groups">Compare two groups</h2>
-<p>The <a href="data/chapter_03_special_practice.csv">Special Practice CSV</a> has 120 fictional participants, 60 per assigned condition, with complete delayed assessment scores on a 0-40 scale. <a href="./data-notes.html#synthetic-special-practice-record">The data note</a> gives the invented design and explains the CSV’s relationship to the book.</p>
+<p>The <a href="data/chapter_03_special_practice.csv">Special Practice CSV</a> has 120 fictional participants, 60 per assigned condition, with complete delayed assessment scores on a 0-40 scale. <a href="./data-notes.html#synthetic-special-practice-record">The data register</a> gives the invented design and explains the CSV’s relationship to the book.</p>
 <p><code>read.csv()</code> reads the named file into a table. <code>$</code> chooses a column; <code>==</code> matches a label, and <code>[]</code> selects the scores with that label. <code>table()</code> counts the groups and <code>head(dat)</code> shows the first six rows. Keep the original data in <code>d0</code> and use <code>dat</code> as the working copy for every later calculation.</p>
 <p><code>t.test(special, usual)</code> compares the first mean minus the second. <code>var.equal = FALSE</code> requests Welch’s unequal-variances procedure and <code>var.equal = TRUE</code> pools the two variances; <code>conf.level</code> sets the confidence level. The returned object contains the test and interval; <code>$stderr</code> selects its estimated SE and <code>$conf.int</code> its endpoints.</p>
 <div class="cell" data-exercise="c3-groups" data-autorun="false">
@@ -636,14 +628,14 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 <section id="software-references" class="level3">
 <h3 class="anchored" data-anchor-id="software-references">Function and software references</h3>
 <p>The R manuals give argument details for <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/sprintf.html">formatting results</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/t.test.html">t tests</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/utils/html/read.table.html">CSV import</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Normal.html">Normal probabilities</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/TDist.html">t critical values</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/cor.html">covariance and correlation</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/base/html/proportions.html">table proportions</a> and <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/chisq.test.html">Pearson tests</a>. For the graphs, see <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/hist.html">histograms</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/density.html">density estimates</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/boxplot.html">boxplots</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/barplot.html">bar charts</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/pie.html">pie charts</a>, <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/plot.default.html">scatterplots</a> and <a href="https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/matplot.html">matrix plots</a>. Every command on this page belongs to base R, <code>stats</code> or <code>graphics</code>, so desktop R needs no installation step for them.</p>
-<p>For the Computer Lab’s SPSS route: <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=transformations-recode-into-different-variables">recoding</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=crosstabs-cell-display">Crosstabs cells</a> and <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=tests-independent-samples-t-test">independent-samples t tests</a>. Use the task’s settings with either software route. <a href="./data-notes.html">Data sources and reuse</a> cover all public records and their limitations.</p>
+<p>For the Computer Lab’s SPSS route: <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=transformations-recode-into-different-variables">recoding</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=crosstabs-cell-display">Crosstabs cells</a> and <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=tests-independent-samples-t-test">independent-samples t tests</a>. Use the task’s settings with either software route. <a href="./data-notes.html">The data register</a> covers all public records and their limitations.</p>
 </section>
 </section>
 <section id="your-own-code-and-the-fixed-output" class="level2">
 <h2 class="anchored" data-anchor-id="your-own-code-and-the-fixed-output">Your own code and the fixed output</h2>
 <p>Run a complete script, open a course CSV and save your work in <a href="./workspace.html#your-r-work">the R workspace</a>; the same page carries <a href="./workspace.html#run-code">how to run code</a> and <a href="./workspace.html#supplied-output-03">the fixed code and output for this chapter</a>, which stay readable when the browser runtime is unavailable.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="650" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 649;"><span id="cb7-650"><a href="#cb7-650" aria-hidden="true" tabindex="-1"></a>runtime_watch <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span> <span class="op">?</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span><span class="op">.</span><span class="fu">watch</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>) <span class="op">:</span> <span class="st">""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="651" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 650;"><span id="cb7-651"><a href="#cb7-651" aria-hidden="true" tabindex="-1"></a>runtime_watch <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span> <span class="op">?</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span><span class="op">.</span><span class="fu">watch</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>) <span class="op">:</span> <span class="st">""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
@@ -1105,6 +1097,30 @@ window._ojs.runtime.interpretFromScriptTags();
 </footer>
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This is the practice copy of the book site's assets/disabled-links.html;
+     the script below is identical to the one there. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
 
 
 

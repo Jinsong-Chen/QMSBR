@@ -1,0 +1,378 @@
+---
+title: "Part One Concept Reference"
+subtitle: "Central concepts and notation for Chapters 1--9"
+author: "Jinsong Chen"
+
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    fontsize: 11pt
+    colorlinks: false
+    latex-min-runs: 3
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{12\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{12\baselineskip}\phantomsection}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+This reference collects selected concepts from Chapters 1--9 and the
+notation those chapters use. Its six concept tables work at two levels: a
+broad **concept group** gathers ideas that belong together, and within a
+group a selected **term** is listed. Each row displays four things: the
+concept group, the term with its common alternatives, its meaning or the
+distinction that matters most, and the main explanation, the place in the
+book where that meaning is developed. A closing table lists the notation of
+Chapters 1--9 with each symbol's meaning, main use, and alternatives. The
+reference is meant to be consulted while reading rather than read through:
+a term's first use, its worked example, and the reasoning around it stay in
+the chapter that teaches it.
+
+A few conventions govern the rows. Names that pick out the same concept
+share one entry, so *mean* and *arithmetic mean* appear together, and
+*outcome*, *response*, and *dependent variable* are explained as one
+analytical role. A more specific role, such as treatment, exposure, or
+confounder, carries additional design or substantive meaning that the study
+itself must supply. Related concepts with different meanings, such as mean
+and median or SD and SE, keep separate entries. *Main explanation* names
+the principal teaching home rather than a first mention, so a brief early
+introduction and a later full account can coexist: Chapter 1 introduces
+cases and samples through its studies, while Chapter 2 develops their use
+in reading records and calculations. A few rows cite *Sup. A* and
+*Sup. B*, the two supplementary units *How to Read a Quantitative Study as
+an Argument* and *Extending the Argument-Based Approach to Quantitative
+Studies*; neither unit is yet available.
+
+\small
+
+## Questions, Study Design, and Data {#sec-concepts-design}
+
+|Concept group           |Term and common alternatives                                    |Meaning or essential distinction                                                                                                                                                  |Main explanation |
+|:-----------------------|:---------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------|
+|Questions and arguments |Question-answer pair                                            |What a study asks and the answer it eventually offers for that question. Each separately owed substantive answer has its own argument.                                            |Ch. 1, Sec. 1.3  |
+|Questions and arguments |Traceable information                                           |Specific study content through which an argument component's function can be identified at a documentary location. Identifying that contribution precedes judging its adequacy.   |Ch. 1, Sec. 6.2  |
+|Questions and arguments |Estimand                                                        |The target quantity sought for the named units, conditions, outcome, and scope. It can concern a fixed dataset, a population, a comparison, or prediction performance.            |Ch. 1, Sec. 1.3  |
+|Questions and arguments |Evidence |Observations and contextual records contributing to an answer, including information about how they were produced. |Ch. 1, Sec. 6.1 |
+|Questions and arguments |Justification |Reasons and conditions invoked to support a comparison, analytical move, or interpretation. |Ch. 1, Sec. 6.1 |
+|Questions and arguments |Inference |Reasoning and analysis connecting evidence and justification to a conclusion. |Ch. 1, Sec. 6.1 |
+|Questions and arguments |Bounded claim |The reported conclusion with its uncertainty, conditions, and scope: in the statistical layer, the conclusion about the estimand; in the substantive layer, the question-facing answer with its qualifications. |Ch. 1, Sec. 6.1 |
+|Data and variables |Unit |The entity selected, assigned, measured, or analyzed in a particular operation. The units of assignment, measurement, and analysis can differ, and all are distinct from measurement units such as points or minutes. |Ch. 1, Sec. 2.1 |
+|Data and variables      |Case                                                            |The entity or measurement occasion described in a dataset. Depending on the study, a case may be a student, a class, or one measurement occasion for a student.                   |Ch. 2, Sec. 1    |
+|Data and variables      |Variable                                                        |A characteristic that can take different values across cases or occasions. A dataset records values of one or more variables for its cases.                                       |Ch. 2, Sec. 1    |
+|Data and variables      |Quantitative variable (numerical variable)                      |A variable expressing an amount, including continuous measurements and discrete counts or scores. Its units and scale determine what numerical differences mean.                  |Ch. 2, Sec. 1    |
+|Data and variables      |Categorical variable                                            |A variable whose values identify categories. Nominal categories have no intrinsic order; ordinal categories have an order; a binary variable has two categories.                  |Ch. 2, Sec. 1    |
+|Variable roles          |Outcome variable (response variable; dependent variable)        |The variable an analysis seeks to describe, compare, or predict. These alternative names share that role in many analyses; a variable's role depends on the question.             |Ch. 1, Sec. 2.1  |
+|Variable roles          |Predictor variable (explanatory variable; independent variable) |A variable used to represent an outcome's relationship with other information. These analytical-role labels alone establish neither a causal effect nor statistical independence. |Ch. 1, Sec. 2.1  |
+|Study scope             |Population                                                      |The collection of units a question concerns. It may be the participating students themselves or a wider collection to which the findings might extend.                            |Ch. 2, Sec. 1    |
+|Study scope             |Sample                                                          |A selected set of units from a larger collection. Calling a set a sample does not by itself explain how it was selected or which population it represents.                        |Ch. 2, Sec. 1    |
+|Study scope             |Analysis sample                                                 |The units whose data contribute to a particular analysis. Eligibility, missing measurements, and exclusions can make this set and its denominator differ across analyses.         |Ch. 2, Sec. 1    |
+|Study design |Sampling (recruitment; selection into a study) |How units come to enter a study, by probability selection, volunteering, or availability. It is contrasted with assignment, which concerns the conditions allocated to participating units. |Ch. 1, Sec. 3.2 |
+|Study design |Assignment (allocation) |The allocation of study conditions to participating units, by any mechanism. Actual treatment received may differ from the assigned condition. |Ch. 1, Sec. 3.2 |
+|Study design |Random sampling (probability sampling) |Selecting units from a defined population or sampling frame through a probability mechanism that gives every eligible unit a known, nonzero chance of selection, not necessarily the same chance. "Random selection" alone can describe other chance-based decisions. |Ch. 1, Sec. 3.2 |
+|Study design |Random assignment (random allocation) |Allocating study conditions to participating units through a specified probability mechanism. The assigned units may be individuals or groups; realized groups need not be identical. |Ch. 1, Sec. 3.2 |
+|Study design |Causal effect (counterfactual contrast) |The difference between the outcomes that would occur for the same units or target population under two specified conditions, only one of which is observed for each unit. The contrast may be zero; interpreting a comparison causally needs design and identification support. |Ch. 1, Sec. 3.1 |
+|Study design |Sampling design (sampling scheme) |The specified procedure for selecting a sample, including selection stages, grouping, and, for probability sampling, the selection probabilities. |Ch. 2, Sec. 1.5 |
+|Study design |Simple random sampling |Selection in which every possible sample of the specified size has the same probability of being chosen. |Ch. 2, Sec. 1.5 |
+|Study design            |Confounding                                                     |Mixing an exposure's effect with effects of other factors that influence both exposure and outcome. Such a factor is a confounder, a specific causal role.                        |Ch. 1, Sec. 3.1  |
+|Study design            |External validity (generalizability)                            |Support for extending findings to other people, settings, or conditions. The intended extension determines which similarities and differences matter.                             |Ch. 1, Sec. 3.2  |
+| Argument-based reading | Argument component | One of the four functions, evidence, justification, inference, and bounded claim, that a piece of study information performs in the statistical or the substantive layer. A reader identifies the function before judging its adequacy. | Sup. A, Sec. 2 |
+| Argument-based reading | Documentary location | The place in a report or its related materials, such as Methods, a protocol, a codebook, or an analytical supplement, where the traceable information for a component is found. | Sup. A, Sec. 4 |
+| Argument-based reading | Evaluation question | One of the six questions on alignment, support, and translation used to judge the quality of a question-level argument after it has been read. Each receives a reasoned judgment, not a score. | Sup. A, Sec. 5 |
+| Argument-based reading | Statistical strand | An estimand-specific statistical chain inside one argument. Two strands arise only when sibling estimands are jointly required for one integrated substantive answer; each has its own statistical inference and conclusion. | Sup. B, Sec. 1 |
+| Argument-based reading | Coordinated questions | Several question-answer pairs in one study whose support depends on one another. Each answer is read on its own, and their coherence across questions is judged separately. | Sup. B, Sec. 3 |
+
+: Questions, study design, and data. {#tbl-intro-concepts-design tbl-colwidths="[16,23,45,16]"}
+
+## Descriptions, Distributions, and Sampling Variation {#sec-concepts-distributions}
+
+|Concept group             |Term and common alternatives                                    |Meaning or essential distinction                                                                                                                                                                                                                            |Main explanation |
+|:-------------------------|:---------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------|
+|Observed distributions    |Empirical distribution (observed distribution; data distribution)                  |How the observed values are distributed across values or intervals, including their frequencies, center, spread, and shape. A probability model is a separate description of possible values.                                                               |Ch. 2, Sec. 2    |
+|Center and spread         |Mean (arithmetic mean)                                          |The sum of the numerical values divided by their count. Every included value contributes, so unusual values can shift the mean.                                                                                                                             |Ch. 2, Sec. 2    |
+|Center and spread         |Median                                                          |The middle value after ordering the data, or the average of the two middle values when the count is even. It describes the center by position.                                                                                                              |Ch. 2, Sec. 2    |
+|Center and spread         |Quartile                                                        |A cut point dividing ordered data into quarters. The first and third quartiles mark approximately the lower and upper edges of the middle half; calculation conventions can differ.                                                                         |Ch. 2, Sec. 2    |
+|Center and spread         |Interquartile range (IQR)                                       |The third quartile minus the first quartile: the width of the middle half of the ordered data, expressed in the variable's original units.                                                                                                                  |Ch. 2, Sec. 2    |
+|Center and spread         |Variance                                                        |A measure of spread based on squared deviations from the mean. The usual sample variance divides their sum by $n - 1$ and is expressed in squared units.                                                                                                    |Ch. 2, Sec. 2    |
+|Center and spread         |Standard deviation (SD)                                         |The square root of the variance, expressing spread around the mean in the variable's original units. Applied to individual observations, it describes variation among their values; applied to a statistic's sampling distribution, it is the SE.           |Ch. 2, Sec. 2    |
+|Group descriptions        |Grand mean                                                      |The mean across all included cases. It equals the average of the group means weighted by their group counts, so larger groups contribute more.                                                                                                              |Ch. 2, Sec. 2    |
+|Variation and constraints |Degrees of freedom (df)                                         |A count reflecting freely varying information after constraints or fitted quantities are taken into account. The $n$ deviations from their own mean sum to zero, leaving $n - 1$ free.                                                                      |Ch. 2, Sec. 2    |
+|Probability models        |Standardized value (z score)                                    |A value minus a specified mean, divided by a specified standard deviation. It expresses distance in SD units; standardizing alone preserves the distribution's shape.                                                                                       |Ch. 2, Sec. 2    |
+|Probability models        |Normal distribution (Gaussian distribution)                     |A symmetric, bell-shaped probability model described by a mean and standard deviation. The standard Normal has mean zero and SD one; observed data need not follow this model.                                                                              |Ch. 2, Sec. 2    |
+|Relationships             |Conditional proportion                                          |The proportion in one category among cases satisfying a stated condition. Its denominator is the count in that conditioning group, such as students in one education-intention category.                                                                    |Ch. 2, Sec. 3    |
+|Relationships             |Covariance                                                      |A summary based on products of paired deviations from the two means. Its sign shows the direction of joint variation; its magnitude depends on both variables' units and spreads.                                                                           |Ch. 2, Sec. 3    |
+|Relationships             |Pearson's correlation (Pearson's r; product-moment correlation) |Covariance divided by the product of the two SDs. For variables with nonzero spread, it describes direction and strength of linear association on a scale from -1 to 1.                                                                                     |Ch. 2, Sec. 3    |
+|Sampling variation |Sampling distribution |The distribution of a statistic, such as a sample mean, across repeated samples generated by a stated sampling procedure or model. Repeated sample summaries in a simulation approximate this distribution. |Ch. 2, Sec. 4 |
+|Sampling variation |Sampling error |The part of an estimate's departure from the population quantity that arises from observing a sample rather than the whole population. It varies across repetitions, and its spread is the SE; coverage, nonresponse, and measurement error are separate. |Ch. 2, Sec. 4.3 |
+|Sampling variation |Standard error (SE) |The standard deviation of a statistic's sampling distribution under a stated sampling procedure or model. It describes spread across repeated sample summaries, distinct from individual-value SD and one sample's difference from the population quantity. |Ch. 2, Sec. 4 |
+| Data structure | Data matrix | A rectangular arrangement with cases in rows and variables in columns; $x_{ij}$ denotes case $i$ on variable $j$. | Ch. 2, Sec. 1 |
+|Variables |Binary variable (0/1 coding) |A binary variable has two possible categories; a 0/1 coding marks membership or occurrence. Its sample mean is the proportion coded 1. |Ch. 2, Sec. 2 |
+| Transformations | Linear transformation | $Y=a+bX$ changes the center to $a+bE(X)$ and the SD to $\lvert b\rvert SD(X)$; a negative $b$ also reverses order. | Ch. 2, Sec. 2 |
+| Distribution models | Bernoulli; binomial; categorical; Poisson; lognormal; logistic | Respectively a binary outcome, a count of successes in fixed independent equal-probability trials, one category, an event count under a specified rate model, a positive variable with Normal log, and a continuous symmetric distribution used here as a preview. Logistic regression later models Bernoulli outcomes. | Ch. 2, Sec. 2 |
+| Probability | Density; cumulative distribution function; quantile | Density determines probability by area for a continuous variable; the CDF gives $P(X\le x)$; a quantile is a value reaching the stated cumulative probability. | Ch. 2, Sec. 2 |
+| Relationships | Rank correlation; point-biserial correlation | Spearman uses ranks; Kendall summarizes concordance; point-biserial is Pearson correlation with one binary variable coded 0/1. Each addresses a specified relationship. | Ch. 2, Sec. 3 |
+| Relationships | Partial correlation | Correlation between two variables after their linear relationships with stated controls are removed by regression; it describes residual association and does not establish causal adjustment. | Ch. 2, Sec. 3 |
+|Data summaries |Covariance matrix |A square table of variances on the diagonal and covariances off the diagonal for a stated set of variables and observations. |Ch. 5, Sec. 5 |
+|Data summaries |Correlation matrix |A square table of pairwise correlation coefficients for a stated set of variables and observations; its diagonal is 1 for variables with positive variance. |Ch. 5, Sec. 5 |
+
+: Descriptions, distributions, and sampling variation. {#tbl-intro-concepts-distributions tbl-colwidths="[16,23,45,16]"}
+
+## Estimation, Uncertainty, and Statistical Testing {#sec-concepts-inference}
+
+|Concept group       |Term and common alternatives |Meaning or essential distinction                                                                                                                                                        |Main explanation        |
+|:-------------------|:----------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------|
+|Estimation          |Estimate                     |A numerical approximation to an estimand, calculated from the available data. A point estimate expresses the approximation as one value.                                                |Ch. 3, Sec. 1 |
+|Estimation          |Estimator                    |The rule used to calculate an estimate from data. Its bias and precision concern how the rule behaves across the repetitions specified by the study's procedure or model.               |Ch. 3, Sec. 1 |
+|Estimation |Bias (of an estimator) |The difference between an estimator's expected value over the specified repetitions and the estimand. An unbiased estimator has bias zero; precision describes its spread, a separate quality. |Ch. 3, Sec. 1 |
+|Estimation |Parameter |A numerical characteristic of a population or probability model, such as a population mean. A parameter may be the estimand; the question determines which quantity is sought. |Ch. 2, Sec. 4 |
+|Estimation |Statistic |A quantity calculated from sample data, such as a sample mean or proportion. The same statistic can summarize the sample or serve as an estimate for a wider target. |Ch. 2, Sec. 4 |
+|Uncertainty         |Confidence interval (CI)     |An interval expressing uncertainty about an estimand. Under its conditions, the procedure covers that estimand at its stated rate across repetitions; the rate describes the procedure. |Ch. 3, Sec. 3 |
+|Uncertainty |Critical value |The cut-point of a reference distribution, such as the Normal or t, selected by a confidence or significance level. It multiplies the SE in an interval and marks the rejection region of a test. |Ch. 3, Sec. 3 |
+|Uncertainty |Coverage |The proportion of repetitions in which an interval procedure contains the estimand under its conditions. The confidence level is the procedure's target coverage, not a probability for one realized interval. |Ch. 3, Sec. 3 |
+|Statistical testing |Null hypothesis              |The statistical proposition used as the reference for a test, such as equality of specified population means. The alternative hypothesis states the departure being considered.         |Ch. 3, Sec. 4 |
+|Statistical testing |Test statistic               |A quantity calculated from data to assess departure from a null hypothesis. The test compares it with a reference distribution justified under that null and stated conditions.         |Ch. 3, Sec. 4 |
+|Statistical testing |p-value                      |Under a specified null hypothesis and conditions, the probability of a test result at least as extreme as the observed one, using the test's stated tail rule.                          |Ch. 3, Sec. 4 |
+|Statistical testing |Significance level (alpha)   |The threshold used for rejecting a null hypothesis, chosen to control the probability of rejecting a true null under the test's conditions. This error is called a Type I error.        |Ch. 3, Sec. 4 |
+|Statistical testing |Expected count |The count a cell of a two-way table would have under a stated null pattern such as independence, given the observed margins: row total times column total, divided by the overall total. |Ch. 3, Sec. 4 |
+|Statistical testing |Pearson's chi-square statistic ($X^2$) |The sum over cells of squared differences between observed and expected counts, each divided by its expected count, compared with a chi-square reference with $(R-1)(C-1)$ degrees of freedom under the stated model. |Ch. 3, Sec. 4 |
+|Interpreting tests  |Power (statistical power)    |The probability of rejecting the null under a specified alternative, design, and test. Failure to reject under that alternative is a Type II error; power is one minus its probability. |Ch. 3, Sec. 5 |
+|Several comparisons |Familywise error rate (FWER) |The probability of at least one Type I error among a defined family of tests. Procedures such as Bonferroni allocate the error allowance across that family.                            |Ch. 3, Sec. 5 |
+| Tests for means | One-sample z test; one-sample t test | Both compare a sample mean with a stated null mean using its SE; z uses a known process SD under its model, whereas t estimates that SD and uses the appropriate t reference. Neither choice follows an automatic sample-size cutoff. | Ch. 3, Sec. 4 |
+| Tests for means | Independent-samples t test; Welch test; pooled t test | Independent-group tests compare means. Welch allows unequal variances with an estimated reference df; the pooled procedure adds the equal-variance condition. | Ch. 3, Sec. 4 |
+| Tests for means | Paired-samples t test | A one-sample t test of within-pair differences against a specified mean difference, with independent pairs under the stated model. | Ch. 3, Sec. 4 |
+
+: Estimation, uncertainty, and statistical testing. {#tbl-intro-concepts-inference tbl-colwidths="[16,23,45,16]"}
+
+## Group Comparisons and ANOVA {#sec-concepts-anova}
+
+|Concept group         |Term and common alternatives |Meaning or essential distinction                                                                                                                                                      |Main explanation        |
+|:---------------------|:----------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------|
+|Comparison design     |Factor (grouping factor)     |In ANOVA, a categorical variable defining groups or conditions; its categories are levels. This meaning differs from a latent factor used to model shared indicator variation.        |Ch. 4, Sec. 1 |
+|ANOVA                 |Analysis of variance (ANOVA) |A method for studying mean differences through sources of variation. One-way and two-way ANOVA use one and two grouping factors, respectively; either factor can have several levels. |Ch. 4, Sec. 2 |
+|Model quantities      |Fitted value                 |The value a fitted model assigns to an observed case. In a one-way group-mean model, it is that case's group mean.                                                                    |Ch. 4, Sec. 2 |
+|Model quantities      |Residual                     |An observed outcome minus its fitted value. A residual is calculated from the fitted model; an error is the corresponding unknown departure in the population model.                  |Ch. 4, Sec. 2 |
+|ANOVA quantities      |Mean square (MS)             |A sum of squares divided by its degrees of freedom. In classical ANOVA, the within-group mean square estimates the common error variance under the model's conditions.                |Ch. 4, Sec. 2 |
+|ANOVA quantities      |F statistic (F ratio)        |In classical ANOVA, a ratio of the mean square for a tested source to the appropriate error mean square. Its null F reference depends on the model and both degrees of freedom.       |Ch. 4, Sec. 2 |
+|ANOVA quantities |Omnibus test |A test of one joint null hypothesis about a whole pattern, such as equality of all group means. Rejecting it does not identify which comparisons differ or how large they are. |Ch. 4, Sec. 2 |
+|Magnitude             |Standardized mean difference |A difference in means divided by a specified SD. The chosen denominator determines the standardized quantity; the raw difference retains the outcome's original units.                |Ch. 4, Sec. 2 |
+|Magnitude             |Eta squared                  |The proportion of total observed variation attributed to a specified source in an ANOVA decomposition. In one-way ANOVA, it is between-group divided by total sum of squares.         |Ch. 4, Sec. 2 |
+|Specific comparisons  |Contrast (linear contrast)   |A weighted combination of means whose weights sum to zero, expressing a specific comparison. The means, weights, and target population determine the quantity compared.               |Ch. 4, Sec. 3 |
+|Specific comparisons |Simultaneous confidence intervals |A set of intervals calibrated so that, under their conditions, all of them cover their estimands together at the stated familywise rate; Bonferroni, Tukey, and Dunnett are different calibrations for different families. |Ch. 4, Sec. 3 |
+|Factorial comparisons |Cell mean and marginal mean |In a two-factor layout, a cell mean is the mean of the cases sharing one level of each factor; a marginal mean averages the cell means across the levels of the other factor, with stated weights. |Ch. 4, Sec. 4 |
+|Factorial comparisons |Main effect                  |A comparison across one factor's levels averaged over the other factor's levels, using stated weights. It remains an average when the conditional pattern differs across levels.      |Ch. 4, Sec. 4 |
+|Factorial comparisons |Interaction                  |A pattern in which a comparison across one factor's levels changes with the other factor's level. A difference of differences expresses one such comparison.                          |Ch. 4, Sec. 4 |
+|Factorial comparisons |Simple effect                |A comparison across one factor's levels at a specified level of the other factor. It describes a conditional comparison within the factorial design.                                  |Ch. 4, Sec. 4 |
+|Adjusted comparisons |ANCOVA (analysis of covariance) |A linear model comparing groups while including quantitative covariates; its adjusted comparison is defined at stated covariate values or over a stated covariate distribution. |Ch. 6, Sec. 4 |
+
+: Group comparisons and analysis of variance. {#tbl-intro-concepts-anova tbl-colwidths="[16,23,45,16]"}
+
+## Statistical Computing {#sec-concepts-computing}
+
+|Concept group |Term and common alternatives |Meaning or essential distinction |Main explanation |
+|:--|:--|:--|:--|
+|R basics |Object (R object) |A named value, vector, table, model result, or other item stored in an R session. Assignment with `<-` names an object; the Environment pane lists the current objects. |Ch. 5, Sec. 1 |
+|R basics |Vector |A sequence of values of one basic type: numeric, character, or logical. `NA` marks an unavailable value; it is not zero. A data frame is a table whose columns are vectors of equal length, one row per case. |Ch. 5, Sec. 1 |
+|R basics |Function and argument (R function) |A function performs an operation on supplied inputs; an argument names an input or an option, such as `na.rm = TRUE`. An R argument is distinct from a study argument in the argument-based approach. |Ch. 5, Sec. 1 |
+|R basics |Package (library) |An installed collection of functions and data, such as stats or graphics, which are supplied with R. Installing an additional package makes it available on the computer; `library()` attaches it for the session; `package::function()` names one exported function explicitly. |Ch. 5, Sec. 1 |
+|Reproducible work |Script and Quarto source |A saved `.R` script records commands so an analysis can be rerun; a `.qmd` source connects prose, mathematics, executable code, tables, figures, and references, and renders to PDF, HTML, or Word. |Ch. 5, Sec. 1 |
+|Reproducible work |Model formula (R formula) |Notation such as `score ~ group` naming an outcome and the variables that explain it for a fitting function. It does not state whether observations are independent or paired; that comes from the design. |Ch. 6, Sec. 1 |
+|Simulation |Simulation and seed (Monte Carlo simulation) |Generating data from a declared process to see what a statistic or procedure does across repetitions. A seed makes the random draws repeatable; it does not make the process true for an actual study. |Ch. 5, Sec. 3 |
+|Simulation |Monte Carlo standard error |The numerical uncertainty of a simulated probability or mean that comes from using finitely many repetitions; more repetitions shrink it. It is distinct from a study's SE, which depends on the study's sample size. |Ch. 5, Sec. 4 |
+|Numerical fitting |Objective function |A numerical criterion evaluated at candidate parameter values for fixed data; fitting seeks a stated minimum or maximum. |Ch. 6, Sec. 6 |
+|Numerical fitting |Likelihood and log-likelihood |The probability or density of the observed data under a declared model, viewed as a function of its parameters; the log-likelihood is its logarithm. |Ch. 6, Sec. 6; fuller Ch. 11, Sec. 3 |
+|Numerical fitting |Maximum likelihood estimation (MLE) |Choosing parameter values that maximize the likelihood, equivalently the log-likelihood, over the stated parameter space. |Ch. 6, Sec. 6; fuller Ch. 11, Sec. 3 |
+
+: Statistical computing. {#tbl-intro-concepts-computing tbl-colwidths="[16,23,45,16]"}
+
+## Regression {#sec-concepts-regression}
+
+|Concept group |Term and common alternatives |Meaning or essential distinction |Main explanation |
+|:--|:--|:--|:--|
+|The fitted line |Simple linear regression (regression line) |A straight-line summary of how one outcome differs across one predictor: fitted value equals intercept plus slope times the predictor. Its descriptive use concerns the records fitted; a model-based use needs a declared process. |Ch. 7, Sec. 2 |
+|The fitted line |Intercept |The fitted outcome at predictor value zero. It places the line vertically; when zero is outside the observed support, it is a mathematical anchor rather than a supported prediction. Centering the predictor moves it to a supported reference point. |Ch. 7, Sec. 2 |
+|The fitted line |Slope (regression coefficient) |The difference in fitted outcome per one-unit difference in the predictor, in outcome units per predictor unit. It compares units that differ in the predictor; it is not a change within one unit unless a design supports that reading. |Ch. 7, Sec. 2 |
+|Least squares |Ordinary least squares (OLS) |The rule that chooses the intercept and slope minimizing the residual sum of squares. With an intercept, the fitted line passes through the mean point and the residuals sum to zero; the slope equals covariance divided by predictor variance. |Ch. 7, Sec. 2 |
+|Least squares |Residual sum of squares (RSS) |The sum of squared residuals from a fitted line, in squared outcome units. Total squared variation about the mean splits into a regression part and RSS when the model has an intercept. |Ch. 7, Sec. 2 |
+|Fit |Residual standard deviation (residual standard error) |The square root of RSS divided by its residual degrees of freedom, in outcome units; with an intercept and one predictor the degrees of freedom are $n-2$. Under the process model it estimates the error SD. |Ch. 7, Sec. 2 |
+|Fit |R-squared (coefficient of determination) |One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation. |Ch. 7, Sec. 2 |
+|Prediction |Confidence interval for a mean response (mean-response interval) |An interval for the process mean outcome at a stated predictor value, using the SE of the fitted value. It concerns an average, narrows near the predictor mean, and does not cover individual outcomes. |Ch. 7, Sec. 5 |
+|Prediction |Prediction interval (new-case interval) |An interval for one new outcome at a stated predictor value from the same process. Its variance adds the error variance to the fitted-mean variance, so it is wider than the mean-response interval and keeps a nonzero floor as the sample grows. |Ch. 7, Sec. 5 |
+|Checks |Leverage |A measure of how unusual a record's predictor value is relative to the others; it grows with distance from the predictor mean and appears in the SE of a fitted value and in influence measures. |Ch. 7, Sec. 6 |
+|Checks |Cook's distance (influence) |A summary of how much the fitted values change when one record is omitted, combining its residual and its leverage. It prompts inspection of provenance and a disclosed sensitivity, not automatic deletion. |Ch. 7, Sec. 6 |
+|Checks |Heteroskedasticity-consistent covariance (HC3; sandwich estimator) |A coefficient covariance estimate that allows unequal error variance across predictor values under independence. It changes SEs and intervals, not the fitted coefficients, and does not repair curvature, dependence, measurement error, or confounding. |Ch. 7, Sec. 6 |
+|Checks |Extrapolation (predictor support) |Using a fitted line at predictor values outside the observed range or where observations are sparse. Software returns a number there; the data do not support it. |Ch. 7, Sec. 6 |
+|Several predictors |Multiple regression (additive model) |A fitted equation in which the outcome's mean is the sum of an intercept and one term per predictor. Each coefficient compares fitted means at the same values of the other predictors; the additive form assumes each comparison is the same across those values. |Ch. 8, Sec. 2 |
+|Several predictors |Partial slope (conditional coefficient; adjusted coefficient) |The difference in fitted outcome per one-unit difference in one predictor, holding the model's other predictors fixed. Its meaning depends on the conditioning set named with it; it is not an intervention effect or a claim about unmeasured differences. |Ch. 8, Sec. 2 |
+|Several predictors |Indicator variable (dummy variable) and reference category |A 0/1 variable marking membership in one category of a factor; a factor with $J$ levels needs $J-1$ indicators, and the omitted level is the reference. The intercept refers to the reference category; each indicator coefficient is a difference from it at the same other predictors. Releveling changes coordinates, not fitted values. |Ch. 8, Sec. 2; fuller Ch. 9, Sec. 1 |
+|Several predictors |Partial regression (residualization; added-variable form) |Regressing both the outcome and one predictor on the other predictors, then relating their residuals. The residual slope equals the partial slope; the residual correlation is the partial correlation, unit-free. |Ch. 8, Sec. 3 |
+|Uncertainty |Coefficient covariance matrix |The estimated variances and covariances of the fitted coefficients (`vcov()` in R). Any linear combination of coefficients, such as a fitted mean or a contrast, has variance $c'\widehat Vc$; adding SEs or ignoring covariances is a different, incorrect calculation. |Ch. 8, Sec. 5 |
+|Checks |Variance inflation factor (VIF) |One divided by one minus the $R^2$ from regressing a predictor on the other predictors. Its square root multiplies that coefficient's SE relative to an orthogonal design, holding residual variance fixed; it describes precision, not bias, and is not a deletion rule. |Ch. 8, Sec. 4 |
+|Checks |Joint support (covariate hull) |Whether a combination of predictor values lies within the region where observations actually occur, not merely within each variable's separate range. A fitted value outside joint support is extrapolation even if each coordinate is observed somewhere. |Ch. 8, Sec. 4 |
+|Fitted quantities |Standardization over a named distribution (model-averaged fitted value) |Averaging the model's fitted values after setting one predictor to a chosen value for every profile in a declared set with fixed weights. Its uncertainty uses the coefficient covariance; it is not an observed group mean, a causal effect, or held-out performance. |Ch. 8, Sec. 5 |
+|Prediction |Learning rule (learning procedure) |A fixed recipe that turns training records into a prediction equation, such as fitting a declared OLS formula. Prediction performance concerns the rule at stated training sizes, not one final fitted equation. |Ch. 8, Sec. 6 |
+|Prediction |Cross-validation (held-out validation) |Dividing records into folds, fitting a rule on the other folds, predicting the held-out fold, and pooling the errors so that no outcome contributes to its own prediction. Resplits describe sensitivity to the partition, not new independent studies. |Ch. 8, Sec. 6; fuller Ch. 13, Sec. 2 |
+|Prediction |Mean absolute error (MAE) |The average absolute difference between held-out outcomes and their predictions, in outcome units. It is an evaluation loss chosen separately from the squared-error criterion that OLS minimizes. |Ch. 8, Sec. 6 |
+|Coordinated questions |Cross-question coherence |The additional evaluation question for coordinated answers: does the synthesis preserve the distinct questions, estimands, methods, uncertainty, and limits of the separate answers rather than merging them into one omnibus claim? |Ch. 8, Sec. 7 |
+|Model comparison |Nested-model $F$ test (extra sum of squares; block test) |Compares a reduced model with a fuller one fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the fuller model's residual mean square, referred to $F$ with the number of restrictions and the fuller model's residual df. It tests the added block jointly, not each coefficient separately. |Ch. 9, Sec. 3 |
+|Model comparison |Information criteria (AIC; BIC) |Penalized in-sample fit: $-2\log\widehat L$ plus $2k$ (AIC) or $k\log n$ (BIC), with $k$ counting the coefficients and the residual variance. Smaller is preferred among models fitted to the same records and outcome scale; neither is held-out error. |Ch. 9, Sec. 3 |
+|Model form |Polynomial term (quadratic term; curvature) |A power of a predictor added as a further column so that the fitted mean can curve. The predictor's comparison then depends on its value; centering before squaring reduces collinearity without changing the fitted curve. |Ch. 9, Sec. 4 |
+|Model form |Log-transformed outcome (geometric-mean scale) |Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and $100(e^{\beta}-1)$ percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale's. |Ch. 9, Sec. 4 |
+|Model form |Standardized coefficient (beta weight) |A partial slope rescaled by the predictor and outcome SDs, in outcome-SD units per predictor SD, with the other predictors held fixed. It differs from standardization over named profiles and does not measure causal importance. |Ch. 9, Sec. 4 |
+|Uncertainty |Bootstrap (case resampling; percentile interval) |Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design. |Ch. 9, Sec. 6 |
+|Uncertainty |Cluster-robust standard error (school-clustered covariance) |A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting. |Ch. 9, Sec. 7 |
+
+: Regression. {#tbl-intro-concepts-regression tbl-colwidths="[16,23,45,16]"}
+
+## Notation for Chapters 1--9 {#sec-concepts-notation}
+
+The table below lists the notation Chapters 1--9 use, with each chapter
+explaining its symbols where they are first used.
+
+|Group |Symbol (preferred form) |Meaning |Main use |Alternatives and notes |
+|:--|:--|:--|:--|:--|
+|Data |$n$, $n_1$, $n_0$, $n_j$, $N$ |Number of cases in the analysis sample; group sizes; a population or record count |Ch. 2 |$n_A$, $n_B$ for named groups in Chapters 5--6 |
+|Data |$i$, $j$, $k$; $x_{ij}$ |Locally declared indices; a data-matrix entry |Ch. 2 |In the data matrix, $i$ is case and $j$ variable. ANOVA declares factor/group/replicate indices beside its own model. |
+|Data |$y_i$, $x_i$ |Observed outcome and predictor values of case $i$; lowercase marks observed values |Ch. 2 |$y_{ij}$ for case $i$ in group $j$ |
+|Data |$Y_i$, $Y_{ij}$ |The outcome as a random variable before observation; uppercase marks random quantities |Ch. 3 |Use only where the distinction from observed values matters |
+|Summaries |$\bar y$, $\bar x$, $\bar y_j$, $\bar d$ |Observed means; a group mean; the mean of paired differences (write `\bar y`, no braces) |Ch. 2 |Use lowercase for observed group means |
+|Summaries |$\bar Y$ |The sample mean as an estimator in variance and SE derivations |Ch. 3 |Reserved for the random quantity |
+|Summaries |$s$, $s^2$, $s_1$, $s_0$, $s_p$, $s_d$ |Sample SD and variance; group SDs; pooled SD; SD of paired differences |Ch. 2 |SD in prose; $s_{xy}$ the sample covariance; $s_D$ in Chapter 3's named-procedure table |
+|Summaries |$r$, $\rho$ |Sample and population correlation |Ch. 2 |Partial correlation carries its conditioning set in a subscript (Ch. 2, Sec. 3.5; Ch. 8 develops multiple regression) |
+|Relationships |$r_{xy\cdot z}$, $r_s$ |Sample partial correlation controlling linearly for $z$; the Spearman rank correlation |Ch. 2 |Residual association, not causal exclusion; $r_s$ is Pearson's coefficient on ranks |
+|Population |$\mu$, $\sigma$, $\sigma^2$ |Process or population mean, SD, and variance; $\mu_1-\mu_0$ a mean difference |Ch. 2 |$\mu(x_0)$ the mean response at $x_0$ (Ch. 7) |
+|Population |$p$, $\widehat p$, $p_1$, $p_0$ |A population proportion, its sample estimate, and group proportions |Ch. 3 |Distinct from the p-value, written p-value in prose and $p=.0059$ for its value |
+|Estimands |$\Delta\mu$, $\widehat{\Delta\mu}$ |A difference in means as an estimand, $\Delta\mu=\mu_1-\mu_0$ or the mean assignment effect over the stated participants, and its estimate $\widehat{\Delta\mu}=\bar y_1-\bar y_0$; a stipulated value of $\Delta\mu$ serves planning and power calculations |Ch. 3 |$\Delta p=p_1-p_0$ for a difference in proportions (Ch. 6); $\theta$, $\widehat\theta$ for a generic estimand and estimator; $\tau$ and a bare $\Delta$ retired |
+|Uncertainty |$SE(\cdot)$, $\widehat{SE}(\cdot)$ |The standard error of an estimator and its estimate; the hat marks the estimate. Name the statistic: $SE(\bar y)$, $SE(\bar y_1-\bar y_0)$, $SE(\widehat C)$ |Ch. 3 |Use the hat for an estimated SE, or explicitly state a locally abbreviated SE convention |
+|Uncertainty |$\operatorname{Var}(\cdot)$, $\operatorname{Cov}(\cdot,\cdot)$, $E(\cdot)$ |Variance, covariance, and expectation; upright operator names with round brackets. Chapter 2 defines $E(X)$ for a probability model; Chapter 3 applies the same expectation to an estimator over stated repetitions, $E_{\mathrm{assign}}(\cdot)$ when the repetition needs naming |Ch. 2; Ch. 3 |$E[\cdot]$ and $\mathbb E$ retired |
+|Probability |$P(\cdot)$, $\Phi$ |Probability of an event; the standard Normal distribution function |Ch. 2 |$\phi$ its density |
+|Distributions |$m$, $\lambda$, $F_X$, $\tau_K$, $\mu_L$, $s_L$ |Binomial trial count; Poisson rate; CDF; Kendall correlation; logistic location and scale |Ch. 2 |Use $\mu_L$ and $s_L$ for the continuous logistic distribution; reserve $\ell(\cdot)$ for log-likelihood |
+|Simulation |$B$ |Number of simulation repetitions, distinct from a study's sample size $n$ |Ch. 5 |Monte Carlo SE shrinks with $B$; the study SE does not; distinct from the bootstrap resample count $B$ (Ch. 9, Sec. 6) |
+|Reference distributions |$z$, $z_{1-\alpha/2}$ |A standardized score and a standard Normal critical value |Ch. 2 |--- |
+|Reference distributions |$t_{df}$, $t^*$ |The t distribution with $df$ degrees of freedom; a critical value |Ch. 3 |$t_{n-2}$ in regression |
+|Reference distributions |$\chi^2$, $F(df_1, df_2)$ |Chi-square and F reference distributions with their degrees of freedom |Ch. 3; Ch. 4 |--- |
+|Testing |$X^2$ |Observed Pearson chi-square statistic |Ch. 3 |Distinguish it from the $\chi^2_{df}$ reference distribution |
+|Reference distributions |$df$ |Degrees of freedom, upright; subscripts only when two are needed |Ch. 2; Ch. 3 |Fractional Welch degrees of freedom are reported to four decimals; Chapter 5 gives that quantity the symbol $\nu$ (row below) |
+|Reference distributions |$c^*$ |A generic critical value standing for $z_{1-\alpha/2}$ or $t^*$ before the reference distribution is fixed |Ch. 5 |Name the reference distribution at first use |
+|Reference distributions |$\nu$ |Welch degrees of freedom, $\nu=(a+b)^2/[a^2/(n_A-1)+b^2/(n_B-1)]$ with $a=s_A^2/n_A$ and $b=s_B^2/n_B$, reported to four decimals |Ch. 5 |$A$ and $B$ are the generic group labels, instantiated as $A$ and $M$ in Chapter 5's worked comparison; ordinary $df$ elsewhere, including Chapter 3's fractional Welch value; Part One adopts $\nu$ for this quantity in Chapter 5 |
+|Testing |$H_0$, $H_1$, $\alpha$, $\beta$, $1-\beta$ |Null and alternative hypotheses; Type I and Type II error probabilities; power at a specified alternative |Ch. 3 |$\beta$ here is distinct from a regression coefficient; $H_A$ is the equivalent alternative-hypothesis label in Chapter 3 |
+|Magnitude |$d$, $g$ |Standardized mean difference (Cohen's $d$, Hedges' $g$) |Ch. 3 |--- |
+|ANOVA |$SS_B$, $SS_W$, $SS_T$, $MS_B$, $MS_W$; $SS_A$, $SS_{AB}$, $SS_E$, $MS_E$ |Sums of squares and mean squares between, within, and total; factor, interaction and error terms of the two-way table; subscripted plain letters |Ch. 4 |Not `\mathrm{}` words in subscripts; in the two-way table $SS_B$ denotes factor B, not all between-cell variation (Ch. 4) |
+|ANOVA |$\alpha_j$, $\beta_k$, $(\alpha\beta)_{jk}$ |Factor-model main effects and interaction departures in the two-way model |Ch. 4 |Distinct from the unindexed Type I and Type II error probabilities $\alpha$ and $\beta$ |
+|ANOVA |$\eta^2$, $\omega^2$ |ANOVA effect-size measures |Ch. 4 |--- |
+|ANOVA |$c_j$, $C$, $\widehat C$ |Contrast coefficients, a contrast $C=\sum_j c_j\mu_j$ with $\sum_j c_j=0$, and its estimate $\widehat C=\sum_j c_j\bar y_j$ |Ch. 4 |$L$ retired for contrasts; $L(\cdot)$ is a likelihood (Ch. 6) |
+|ANOVA |$DD$, $\widehat{DD}$ |A difference of differences between group means and its estimate |Ch. 6 |Chapter 4 develops the object in words as a selected difference of differences; Chapter 10 writes the same object as $C_{\mathrm{DD}}$ when it is a linear combination of coefficients |
+|Regression |$\beta_0$, $\beta_1$, $\beta_j$; $\widehat\beta_0$, $\widehat\beta_1$ |Process intercept and slopes and their OLS estimates (`\widehat`, not `\hat`) |Ch. 7 |Use `\widehat\beta` consistently |
+|Regression |$\widehat y_i$, $e_i$, $\varepsilon_i$ |Fitted value, residual, and error term of case $i$ |Ch. 4; Ch. 7 |`\widehat y`, not `\hat y`; Chapter 4 uses the grouped forms $\widehat y_{ij}$, $e_{ij}$, $\varepsilon_{ij}$ |
+|Regression |$S_{xx}$, $S_{xy}$ |Centered sums of squares and cross-products |Ch. 7 |--- |
+|Regression |$RSS$, $RegSS$, $TSS$ |Residual, regression, and total sums of squares in regression; upright multi-letter names |Ch. 7 |Distinct from the ANOVA $SS$ family |
+|Regression |$s_e$ |Residual standard deviation (residual standard error) |Ch. 7 |$\widehat\sigma_{\mathrm{ML}}$ is the maximum-likelihood scale, a different estimate (Ch. 8 Appendix B) |
+|Regression |$R^2$ |Coefficient of determination |Ch. 7 |Adjusted $R^2$ named in words |
+|Regression |$\widehat\mu_0$, $Y_0$ |The estimated mean response at $x_0$ and one new case there |Ch. 7 |`\widehat\mu`, not `\hat\mu` |
+|Regression |$D$, $D_i$, $D_j$ |Indicator (0/1) variables; $D_i$ marks case $i$'s membership, and $J-1$ indicator columns $D_j$ code a $J$-level factor with a named reference level |Ch. 2; Ch. 6; Ch. 8; Ch. 9 |Chapter 2 writes the single group indicator $D_i$ (Sec. 2.4); distinct from the deviance $D$ (Ch. 11), Cook's distance $D_i$ (Ch. 7--8), Chapter 3's random paired difference $D_i$, and the diagonal SD matrix $D$ (Ch. 5) |
+|Regression |$R\boldsymbol\beta=r$, $q$ |A set of $q$ linear restrictions on the coefficients tested jointly |Ch. 9, Sec. 3 |The restriction matrix is named at first use; distinct from the correlation matrix $R$ and from $R^2$ |
+|Uncertainty |$B$, $\widehat\beta^{*}_{b}$ |Number of bootstrap resamples and the estimate from resample $b$ |Ch. 9, Sec. 6 |Recalled in Ch. 13; the same letter as the simulation repetition count of Ch. 5, declared locally at each use |
+|Matrices |$S$, $R$, $D$; $\widehat V$ |Observed-variable covariance, correlation and diagonal SD matrices; estimated coefficient covariance is a different object |Ch. 5; Ch. 8 |Define dimensions and the included records. For positive SDs, $R=D^{-1}SD^{-1}$ and $S=DRD$. Part One writes matrices as plain italic capitals, as the published Chapters 5, 7 and 8 do; Part Two's bold factor notation ($\mathbf S$, $\boldsymbol\Lambda$) is a separate convention. |
+|Regression |$X$, $y$, $H$, $\widehat\beta$ |Design matrix, outcome vector, hat matrix, and coefficient vector; plain italic capitals, with $X'X$ for the cross-product |Ch. 7 App. A; Ch. 8 App. B; Ch. 9; Ch. 11 |$h_{ii}=x_i'(X'X)^{-1}x_i$ as Chapters 7 and 8 write it |
+|Checks |$h_{ii}$, $D_i$ |Leverage and Cook's distance of case $i$ |Ch. 7; Ch. 8 |$h_i$ in the one-predictor setting of Ch. 7 |
+|Checks |$VIF_j$ |Variance inflation factor of predictor $j$ |Ch. 8 |--- |
+|Likelihood |$L(\cdot)$, $\ell(\cdot)$, $AIC$, $BIC$ |Likelihood, log-likelihood, and information criteria |Ch. 6; Ch. 8 App. B; Ch. 9 |Chapter 6 introduces a scalar likelihood; Chapter 8's Appendix B supplies the local Normal likelihood before AIC and BIC for its own criteria and homework; Chapter 9 develops the criteria; Chapter 11 develops likelihood fully |
+|Design/contrasts |$\delta$, $\widehat\delta$ |A locally defined group contrast and its estimate |Ch. 8; Ch. 9 |Conditional occupation-type contrast in Prestige; assignment contrast in STAR (Chapter 9). Causal interpretation requires design and assumptions. |
+|Argument diagrams |E, J, I, C |Evidence, justification, inference and bounded claim: functions of information |Ch. 1; Sup. A |They name functions, not report headings or quality scores |
+|Argument diagrams |STAT-E/J/I/C; SUB-E/J/I/C |The four functions in the statistical and substantive layers |Ch. 1; Sup. A/B |SUB-E situates, SUB-J augments and contextualizes, SUB-I interprets, SUB-C bounds the substantive reach of the corresponding statistical contribution |
+|Argument diagrams |Support arrows and cross-layer links |Arrows show logical support within an argument; labelled links connect the meanings of the two layers |Ch. 1; Sup. A/B |Neither is a time sequence or causal path; label cross-question dependencies by the receiving function |
+|Numbers |Displayed values |Calculated results to four decimals; the leading zero is kept except for bounded quantities ($p$, $r$, $R^2$, proportions, probabilities: $.0059$); negative numbers in math mode for a true minus ($-0.2179$); no thousands separators; counts, ordinary $df$, and codes as integers |Ch. 1 |Native software output keeps its own format |
+|Prediction |$MAE$ |Mean absolute error of held-out predictions |Ch. 8 |--- |
+
+: Notation for Chapters 1--9. {#tbl-intro-concepts-notation tbl-colwidths="[12,20,32,10,26]"}

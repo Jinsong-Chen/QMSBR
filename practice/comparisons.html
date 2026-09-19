@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Chapter 4 R support has moved – QMSBR R support</title>
+<title>Chapter 4 R support has moved – QMSBR</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -85,8 +85,8 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">QMSBR R support</span>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -96,10 +96,6 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
 <span class="menu-text">Part One</span></a>
   </li>  
@@ -108,11 +104,15 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Part Two</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">R support</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html#argument-approach"> 
+    <a class="nav-link" href="./../argument-approach.html"> 
 <span class="menu-text">Argument Approach</span></a>
   </li>  
   <li class="nav-item">
@@ -133,9 +133,6 @@ ul.task-list li input[type="checkbox"] {
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Chapter 4 R support has moved</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
   </nav>
 </header>
@@ -143,11 +140,6 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -640,6 +632,30 @@ location.replace(new URL("chapter-04.html" + location.search + location.hash, lo
 </footer>
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This is the practice copy of the book site's assets/disabled-links.html;
+     the script below is identical to the one there. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
 
 
 

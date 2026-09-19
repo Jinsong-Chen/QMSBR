@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Data sources for browser statistics practice – QMSBR R support</title>
+<title>Data sources – QMSBR</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -119,8 +119,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">QMSBR R support</span>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -130,10 +130,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
 <span class="menu-text">Part One</span></a>
   </li>  
@@ -142,11 +138,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Part Two</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">R support</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./../index.html#argument-approach"> 
+    <a class="nav-link" href="./../argument-approach.html"> 
 <span class="menu-text">Argument Approach</span></a>
   </li>  
   <li class="nav-item">
@@ -167,9 +167,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data-notes.html">Data sources</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
   </nav>
 </header>
@@ -177,11 +174,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -224,11 +216,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#synthetic-special-practice-record" id="toc-synthetic-special-practice-record" class="nav-link active" data-scroll-target="#synthetic-special-practice-record">Synthetic Special Practice record</a></li>
-  <li><a href="#uci-student-performance-extract" id="toc-uci-student-performance-extract" class="nav-link" data-scroll-target="#uci-student-performance-extract">UCI Student Performance extract</a></li>
-  <li><a href="#feedback-and-practice-quiz-scores" id="toc-feedback-and-practice-quiz-scores" class="nav-link" data-scroll-target="#feedback-and-practice-quiz-scores">Feedback and practice quiz scores</a></li>
-  <li><a href="#reading-instruction-data-from-cardata" id="toc-reading-instruction-data-from-cardata" class="nav-link" data-scroll-target="#reading-instruction-data-from-cardata">Reading instruction data from <code>carData</code></a></li>
-  <li><a href="#review-timing-data" id="toc-review-timing-data" class="nav-link" data-scroll-target="#review-timing-data">Review-timing data</a></li>
+  <li><a href="#register" id="toc-register" class="nav-link active" data-scroll-target="#register">The register</a></li>
+  <li><a href="#student-outcomes" id="toc-student-outcomes" class="nav-link" data-scroll-target="#student-outcomes">Part One, Chapter 1: student outcomes</a></li>
+  <li><a href="#secondary-school-records" id="toc-secondary-school-records" class="nav-link" data-scroll-target="#secondary-school-records">Part One, Chapter 2: secondary-school mathematics records</a></li>
+  <li><a href="#synthetic-special-practice-record" id="toc-synthetic-special-practice-record" class="nav-link" data-scroll-target="#synthetic-special-practice-record">Part One, Chapter 3: Special Practice</a></li>
+  <li><a href="#uci-student-performance-extract" id="toc-uci-student-performance-extract" class="nav-link" data-scroll-target="#uci-student-performance-extract">Part One, Chapter 3: Student Performance extract</a></li>
+  <li><a href="#feedback-and-practice-quiz-scores" id="toc-feedback-and-practice-quiz-scores" class="nav-link" data-scroll-target="#feedback-and-practice-quiz-scores">Part One, Chapter 4: feedback and practice quiz scores</a></li>
+  <li><a href="#reading-instruction-data-from-cardata" id="toc-reading-instruction-data-from-cardata" class="nav-link" data-scroll-target="#reading-instruction-data-from-cardata">Reference set: reading instruction</a></li>
+  <li><a href="#review-timing-data" id="toc-review-timing-data" class="nav-link" data-scroll-target="#review-timing-data">Reference set: review timing</a></li>
   <li><a href="#private-course-data" id="toc-private-course-data" class="nav-link" data-scroll-target="#private-course-data">Private course data</a></li>
   </ul>
 </nav>
@@ -238,7 +233,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data sources for browser statistics practice</h1>
+<h1 class="title">Data sources</h1>
+<p class="subtitle lead">The data files Part One Chapters 1–4 and the R support pages use, with their columns and their reuse terms</p>
 </div>
 
 
@@ -255,50 +251,163 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The browser statistics activities use a synthetic practice record, an observational record of secondary-school students, an invented feedback-by-practice quiz record, a published reading instruction record, and archived numerical scores used in an invented factorial teaching setting. Each supports a different kind of comparison. This note explains what the records contain, where they come from, and how they may be reused.</p>
-<p>Use this list to find the data for your chapter; the sections below give downloads, column explanations, source context, and reuse terms.</p>
+<p>This page is the site’s register of public data. It lists every data file Part One Chapters 1–4 and the R support pages use, says where each file comes from, what its columns mean, and how it may be reused. Two further records are kept as reference sets: they belong to no chapter but appear in worked examples. Chapters outside that range describe their own data in place: Part Two Chapter 2, for instance, gives the columns, the origin and the reuse terms of the simulated file it offers for download. Private course data are never listed here as a download; they are opened locally in your own browser.</p>
+<p>Find your chapter in the register below, then read that data set’s section. Each section follows the same order: what the file is, where to get it, the columns you will meet, the source and its attribution, the reuse terms, and anything that limits what the records can support. Every example on this site uses base R with the standard <code>stats</code> and <code>graphics</code> commands; no package is loaded or installed. Programming examples use short, meaningful names such as <code>group</code>, <code>score</code> and <code>id</code>; when records are changed, <code>d0</code> holds the starting data and <code>dat</code> the working copy. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits.</p>
+<section id="register" class="level2">
+<h2 class="anchored" data-anchor-id="register">The register</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: left;">Data</th>
 <th style="text-align: left;">Chapter</th>
-<th style="text-align: left;">Access</th>
+<th style="text-align: left;">Data set</th>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Reuse</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: left;">Part One, Chapter 1</td>
+<td style="text-align: left;"><a href="#student-outcomes">Student outcomes at a Portuguese polytechnic</a></td>
+<td style="text-align: left;"><code>realinho2022_students.csv</code>, beside the chapter</td>
+<td style="text-align: left;">CC BY 4.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Part One, Chapter 2</td>
+<td style="text-align: left;"><a href="#secondary-school-records">Secondary-school mathematics records</a></td>
+<td style="text-align: left;">Not distributed; the values are inside the chapter</td>
+<td style="text-align: left;">CC BY 4.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Part One, Chapter 3</td>
 <td style="text-align: left;"><a href="#synthetic-special-practice-record">Special Practice</a></td>
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">Public CSV; fictional teaching records.</td>
+<td style="text-align: left;"><code>data/chapter_03_special_practice.csv</code></td>
+<td style="text-align: left;">CC0 1.0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><a href="#uci-student-performance-extract">UCI Student Performance extract</a></td>
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">Public CSV; observed groups and passing status.</td>
+<td style="text-align: left;">Part One, Chapter 3</td>
+<td style="text-align: left;"><a href="#uci-student-performance-extract">Student Performance extract</a></td>
+<td style="text-align: left;"><code>data/chapter_03_uci_groups.csv</code></td>
+<td style="text-align: left;">CC BY 4.0</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Part One, Chapter 4</td>
 <td style="text-align: left;"><a href="#feedback-and-practice-quiz-scores">Feedback and practice quiz scores</a></td>
-<td style="text-align: left;">4</td>
-<td style="text-align: left;">Public CSV; invented one-way and factorial teaching data.</td>
+<td style="text-align: left;"><code>data/feedback_practice.csv</code></td>
+<td style="text-align: left;">CC0 1.0</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Reference set</td>
 <td style="text-align: left;"><a href="#reading-instruction-data-from-cardata">Reading instruction</a></td>
-<td style="text-align: left;">Reference</td>
-<td style="text-align: left;"><code>carData::Baumann</code>; prepared in the shared workspace.</td>
+<td style="text-align: left;">Not distributed; from the <code>carData</code> package</td>
+<td style="text-align: left;">Package terms, GPL-2 or later</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Reference set</td>
 <td style="text-align: left;"><a href="#review-timing-data">Review timing</a></td>
-<td style="text-align: left;">Reference</td>
-<td style="text-align: left;">Public CSV and codebook; archived factorial scores.</td>
+<td style="text-align: left;"><code>data/resource_timing.csv</code> and its codebook</td>
+<td style="text-align: left;">See the section</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Course data</td>
+<td style="text-align: left;"><a href="#private-course-data">Private course data</a></td>
+<td style="text-align: left;">Not distributed; opened locally</td>
+<td style="text-align: left;">Course terms</td>
 </tr>
 </tbody>
 </table>
-<p>Use short, meaningful names in your code. Keep starting data in <code>d0</code> and a working copy in <code>dat</code> when changing rows. Report calculated statistical results to four decimal places, keeping full precision for calculations. Input precision or software rounding may slightly change the last digits.</p>
-<p>Four CSV files are available below. Each uses a comma as the delimiter and has variable names in its first row. The reading instruction data are obtained directly from the <code>carData</code> R package; no extract of that dataset accompanies this note. The reading instruction and review-timing records remain available for reference consumers and the shared workspace; the Chapter 4 page uses the feedback and practice scores instead.</p>
+<p>Four CSV files can be downloaded from this page. Each uses a comma as the delimiter and carries variable names in its first row.</p>
+</section>
+<section id="student-outcomes" class="level2">
+<h2 class="anchored" data-anchor-id="student-outcomes">Part One, Chapter 1: student outcomes</h2>
+<p>Chapter 1 follows a real administrative record of 4,424 students at a Portuguese polytechnic: 1,421 with recorded Dropout status, 794 still Enrolled, and 2,209 Graduate at the normal duration of their degree. The chapter uses it to ask how the chance of recorded dropout relates to admission grade and age at enrollment.</p>
+<p><strong>Where to get it.</strong> <a href="../part-one/realinho2022_students.csv">Download the student-outcome data (CSV)</a>, published beside Chapter 1. It holds three fields of the source release in the original case order, with no values changed.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning and coding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>recorded_outcome</code></td>
+<td style="text-align: left;"><code>Dropout</code>, <code>Enrolled</code> or <code>Graduate</code>, the status recorded at the normal end of the degree.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>admission_grade</code></td>
+<td style="text-align: left;">The recorded admission grade, on the source’s own scale; the values here run from 95.0 to 190.0.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>age</code></td>
+<td style="text-align: left;">Age in whole years at enrollment; the values here run from 17 to 70.</td>
+</tr>
+</tbody>
+</table>
+<p>There are no missing values in the three fields.</p>
+<p><strong>Source and attribution.</strong> Realinho, V., Machado, J., Baptista, L., &amp; Martins, M. V. (2022). Predicting student dropout and academic success. <em>Data</em>, <em>7</em>(11), 146. <a href="https://doi.org/10.3390/data7110146">https://doi.org/10.3390/data7110146</a>. The release is archived as Realinho, V., Vieira Martins, M., Machado, J., &amp; Baptista, L. (2021). <em>Predict students’ dropout and academic success</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5MC89">https://doi.org/10.24432/C5MC89</a>. The release holds many more fields than the three published here.</p>
+<p><strong>What the records can support.</strong> Recorded Dropout can include a change of course or of institution; it need not mean leaving higher education altogether, and the three categories keep their distinct meanings. The chapter’s logistic regression is a simplified teaching analysis, not the source authors’ classification procedure. The release supplies neither the enrollment year nor dropout event dates, so a predictor’s availability at the time of prediction has to be argued rather than assumed.</p>
+<p><strong>Reuse.</strong> The source release and this three-field extract are licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0</a>. When redistributing or adapting the extract, credit Realinho and colleagues and the UCI Machine Learning Repository, keep the source and licence links, and identify the selection of fields as an adaptation together with any further change you make.</p>
+</section>
+<section id="secondary-school-records" class="level2">
+<h2 class="anchored" data-anchor-id="secondary-school-records">Part One, Chapter 2: secondary-school mathematics records</h2>
+<p>Chapter 2 describes 395 students of the mathematics file in Cortez and Silva’s student-performance study, drawn from school reports and questionnaires at two Portuguese secondary schools. The chapter asks how recorded absences and final mathematics grades vary together.</p>
+<p><strong>Where to get it.</strong> Not distributed as a separate file. The selected values are written into Chapter 2 itself, so the chapter renders without reading an external data file. The source files and their documentation are at the repository page linked below. A different three-column extract of the same source is distributed on this site for <a href="#uci-student-performance-extract">Chapter 3</a>.</p>
+<p>These are the columns the chapter works with.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning and coding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>student_id</code></td>
+<td style="text-align: left;">Label <code>U001</code> through <code>U395</code>, added for the chapter; it is not an original participant identifier.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>school</code></td>
+<td style="text-align: left;"><code>GP</code> or <code>MS</code>, the two secondary schools of the source records.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>absences</code></td>
+<td style="text-align: left;">Source field <code>absences</code>: the recorded number of school absences.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>grade_period_2</code></td>
+<td style="text-align: left;">Source field <code>G2</code>: the second-period mathematics grade on the 0–20 scale.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>final_grade</code></td>
+<td style="text-align: left;">Source field <code>G3</code>: the final mathematics grade on the 0–20 scale.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>higher_education</code></td>
+<td style="text-align: left;">Source field <code>higher</code>: <code>yes</code> if the student reported an intention to pursue higher education, <code>no</code> otherwise.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>pass</code></td>
+<td style="text-align: left;">Derived from <code>final_grade</code>: <code>Yes</code> at a grade of at least 10 on the 0–20 scale, <code>No</code> below it.</td>
+</tr>
+</tbody>
+</table>
+<p>All 395 records are kept, in their source order, and the selected fields have no missing values.</p>
+<p><strong>Source and attribution.</strong> Cortez, P., &amp; Silva, A. M. G. (2008). Using data mining to predict secondary school student performance. In A. Brito &amp; J. Teixeira (Eds.), <em>Proceedings of 5th Annual Future Business Technology Conference</em> (pp.&nbsp;5–12). EUROSIS. The data are archived as Cortez, P. (2008). <em>Student Performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5TG7T">https://doi.org/10.24432/C5TG7T</a>. The <a href="https://archive.ics.uci.edu/dataset/320/student+performance">repository page</a> supplies the source files and the variable documentation, including a separate Portuguese-language dataset that the chapter does not use.</p>
+<p><strong>What the records can support.</strong> The 395 students are the students the study observed. A summary calculated from them describes that collection directly; a statement about secondary students elsewhere needs an additional argument about how these students relate to that wider group. Higher-education intention was reported, not assigned.</p>
+<p><strong>Reuse.</strong> The source is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0</a>. The chapter selects and renames variables, adds identifiers and a pass indicator, and keeps the selected values unchanged. Credit Cortez and Silva and the UCI Machine Learning Repository, keep the source and licence links, and identify those adaptations and any further change you make.</p>
+</section>
 <section id="synthetic-special-practice-record" class="level2">
-<h2 class="anchored" data-anchor-id="synthetic-special-practice-record">Synthetic Special Practice record</h2>
-<p><a href="data/chapter_03_special_practice.csv">Download the Special Practice data (CSV)</a></p>
+<h2 class="anchored" data-anchor-id="synthetic-special-practice-record">Part One, Chapter 3: Special Practice</h2>
 <p>This QMSBR record contains 120 fictional participants: 60 assigned to Special Practice and 60 to Usual Practice. The imagined study compares two practice formats with four sessions and equal total study time. A common assessment, scored from 0 to 40 points, takes place two weeks later. These are constructed teaching records, not observations from an actual experiment.</p>
+<p><strong>Where to get it.</strong> <a href="data/chapter_03_special_practice.csv">Download the Special Practice data (CSV)</a>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -325,17 +434,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>The concise headers <code>id</code>, <code>group</code>, and <code>score</code> replace the earlier <code>student_id</code>, <code>assigned_condition</code>, and <code>delayed_score</code> headers. The records and their order are unchanged.</p>
-<p>All 120 records are retained, and the three fields contain no missing values. The comparison direction is Special Practice minus Usual Practice. The assignment and follow-up details belong to the invented study description; the values alone do not establish a research design.</p>
-<p>The supplied rows define a fixed teaching record. Calculate software results from those rows and retain their full precision during analysis. Use these records for CSV tasks and the inputs supplied in each core exercise for its calculations.</p>
-<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. The dedication applies to the CSV. Retain its description as synthetic when presenting or adapting it.</p>
+<p>All 120 records are retained, and the three fields contain no missing values. The comparison direction is Special Practice minus Usual Practice.</p>
+<p><strong>What the records can support.</strong> The assignment and follow-up details belong to the invented study description; the values alone do not establish a research design. The supplied rows define a fixed teaching record: calculate software results from those rows and keep their full precision during the analysis. Use these records for CSV tasks, and use the inputs supplied in an exercise for that exercise’s calculations.</p>
+<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. The dedication applies to the CSV. Keep its description as synthetic when presenting or adapting it.</p>
 </section>
 <section id="uci-student-performance-extract" class="level2">
-<h2 class="anchored" data-anchor-id="uci-student-performance-extract">UCI Student Performance extract</h2>
-<p><a href="data/chapter_03_uci_groups.csv">Download the UCI groups data (CSV)</a></p>
-<p>This extract retains all 395 records from the mathematics file in Paulo Cortez’s <em>Student Performance</em> dataset. The source records concern students in two Portuguese secondary schools. Higher-education intention was observed, not assigned. One row represents one recorded student.</p>
-<p><strong>Source and attribution.</strong> Cortez, P. (2008). <em>Student Performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5TG7T">https://doi.org/10.24432/C5TG7T</a>. The <a href="https://archive.ics.uci.edu/dataset/320/student+performance">UCI dataset page</a> provides the source files and variable documentation.</p>
-<p>QMSBR prepared this three-column extract through a curated copy of the mathematics data. All rows remain in their source order. The adaptations are the addition of an artificial identifier, selection and renaming of fields, and derivation of pass status from the recorded final grade.</p>
+<h2 class="anchored" data-anchor-id="uci-student-performance-extract">Part One, Chapter 3: Student Performance extract</h2>
+<p>This extract keeps all 395 records of the mathematics file in Paulo Cortez’s <em>Student Performance</em> dataset, reduced to three columns for the group comparison on the <a href="./chapter-03.html">Chapter 3 page</a>. The source records concern students in two Portuguese secondary schools. Higher-education intention was observed, not assigned. One row represents one recorded student. Chapter 2 of the book works with a wider selection of the <a href="#secondary-school-records">same source</a>.</p>
+<p><strong>Where to get it.</strong> <a href="data/chapter_03_uci_groups.csv">Download the Student Performance extract (CSV)</a>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -344,33 +450,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <thead>
 <tr class="header">
 <th style="text-align: left;">Field</th>
-<th style="text-align: left;">Source, meaning, and transformation</th>
+<th style="text-align: left;">Meaning and coding</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>id</code></td>
-<td style="text-align: left;">Artificial identifier <code>U001</code> through <code>U395</code>, added by QMSBR as <code>student_id</code> in the curated copy and renamed here. It is not an original participant identifier.</td>
+<td style="text-align: left;">Artificial identifier <code>U001</code> through <code>U395</code>, added for this extract. It is not an original participant identifier.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>higher</code></td>
-<td style="text-align: left;">Source field <code>higher</code>, retained as <code>higher_education</code> in the curated copy and renamed here. <code>yes</code> means the student reported an intention to pursue higher education; <code>no</code> means the student reported no such intention.</td>
+<td style="text-align: left;">Source field <code>higher</code>. <code>yes</code> means the student reported an intention to pursue higher education; <code>no</code> means no such intention was reported.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>pass</code></td>
-<td style="text-align: left;">Derived from source final grade <code>G3</code>, retained as <code>pass</code> in the curated copy and renamed here. <code>Yes</code> means a grade of at least 10 on the 0–20 scale; <code>No</code> means a grade below 10.</td>
+<td style="text-align: left;">Derived from the source final grade <code>G3</code>. <code>Yes</code> means a grade of at least 10 on the 0–20 scale; <code>No</code> means a grade below 10.</td>
 </tr>
 </tbody>
 </table>
-<p>The three supplied fields have no missing values. There are 375 <code>yes</code> intention records and 20 <code>no</code> intention records. For a passing proportion within an intention group, use that group’s total as the denominator. The comparison direction is intention <code>yes</code> minus intention <code>no</code>, with the result interpreted as an observed association in this record.</p>
-<p><strong>Recorded zero grades.</strong> The source documentation marks the dataset as having no missing values, but the source mathematics file contains an unresolved pattern: 38 records have final grade zero and zero absences, and 25 of those also have a positive second-period grade. The documentation does not establish a common meaning for all these zeros. The primary comparison retains grades as recorded. Omitting the zero-grade records is a diagnostic check that changes the analysed set, rather than an established correction.</p>
-<p>Grades and absences are absent from this three-column extract. It therefore cannot identify the zero-grade records or reproduce that diagnostic exclusion. Interpret any supplied diagnostic results alongside this limitation.</p>
-<p><strong>Reuse.</strong> The source and this extract are licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International</a>. When redistributing or adapting the extract, credit Cortez and the UCI Machine Learning Repository, retain the source and licence links, and identify QMSBR’s adaptations and any further changes you make. The licence does not imply endorsement by the source creators.</p>
+<p>All rows stay in their source order and the three fields have no missing values. There are 375 <code>yes</code> intention records and 20 <code>no</code> intention records. For a passing proportion within an intention group, use that group’s total as the denominator. The comparison direction is intention <code>yes</code> minus intention <code>no</code>, and the result is an observed association in this record.</p>
+<p><strong>Source and attribution.</strong> Cortez, P. (2008). <em>Student Performance</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5TG7T">https://doi.org/10.24432/C5TG7T</a>. The <a href="https://archive.ics.uci.edu/dataset/320/student+performance">repository page</a> supplies the source files and the variable documentation. QMSBR prepared the extract from the source mathematics file: it adds an artificial identifier, selects and renames two fields, and derives pass status from the recorded final grade.</p>
+<p><strong>What the records can support.</strong> The source documentation marks the dataset as having no missing values, but the source mathematics file contains an unresolved pattern: 38 records have a final grade of zero and zero absences, and 25 of those also have a positive second-period grade. The documentation does not establish a common meaning for all these zeros. The primary comparison keeps grades as recorded; omitting the zero-grade records is a diagnostic check that changes the analysed set, not an established correction. Grades and absences are absent from this three-column extract, so it cannot identify the zero-grade records or reproduce that diagnostic exclusion. Read any supplied diagnostic result alongside this limitation.</p>
+<p><strong>Reuse.</strong> The source and this extract are licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0</a>. When redistributing or adapting the extract, credit Cortez and the UCI Machine Learning Repository, keep the source and licence links, and identify QMSBR’s adaptations and any further change you make. The licence does not imply endorsement by the source creators.</p>
 </section>
 <section id="feedback-and-practice-quiz-scores" class="level2">
-<h2 class="anchored" data-anchor-id="feedback-and-practice-quiz-scores">Feedback and practice quiz scores</h2>
-<p><a href="data/feedback_practice.csv">Download the feedback and practice data (CSV)</a></p>
+<h2 class="anchored" data-anchor-id="feedback-and-practice-quiz-scores">Part One, Chapter 4: feedback and practice quiz scores</h2>
 <p>This QMSBR record contains 24 invented Grade 7 students, each measured once on a fractions quiz scored from 0 to 20. The imagined study crosses three feedback conditions with two practice schedules, giving six cells of four different students. The <a href="./chapter-04.html">Chapter 4 page</a> uses the 12 Massed-practice rows for its one-way example and all 24 rows for the full factorial model.</p>
+<p><strong>Where to get it.</strong> <a href="data/feedback_practice.csv">Download the feedback and practice data (CSV)</a>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -401,15 +507,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>A CSV stores these labels as plain text, so R orders them alphabetically unless the script declares the order. Every analysis sets <code>levels = c("Rereading", "Answer feedback", "Explanatory feedback")</code> and <code>levels = c("Massed", "Spaced")</code> with <code>factor()</code> before fitting a model.</p>
-<p>The 24 scores are fixed authored values, not a sample generated at render time, and the repeated residual pattern is deliberate so the arithmetic stays visible. They are teaching records: they do not validate a Normal model, equal variances, or any real effect of feedback or practice scheduling. There are no missing values and no student appears twice.</p>
-<p><strong>Maintained provenance.</strong> The canonical file, its complete score table and the full preparation record belong to the Chapter 4 technical document in the course materials, under its data section <code>ch04-data-feedback-practice</code>. This page redistributes only the identity and dictionary its readers need; the copy here is verified byte for byte against that canonical file.</p>
-<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. Retain its description as invented teaching data when presenting or adapting it.</p>
+<p>There are no missing values and no student appears twice. A CSV stores the labels as plain text, so R orders them alphabetically unless the script declares the order. Every analysis sets <code>levels = c("Rereading", "Answer feedback", "Explanatory feedback")</code> and <code>levels = c("Massed", "Spaced")</code> with <code>factor()</code> before fitting a model.</p>
+<p><strong>What the records can support.</strong> The 24 scores are fixed authored values, not a sample drawn when the page is built, and the repeated residual pattern is deliberate so that the arithmetic stays visible. They are teaching records: they do not validate a Normal model, equal variances, or any real effect of feedback or practice scheduling.</p>
+<p><strong>Reuse.</strong> QMSBR dedicates this synthetic CSV to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 Universal</a>. Keep its description as invented teaching data when presenting or adapting it.</p>
 </section>
 <section id="reading-instruction-data-from-cardata" class="level2">
-<h2 class="anchored" data-anchor-id="reading-instruction-data-from-cardata">Reading instruction data from <code>carData</code></h2>
+<h2 class="anchored" data-anchor-id="reading-instruction-data-from-cardata">Reference set: reading instruction</h2>
 <p>This reference example uses <code>Baumann</code> from <a href="https://cran.r-project.org/package=carData"><code>carData</code>: Companion to Applied Regression Data Sets</a>, by John Fox, Sanford Weisberg, and Brad Price. The <a href="https://search.r-project.org/CRAN/refmans/carData/html/Baumann.html">package documentation for <code>Baumann</code></a> describes 66 records with a group field, two pretests, and three post-tests. It traces the teaching dataset to Moore and McCabe’s <em>Introduction to the Practice of Statistics</em> (2nd ed., 1993, pp.&nbsp;794–795).</p>
-<p>Once <code>carData</code> is available in R or WebR, load the dataset explicitly and prepare a working copy with the activity’s group labels:</p>
+<p><strong>Where to get it.</strong> Not distributed here, and no page on this site loads the package. Install <code>carData</code> in desktop R, then load the dataset explicitly and prepare a working copy with the example’s group labels:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"Baumann"</span>, <span class="at">package =</span> <span class="st">"carData"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d0 <span class="ot">&lt;-</span> Baumann</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> d0</span>
@@ -430,7 +535,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <thead>
 <tr class="header">
 <th style="text-align: left;">Package label</th>
-<th style="text-align: left;">Activity label</th>
+<th style="text-align: left;">Example label</th>
 <th style="text-align: right;">Assigned children</th>
 <th style="text-align: right;">Observed outcomes</th>
 </tr>
@@ -456,14 +561,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>The study description and assignment counts come from Baumann, Seifert-Kessell, and Jones (1992), <a href="https://doi.org/10.1080/10862969209547770"><em>Effect of Think-Aloud Instruction on Elementary Students’ Comprehension Monitoring Abilities</em></a>, particularly the Method section on printed page 147. The study assigned 68 fourth-grade children in one rural Midwestern school. One child in each innovative condition had an unavailable outcome because of illness or transfer. The package therefore contains 66 observed outcomes, with 22 per group; it provides no scores for the two unavailable outcomes.</p>
-<p>The reference example selects one outcome and uses an unadjusted one-way model with a common within-group variance. The source study used several outcomes and pretest-adjusted analyses. Its integrated success criterion is invented for an imagined future replication: both DRA-referenced contrasts must have lower endpoints above zero in a two-sided 95% Bonferroni family. Applying that criterion to these historical records is a post hoc teaching analysis. It is not a prespecified decision attributed to the original investigators. Linking complete-outcome calculations to effects for all assigned children also requires a justification for the unavailable outcomes; a completion check alone does not establish that link.</p>
-<p><strong>Source and reuse.</strong> The browser obtains <code>carData</code> from the <a href="https://repo.r-wasm.org/">WebR package repository</a> at run time. This note distributes no Baumann CSV or package copy. The package retains its upstream GPL version 2 or later terms, as stated on its CRAN page. Anyone redistributing the package or a derived extract should retain the applicable upstream terms and notices. The research article is cited, not redistributed, and its publication terms are separate from the package’s terms.</p>
+<p><strong>Source and attribution.</strong> The study description and assignment counts come from Baumann, Seifert-Kessell, and Jones (1992), <a href="https://doi.org/10.1080/10862969209547770"><em>Effect of Think-Aloud Instruction on Elementary Students’ Comprehension Monitoring Abilities</em></a>, particularly the Method section on printed page 147. The study assigned 68 fourth-grade children in one rural Midwestern school. One child in each innovative condition had an unavailable outcome because of illness or transfer. The package therefore contains 66 observed outcomes, with 22 per group; it provides no scores for the two unavailable outcomes.</p>
+<p><strong>What the records can support.</strong> The reference example selects one outcome and uses an unadjusted one-way model with a common within-group variance. The source study used several outcomes and pretest-adjusted analyses. Its integrated success criterion is invented for an imagined future replication: both DRA-referenced contrasts must have lower endpoints above zero in a two-sided 95% Bonferroni family. Applying that criterion to these historical records is a post hoc teaching analysis, not a prespecified decision attributed to the original investigators. Linking complete-outcome calculations to effects for all assigned children also requires a justification for the unavailable outcomes; a completion check alone does not establish that link.</p>
+<p><strong>Reuse.</strong> This page distributes no Baumann CSV and no copy of the package. The package keeps its upstream GPL version 2 or later terms, as stated on its CRAN page. Anyone redistributing the package or an extract derived from it should keep the applicable upstream terms and notices. The research article is cited, not redistributed, and its publication terms are separate from the package’s terms.</p>
 </section>
 <section id="review-timing-data" class="level2">
-<h2 class="anchored" data-anchor-id="review-timing-data">Review-timing data</h2>
-<p><a href="data/resource_timing.csv">Download the review-timing data (CSV)</a> · <a href="data/resource_timing_codebook.md">Full codebook</a></p>
-<p>This 36-case file preserves every score, factor code and case order from the generic <code>SPSS_2way.sav</code> in the 6020-25F26S teaching archive. The donor columns were <code>Score</code>, <code>A</code> and <code>B</code>. QMSBR added a sequential identifier and gave the factors the labels below. The Grade 7 fractions lesson, resource descriptions, review times, quiz interpretation and random assignment are invented for Chapter 4. The archived scores themselves were not newly simulated, and the source file does not document a real educational study or establish randomization.</p>
+<h2 class="anchored" data-anchor-id="review-timing-data">Reference set: review timing</h2>
+<p>This 36-case file keeps every score, factor code and case order of an archived two-factor teaching file, whose columns were <code>Score</code>, <code>A</code> and <code>B</code>. A sequential identifier was added and the two factors were given the labels below. The Grade 7 fractions lesson, the resource descriptions, the review times, the quiz interpretation and the random assignment are invented for Chapter 4. The archived scores themselves were not newly simulated, and the source file documents neither a real educational study nor a randomization.</p>
+<p><strong>Where to get it.</strong> <a href="data/resource_timing.csv">Download the review-timing data (CSV)</a> · <a href="data/resource_timing_codebook.md">Full codebook</a></p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -490,16 +595,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>score</code></td>
-<td style="text-align: left;">Original Score, unchanged. Values range from 7 to 20; the invented setting interprets them as numbers correct on a 20-item retention quiz.</td>
+<td style="text-align: left;">Original Score, unchanged. Values range from 7 to 20; the invented setting reads them as numbers correct on a 20-item retention quiz.</td>
 </tr>
 </tbody>
 </table>
-<p>There are four complete cases in each of the nine cells and no missing values. Scores sum to 407. In resource order Textbook, Tutorial, Video and timing order Same day, Two days, One week, cell means are (8.5000, 9.0000, 8.2500), (15.7500, 14.2500, 18.2500) and (9.7500, 9.7500, 8.2500). A full resource-by-timing model fits these records under independent-student, common-variance working assumptions. Normal errors give the exact classical F and t references. These archived scores are kept for reference consumers and the shared workspace; the Chapter 4 page does not use them.</p>
-<p><strong>Source and reuse.</strong> Retain the archived-file attribution and identify the educational setting as invented when adapting this example. The CC0 dedication for the separate Special Practice CSV does not apply to these archived scores. This note assigns no new licence to the donor file; QMSBR’s original descriptions and code retain the terms in <a href="LICENSE">LICENSE</a>.</p>
+<p>There are four complete cases in each of the nine cells and no missing values. Scores sum to 407. In resource order Textbook, Tutorial, Video and timing order Same day, Two days, One week, the cell means are (8.5000, 9.0000, 8.2500), (15.7500, 14.2500, 18.2500) and (9.7500, 9.7500, 8.2500).</p>
+<p><strong>What the records can support.</strong> A full resource-by-timing model fits these records under independent-student, common-variance working assumptions, and Normal errors give the exact classical F and t references. These archived scores are kept as a reference set; the Chapter 4 page uses the <a href="#feedback-and-practice-quiz-scores">feedback and practice scores</a> instead.</p>
+<p><strong>Reuse.</strong> Keep the archived-file attribution and identify the educational setting as invented when adapting this example. The CC0 dedication for the Special Practice CSV does not apply to these archived scores. This page assigns no new licence to the archived file; QMSBR’s own descriptions and code keep the terms in <a href="LICENSE">LICENSE</a>.</p>
 </section>
 <section id="private-course-data" class="level2">
 <h2 class="anchored" data-anchor-id="private-course-data">Private course data</h2>
-<p>The HSB exercises use CSVs distributed through the course. The webpages provide import and analysis instructions, including the minimal field names and historical category codes needed by each activity. They distribute no HSB records or results. Students open their own file locally in the browser workspace; it is not uploaded to this website. The complete course dictionary and provenance qualifications accompany the private course data reference.</p>
+<p>The HSB exercises use CSVs distributed through a course. These pages give the import and analysis instructions, including the minimal field names and historical category codes each activity needs, and they distribute no HSB records and no HSB results. Open your own file locally in the <a href="./workspace.html#your-r-work">workspace</a>; it stays in your browser and is not uploaded to this website. The complete dictionary and the provenance qualifications accompany the course’s own data reference.</p>
 
 
 </section>
@@ -927,6 +1033,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </footer>
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This is the practice copy of the book site's assets/disabled-links.html;
+     the script below is identical to the one there. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
 
 
 

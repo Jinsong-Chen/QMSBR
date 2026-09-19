@@ -1,0 +1,24 @@
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in #part-three, #supplement-a or #supplement-b. styles.scss mutes
+     them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>

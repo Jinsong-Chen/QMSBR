@@ -1,13 +1,17 @@
 # QMSBR website. Everything the site needs is in this one file.
-# To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/,
-# add it to `render:` and to the sidebar below, add its line to the
-# matching collection column on index.qmd, push.
-# The navbar below is the pinned six-button top row — Home, Part One,
-# Part Two, R support, Argument Approach, About — and the practice pages
-# under practice/ repeat it with relative paths back here, so any change
-# to the six buttons has to be made in materials/webr/_quarto.yml too.
-# Argument Approach points at the greyed card on index.qmd; styles.scss
-# mutes the button to match.
+# The plan for the site — navigation, pages, theme, build and freeze, and the
+# add-a-chapter procedure — is WEBSITE_PLAN.md.
+# To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/, add it
+# to `render:` and to its part's sidebar below, add its line to the matching
+# collection card on index.qmd, push.
+# The navbar below is the pinned top row. The brand "QMSBR" is the Home
+# button, so there is no separate Home item; the items are Part One, Part Two,
+# Part Three, R support, Argument Approach, About. The practice pages under
+# practice/ repeat the identical row with relative paths back here, so any
+# change to it has to be made in materials/webr/_quarto.yml too.
+# A navigation entry for a unit that is not out yet is an ordinary link whose
+# href ends in #part-three, #supplement-a or #supplement-b: styles.scss mutes
+# those links and assets/disabled-links.html marks them disabled.
 
 project:
   type: website
@@ -18,7 +22,9 @@ project:
   render:
     - index.qmd
     - about.qmd
+    - argument-approach.qmd
     - part-one/part_one_introduction.qmd
+    - part-one/part_one_concept_reference.qmd
     - part-one/chapter_01.qmd
     - part-one/chapter_02.qmd
     - part-one/chapter_03.qmd
@@ -29,6 +35,7 @@ project:
     - part-one/chapter_08.qmd
     - part-one/chapter_09.qmd
     - part-two/part_two_introduction.qmd
+    - part-two/part_two_concept_reference.qmd
     - part-two/chapter_01.qmd
     - part-two/chapter_02.qmd
     - part-two/chapter_03.qmd
@@ -42,17 +49,18 @@ website:
   page-navigation: true
   back-to-top-navigation: true
   navbar:
+    title: "QMSBR"
     pinned: true
     left:
-      - href: index.qmd
-        text: Home
       - href: part-one/part_one_introduction.qmd
         text: Part One
       - href: part-two/part_two_introduction.qmd
         text: Part Two
+      - href: index.qmd#part-three
+        text: Part Three
       - href: practice/index.html
         text: R support
-      - href: index.qmd#argument-approach
+      - href: argument-approach.qmd
         text: Argument Approach
       - href: about.qmd
         text: About
@@ -62,28 +70,45 @@ website:
         aria-label: GitHub repository
     search: true
   sidebar:
-    style: floating
-    collapse-level: 2
-    contents:
-      - section: "Part One — Foundations and Regression"
-        contents:
-          - part-one/part_one_introduction.qmd
-          - part-one/chapter_01.qmd
-          - part-one/chapter_02.qmd
-          - part-one/chapter_03.qmd
-          - part-one/chapter_04.qmd
-          - part-one/chapter_05.qmd
-          - part-one/chapter_06.qmd
-          - part-one/chapter_07.qmd
-          - part-one/chapter_08.qmd
-          - part-one/chapter_09.qmd
-      - section: "Part Two — Factor Analysis and SEM"
-        contents:
-          - part-two/part_two_introduction.qmd
-          - part-two/chapter_01.qmd
-          - part-two/chapter_02.qmd
-          - part-two/chapter_03.qmd
-          - part-two/chapter_04.qmd
+    - id: part-one
+      title: "Part One — Foundations and Regression"
+      style: docked
+      contents:
+        - href: part-one/part_one_introduction.qmd
+          text: "Introduction"
+        - href: part-one/part_one_concept_reference.qmd
+          text: "Concept reference"
+        - part-one/chapter_01.qmd
+        - part-one/chapter_02.qmd
+        - part-one/chapter_03.qmd
+        - part-one/chapter_04.qmd
+        - part-one/chapter_05.qmd
+        - part-one/chapter_06.qmd
+        - part-one/chapter_07.qmd
+        - part-one/chapter_08.qmd
+        - part-one/chapter_09.qmd
+    - id: part-two
+      title: "Part Two — Factor Analysis and SEM"
+      style: docked
+      contents:
+        - href: part-two/part_two_introduction.qmd
+          text: "Introduction"
+        - href: part-two/part_two_concept_reference.qmd
+          text: "Concept reference"
+        - part-two/chapter_01.qmd
+        - part-two/chapter_02.qmd
+        - part-two/chapter_03.qmd
+        - part-two/chapter_04.qmd
+    - id: argument-approach
+      title: "Argument Approach"
+      style: docked
+      contents:
+        - href: argument-approach.qmd
+          text: "The argument-based approach"
+        - href: argument-approach.qmd#supplement-a
+          text: "A. How to Read a Quantitative Study as an Argument"
+        - href: argument-approach.qmd#supplement-b
+          text: "B. Extending the Argument-Based Approach to Quantitative Studies"
   page-footer:
     left: "© 2026 Jinsong Chen · CC BY 4.0"
     right:
@@ -103,6 +128,7 @@ format:
     code-overflow: wrap
     anchor-sections: true
     format-links: false
+    include-after-body: assets/disabled-links.html
 
 execute:
   freeze: auto
