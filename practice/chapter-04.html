@@ -65,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="site_libs/quarto-search/fuse.min.js"></script>
@@ -80,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2f5524832805d734b96ee676820b2dda.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ef62a0efe8fb908ee87b9df441fc0254.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
 <link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
@@ -117,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar docked nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -135,31 +134,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="./../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Chapters</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
-        <li>
-    <a class="dropdown-item" href="./chapter-03.html">
- <span class="dropdown-text">3: Estimates and uncertainty</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./chapter-04.html">
- <span class="dropdown-text">4: Comparing groups</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
-    <a class="nav-link" href="./workspace.html"> 
-<span class="menu-text">Workspace</span></a>
+    <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
+<span class="menu-text">Part One</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data-notes.html"> 
-<span class="menu-text">Data sources</span></a>
+    <a class="nav-link" href="./../part-two/part_two_introduction.html"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./../index.html#argument-approach"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -167,10 +163,65 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./chapter-04.html">4: Comparing groups</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R support home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter-03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3: Estimates and uncertainty</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter-04.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">4: Comparing groups</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./workspace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Your R workspace</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data sources</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -185,8 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#eta-squared" id="toc-eta-squared" class="nav-link" data-scroll-target="#eta-squared">Eta squared for each source</a></li>
   <li><a href="#interaction-plot" id="toc-interaction-plot" class="nav-link" data-scroll-target="#interaction-plot">The interaction plot and one selected comparison</a></li>
   <li><a href="#programming-help" id="toc-programming-help" class="nav-link" data-scroll-target="#programming-help">Run a supplied script</a></li>
-  <li><a href="#your-r-work" id="toc-your-r-work" class="nav-link" data-scroll-target="#your-r-work">Your R work</a></li>
-  <li><a href="#supplied-output" id="toc-supplied-output" class="nav-link" data-scroll-target="#supplied-output">Fixed code and output</a></li>
+  <li><a href="#your-own-code-and-the-fixed-output" id="toc-your-own-code-and-the-fixed-output" class="nav-link" data-scroll-target="#your-own-code-and-the-fixed-output">Your own code and the fixed output</a></li>
   </ul>
 </nav>
     </div>
@@ -214,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Use these examples beside Chapter 4 and its lecture, or adapt their short commands for an exercise, Computer Lab or homework. Computer Lab 4 selects one connected analysis for its final classroom activity round; it does not ask you to work through every section here. This page is reusable support, available before class, and completing it beforehand is not required. Choose one software route: R here, desktop R, or the lab’s SPSS instructions. The lab contains its activity and worked answers.</p>
-<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete cell and <strong>Start Over</strong> to restore its starting code. Every cell repeats the short setup it needs, so any one of them can run on its own in a fresh session. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits. For keyboard shortcuts and individual commands, see <a href="#run-code">how to run code</a>.</p>
+<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete cell and <strong>Start Over</strong> to restore its starting code. Every cell repeats the short setup it needs, so any one of them can run on its own in a fresh session. Calculate at full precision and report statistical results to four decimal places; rounded inputs or different software rounding can change the last digits. For keyboard shortcuts and individual commands, see <a href="./workspace.html#run-code">how to run code</a>.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -253,14 +303,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">Private course data or another complete supplied script</td>
-<td style="text-align: left;"><a href="#programming-help">Programming help</a> and <a href="#your-r-work">your workspace</a></td>
+<td style="text-align: left;"><a href="#programming-help">Programming help</a> and <a href="./workspace.html#your-r-work">your workspace</a></td>
 </tr>
 </tbody>
 </table>
-<p>Use the task’s own data, model and requested precision. The workspace and the demonstration cells have separate R objects, so copy a whole cell, including its setup, when you move code. <a href="#supplied-output">Fixed code and output</a> remain readable if the browser R runtime cannot start.</p>
+<p>Use the task’s own data, model and requested precision. The workspace and the demonstration cells have separate R objects, so copy a whole cell, including its setup, when you move code. <a href="./workspace.html#supplied-output-04">Fixed code and output</a> remain readable if the browser R runtime cannot start.</p>
+<script>window.qmsbrSuppliedOutput = "workspace.html#supplied-output-04";</script>
+<noscript><p class="qmsbr-fallback">JavaScript is off, so the code boxes on this page cannot run. Read <a href="workspace.html#supplied-output-04">the fixed code and output for Chapter 4</a>, or run the code in desktop R.</p></noscript>
 <section id="before-you-start" class="level2">
 <h2 class="anchored" data-anchor-id="before-you-start">Before you start</h2>
-<p>A <strong>command</strong> is one instruction for R, such as <code>mean(feedback_data$score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>n</code>. The assignment arrow <code>&lt;-</code> creates one: <code>n &lt;- 24</code> stores 24 under the name <code>n</code>, and typing <code>n</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c("Massed", "Spaced")</code> holds two labels. A table of records is an object too: <code>feedback_data &lt;- read.csv("data/feedback_practice.csv")</code> reads the 24 records into a table called <code>feedback_data</code>, and <code>factor()</code> with <code>levels =</code> then fixes the order the conditions are listed in. <code>$</code> takes one named column out of a table: <code>feedback_data$score</code> is the score column. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>aov(score ~ feedback, data = massed)</code> the formula is the first argument and <code>data = massed</code> is a named one; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Score</code> is not <code>score</code>. See <a href="#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
+<p>A <strong>command</strong> is one instruction for R, such as <code>mean(feedback_data$score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>n</code>. The assignment arrow <code>&lt;-</code> creates one: <code>n &lt;- 24</code> stores 24 under the name <code>n</code>, and typing <code>n</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c("Massed", "Spaced")</code> holds two labels. A table of records is an object too: <code>feedback_data &lt;- read.csv("data/feedback_practice.csv")</code> reads the 24 records into a table called <code>feedback_data</code>, and <code>factor()</code> with <code>levels =</code> then fixes the order the conditions are listed in. <code>$</code> takes one named column out of a table: <code>feedback_data$score</code> is the score column. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>aov(score ~ feedback, data = massed)</code> the formula is the first argument and <code>data = massed</code> is a named one; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Score</code> is not <code>score</code>. See <a href="./workspace.html#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
 </section>
 <section id="feedback-data" class="level2">
 <h2 class="anchored" data-anchor-id="feedback-data">The data and a first plot</h2>
@@ -478,7 +530,7 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 </section>
 <section id="programming-help" class="level2">
 <h2 class="anchored" data-anchor-id="programming-help">Run a supplied script</h2>
-<p>Paste the whole script for an exercise, Computer Lab question or homework into <a href="#your-r-work">your workspace</a>, including its data-loading and <code>factor()</code> lines. The workspace has its own R session, so objects created in the cells above are not available there. The public CSV on this page is available in the workspace as <code>data/feedback_practice.csv</code>; on desktop R, keep that subfolder or change the path to your downloaded file. A script that types the 24 scores needs no file at all.</p>
+<p>Paste the whole script for an exercise, Computer Lab question or homework into <a href="./workspace.html#your-r-work">your workspace</a>, including its data-loading and <code>factor()</code> lines. The workspace has its own R session, so objects created in the cells above are not available there. The public CSV on this page is available in the workspace as <code>data/feedback_practice.csv</code>; on desktop R, keep that subfolder or change the path to your downloaded file. A script that types the 24 scores needs no file at all.</p>
 <p>The complete starting script below runs in order in a fresh session and reproduces the page’s main factorial result, the cell means, the schedule differences and the selected simultaneous interval. Copy all of it, then change only what your own task requires.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
@@ -514,508 +566,17 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 <p>For the Computer Lab’s SPSS route: <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=univariate-overview-glm-command">full-factorial GLM</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/32.0.0?topic=analysis-glm-profile-plots">profile plots</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=anova-one-way-contrasts">one-way contrasts</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=properties-cell-format-value">cell format</a> and <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=transformations-recode-into-different-variables">recoding</a>. Use the task’s group order, model and error term with either route. <a href="./data-notes.html">Data sources and reuse</a> describe the public records.</p>
 </section>
 </section>
-<section id="your-r-work" class="level2">
-<h2 class="anchored" data-anchor-id="your-r-work">Your R work</h2>
-<section id="run-code" class="level3">
-<h3 class="anchored" data-anchor-id="run-code">How to run code</h3>
-<p><strong>Run a complete example.</strong> Click <strong>Run All</strong> to run the whole code block or workspace script, including its data-loading commands.</p>
-<p><strong>Try commands one by one.</strong> Click inside a code box and place the cursor on the first command. Press <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS, or click <strong>Run Code</strong>. This runs the current complete command and advances the cursor. Select several commands first to run just that selection. Enter/Return alone adds a new line.</p>
-<p>Objects remain available for later commands in the same code box. An assignment such as <code>dat &lt;- d0</code> usually prints nothing; run <code>head(dat)</code> to inspect the result. A command spanning several lines, such as a model or plot call with several arguments, runs together. When selecting text, include the entire command; an incomplete selection produces an R error. After changing data, rerun every calculation that uses them. <strong>Start Over</strong> restores a chapter block’s original code and clears that block’s objects.</p>
-<p><strong>Use desktop RStudio.</strong> Put the complete code in an R script. With the cursor on a command, <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS runs the current line or selected code. Select the whole command when it spans several lines. The <a href="https://docs.posit.co/ide/user/ide/reference/shortcuts.html">RStudio shortcut reference</a> gives further details. In the R console, type a complete command and press Enter/Return. Run the data-loading commands before commands that use them.</p>
-<p><strong>If R shows an error.</strong> Read the last line of the message first: it usually names the problem, and nothing is damaged. Five common causes:</p>
-<ul>
-<li><em>unexpected numeric constant</em> or <em>unexpected symbol</em>: a missing comma between two values or arguments, such as <code>c(50 54)</code> instead of <code>c(50, 54)</code>.</li>
-<li><em>unexpected ‘)’</em>: one closing bracket too many, such as <code>c(50, 54))</code>.</li>
-<li><em>could not find function</em> or a name R does not recognise: a misspelled name. R matches names exactly, so <code>t.tset</code> is not <code>t.test</code> and <code>Mean</code> is not <code>mean</code>.</li>
-<li>A <code>+</code> prompt, or a result that never appears: an unmatched quote or bracket, so the command is still unfinished. Complete the quote or bracket, or press <strong>Esc</strong> to cancel, then run the command again.</li>
-<li><em>object ‘dat’ not found</em>: that object does not exist in this session, usually because its setup line has not been run. Rerun the cell’s setup lines, or choose <strong>Run All</strong>, before the command that uses the object.</li>
-</ul>
-<p>Correct the line and run it again. If a code box has drifted too far from its starting code, <strong>Start Over</strong> restores it.</p>
-<details class="qmsbr-workspace-panel">
-<summary>Open workspace for your own code or CSV</summary>
-<p>Paste the complete code for an exercise, Software Lab, or homework question here, including its data-loading lines. To save edits from an example, copy that example's code here first.</p>
-<div class="qmsbr-workspace" id="r-workspace">
-  <p class="qmsbr-status" role="status" aria-live="polite">R is starting. You can edit and save code while it loads.</p>
-  <div class="qmsbr-controls">
-    <label>Open a CSV <input type="file" accept=".csv,text/csv" data-file="csv" disabled=""></label>
-    <label>Open an R script <input type="file" accept=".R,.r,text/plain" data-file="script"></label>
-  </div>
-  <p class="qmsbr-note">Use a CSV with column names in the first row (up to 5 MB). Files stay in this browser session. For course-supplied HSB, open the CSV, then use <code>hsb &lt;- read.csv("hsb.csv")</code>.</p>
-  <pre class="qmsbr-preview" aria-label="Imported data preview" hidden=""></pre>
-  <label for="workspace-code">Your R code</label>
-  <textarea class="qmsbr-code" id="workspace-code" spellcheck="false"># Paste your complete code here.
-scores &lt;- c(12, 15, 17, 18, 20)
-mean(scores)
-sd(scores)
-</textarea>
-  <div class="qmsbr-controls">
-    <button type="button" data-action="run" disabled="">Run Code</button>
-    <button type="button" data-action="run-all" disabled="">Run All</button>
-    <button type="button" data-action="save-code">Save R script</button>
-    <button type="button" data-action="save-results">Save results and interpretation</button>
-    <button type="button" data-action="clear" disabled="">Clear R objects</button>
-  </div>
-  <p class="qmsbr-note">Run Code uses the selection or current complete command. Run All uses the whole script. Clear R objects resets the analysis while keeping your code and imported files.</p>
-  <label for="workspace-output">Most recent workspace output</label>
-  <pre class="qmsbr-output" id="workspace-output" aria-live="polite">Your results will appear here.</pre>
-  <div class="qmsbr-plots"></div>
-  <label for="workspace-notes">Your interpretation</label>
-  <textarea class="qmsbr-notes" id="workspace-notes" placeholder="Write your answer to the question."></textarea>
-</div>
-<details>
-<summary>Saving and reopening work</summary>
-<p>Save your R script and results before leaving. The script includes unrun edits; the results file pairs the latest output with its code and the earlier executed commands. For a reproducible submission, keep all setup in the script, clear R objects, and use Run All before saving. Save plots separately. Submit through your course's usual system.</p>
-<p>Reloading clears R objects and imported files. Reopen your CSV and saved script, then run it. On desktop R, use the folder containing your script and CSV as the working directory; built-in examples using <code>data/...</code> need that subfolder. For a stalled calculation, save your code and reload.</p>
-</details>
-</details>
-<noscript><p class="qmsbr-fallback">JavaScript is off. Use <a href="#supplied-output">the supplied code and output</a>, or run the code on desktop R.</p></noscript>
+<section id="your-own-code-and-the-fixed-output" class="level2">
+<h2 class="anchored" data-anchor-id="your-own-code-and-the-fixed-output">Your own code and the fixed output</h2>
+<p>Run a complete script, open a course CSV and save your work in <a href="./workspace.html#your-r-work">the R workspace</a>; the same page carries <a href="./workspace.html#run-code">how to run code</a> and <a href="./workspace.html#supplied-output-04">the fixed code and output for this chapter</a>, which stay readable when the browser runtime is unavailable.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="0" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb3-0"><a href="#cb3-0" aria-hidden="true" tabindex="-1"></a>workspace_ready <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrWorkspace</span><span class="op">.</span><span class="fu">attach</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="630" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 629;"><span id="cb3-630"><a href="#cb3-630" aria-hidden="true" tabindex="-1"></a>runtime_watch <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span> <span class="op">?</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span><span class="op">.</span><span class="fu">watch</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>) <span class="op">:</span> <span class="st">""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="supplied-output" class="level2">
-<h2 class="anchored" data-anchor-id="supplied-output">Fixed code and output</h2>
-<p>Open an example for its complete starting code and saved result. These remain usable when the browser runtime is unavailable; edits in a live cell do not change them.</p>
-<details>
-<summary>
-The course CSV, its factor order and the six cells
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  student  feedback practice score
-1       1 Rereading   Massed     4
-2       2 Rereading   Massed     5
-3       3 Rereading   Massed     7
-4       4 Rereading   Massed     8
-5       5 Rereading   Spaced     4
-6       6 Rereading   Spaced     5</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>'data.frame':   24 obs. of  4 variables:
- $ student : int  1 2 3 4 5 6 7 8 9 10 ...
- $ feedback: Factor w/ 3 levels "Rereading","Answer feedback",..: 1 1 1 1 1 1 1 1 2 2 ...
- $ practice: Factor w/ 2 levels "Massed","Spaced": 1 1 1 1 2 2 2 2 1 1 ...
- $ score   : int  4 5 7 8 4 5 7 8 6 7 ...</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                      
-                       Massed Spaced
-  Rereading                 4      4
-  Answer feedback           4      4
-  Explanatory feedback      4      4</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-The same 24 scores typed in
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">student =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">24</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">feedback =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"Explanatory feedback"</span>), <span class="at">each =</span> <span class="dv">8</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Explanatory feedback"</span>)),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">practice =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>), <span class="at">each =</span> <span class="dv">4</span>), <span class="dv">3</span>),</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>)),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">score =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">19</span>, <span class="dv">20</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feedback_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  student  feedback practice score
-1       1 Rereading   Massed     4
-2       2 Rereading   Massed     5
-3       3 Rereading   Massed     7
-4       4 Rereading   Massed     8
-5       5 Rereading   Spaced     4
-6       6 Rereading   Spaced     5</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                      
-                       Massed Spaced
-  Rereading                 4      4
-  Answer feedback           4      4
-  Explanatory feedback      4      4</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-The Massed subset, counts, means and SDs
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(massed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 12</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(massed<span class="sc">$</span>feedback)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-           Rereading      Answer feedback Explanatory feedback 
-                   4                    4                    4 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              feedback score
-1            Rereading     6
-2      Answer feedback     8
-3 Explanatory feedback    10</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, sd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           Rereading      Answer feedback Explanatory feedback 
-            1.825742             1.825742             1.825742 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Dotplot of the 12 Massed scores with group means
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stripchart</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed,</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">method =</span> <span class="st">"stack"</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">las =</span> <span class="dv">1</span>,</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab =</span> <span class="st">"Quiz score (0-20)"</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>))</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, mean), <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">4</span>, <span class="at">cex =</span> <span class="fl">1.7</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-04_files/figure-html/c4-stripchart-static-1.png" class="img-fluid figure-img" alt="Three rows of four dots. Rereading scores 4, 5, 7 and 8 center on a cross at 6; Answer feedback scores 6, 7, 9 and 10 center on 8; Explanatory feedback scores 8, 9, 11 and 12 center on 10. The ranges overlap." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Boxplots of the same 12 scores
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed,</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Feedback condition"</span>, <span class="at">ylab =</span> <span class="st">"Quiz score (0-20)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-04_files/figure-html/c4-boxplot-static-1.png" class="img-fluid figure-img" alt="Three boxplots of four scores each. The boxes step upward from Rereading to Answer feedback to Explanatory feedback and their ranges overlap." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-One-way ANOVA table for the Massed subset
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(one_way)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>            Df Sum Sq Mean Sq F value Pr(&gt;F)  
-feedback     2     32  16.000     4.8 0.0381 *
-Residuals    9     30   3.333                 
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Residual sum of squares, df and mean squares
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>SS_W <span class="ot">&lt;-</span> <span class="fu">deviance</span>(one_way)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>df_W <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(one_way)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>MS_W <span class="ot">&lt;-</span> SS_W <span class="sc">/</span> df_W</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">SS_W =</span> SS_W, <span class="at">df_W =</span> df_W, <span class="at">MS_W =</span> MS_W)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     SS_W      df_W      MS_W 
-30.000000  9.000000  3.333333 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">MS_B =</span> <span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>, <span class="at">F =</span> (<span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">/</span> MS_W,</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">p =</span> <span class="fu">pf</span>((<span class="dv">32</span> <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">/</span> MS_W, <span class="dv">2</span>, df_W, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       MS_B           F           p 
-16.00000000  4.80000000  0.03813143 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Two declared comparisons and their Bonferroni intervals
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>group_means <span class="ot">&lt;-</span> <span class="fu">tapply</span>(massed<span class="sc">$</span>score, massed<span class="sc">$</span>feedback, mean)</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>group_n <span class="ot">&lt;-</span> <span class="fu">table</span>(massed<span class="sc">$</span>feedback)</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="at">Answer =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="at">Explain =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>estimate <span class="ot">&lt;-</span> <span class="fu">drop</span>(weights <span class="sc">%*%</span> group_means)</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>MS_W <span class="ot">&lt;-</span> <span class="fu">deviance</span>(one_way) <span class="sc">/</span> <span class="fu">df.residual</span>(one_way)</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_W <span class="sc">*</span> <span class="fu">rowSums</span>(<span class="fu">sweep</span>(weights<span class="sc">^</span><span class="dv">2</span>, <span class="dv">2</span>, group_n, <span class="st">"/"</span>)))</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>critical <span class="ot">&lt;-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> .<span class="dv">05</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="fu">df.residual</span>(one_way))</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">critical =</span> critical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>critical 
-2.685011 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(estimate, SE,</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">lower =</span> estimate <span class="sc">-</span> critical <span class="sc">*</span> SE,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">upper =</span> estimate <span class="sc">+</span> critical <span class="sc">*</span> SE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>        estimate       SE      lower    upper
-Answer         2 1.290994 -1.4663341 5.466334
-Explain        4 1.290994  0.5336659 7.466334</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-All three pairwise differences with Tukey
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">TukeyHSD</span>(one_way, <span class="st">"feedback"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  Tukey multiple comparisons of means
-    95% family-wise confidence level
-
-Fit: aov(formula = score ~ feedback, data = massed)
-
-$feedback
-                                     diff        lwr      upr     p adj
-Answer feedback-Rereading               2 -1.6044637 5.604464 0.3149865
-Explanatory feedback-Rereading          4  0.3955363 7.604464 0.0310140
-Explanatory feedback-Answer feedback    2 -1.6044637 5.604464 0.3149865</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Six cells, marginal means and the full factorial ANOVA
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(feedback_data<span class="sc">$</span>feedback, feedback_data<span class="sc">$</span>practice)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                      
-                       Massed Spaced
-  Rereading                 4      4
-  Answer feedback           4      4
-  Explanatory feedback      4      4</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">with</span>(feedback_data,</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">tapply</span>(score, <span class="fu">list</span>(feedback, practice), mean))</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>cell_means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                     Massed Spaced
-Rereading                 6      6
-Answer feedback           8     12
-Explanatory feedback     10     18</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rowMeans</span>(cell_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           Rereading      Answer feedback Explanatory feedback 
-                   6                   10                   14 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colMeans</span>(cell_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Massed Spaced 
-     8     12 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                  Df Sum Sq Mean Sq F value   Pr(&gt;F)    
-feedback           2    256  128.00    38.4 3.21e-07 ***
-practice           1     96   96.00    28.8 4.23e-05 ***
-feedback:practice  2     64   32.00     9.6  0.00145 ** 
-Residuals         18     60    3.33                     
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Residuals against fitted cell means
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(full_fit), <span class="fu">resid</span>(full_fit), <span class="at">pch =</span> <span class="dv">16</span>,</span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted cell mean"</span>, <span class="at">ylab =</span> <span class="st">"Residual"</span>,</span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-04_files/figure-html/c4-residuals-static-1.png" class="img-fluid figure-img" alt="Residuals plotted against fitted cell means. Five vertical columns stand at 6, 8, 10, 12 and 18, each showing the residuals -2, -1, 1 and 2 around a dashed line at zero; the eight students at a fitted mean of 6 overlap into the same four dots." width="672"></p>
-</figure>
-</div>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">round</span>(<span class="fu">resid</span>(full_fit), <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
--2 -1  1  2 
- 6  6  6  6 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Eta squared for the one-way and factorial fits
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>massed <span class="ot">&lt;-</span> <span class="fu">subset</span>(feedback_data, practice <span class="sc">==</span> <span class="st">"Massed"</span>)</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>one_way <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback, <span class="at">data =</span> massed)</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>one_SS <span class="ot">&lt;-</span> <span class="fu">anova</span>(one_way)[[<span class="st">"Sum Sq"</span>]]</span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">SS_B =</span> one_SS[<span class="dv">1</span>], <span class="at">SS_W =</span> one_SS[<span class="dv">2</span>], <span class="at">SS_T =</span> <span class="fu">sum</span>(one_SS),</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta_squared =</span> one_SS[<span class="dv">1</span>] <span class="sc">/</span> <span class="fu">sum</span>(one_SS))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       SS_B        SS_W        SS_T eta_squared 
-  32.000000   30.000000   62.000000    0.516129 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>full_table <span class="ot">&lt;-</span> <span class="fu">anova</span>(full_fit)</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>full_SS <span class="ot">&lt;-</span> full_table[[<span class="st">"Sum Sq"</span>]]</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(full_SS) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(full_table)</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>full_SS</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         feedback          practice feedback:practice         Residuals 
-              256                96                64                60 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(full_SS <span class="sc">/</span> <span class="fu">sum</span>(full_SS), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         feedback          practice feedback:practice         Residuals 
-           0.5378            0.2017            0.1345            0.1261 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Interaction plot of the six cell means
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(feedback_data,</span>
-<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>     <span class="fu">interaction.plot</span>(practice, feedback, score, <span class="at">type =</span> <span class="st">"b"</span>,</span>
-<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">1</span>, <span class="dv">17</span>), <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xlab =</span> <span class="st">"Practice schedule"</span>, <span class="at">ylab =</span> <span class="st">"Mean quiz score"</span>,</span>
-<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trace.label =</span> <span class="st">"Feedback"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-04_files/figure-html/c4-interaction-static-1.png" class="img-fluid figure-img" alt="Three lines across Massed and Spaced practice. Rereading stays at 6, Answer feedback rises from 8 to 12, and Explanatory feedback rises from 10 to 18, so the lines are not parallel." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Schedule differences and the selected Scheffe interval
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>feedback <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>feedback,</span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Rereading"</span>, <span class="st">"Answer feedback"</span>, <span class="st">"Explanatory feedback"</span>))</span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>feedback_data<span class="sc">$</span>practice <span class="ot">&lt;-</span> <span class="fu">factor</span>(feedback_data<span class="sc">$</span>practice,</span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Massed"</span>, <span class="st">"Spaced"</span>))</span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>full_fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(score <span class="sc">~</span> feedback <span class="sc">*</span> practice, <span class="at">data =</span> feedback_data)</span>
-<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">with</span>(feedback_data,</span>
-<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">tapply</span>(score, <span class="fu">list</span>(feedback, practice), mean))</span>
-<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>schedule_difference <span class="ot">&lt;-</span> cell_means[, <span class="st">"Spaced"</span>] <span class="sc">-</span> cell_means[, <span class="st">"Massed"</span>]</span>
-<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>schedule_difference</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           Rereading      Answer feedback Explanatory feedback 
-                   0                    4                    8 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>selected <span class="ot">&lt;-</span> schedule_difference[<span class="st">"Answer feedback"</span>] <span class="sc">-</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>            schedule_difference[<span class="st">"Rereading"</span>]</span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>error_df <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(full_fit)</span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>MS_E <span class="ot">&lt;-</span> <span class="fu">deviance</span>(full_fit) <span class="sc">/</span> error_df</span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>selected_SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_E <span class="sc">*</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>scheffe <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> <span class="fu">qf</span>(.<span class="dv">95</span>, <span class="dv">2</span>, error_df))</span>
-<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">unname</span>(selected), <span class="at">SE =</span> selected_SE, <span class="at">multiplier =</span> scheffe)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  estimate         SE multiplier 
-  4.000000   1.825742   2.666292 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, <span class="fu">unname</span>(selected) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> scheffe <span class="sc">*</span> selected_SE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "-0.8680" "8.8680" </code></pre>
-</div>
-</div>
-</details>
 
 
 <script type="webr-data">
@@ -1039,7 +600,7 @@ WyJkYXRhL2ZlZWRiYWNrX3ByYWN0aWNlLmNzdiJd
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IndvcmtzcGFjZV9yZWFkeSA9IHdpbmRvdy5xbXNicldvcmtzcGFjZS5hdHRhY2god2ViUk9qcy53ZWJSUHJvbWlzZSlcbiJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InJ1bnRpbWVfd2F0Y2ggPSB3aW5kb3cucW1zYnJSdW50aW1lID8gd2luZG93LnFtc2JyUnVudGltZS53YXRjaCh3ZWJST2pzLndlYlJQcm9taXNlKSA6IFwiXCJcbiJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
@@ -1470,7 +1031,7 @@ window._ojs.runtime.interpretFromScriptTags();
   </div>
 </footer>
 <script src="command-runner.js?v=2"></script>
-<script src="workspace.js?v=4"></script>
+<script src="workspace.js?v=5"></script>
 
 
 

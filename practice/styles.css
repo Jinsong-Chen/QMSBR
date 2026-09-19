@@ -1,10 +1,18 @@
 :root { --practice-ink: #20364a; --practice-accent: #236c75; }
 body { color: #243441; line-height: 1.55; }
-h1, h2, h3, .navbar-title { color: var(--practice-ink); }
+h1, h2, h3 { color: var(--practice-ink); }
 h1 { font-weight: 650; }
 h2 { margin-top: 1.8rem; }
 a { color: #146477; }
 .navbar { border-bottom: 3px solid var(--practice-accent); }
+/* The supplementary Argument Approach chapters are not available yet. */
+/* Muted on the teal bar, as on the book site (#d9e5e6 on #0f6d72 is 4.7:1); no brightening on hover, which would read as a live button. */
+.navbar .navbar-nav .nav-link[href$="#argument-approach"],
+.navbar .navbar-nav .nav-link[href$="#argument-approach"]:hover,
+.navbar .navbar-nav .nav-link[href$="#argument-approach"]:focus,
+.navbar .navbar-nav .nav-link[href$="#argument-approach"].active { color: #d9e5e6; }
+#quarto-sidebar { border-right: 1px solid #d3dee1; }
+#quarto-sidebar .sidebar-item-text { line-height: 1.35; }
 main { max-width: 940px; }
 table { font-size: .95rem; }
 .exercise-cell { margin: 1rem 0; }
@@ -41,3 +49,6 @@ summary:focus-visible { outline: 3px solid #c17c21; outline-offset: 2px; }
   .qmsbr-workspace { background: white; }
   .exercise-cell { display: none; }
 }
+/* The navbar is pinned, so anchors land below it. */
+html { scroll-padding-top: 4.5rem; }
+.navbar { box-shadow: 0 2px 18px rgba(13, 43, 62, .13); }

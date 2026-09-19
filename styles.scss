@@ -25,11 +25,28 @@ $border-radius: 0.35rem;
 }
 
 html { overflow-x: clip; }
+/* The navbar is pinned, so it covers the top 64px of the viewport at every
+   scroll position. Neither Bootstrap nor Quarto sets a scroll offset, so an
+   in-page jump would land its target underneath the bar. */
+html { scroll-padding-top: 4.5rem; }
 body { line-height: 1.68; overflow-x: clip; }
 h1, h2, h3 { letter-spacing: -0.018em; }
 h2 { margin-top: 2.2rem; }
 .navbar-brand { font-weight: 750; letter-spacing: .035em; }
 .navbar { box-shadow: 0 2px 18px rgba(13, 43, 62, .13); }
+
+/* Argument Approach is the one button on the top row whose chapters are not
+   out yet. It stays clickable and carries the reader to the greyed card on the
+   home page, but it is muted so the row shows at a glance what is available.
+   Hover and focus keep the muted colour: brightening on hover would read as a
+   live button. #d9e5e6 on the #0f6d72 navbar is 4.7:1, past the AA floor. */
+.navbar .navbar-nav .nav-link[href$="#argument-approach"],
+.navbar .navbar-nav .nav-link[href$="#argument-approach"]:hover,
+.navbar .navbar-nav .nav-link[href$="#argument-approach"]:focus,
+.navbar .navbar-nav .nav-link[href$="#argument-approach"].active {
+  color: #d9e5e6;
+}
+
 .sidebar-title { color: var(--qmsbr-navy); font-weight: 720; }
 
 .qmsbr-hero {

@@ -2,6 +2,32 @@
    The pinned Quarto Live adapter supplies its existing WebR instance. */
 (function () {
   "use strict";
+  // Runs on every page. The chapter pages carry live code cells but no
+  // workspace panel, so the runtime notice cannot depend on one. Each page
+  // names its own fixed code and output through window.qmsbrSuppliedOutput.
+  const unavailable = () => {
+    document.body.classList.add("qmsbr-engine-failed");
+    const target = window.qmsbrSuppliedOutput || "#supplied-output";
+    document.querySelectorAll(".exercise-cell").forEach((cell) => {
+      cell.classList.add("qmsbr-runtime-unavailable");
+      const message = document.createElement("p");
+      message.className = "qmsbr-fallback";
+      message.append("R could not start for this activity. ");
+      const link = document.createElement("a");
+      link.href = target;
+      link.textContent = "Continue with the supplied code and output.";
+      message.append(link);
+      cell.prepend(message);
+    });
+  };
+  window.qmsbrRuntime = {
+    // A chapter page hands over the same webR promise its live cells use.
+    watch(webRPromise) {
+      Promise.resolve(webRPromise).then(undefined, unavailable);
+      return "";
+    }
+  };
+
   const root = document.getElementById("r-workspace");
   if (!root) return;
   const $ = (selector) => root.querySelector(selector);
@@ -18,20 +44,6 @@
   let lastCode = "", lastOutput = "", lastInputs = [];
   let history = [], lastHistory = "";
   const setStatus = (message) => { status.textContent = message; };
-  const unavailable = () => {
-    document.body.classList.add("qmsbr-engine-failed");
-    document.querySelectorAll(".exercise-cell").forEach((cell) => {
-      cell.classList.add("qmsbr-runtime-unavailable");
-      const message = document.createElement("p");
-      message.className = "qmsbr-fallback";
-      message.append("R could not start for this activity. ");
-      const link = document.createElement("a");
-      link.href = "#supplied-output";
-      link.textContent = "Continue with the supplied code and output.";
-      message.append(link);
-      cell.prepend(message);
-    });
-  };
   const setBusy = (value) => {
     busy = value;
     runButton.disabled = runAllButton.disabled = clearButton.disabled = csvInput.disabled = value || !engine;

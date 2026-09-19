@@ -5,6 +5,10 @@ collection of chapters on reading and producing quantitative research.
 
 Site: <https://jinsong-chen.github.io/QMSBR/>
 
+Every page carries the same pinned top row — Home, Part One, Part Two,
+R support, Argument Approach, About — and the practice pages under
+`practice/` repeat that row with relative paths back into the book site.
+
 ## What is here
 
 - `part-one/` — Foundations, regression, and generalized linear models

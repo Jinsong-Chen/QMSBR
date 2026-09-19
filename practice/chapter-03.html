@@ -65,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="site_libs/quarto-search/fuse.min.js"></script>
@@ -80,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2f5524832805d734b96ee676820b2dda.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ef62a0efe8fb908ee87b9df441fc0254.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
 <link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
@@ -117,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar docked nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -135,31 +134,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="./../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Chapters</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
-        <li>
-    <a class="dropdown-item" href="./chapter-03.html">
- <span class="dropdown-text">3: Estimates and uncertainty</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./chapter-04.html">
- <span class="dropdown-text">4: Comparing groups</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
-    <a class="nav-link" href="./workspace.html"> 
-<span class="menu-text">Workspace</span></a>
+    <a class="nav-link" href="./../part-one/part_one_introduction.html"> 
+<span class="menu-text">Part One</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data-notes.html"> 
-<span class="menu-text">Data sources</span></a>
+    <a class="nav-link" href="./../part-two/part_two_introduction.html"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./../index.html#argument-approach"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -167,10 +163,65 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./chapter-03.html">3: Estimates and uncertainty</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R support home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter-03.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">3: Estimates and uncertainty</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter-04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4: Comparing groups</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./workspace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Your R workspace</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data sources</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -186,8 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#cov-correlation" id="toc-cov-correlation" class="nav-link" data-scroll-target="#cov-correlation">Covariance and correlation</a></li>
   <li><a href="#base-graphs" id="toc-base-graphs" class="nav-link" data-scroll-target="#base-graphs">Base R graphs</a></li>
   <li><a href="#programming-help" id="toc-programming-help" class="nav-link" data-scroll-target="#programming-help">Run a supplied exercise script</a></li>
-  <li><a href="#your-r-work" id="toc-your-r-work" class="nav-link" data-scroll-target="#your-r-work">Your R work</a></li>
-  <li><a href="#supplied-output" id="toc-supplied-output" class="nav-link" data-scroll-target="#supplied-output">Fixed code and output</a></li>
+  <li><a href="#your-own-code-and-the-fixed-output" id="toc-your-own-code-and-the-fixed-output" class="nav-link" data-scroll-target="#your-own-code-and-the-fixed-output">Your own code and the fixed output</a></li>
   </ul>
 </nav>
     </div>
@@ -215,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Use these short examples beside Chapter 3 and its lecture, or adapt them while working on an exercise, Computer Lab or homework. Computer Lab 3 uses one Special Practice comparison and a change from 95% to 90% confidence in the final classroom activity round. This page is a selectable reference menu, not a checklist: choose the example the assigned work needs. Choose one software route: R here, desktop R, or the lab’s SPSS instructions. The lab contains the activity and its worked answers; this page supplies reusable method support.</p>
-<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete example. <strong>Start Over</strong> restores that cell’s starting code. Calculate at full precision and report statistical results to four decimal places. Rounded inputs or different software rounding choices can produce small differences in the last digits. For keyboard shortcuts and individual commands, see <a href="#run-code">how to run code</a>.</p>
+<p>Everything here uses base R with the standard <code>stats</code> and <code>graphics</code> commands. No package is loaded or installed. Choose <strong>Run All</strong> to run a complete example. <strong>Start Over</strong> restores that cell’s starting code. Calculate at full precision and report statistical results to four decimal places. Rounded inputs or different software rounding choices can produce small differences in the last digits. For keyboard shortcuts and individual commands, see <a href="./workspace.html#run-code">how to run code</a>.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -270,14 +320,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">Categorical exercises, private course data or a complete supplied script</td>
-<td style="text-align: left;"><a href="#programming-help">Programming help</a> and <a href="#your-r-work">your workspace</a></td>
+<td style="text-align: left;"><a href="#programming-help">Programming help</a> and <a href="./workspace.html#your-r-work">your workspace</a></td>
 </tr>
 </tbody>
 </table>
-<p>Use the assigned task’s own data and settings. Each example includes its own setup and can start on its own; the cells and the workspace have separate R objects, so copy the whole cell when you move code. <a href="#supplied-output">Fixed code and output</a> remain readable if the browser R runtime cannot start.</p>
+<p>Use the assigned task’s own data and settings. Each example includes its own setup and can start on its own; the cells and the workspace have separate R objects, so copy the whole cell when you move code. <a href="./workspace.html#supplied-output-03">Fixed code and output</a> remain readable if the browser R runtime cannot start.</p>
+<script>window.qmsbrSuppliedOutput = "workspace.html#supplied-output-03";</script>
+<noscript><p class="qmsbr-fallback">JavaScript is off, so the code boxes on this page cannot run. Read <a href="workspace.html#supplied-output-03">the fixed code and output for Chapter 3</a>, or run the code in desktop R.</p></noscript>
 <section id="before-you-start" class="level2">
 <h2 class="anchored" data-anchor-id="before-you-start">Before you start</h2>
-<p>A <strong>command</strong> is one instruction for R, such as <code>mean(score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>score</code>. The assignment arrow <code>&lt;-</code> creates one: <code>score &lt;- 60</code> stores 60 under the name <code>score</code>, and typing <code>score</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c(50, 54, 48)</code> holds three scores. <code>$</code> takes one named column out of a table: <code>dat$score</code> is the score column of <code>dat</code>. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>t.test(special, usual, var.equal = FALSE)</code> the first two arguments supply the data and <code>var.equal = FALSE</code> is a named setting; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Mean</code> is not <code>mean</code>. See <a href="#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
+<p>A <strong>command</strong> is one instruction for R, such as <code>mean(score)</code>. An <strong>object</strong> is a named value R keeps for later, such as <code>score</code>. The assignment arrow <code>&lt;-</code> creates one: <code>score &lt;- 60</code> stores 60 under the name <code>score</code>, and typing <code>score</code> on its own line prints it. <code>c()</code> combines several values into one vector, so <code>c(50, 54, 48)</code> holds three scores. <code>$</code> takes one named column out of a table: <code>dat$score</code> is the score column of <code>dat</code>. A <strong>function</strong> is a command that does a job, written with its <strong>arguments</strong> inside the brackets. In <code>t.test(special, usual, var.equal = FALSE)</code> the first two arguments supply the data and <code>var.equal = FALSE</code> is a named setting; commas separate them, and text in quotes is a label rather than an object. Names must match exactly, so <code>Mean</code> is not <code>mean</code>. See <a href="./workspace.html#run-code">how to run code</a> for the buttons and keyboard shortcuts, and for what to do when R reports an error.</p>
 </section>
 <section id="normal-areas" class="level2">
 <h2 class="anchored" data-anchor-id="normal-areas">Normal areas and z scores</h2>
@@ -326,7 +378,7 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 <p>Both statistics are 2.0000; the z p-value is .0455 and the t(24) p-value is .0569. These summaries do not reconstruct 25 unobserved raw scores. With an actual vector of scores, <code>t.test(x, mu = 50)</code> performs the same one-sample t test from the data themselves.</p>
 <section id="known-sd" class="level3">
 <h3 class="anchored" data-anchor-id="known-sd">Numbers and a known SD</h3>
-<p>For a supplied vector of scores, <code>length()</code>, <code>mean()</code> and <code>sd()</code> return the count, average and sample SD. <code>sqrt()</code> takes a square root. Copy these commands into <a href="#your-r-work">your workspace</a> to try them:</p>
+<p>For a supplied vector of scores, <code>length()</code>, <code>mean()</code> and <code>sd()</code> return the count, average and sample SD. <code>sqrt()</code> takes a square root. Copy these commands into <a href="./workspace.html#your-r-work">your workspace</a> to try them:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">17</span>, <span class="dv">18</span>, <span class="dv">20</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(scores)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(scores)</span>
@@ -398,7 +450,7 @@ mean of x mean of y
 </section>
 <section id="summary-se" class="level3">
 <h3 class="anchored" data-anchor-id="summary-se">Use supplied summary values</h3>
-<p>For core Exercise 2, enter its group counts and sample SDs directly. <code>^2</code> squares each SD; division by its group count gives that group’s contribution to the working variance. Add them before taking the square root. Copy this short calculation into <a href="#your-r-work">your workspace</a>.</p>
+<p>For core Exercise 2, enter its group counts and sample SDs directly. <code>^2</code> squares each SD; division by its group count gives that group’s contribution to the working variance. Add them before taking the square root. Copy this short calculation into <a href="./workspace.html#your-r-work">your workspace</a>.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="dv">60</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n0 <span class="ot">&lt;-</span> <span class="dv">60</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>s1 <span class="ot">&lt;-</span> <span class="fl">6.0</span></span>
@@ -587,448 +639,17 @@ eyJhdHRyIjp7ImF1dG9ydW4iOmZhbHNlLCJlZGl0Ijp0cnVlLCJldmFsIjp0cnVlLCJleGVyY2lzZSI6
 <p>For the Computer Lab’s SPSS route: <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=transformations-recode-into-different-variables">recoding</a>, <a href="https://www.ibm.com/docs/en/spss-statistics/31.0.0?topic=crosstabs-cell-display">Crosstabs cells</a> and <a href="https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=tests-independent-samples-t-test">independent-samples t tests</a>. Use the task’s settings with either software route. <a href="./data-notes.html">Data sources and reuse</a> cover all public records and their limitations.</p>
 </section>
 </section>
-<section id="your-r-work" class="level2">
-<h2 class="anchored" data-anchor-id="your-r-work">Your R work</h2>
-<section id="run-code" class="level3">
-<h3 class="anchored" data-anchor-id="run-code">How to run code</h3>
-<p><strong>Run a complete example.</strong> Click <strong>Run All</strong> to run the whole code block or workspace script, including its data-loading commands.</p>
-<p><strong>Try commands one by one.</strong> Click inside a code box and place the cursor on the first command. Press <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS, or click <strong>Run Code</strong>. This runs the current complete command and advances the cursor. Select several commands first to run just that selection. Enter/Return alone adds a new line.</p>
-<p>Objects remain available for later commands in the same code box. An assignment such as <code>dat &lt;- d0</code> usually prints nothing; run <code>head(dat)</code> to inspect the result. A command spanning several lines, such as a model or plot call with several arguments, runs together. When selecting text, include the entire command; an incomplete selection produces an R error. After changing data, rerun every calculation that uses them. <strong>Start Over</strong> restores a chapter block’s original code and clears that block’s objects.</p>
-<p><strong>Use desktop RStudio.</strong> Put the complete code in an R script. With the cursor on a command, <strong>Ctrl+Enter</strong> on Windows/Linux or <strong>Command+Return</strong> on macOS runs the current line or selected code. Select the whole command when it spans several lines. The <a href="https://docs.posit.co/ide/user/ide/reference/shortcuts.html">RStudio shortcut reference</a> gives further details. In the R console, type a complete command and press Enter/Return. Run the data-loading commands before commands that use them.</p>
-<p><strong>If R shows an error.</strong> Read the last line of the message first: it usually names the problem, and nothing is damaged. Five common causes:</p>
-<ul>
-<li><em>unexpected numeric constant</em> or <em>unexpected symbol</em>: a missing comma between two values or arguments, such as <code>c(50 54)</code> instead of <code>c(50, 54)</code>.</li>
-<li><em>unexpected ‘)’</em>: one closing bracket too many, such as <code>c(50, 54))</code>.</li>
-<li><em>could not find function</em> or a name R does not recognise: a misspelled name. R matches names exactly, so <code>t.tset</code> is not <code>t.test</code> and <code>Mean</code> is not <code>mean</code>.</li>
-<li>A <code>+</code> prompt, or a result that never appears: an unmatched quote or bracket, so the command is still unfinished. Complete the quote or bracket, or press <strong>Esc</strong> to cancel, then run the command again.</li>
-<li><em>object ‘dat’ not found</em>: that object does not exist in this session, usually because its setup line has not been run. Rerun the cell’s setup lines, or choose <strong>Run All</strong>, before the command that uses the object.</li>
-</ul>
-<p>Correct the line and run it again. If a code box has drifted too far from its starting code, <strong>Start Over</strong> restores it.</p>
-<details class="qmsbr-workspace-panel">
-<summary>Open workspace for your own code or CSV</summary>
-<p>Paste the complete code for an exercise, Software Lab, or homework question here, including its data-loading lines. To save edits from an example, copy that example's code here first.</p>
-<div class="qmsbr-workspace" id="r-workspace">
-  <p class="qmsbr-status" role="status" aria-live="polite">R is starting. You can edit and save code while it loads.</p>
-  <div class="qmsbr-controls">
-    <label>Open a CSV <input type="file" accept=".csv,text/csv" data-file="csv" disabled=""></label>
-    <label>Open an R script <input type="file" accept=".R,.r,text/plain" data-file="script"></label>
-  </div>
-  <p class="qmsbr-note">Use a CSV with column names in the first row (up to 5 MB). Files stay in this browser session. For course-supplied HSB, open the CSV, then use <code>hsb &lt;- read.csv("hsb.csv")</code>.</p>
-  <pre class="qmsbr-preview" aria-label="Imported data preview" hidden=""></pre>
-  <label for="workspace-code">Your R code</label>
-  <textarea class="qmsbr-code" id="workspace-code" spellcheck="false"># Paste your complete code here.
-scores &lt;- c(12, 15, 17, 18, 20)
-mean(scores)
-sd(scores)
-</textarea>
-  <div class="qmsbr-controls">
-    <button type="button" data-action="run" disabled="">Run Code</button>
-    <button type="button" data-action="run-all" disabled="">Run All</button>
-    <button type="button" data-action="save-code">Save R script</button>
-    <button type="button" data-action="save-results">Save results and interpretation</button>
-    <button type="button" data-action="clear" disabled="">Clear R objects</button>
-  </div>
-  <p class="qmsbr-note">Run Code uses the selection or current complete command. Run All uses the whole script. Clear R objects resets the analysis while keeping your code and imported files.</p>
-  <label for="workspace-output">Most recent workspace output</label>
-  <pre class="qmsbr-output" id="workspace-output" aria-live="polite">Your results will appear here.</pre>
-  <div class="qmsbr-plots"></div>
-  <label for="workspace-notes">Your interpretation</label>
-  <textarea class="qmsbr-notes" id="workspace-notes" placeholder="Write your answer to the question."></textarea>
-</div>
-<details>
-<summary>Saving and reopening work</summary>
-<p>Save your R script and results before leaving. The script includes unrun edits; the results file pairs the latest output with its code and the earlier executed commands. For a reproducible submission, keep all setup in the script, clear R objects, and use Run All before saving. Save plots separately. Submit through your course's usual system.</p>
-<p>Reloading clears R objects and imported files. Reopen your CSV and saved script, then run it. On desktop R, use the folder containing your script and CSV as the working directory; built-in examples using <code>data/...</code> need that subfolder. For a stalled calculation, save your code and reload.</p>
-</details>
-</details>
-<noscript><p class="qmsbr-fallback">JavaScript is off. Use <a href="#supplied-output">the supplied code and output</a>, or run the code on desktop R.</p></noscript>
+<section id="your-own-code-and-the-fixed-output" class="level2">
+<h2 class="anchored" data-anchor-id="your-own-code-and-the-fixed-output">Your own code and the fixed output</h2>
+<p>Run a complete script, open a course CSV and save your work in <a href="./workspace.html#your-r-work">the R workspace</a>; the same page carries <a href="./workspace.html#run-code">how to run code</a> and <a href="./workspace.html#supplied-output-03">the fixed code and output for this chapter</a>, which stay readable when the browser runtime is unavailable.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="0" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb7-0"><a href="#cb7-0" aria-hidden="true" tabindex="-1"></a>workspace_ready <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrWorkspace</span><span class="op">.</span><span class="fu">attach</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="650" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 649;"><span id="cb7-650"><a href="#cb7-650" aria-hidden="true" tabindex="-1"></a>runtime_watch <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span> <span class="op">?</span> <span class="bu">window</span><span class="op">.</span><span class="at">qmsbrRuntime</span><span class="op">.</span><span class="fu">watch</span>(webROjs<span class="op">.</span><span class="at">webRPromise</span>) <span class="op">:</span> <span class="st">""</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="supplied-output" class="level2">
-<h2 class="anchored" data-anchor-id="supplied-output">Fixed code and output</h2>
-<p>Open an example to read its starting code and saved result, even when the browser runtime is unavailable. These results describe the original data and settings; edits in a live cell do not change them.</p>
-<details>
-<summary>
-Normal areas, z scores and cutoffs
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> (score <span class="sc">-</span> mu) <span class="sc">/</span> sigma</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">z =</span> z, <span class="at">lower_area =</span> <span class="fu">pnorm</span>(z), <span class="at">upper_area =</span> <span class="fu">pnorm</span>(z, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         z lower_area upper_area 
-2.00000000 0.97724987 0.02275013 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)) <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.6826895 0.9544997 0.9973002</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] -1.959964  1.959964</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Exercise 4: interval from supplied values
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>estimate <span class="ot">&lt;-</span> <span class="fl">3.1</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fl">1.13255</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>critical <span class="ot">&lt;-</span> <span class="fl">1.98036</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>interval <span class="ot">&lt;-</span> estimate <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> critical <span class="sc">*</span> se</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, interval)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "0.8571" "5.3429"</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-One mean: known-SD z and one-sample t
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">25</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sample_mean <span class="ot">&lt;-</span> <span class="dv">52</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>null_mean <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>sigma_known <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>sample_sd <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> (sample_mean <span class="sc">-</span> null_mean) <span class="sc">/</span> (sigma_known <span class="sc">/</span> <span class="fu">sqrt</span>(n))</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>t_value <span class="ot">&lt;-</span> (sample_mean <span class="sc">-</span> null_mean) <span class="sc">/</span> (sample_sd <span class="sc">/</span> <span class="fu">sqrt</span>(n))</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">z =</span> z, <span class="at">z_p =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z)),</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">t =</span> t_value, <span class="at">df =</span> n <span class="sc">-</span> <span class="dv">1</span>, <span class="at">t_p =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pt</span>(<span class="sc">-</span><span class="fu">abs</span>(t_value), n <span class="sc">-</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>          z         z_p           t          df         t_p 
- 2.00000000  0.04550026  2.00000000 24.00000000  0.05693985 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Two sample sizes with the same difference and SD
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">100</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>difference <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>sample_sd <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> sample_sd <span class="sc">/</span> <span class="fu">sqrt</span>(n)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>t_value <span class="ot">&lt;-</span> difference <span class="sc">/</span> se</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(n, <span class="at">SE =</span> se, <span class="at">t =</span> t_value, <span class="at">df =</span> n <span class="sc">-</span> <span class="dv">1</span>,</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">p =</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pt</span>(<span class="sc">-</span><span class="fu">abs</span>(t_value), <span class="at">df =</span> n <span class="sc">-</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    n       SE        t df            p
-1  10 1.581139 1.264911  9 0.2376725632
-2 100 0.500000 4.000000 99 0.0001222515</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Two groups: counts, means, Welch and pooled tests
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d0 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/chapter_03_special_practice.csv"</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> d0</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      id            group score
-1 C3-001 Special Practice    17
-2 C3-002 Special Practice    23
-3 C3-003 Special Practice    36
-4 C3-004 Special Practice    20
-5 C3-005 Special Practice    28
-6 C3-006 Special Practice    32</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>group)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Special Practice   Usual Practice 
-              60               60 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>special <span class="ot">&lt;-</span> dat<span class="sc">$</span>score[dat<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Special Practice"</span>]</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>usual <span class="ot">&lt;-</span> dat<span class="sc">$</span>score[dat<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Usual Practice"</span>]</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">Special =</span> <span class="fu">mean</span>(special), <span class="at">Usual =</span> <span class="fu">mean</span>(usual))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Special   Usual 
-   27.1    24.0 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">Special_SD =</span> <span class="fu">sd</span>(special), <span class="at">Usual_SD =</span> <span class="fu">sd</span>(usual))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Special_SD   Usual_SD 
-  5.999152   6.399152 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>level <span class="ot">&lt;-</span> <span class="fl">0.95</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>welch <span class="ot">&lt;-</span> <span class="fu">t.test</span>(special, usual, <span class="at">var.equal =</span> <span class="cn">FALSE</span>, <span class="at">conf.level =</span> level)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>pooled <span class="ot">&lt;-</span> <span class="fu">t.test</span>(special, usual, <span class="at">var.equal =</span> <span class="cn">TRUE</span>, <span class="at">conf.level =</span> level)</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>welch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Welch Two Sample t-test
-
-data:  special and usual
-t = 2.7376, df = 117.51, p-value = 0.007152
-alternative hypothesis: true difference in means is not equal to 0
-95 percent confidence interval:
- 0.8574549 5.3425451
-sample estimates:
-mean of x mean of y 
-     27.1      24.0 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>pooled</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Two Sample t-test
-
-data:  special and usual
-t = 2.7376, df = 118, p-value = 0.007148
-alternative hypothesis: true difference in means is not equal to 0
-95 percent confidence interval:
- 0.8575514 5.3424486
-sample estimates:
-mean of x mean of y 
-     27.1      24.0 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">difference =</span> <span class="fu">mean</span>(special) <span class="sc">-</span> <span class="fu">mean</span>(usual), <span class="at">SE =</span> welch<span class="sc">$</span>stderr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>difference         SE 
-  3.100000   1.132394 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>welch<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.8574549 5.3425451
-attr(,"conf.level")
-[1] 0.95</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Eight paired scores and the paired t test
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>before <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">54</span>, <span class="dv">48</span>, <span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">62</span>, <span class="dv">53</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>after <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">49</span>, <span class="dv">54</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">57</span>, <span class="dv">61</span>, <span class="dv">66</span>, <span class="dv">58</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>difference <span class="ot">&lt;-</span> after <span class="sc">-</span> before</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">n =</span> <span class="fu">length</span>(difference), <span class="at">mean =</span> <span class="fu">mean</span>(difference), <span class="at">SD =</span> <span class="fu">sd</span>(difference))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   n mean   SD 
-   8    2    2 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(after, before, <span class="at">paired =</span> <span class="cn">TRUE</span>, <span class="at">mu =</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Paired t-test
-
-data:  after and before
-t = 2.8284, df = 7, p-value = 0.02546
-alternative hypothesis: true mean difference is not equal to 0
-95 percent confidence interval:
- 0.3279582 3.6720418
-sample estimates:
-mean difference 
-              2 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(difference, <span class="at">mu =</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    One Sample t-test
-
-data:  difference
-t = 2.8284, df = 7, p-value = 0.02546
-alternative hypothesis: true mean is not equal to 0
-95 percent confidence interval:
- 0.3279582 3.6720418
-sample estimates:
-mean of x 
-        2 </code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Connected paired-score plot
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>before <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">54</span>, <span class="dv">48</span>, <span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">62</span>, <span class="dv">53</span>)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>after <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">49</span>, <span class="dv">54</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">57</span>, <span class="dv">61</span>, <span class="dv">66</span>, <span class="dv">58</span>)</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="fu">t</span>(<span class="fu">cbind</span>(before, after)), <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">16</span>,</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">xaxt =</span> <span class="st">"n"</span>, <span class="at">xlab =</span> <span class="st">"Measurement"</span>, <span class="at">ylab =</span> <span class="st">"Score"</span>)</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Before"</span>, <span class="st">"After"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-paired-plot-static-1.png" class="img-fluid figure-img" alt="Eight lines join each student's before score on the left to the after score on the right. Six lines rise, one is flat and one falls slightly." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Covariance, correlation and a unit change
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">54</span>, <span class="dv">48</span>, <span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">62</span>, <span class="dv">53</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">49</span>, <span class="dv">54</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">57</span>, <span class="dv">61</span>, <span class="dv">66</span>, <span class="dv">58</span>)</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">covariance =</span> <span class="fu">cov</span>(x, y), <span class="at">correlation =</span> <span class="fu">cor</span>(x, y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> covariance correlation 
- 28.1428571   0.9598913 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">covariance =</span> <span class="fu">cov</span>(<span class="dv">10</span> <span class="sc">*</span> x, y), <span class="at">correlation =</span> <span class="fu">cor</span>(<span class="dv">10</span> <span class="sc">*</span> x, y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> covariance correlation 
-281.4285714   0.9598913 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(x, y, <span class="at">method =</span> <span class="st">"spearman"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9221722</code></pre>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Histogram of the delayed-assessment scores
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/chapter_03_special_practice.csv"</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(dat<span class="sc">$</span>score, <span class="at">breaks =</span> <span class="dv">10</span>, <span class="at">main =</span> <span class="st">"Special Practice study"</span>,</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Delayed-assessment score (0-40)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-hist-static-1.png" class="img-fluid figure-img" alt="A histogram of 120 delayed-assessment scores in six intervals five points wide, from 10 to 40; the counts rise to a peak of 41 in the 20-to-25 interval and fall away on both sides." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Smoothed density curve
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/chapter_03_special_practice.csv"</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(dat<span class="sc">$</span>score), <span class="at">main =</span> <span class="st">"Smoothed score distribution"</span>,</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Delayed-assessment score (0-40)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-density-static-1.png" class="img-fluid figure-img" alt="A single smooth curve over the delayed-assessment score range, with one broad central peak." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Boxplots by practice format
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/chapter_03_special_practice.csv"</span>)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(score <span class="sc">~</span> group, <span class="at">data =</span> dat, <span class="at">xlab =</span> <span class="st">"Practice format"</span>,</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Delayed-assessment score (0-40)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-boxplot-static-1.png" class="img-fluid figure-img" alt="Two boxplots of delayed-assessment scores. The Special Practice box sits a few points above the Usual Practice box and the two ranges overlap." width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Bar chart of the online participants
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>completed <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Completed =</span> <span class="dv">32</span>, <span class="st">"Not completed"</span> <span class="ot">=</span> <span class="dv">18</span>)</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(completed, <span class="at">ylab =</span> <span class="st">"Count"</span>, <span class="at">main =</span> <span class="st">"Online participants"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-bar-static-1.png" class="img-fluid figure-img" alt="Two bars for the fifty online participants: completed with a count of 32 and not completed with a count of 18." width="576"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Pie chart of the same two categories
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>completed <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Completed =</span> <span class="dv">32</span>, <span class="st">"Not completed"</span> <span class="ot">=</span> <span class="dv">18</span>)</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pie</span>(completed, <span class="at">main =</span> <span class="st">"Online completion proportions"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-pie-static-1.png" class="img-fluid figure-img" alt="A pie divided into a larger completed share of 32 and a smaller not completed share of 18 out of fifty online participants." width="528"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-Scatterplot of before and after scores
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>before <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">54</span>, <span class="dv">48</span>, <span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">62</span>, <span class="dv">53</span>)</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>after <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">49</span>, <span class="dv">54</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">57</span>, <span class="dv">61</span>, <span class="dv">66</span>, <span class="dv">58</span>)</span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(before, after, <span class="at">xlab =</span> <span class="st">"Before score"</span>, <span class="at">ylab =</span> <span class="st">"After score"</span>)</span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="chapter-03_files/figure-html/c3-scatter-static-1.png" class="img-fluid figure-img" alt="Eight points rise from lower left to upper right; a dashed equal-score line passes below most of them." width="614"></p>
-</figure>
-</div>
-</div>
-</div>
-</details>
-<details>
-<summary>
-The worked two-by-two count table
-</summary>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">32</span>, <span class="dv">18</span>, <span class="dv">18</span>, <span class="dv">32</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"Online"</span>, <span class="st">"In person"</span>),</span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">c</span>(<span class="st">"Completed"</span>, <span class="st">"Not completed"</span>)))</span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(counts, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>          Completed Not completed
-Online         0.64          0.36
-In person      0.36          0.64</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>pearson <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(counts, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>pearson<span class="sc">$</span>expected</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>          Completed Not completed
-Online           25            25
-In person        25            25</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>pearson</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test
-
-data:  counts
-X-squared = 7.84, df = 1, p-value = 0.00511</code></pre>
-</div>
-</div>
-</details>
 
 
 <script type="webr-data">
@@ -1052,7 +673,7 @@ WyJkYXRhL2NoYXB0ZXJfMDNfc3BlY2lhbF9wcmFjdGljZS5jc3YiLCJkYXRhL2NoYXB0ZXJfMDNfdWNp
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IndvcmtzcGFjZV9yZWFkeSA9IHdpbmRvdy5xbXNicldvcmtzcGFjZS5hdHRhY2god2ViUk9qcy53ZWJSUHJvbWlzZSlcbiJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InJ1bnRpbWVfd2F0Y2ggPSB3aW5kb3cucW1zYnJSdW50aW1lID8gd2luZG93LnFtc2JyUnVudGltZS53YXRjaCh3ZWJST2pzLndlYlJQcm9taXNlKSA6IFwiXCJcbiJ9XX0=
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
@@ -1483,7 +1104,7 @@ window._ojs.runtime.interpretFromScriptTags();
   </div>
 </footer>
 <script src="command-runner.js?v=2"></script>
-<script src="workspace.js?v=4"></script>
+<script src="workspace.js?v=5"></script>
 
 
 

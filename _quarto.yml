@@ -2,6 +2,12 @@
 # To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/,
 # add it to `render:` and to the sidebar below, add its line to the
 # matching collection column on index.qmd, push.
+# The navbar below is the pinned six-button top row — Home, Part One,
+# Part Two, R support, Argument Approach, About — and the practice pages
+# under practice/ repeat it with relative paths back here, so any change
+# to the six buttons has to be made in materials/webr/_quarto.yml too.
+# Argument Approach points at the greyed card on index.qmd; styles.scss
+# mutes the button to match.
 
 project:
   type: website
@@ -36,11 +42,18 @@ website:
   page-navigation: true
   back-to-top-navigation: true
   navbar:
+    pinned: true
     left:
       - href: index.qmd
         text: Home
+      - href: part-one/part_one_introduction.qmd
+        text: Part One
+      - href: part-two/part_two_introduction.qmd
+        text: Part Two
       - href: practice/index.html
         text: R support
+      - href: index.qmd#argument-approach
+        text: Argument Approach
       - href: about.qmd
         text: About
     right:
