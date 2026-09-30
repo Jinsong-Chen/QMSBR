@@ -122,59 +122,51 @@ options(digits = 7, width = 68)
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 11))
 ```
 
+
 \clearpage
 
 ::: {.callout-note title="Chapter overview"}
-One study can owe several answers. This chapter keeps the occupation
-records of Chapter 7 and asks three questions of the 98 with a recorded
-type: how income varies with education across them, how it differs with
-education at the same prestige, percentage of women, and type, and
-whether a fuller learning rule predicts held-out occupations better than
-the education-only rule. We develop what a partial slope compares and why
-it can differ from the marginal slope, estimate it with a stated working
-model, check support, form, influence, and precision, and calculate a
-fitted profile, its two intervals, and a standardized quantity. We then
-answer the prediction question with shared held-out folds, read the three
-reported answers and their reasons before evaluating each and their
-synthesis. By the end of the chapter
+One set of records can owe several answers. Using the 98 occupations of
+Chapter 7 that have a recorded type, this chapter asks how income varies
+with education, how it differs with education at the same prestige,
+percentage of women and type, and whether a fuller learning rule predicts
+held-out occupations better than education alone. We see what a partial
+slope compares and why it can differ from the marginal slope, estimate
+and check it, calculate a fitted profile and a standardized average,
+answer the prediction question with shared held-out folds, and then read
+and evaluate the three reported answers and their synthesis. By the end
 you will be able to fit and read an additive multiple regression in R,
-keep changes of records, conditioning, coordinates, and uncertainty
-apart, judge a held-out comparison, and evaluate coordinated answers
-without merging them.
+keep changes of records, comparison, coefficient coordinates and
+uncertainty calculation apart, judge a held-out comparison, and evaluate
+coordinated answers without merging them.
 :::
 
-A report may ask whether education and income move together, whether that
-relationship remains when other occupational characteristics are held
-constant, and whether those characteristics help predict income. These
-questions can inform one another, but answering one does not discharge the
-other two obligations.
+A report on occupational income may ask whether education and income move
+together, whether that relationship remains when other characteristics of
+the occupations are held constant, and whether those characteristics help
+predict income. The questions inform one another, but answering one does
+not answer the other two.
 
-We use a **chapter-authored retrospective teaching study**, not a published
-study with a newly discovered analysis plan. Its records are the
-*Prestige* data distributed with the carData package
-[@carData2022; @fox2019]. The analyses and short report below are our
-teaching record; the package documentation supplies the data descriptions,
-not the claims written for this chapter.
+We use a **retrospective teaching study written for this chapter**. Its
+records are the *Prestige* data distributed with the carData package
+[@carData2022; @fox2019], whose documentation describes the data; the
+analyses and the short report are ours.
 
-A rounded coefficient equation explains a comparison; evaluate the
-unrounded fitted model when checking its last digits. Each visible R
-example follows from the earlier visible preparation in this chapter;
-Chapter 7 supplies familiarity, not an existing R session. Chapter 5
-held one variable fixed by residualizing: its partial correlation
-removed that variable's fitted linear component from two others before
+Chapter 5's partial correlation held one variable fixed by residualizing,
+removing that variable's fitted linear part from two others before
 correlating what remained. A fitted equation with several predictors
 holds the others fixed directly, because two of its fitted means that
-differ in one predictor share every other term. We use that idea with
-several controls at once, track the full model's uncertainty, and
-distinguish a conditional comparison from an average over named
+differ in one predictor share every other term. This chapter applies that
+idea to several controls at once, tracks the full model's uncertainty,
+and separates a comparison at fixed values from an average over named
 profiles. Chapter 9, Section 2, applies the same idea to adjusted group
 means in the analysis of covariance.
 
 \clearpage
 
-## Three Questions in the Same Occupation Records {#sec-ch8-questions}
+## Three Questions in One Set of Records {#sec-ch8-questions}
 
-### One study can owe several answers
+### Three questions, three answers
 
 ```{=latex}
 \Needspace{20\baselineskip}
@@ -188,30 +180,29 @@ means in the analysis of covariance.
 
 : Three separately owed answers in the occupation teaching study. {#tbl-ch8-pairs tbl-colwidths="[22,36,42]"}
 
-These are three question--answer pairs, each with **one argument with linked
-layers**. They are not three statistical strands of one argument: the report
-owes separate conclusions about marginal association, conditional
-association, and prediction. If several estimands were jointly necessary
-for *one* integrated conclusion, they could instead be parallel statistical
-strands. Merely printing several coefficients or diagnostics does not create
-either several questions or several strands.
+Each row is a question--answer pair with **one argument with linked
+layers**. The three are not statistical strands of one argument: the
+report owes separate conclusions about marginal association, conditional
+association, and prediction. Estimands become strands only when one
+integrated conclusion needs them all, and printing several coefficients
+creates neither extra questions nor extra strands.
 
-### Keep the records, time, and units visible
+### The occupation records
 
-A row represents an **occupation**, not an individual worker. Income is the
-occupation's average annual income in 1971 Canadian dollars; we divide it
-by 1,000. Education is average years of education, and *women* is the
-percentage of women in the occupation. Prestige ratings were collected in
-a mid-1960s survey, whereas the income and education summaries come from
-1971. Occupational type is blue-collar (*bc*), professional/managerial/
-technical (*prof*), or white-collar (*wc*). These historical and aggregate
-measurements are not interchangeable with current individual earnings.
+A row is an **occupation**, not a worker. Income is the occupation's
+average annual income in 1971 Canadian dollars, divided here by 1,000;
+education is average years of education; *women* is the percentage of
+women; prestige is a rating from a mid-1960s survey, earlier than the
+1971 income and education; and type is blue-collar (*bc*),
+professional/managerial/technical (*prof*), or white-collar (*wc*). These
+historical occupational averages are not current individual earnings.
 
-The earlier simple-regression analysis used all 102 occupations with
-education and income recorded. The declared full variable set leaves 98
-complete records: athletes, newsboys, babysitters, and farmers have missing
-type. The retained type counts are 44, 31, and 23 respectively. We keep the
-original row order, which will also make the validation split reproducible.
+Chapter 7 used all 102 occupations. The full variable set leaves 98
+complete records, because athletes, newsboys, babysitters, and farmers
+have no recorded type; the three types keep 44, 31, and 23 records. We
+keep the source row order, which also makes the validation split of
+Section 6 reproducible, and the chapter's code runs in order from here in
+a fresh R session.
 
 ```{=latex}
 \Needspace{20\baselineskip}
@@ -230,53 +221,49 @@ c(original = nrow(all_occ), retained = nrow(d))
 table(d$type)
 ```
 
-We refit the education-only model on these **same 98 records** before
-comparing adjustment specifications. Moving from 102 to 98 changes which
-records are described. It must not be presented as an adjustment effect.
-Complete-case selection makes the computations comparable; it does not
-establish that the omitted occupations are irrelevant or that these records
-are a probability sample of Canadian occupations.
+We refit the education-only model on these **same 98 records** before any
+adjusted comparison, so that the move from 102 to 98, a change in which
+records are described, is never presented as an adjustment effect.
+Complete records make the computations comparable; they do not make the
+omitted occupations irrelevant or the 98 a probability sample of Canadian
+occupations.
 
-### Declare the model question before reporting an interval
+### What each answer estimates
 
-Pair 1 is finite-record description. Its slope is exactly calculable once
-the records and least-squares rule are specified.
+Pair 1 describes these records: once the records and the least-squares
+rule are fixed, its slope is simply calculated.
 
-Pair 2 has one intended estimand: the education coefficient $\beta_E$ in the
-declared linear conditional-mean working model. The fitted coefficient $b_E$
-is its estimate from the 98 retained records. Although $b_E$ is exactly
-calculable once the rows and fitting rule are fixed, that fact does not create
-a second finite-record estimand. A confidence interval additionally posits
-that occupation outcomes could vary independently around the stated linear
-conditional mean at the recorded predictors. This is not a claim that the
-dataset came from a verified random sample or that income was randomly
-assigned.
+Pair 2 targets $\beta_E$, the education coefficient in a declared working
+model whose mean income is linear in education, prestige, women, and
+type; the fitted $b_E$ estimates it from the 98 records. Like Pair 1's
+slope, $b_E$ is exactly calculable, but it is an estimate of $\beta_E$,
+not a second finite-record target. An interval for $\beta_E$ adds
+assumptions: occupation incomes vary independently around that linear
+mean, with a common error variance for the classical interval and Normal
+errors for its exact $t$ reference. The HC3 interval of Section 3.3
+relaxes the common variance under its own large-sample conditions.
+Neither interval creates independence or linearity, and neither claims
+verified probability sampling or randomized education. Section 4 checks
+how far the working model can be trusted.
 
-For the classical interval we additionally assume a common error variance;
-normal errors make its finite-sample $t$ reference exact. Robust uncertainty
-relaxes the common-variance requirement under its own large-sample
-conditions. It does not create independence or linearity. We will check how
-credible and stable the working-model reading is before judging its answer.
+A **best linear projection**, which summarizes a curved relationship over
+a stated distribution of predictors, is a different declared target, not
+a rescue adopted after curvature appears; Chapter 9, Appendix A,
+develops it.
 
-A **best linear projection** can instead summarize a curved conditional
-relationship under a specified distribution of predictors. That is a
-different interpretation, not a rescue silently adopted after discovering
-curvature. The main sections use the stated linear conditional-mean interpretation;
-Chapter 9, Appendix A, develops the alternative and its limitations.
+Pair 3 imagines a different repetition: train a rule on eligible,
+exchangeable same-source records, then predict a record whose outcome
+was not used in training. Pair 2's coefficient interval cannot justify
+that answer.
 
-Pair 3 will declare a different hypothetical repetition: train a rule on
-eligible, exchangeable same-source records, then predict a new record
-without using its outcome in training. Its justification cannot be supplied
-by the coefficient interval in Pair 2.
-
-## From Marginal to Conditional Comparisons {#sec-ch8-comparisons}
+## Marginal and Conditional Comparisons {#sec-ch8-comparisons}
 
 ### What a partial slope compares
 
-Chapter 5's partial correlation held one variable fixed by residualizing
+Chapter 5's partial correlation held a variable fixed by residualizing
 both variables on it. A fitted equation holds its other predictors fixed
-directly: specify what changes, keep the other predictor values the
-same, and subtract the two fitted means.
+directly: change one predictor, keep the others at the same values, and
+subtract the two fitted means.
 
 Let $e$ be education, $p$ prestige, $w$ percentage of women, and $t$ type.
 The fitted additive equation is
@@ -285,15 +272,13 @@ $$
 \widehat m(e,p,w,t)
  =b_0+b_Ee+b_Pp+b_Ww
    +b_{\mathrm{prof}}D_{\mathrm{prof}}
-   +b_{\mathrm{wc}}D_{\mathrm{wc}}.
+   +b_{\mathrm{wc}}D_{\mathrm{wc}},
 $$
 
-An indicator $D$ is 1 for its named category and 0 otherwise. Blue-collar is
-the reference type, with both indicators zero. This model has six
-coefficients, including its intercept.
-
-Take two profiles with the same $p,w,t$ and education differing by one year.
-Subtract their fitted means:
+where an indicator $D$ is 1 for its named type and 0 otherwise, so
+blue-collar, with both indicators zero, is the reference type. The model
+has six coefficients, including its intercept. For two profiles with the
+same $p,w,t$ whose education differs by one year,
 
 $$
 \begin{aligned}
@@ -302,20 +287,20 @@ $$
 \end{aligned}
 $$
 
-All the common terms cancel. Thus $b_E$ compares modeled occupation-level
-income at the **same prestige, percentage of women, and type**. A two-year
-difference corresponds to $2b_E$ under this additive model.
+All the shared terms cancel, so $b_E$ compares modeled occupation-level
+income at the **same prestige, percentage of women, and type**, and a
+two-year difference corresponds to $2b_E$.
 
-“Holding constant” describes this mathematical comparison. It does not say
-that education was changed experimentally, that two observed occupations
-match exactly on every other characteristic, or that unmeasured differences
-are controlled. An additive slope also assumes the same education
-comparison across the included predictor values. Allowing it to vary with
-another predictor is the interaction question taken up later.
+"Holding constant" names this comparison of fitted means. It does not
+mean that education was changed experimentally, that two observed
+occupations match on everything else, or that unmeasured differences are
+controlled. The additive form also assumes the same education comparison
+at every value of the other predictors; letting that comparison vary is
+the interaction question of Chapter 10.
 
 ### Why the marginal slope can differ
 
-A short known-process example makes the distinction visible. Suppose
+A known process makes the difference visible. Suppose
 
 $$
 Y=50+2X+5Z+\varepsilon,
@@ -324,7 +309,7 @@ $$
 
 with finite variances and
 $\operatorname{Cov}(X,Z)/\operatorname{Var}(X)=0.65$.
-The conditional $X$ coefficient is 2. The marginal linear slope is
+The conditional $X$ coefficient is 2, and the marginal linear slope is
 
 $$
 \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}
@@ -335,9 +320,9 @@ $$
 @fig-ch8-known-process draws one generated sample of 250 cases from this
 process, with the process's own mean lines rather than fitted ones. Each
 solid line holds $Z$ at one value and rises 2 for each unit of $X$. The
-dashed marginal line rises 5.25, because the darker points, those with
-higher $Z$, sit toward the upper right: higher $X$ comes with higher
-$Z$, and the marginal line carries that association along.
+dashed marginal line rises 5.25, because higher $X$ comes with higher $Z$
+(the darker points sit toward the upper right) and the marginal line
+carries that association along.
 
 ```{r}
 #| label: fig-ch8-known-process
@@ -375,22 +360,22 @@ ggplot2::ggplot(ch8a_sim, ggplot2::aes(strategy, score)) +
   ggplot2::labs(x = "X (standardized)", y = "Y", colour = "Z")
 ```
 
-The conditional comparison holds $Z$ fixed; the marginal comparison
-incorporates how $Z$ moves with $X$ in this specified process. Neither
-result alone says what would happen if a researcher intervened on $X$.
-Calling 5.25 “biased” requires naming an estimand for which it is being
-used incorrectly; as a marginal linear summary, 5.25 is the right
-answer here. Appendix A retains the derivation and the repeated samples.
+The two slopes answer different questions: one holds $Z$ fixed, the
+other includes how $Z$ moves with $X$, and neither alone says what would
+happen if someone intervened on $X$. Calling 5.25 "biased" requires
+naming the target it is used for; as the marginal linear slope it is
+correct. Appendix A gives the derivation and the repeated samples.
 
-More generally, adding predictors can change the comparison, but it does
-not **always** change the scientific estimand. In a randomized study,
-appropriately specified covariate adjustment may estimate the same declared
-average assignment effect more precisely. Releveling a factor changes
-coefficient coordinates without changing fitted values. A different
-uncertainty estimator may change the interval without changing the fitted
+Not every change to a model changes the scientific estimand. In a
+randomized study, well-specified covariate adjustment can estimate the
+same declared average assignment effect more precisely; releveling a
+factor changes the coefficient coordinates but not the fitted values;
+and a different uncertainty estimator changes the interval but not the
 coefficient.
 
-### A small indicator bridge
+\Needspace{9\baselineskip}
+
+### Indicators and a fitted profile
 
 The full occupation fit, displayed to four decimal places, is
 
@@ -402,29 +387,29 @@ $$
 \end{aligned}
 $$
 
-Consider a white-collar profile with education 11, prestige 45, and women 50.
-Here $D_{\mathrm{prof}}=0$ and $D_{\mathrm{wc}}=1$. Using the full fitted
-coefficients in the substitution gives
+For a white-collar profile with education 11, prestige 45, and women 50,
+$D_{\mathrm{prof}}=0$ and $D_{\mathrm{wc}}=1$, and the unrounded fitted
+coefficients give
 
 $$
 \begin{aligned}
 \widehat m_*
 ={}&\widehat\beta_0+11\widehat\beta_E+45\widehat\beta_P
 +50\widehat\beta_W+\widehat\delta_{\mathrm{wc}}\\
-\approx{}&5.5886.
+\approx{}&5.5886,
 \end{aligned}
 $$
 
-That is a fitted mean of about 5,589 dollars on the historical income scale,
-not a guarantee for any occupation or worker. Can these three predictor
-values occur together within the observed white-collar covariate cloud?
-Separate minimum and maximum values cannot answer that question.
+a fitted mean of about 5,589 dollars on the historical income scale, not
+a guarantee for any occupation or worker.
 
-Here is a checkable **joint-support witness**. A convex combination is a
-weighted average with nonnegative weights summing to one. The four
-retained white-collar records in @tbl-ch8-profile-support can be combined
-with the listed weights: weighting each column by them returns education
-11, prestige 45 and women 50 at once.
+Do these three values occur together among the white-collar records?
+Separate ranges cannot say. A **convex combination** of records is a
+weighted average whose weights are nonnegative and sum to one, and a
+**joint-support witness** is a convex combination of observed records
+that returns the profile. The four white-collar records in
+@tbl-ch8-profile-support, weighted as listed, return education 11,
+prestige 45, and women 50 at once.
 
 \Needspace{11\baselineskip}
 
@@ -450,27 +435,30 @@ knitr::kable(support_display,
   digits = c(0, 2, 1, 2, 4), align = c("l", "r", "r", "r", "r"))
 ```
 
-The weights are all positive and sum to one; the table rounds them for
-reading, and the Computer Lab checks the weighted averages with the
-full-precision weights. The witness establishes membership in the joint
-covariate hull **within white-collar type**, using all three continuous
-predictors in the full model. It does not show that many occupations lie
-near this profile, that observed occupations match exactly, or that a
-causal comparison is supported. Local data may still be sparse.
+The four weights are positive and sum to one; the table rounds them, and
+the Computer Lab checks the averages at full precision. The witness places the profile
+inside the joint covariate hull of the white-collar records on all three
+continuous predictors. It does not show that many occupations lie near
+the profile, that one matches it exactly, or that a causal comparison is
+supported.
 
 The intercept refers to zero education, prestige, and women in the
-reference type. It helps construct the fitted surface; it need not describe
-a plausible occupation. Likewise, one type coefficient is not “the effect
-of occupational type” as a whole. In Chapter 6's indicator fit the
-factor stood alone, so each coefficient was a difference between group
-means; here each type coefficient compares fitted means at the same
-education, prestige, and women. Appendix A retains the group-mean and
-releveling calculation; Chapter 9 develops contrasts, block tests, and
-the analysis-of-variance identity.
+reference type; it anchors the fitted surface and need not describe a
+plausible occupation. Nor is one type coefficient "the effect of
+occupational type". In Chapter 6's indicator fit the factor stood alone,
+so each coefficient was a difference between group means; here each type
+coefficient compares fitted means at the same education, prestige, and
+women. Appendix A gives the group-mean and releveling calculations, and
+Chapter 9 develops contrasts, block tests, and the analysis-of-variance
+identity.
 
-## Estimate the Conditional Association {#sec-ch8-estimate}
+## Estimating the Partial Slope {#sec-ch8-estimate}
 
-### Compare specifications on the same rows
+### Three models on the same rows
+
+Least squares fits a multiple regression as it fitted Chapter 7's line,
+choosing the coefficients that make the residual sum of squares
+smallest. We fit three models to the same 98 rows.
 
 ```{r}
 #| label: ch8-fits
@@ -494,45 +482,42 @@ coef(m2)
 These are fitted summaries, not causal effects. No sampling interval is
 attached to Pair 1's finite-record estimand.
 
-Education and prestige are highly correlated here, $r=.8665$. Once prestige
-is included, the education comparison uses variation not linearly accounted
-for by prestige. Adding women and type changes the conditioning set again.
-The movement from 0.8830 to $-0.2179$ to 0.1164 is not a narrative in
-which a true effect is successively “explained away.” It is a sequence
-of named comparisons in a small observational record.
+Education and prestige are highly correlated here, $r=.8665$. Once
+prestige enters, the education comparison uses only the education
+variation that prestige does not linearly account for, and women and
+type change the conditioning set again. The movement from 0.8830 to
+$-0.2179$ to 0.1164 is a sequence of named comparisons in a small
+observational record, not a true effect being "explained away".
 
-The increase in $R^2$ describes training-data fit. Adding predictors cannot
-increase the least-squares residual sum of squares on the same rows when
-the models are nested. Better training fit does not establish better
-prediction on records left out of fitting.
+When predictors are added and both fits use the same rows, the residual
+sum of squares cannot increase, so $R^2$ cannot fall; its rise describes
+training fit, not held-out prediction (Section 6).
 
-### Partial regression gives the same coefficient {#ch08-partial-regression}
+### The partial slope from residuals {#ch08-partial-regression}
 
-Multiple regression still uses Chapter 7's covariance-to-slope reasoning.
-Chapter 5 removed one control's fitted linear component from each of two
-variables before correlating their residuals. Here we remove several
-controls. First regress education on prestige, percentage of women, and
-type, retaining its residuals $r_{E,i}$. Do the same for income, obtaining
-$r_{Y,i}$. Both auxiliary regressions include an intercept and use exactly
-the same 98 rows as the full fit. Then
+Multiple regression still uses Chapter 7's covariance-to-slope
+reasoning, now after removing several controls. Regress education on
+prestige, percentage of women, and type and keep the residuals
+$r_{E,i}$; do the same for income to obtain $r_{Y,i}$. Both auxiliary
+fits include an intercept and use exactly the 98 rows of the full fit.
+Then
 
 $$
 b_E=\frac{\sum_i r_{E,i}r_{Y,i}}{\sum_i r_{E,i}^2}
-    =r_{EY\cdot Z}\frac{s_{r_Y}}{s_{r_E}}.
+    =r_{EY\cdot Z}\frac{s_{r_Y}}{s_{r_E}},
 $$
 
-Here $Z$ denotes the control columns and $r_{EY\cdot Z}$ is the correlation
-of the two residual vectors. The numerator measures remaining linear
-co-variation; the denominator measures remaining education variation.
-This partial-regression identity gives the full model's education
-coefficient. Its correlation is unitless; multiplying by the residual-SD
-ratio expresses the slope in thousand dollars per education year.
+where $Z$ denotes the control columns and $r_{EY\cdot Z}$, the
+correlation of the two residual vectors, is the partial correlation. The
+numerator is the linear co-variation left after the controls and the
+denominator the education variation left; the ratio of residual SDs turns
+the unit-free correlation into thousand dollars per education year.
 
-Uncertainty must also account for the fitted controls. Prestige and women
-supply one column each, while type supplies two indicator columns. With
-education and the intercept, the full model therefore estimates $p=6$
-coefficients from $n=98$ rows. Its residual degrees of freedom are
-$n-p=92$. Using its residual sum of squares, $RSS_{\mathrm{full}}$, gives
+The uncertainty must count the fitted controls. Prestige and women supply
+one column each and type two, so with education and the intercept the
+model estimates $p=6$ coefficients from $n=98$ rows, leaving $n-p=92$
+residual degrees of freedom. With the full model's residual sum of
+squares, $RSS_{\mathrm{full}}$,
 
 $$
 SE(b_E)=\sqrt{\frac{RSS_{\mathrm{full}}/(n-p)}
@@ -541,13 +526,11 @@ SE(b_E)=\sqrt{\frac{RSS_{\mathrm{full}}/(n-p)}
 t_E=r_{EY\cdot Z}\sqrt{\frac{n-p}{1-r_{EY\cdot Z}^2}}.
 $$
 
-The slope identity is algebraic. The displayed SE estimates uncertainty
-under the independent, constant-variance error model; Normal errors give
-the exact $t_{92}$ reference for $H_0:\beta_E=0$. @tbl-ch8-partial-df
-reads the result on the occupation records. The first row is the
-education row of the full model, which the residual formulas above
-reproduce; the second is a fresh fit of residual income on residual
-education.
+The slope identity is algebraic; the SE and the $t_{92}$ reference for
+$H_0:\beta_E=0$ rest on the classical model of Section 1.3. In
+@tbl-ch8-partial-df the first row is the full model's education row,
+which these formulas reproduce, and the second is a fresh fit of residual
+income on residual education.
 
 \Needspace{10\baselineskip}
 
@@ -558,20 +541,15 @@ education.
 
 : The residual slope reproduces the full-model coefficient; only the full model's df gives its uncertainty. {#tbl-ch8-partial-df tbl-colwidths="[44,11,11,8,12,14]"}
 
-Both rows share the slope 0.1164, and the residual correlation is the
-partial correlation .0441. The fresh fit treats the residuals as ordinary
-data and counts $98-2=96$ df, as if fitting the four control columns had
-cost nothing, so its SE is smaller by the factor $\sqrt{92/96}$. Use `m2`,
-or the formulas above with $n-p=92$, for uncertainty, and keep exactly
-the same rows in the auxiliary fits, the full fit and the correlations.
-The HC3 calculation in the next subsection retains the slope and uses a
-different covariance estimate.
+Both rows share the slope 0.1164 and the partial correlation .0441. The
+fresh fit counts $98-2=96$ df, as if fitting the four control columns had
+cost nothing, so its SE is smaller by the factor $\sqrt{92/96}$. Use
+`m2`, or the formulas with $n-p=92$, for uncertainty.
 
-This distinction also separates two meanings of covariance. Chapter 5's
-`cov()` describes how recorded variables spread and move together; the
-regression function `vcov()` estimates the covariance of the fitted
-coefficients. @tbl-ch8-covariance-objects compares them on the same 98
-rows.
+Covariance now has two meanings. Chapter 5's `cov()` describes how
+recorded variables spread and move together; `vcov()` estimates the
+covariance of the fitted coefficients. @tbl-ch8-covariance-objects
+compares them on the same 98 rows.
 
 \Needspace{16\baselineskip}
 
@@ -587,11 +565,10 @@ rows.
 : Two covariance matrices from the same 98 records answer different questions. {#tbl-ch8-covariance-objects tbl-colwidths="[22,39,39]"}
 
 The education entries differ by a factor of about 100 because they
-measure different things: the spread of education across occupations in
-years squared, and the squared uncertainty of one fitted coefficient in
-(thousand dollars per year) squared. The matrices are not interchangeable
-in a fitted-mean or contrast interval; Section 5 uses the coefficient
-covariance in $\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*$.
+measure different things: the spread of education across occupations
+and the squared uncertainty of one fitted coefficient. The matrices are
+not interchangeable; Section 5 uses the coefficient covariance in
+$\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*$.
 
 ```{r}
 #| label: fig-ch8-partial
@@ -613,18 +590,15 @@ par(oldpar)
 
 @fig-ch8-partial sets the two comparisons side by side. The marginal
 line rises 0.8830 per year; after the fitted linear parts of prestige,
-women and type are removed from both variables, the residual line rises
-only 0.1164, and wide residual variation remains around it.
-Residualization does not remove all substantive differences between
-occupations. It removes the **fitted linear components** of the named
-variables. Chapter 9 develops the matrix version.
+women, and type are removed from both variables, the residual line rises
+only 0.1164, with wide scatter around it. Residualizing removes those
+**fitted linear components**, not every substantive difference between
+occupations. Chapter 9 develops the matrix version.
 
-### Read a coefficient interval under its stated model
+### Interval and test for the partial slope
 
-The hypothetical linear conditional-mean model introduced in
-@sec-ch8-questions
-has six estimated coefficients, so its residual degrees of freedom are
-$98-6=92$. For education the classical calculation is
+With 92 residual degrees of freedom, the classical 95% interval for
+education is
 
 $$
 \begin{aligned}
@@ -634,13 +608,12 @@ b_E\pm t_{.975,92}SE(b_E)
 \end{aligned}
 $$
 
-The result is compatible, under those assumptions, with negative and
-positive conditional slopes on this scale. It does not demonstrate that
-education is unimportant, that the slope equals zero, or that adjustment
-has removed an education effect. No substantive equivalence margin was
-declared, and the interval includes differences of several hundred dollars
-per year of education. The data and model therefore leave the direction
-and practically relevant magnitude unresolved.
+Under the classical assumptions the interval is compatible with negative
+and positive conditional slopes, including differences of several
+hundred dollars per year of education. With no margin of practical
+equivalence declared, the direction and the practically relevant size
+remain unresolved; the interval does not show that the slope is zero or
+that adjustment has removed an effect of education.
 
 ```{r}
 #| label: ch8-uncertainty
@@ -651,37 +624,37 @@ hc3_se <- sqrt(hc3_covariance["education", "education"])
 coef(m2)["education"] + c(-1, 1) * qt(.975, 92) * hc3_se
 ```
 
-HC3 gives SE 0.3823 and an approximate interval $[-0.6429,0.8758]$ using
-the displayed $t_{92}$ convention. It allows heteroskedasticity under
-independent-observation and other regularity conditions; it is not an exact
-small-sample guarantee. Both intervals leave broad uncertainty. Neither
-accounts for unmodeled dependence, selection, measurement error, or a wrong
-conditional-mean form.
+HC3 keeps the coefficient and replaces its covariance estimate, giving
+SE 0.3823 and, with the same $t_{92}$ convention, the approximate
+interval $[-0.6429,0.8758]$. It allows unequal error variances among
+independent observations under large-sample conditions and is not an
+exact small-sample guarantee. Neither interval allows for unmodeled
+dependence, selection, measurement error, or a wrong mean form.
 
-If a test is reported, its target belongs with this inference: the
-two-sided education-coefficient test addresses $H_0:\beta_E=0$ in the stated
-full model, not “education has no effect.” Its classical $t=0.423$ and
-$p=.6732$ do not prove the null. We do not use this test to choose which of
-the three questions deserves an answer.
+The matching test addresses $H_0:\beta_E=0$ in the stated full model,
+not "education has no effect". Its classical $t=0.423$ and $p=.6732$ do
+not prove the null, and the test does not decide which of the three
+questions deserves an answer.
 
 \Needspace{12\baselineskip}
 
-## Check Support, Form, Influence, and Precision {#sec-ch8-check}
+## Checking the Model {#sec-ch8-check}
 
 Checking asks what the model leaves unexplained and what follows for the
-answer. It is not a ritual in which each graph receives a pass or fail.
-Residuals, support, coefficient precision, and sensitivity each answer a
-different diagnostic question.
+answer; no single graph passes or fails the model.
 
-### Read residual, scale, tail, and influence views together
+### Residuals, leverage, and influence
 
-A residual is an observed deviation from a fitted value, not the unobserved
-population error. A standardized residual uses a common residual-scale
-estimate; an externally studentized residual uses a scale estimate with that
-observation omitted. Leverage measures an unusual predictor configuration.
-Influence combines predictor and outcome information [@cook1977]. The
-first extraction collects these quantities for every retained occupation
-and lists the five with the largest Cook's distance.
+A residual is an observed deviation from a fitted value, not the
+unobserved error. Leverage measures how unusual a record's combination
+of predictor values is; a high-leverage record pulls the fit toward
+itself, so its residual tends to be smaller. A standardized residual
+therefore divides each residual by its own estimated SD, which combines
+the common residual scale with the record's leverage, and an externally
+studentized residual does the same with the scale estimated with that
+record left out. Influence, measured by Cook's distance, combines
+leverage with the size of the residual [@cook1977]. The extraction lists
+the five occupations with the largest Cook's distance.
 
 \Needspace{18\baselineskip}
 
@@ -698,15 +671,27 @@ ch8_top <- order(ch8_diag$cooks, decreasing = TRUE)[1:5]
 ch8_diag[ch8_top, c("residual", "studentized", "leverage", "cooks")]
 ```
 
+@fig-ch8-diagnostics shows four views. If the linear mean described the
+records well, the residuals in panel (a) would scatter evenly around zero
+with a flat smooth; here the smooth drifts downward and the scatter
+widens at high fitted income. With constant spread, the smooth in panel
+(b) would stay level; it rises. Panel (c) follows the Normal reference
+line in the middle but departs in both tails, most strongly on the
+right, where a few occupations earn far more than the model predicts;
+on the left, ministers earn far less. The two largest positive
+residuals, general managers and physicians in the printed list, also
+have the largest Cook's distances, drawn as the biggest circles in
+panel (d).
+
 ```{r}
 #| label: fig-ch8-diagnostics
 #| echo: false
 #| fig-cap: "Four complementary diagnostic views for the full additive model."
 #| fig-alt: >
 #|   Residual and scale plots show structure and changing spread.
-#|   A normal quantile plot departs in the right tail. The final
-#|   panel relates leverage and studentized residuals, with point
-#|   sizes indicating Cook's distance.
+#|   A normal quantile plot departs in both tails, most strongly on
+#|   the right. The final panel relates leverage and studentized
+#|   residuals, with point sizes indicating Cook's distance.
 #| fig-width: 6.7
 #| fig-height: 6.2
 local({
@@ -733,21 +718,20 @@ local({
 })
 ```
 
-The smooth and changing spread challenge a constant conditional-mean and
-variance description. The right tail matters to exact small-sample
-normal-theory inference. Neither feature prevents calculation of OLS. Large
-residual, high leverage, and high influence are different features; none is
-an automatic record-invalidity verdict. No residual graph can establish that
-occupations are independent draws from a wider population.
+These features challenge the linear mean form and the constant-variance
+description, and the heavy tails matter for exact small-sample
+Normal-theory inference, although OLS can still be calculated. A large
+residual, high leverage, and high influence are different features, and
+none alone shows that a record is invalid. No residual graph can
+establish that occupations are independent draws from a wider
+population.
 
-### Inspect joint support and coefficient precision
+### Joint support and collinearity
 
-Joint support concerns predictor combinations, not merely separate minimum
-and maximum values. The convex-combination witness in
-@sec-ch8-comparisons establishes support for the focal white-collar
-profile across all three continuous predictors. The marginal ranges below ask
-a different, coarser question: how far does each variable extend within each
-recorded type?
+Joint support concerns combinations of predictor values. Section 2.3's
+witness established it for the white-collar profile; @tbl-ch8-support
+asks a coarser question, how far each variable extends within each
+recorded type.
 
 ```{=latex}
 \Needspace{8\baselineskip}
@@ -770,16 +754,20 @@ knitr::kable(cbind(Type = rownames(ch8_ranges), ch8_ranges),
 ```
 
 Blue-collar education ends at 10.93 years, below the professional minimum
-of 11.09. A same-education comparison between those types necessarily crosses
-that gap. A model can return both predictions there; software output does not
-create observations. Lack of support limits what can be learned or interpreted
-about a defined comparison rather than making the estimand cease to exist.
+of 11.09, so comparing those types at the same education crosses a gap
+with no records. The model still returns predictions there, but software
+output does not create observations: a lack of support limits what the
+data can say about a comparison without making the comparison undefined.
 
-The Computer Lab's Round 1 reference, *Covariance objects, diagnostic
-displays and variations*, supplies the grid and plotting code used here. A conditional grid can also avoid pretending that an unrestricted rectangle
-is supported. For *m1*, hold prestige at 30, 50, or 70 and plot education only
-over values observed within 7.5 prestige points of each target. The width is
-an explicit display convention, not a formal support guarantee.
+A display of fitted values can respect support. @fig-ch8-grid holds
+prestige at 30, 50, or 70 in *m1* and draws education only over the
+values observed within 7.5 prestige points of each; the width is a
+stated display choice, not a formal guarantee. The lines are parallel
+and fall gently because the additive *m1* has one education slope,
+$-0.2179$ (Section 3.1), at every prestige, and the higher-prestige lines
+sit over higher education. Because the display conditions on prestige
+alone, it illustrates the plotting choice rather than support for the
+full-model profile.
 
 ```{r}
 #| label: ch8-grid
@@ -816,25 +804,22 @@ ggplot2::ggplot(ch8_grid,
   ggplot2::theme(legend.position = "bottom")
 ```
 
-The parallel lines share *m1*'s education slope. This display conditions on
-prestige only, not on the full set for Pair 2. It teaches a transparent plotting
-choice; it does not prove support for the full-model profile.
-
-Education's variance inflation factor measures the collinearity cost.
-Regress education on the remaining predictors; the auxiliary $R^2$
-measures how much of its variation they account for, and
+**Collinearity** means that a predictor is strongly linearly related to
+the other predictors, so they largely predict it, and it costs
+precision. The auxiliary $R^2$ from regressing education on the other
+predictors, .8765, measures how strongly: they account for most of
+education's variation, and education's **variance inflation factor** is
 
 $$
 VIF_E=\frac{1}{1-R^2_{E\mid P,W,T}}\approx8.0968,
-\qquad \sqrt{VIF_E}\approx2.8455,
+\qquad \sqrt{VIF_E}\approx2.8455.
 $$
 
-since the auxiliary $R^2$ is .8765. @fig-ch8-vif draws the SE multiplier
-$\sqrt{VIF}$ against the auxiliary $R^2$ and marks the model's three
-continuous predictors. The curve rises slowly at first: women, whose
-auxiliary $R^2$ is .2312, loses little precision (multiplier 1.1405).
-Beyond about .8 it climbs steeply, and prestige (.8066, multiplier
-2.2738) and education sit on that steep part.
+@fig-ch8-vif draws the SE multiplier $\sqrt{VIF}$ against the auxiliary
+$R^2$ for the three continuous predictors. The curve rises slowly at
+first, so women (auxiliary $R^2$ .2312, multiplier 1.1405) loses little
+precision, and it climbs steeply beyond about .8, where prestige (.8066,
+multiplier 2.2738) and education sit.
 
 ```{r}
 #| label: fig-ch8-vif
@@ -859,21 +844,21 @@ ggplot2::ggplot(ch8_vif_curve, ggplot2::aes(r2, multiplier)) +
                 y = "SE multiplier, square root of VIF")
 ```
 
-Under the classical model, holding residual variance and total education
-variation fixed, education's coefficient SE is multiplied by 2.8455
-relative to an orthogonal design. This is a comparison of variance
-formulas, not a claim that deleting other predictors will divide the
-actual SE by 2.8455. Deletion changes the comparison and can change
-residual variance. VIF is not an automatic deletion threshold, and near
-collinearity does not by itself create bias under the maintained
-zero-conditional-mean model.
+Under the classical model, holding the residual variance and education's
+total variation fixed, education's SE is 2.8455 times what it would be in
+an orthogonal design, where education is uncorrelated with the other
+predictors. This compares two variance formulas: deleting a predictor
+would change the comparison and can change the residual variance, so a
+VIF is not a deletion rule, and near collinearity does not by itself
+bias the coefficient under the maintained zero-conditional-mean model.
 
-### Use targeted sensitivities to bound the answer
+### Sensitivity to curvature and to one record
 
-A component-plus-residual plot adds the fitted prestige contribution back to
-each residual, $e_i+\widehat\beta_P P_i$. The smooth bends upward at high prestige
-relative to the straight fitted component. That pattern motivates a declared
-form sensitivity; it does not prove that one chosen curve is the true process.
+A component-plus-residual plot adds the fitted prestige term back to
+each residual, $e_i+\widehat\beta_P P_i$. In @fig-ch8-partial-residual
+the smooth bends upward at high prestige, away from the straight fitted
+component. That motivates a declared form sensitivity; it does not show
+that any one curve is the true process.
 
 ```{r}
 #| label: fig-ch8-partial-residual
@@ -898,20 +883,19 @@ ggplot2::ggplot(ch8_partial, ggplot2::aes(prestige, component)) +
   ggplot2::labs(x = "Prestige", y = "Component plus residual")
 ```
 
-The refit asks whether a squared prestige term improves on *m2*. The two
-fits are **nested**: they share the outcome and the 98 rows, and the
-smaller fit's predictors are a subset of the larger fit's, which adds one
-term. Chapter 6's nested-model $F$ compared an additive and a full model
-of the feedback-and-practice study; the same comparison applies here,
-with continuous predictors. Its null hypothesis is that the
-squared-prestige coefficient is zero, so that *m2*'s mean function
-suffices. The statistic compares the residual sum of squares that the
-added term removes with the larger fit's residual variance, on 1 and
-$98-7=91$ degrees of freedom. A small $p$ value says the added term
-removes more variation than the error scale would ordinarily produce under
-that null and the stated conditions. It does not establish that the
-enlarged equation is the correct mean function, and it is not a rule for
-selecting a model. Chapter 9 develops the general nested comparison.
+The refit adds a squared prestige term to *m2*. The two fits are
+**nested**: they share the outcome and the 98 rows, and the smaller
+fit's predictors are a subset of the larger fit's. Chapter 6's
+nested-model $F$ compared an additive and a full model of the
+feedback-and-practice study, and the same comparison applies here with
+continuous predictors. Its null hypothesis is that the squared-prestige
+coefficient is zero, so that *m2*'s mean function suffices; the
+statistic sets the residual sum of squares that the added term removes
+against the larger fit's residual variance, on 1 and $98-7=91$ degrees
+of freedom. A small $p$-value says the term removes more variation than
+the error scale would ordinarily produce under that null. It does not
+make the enlarged equation the correct mean function, and it is not a
+rule for choosing a model; Chapter 9 develops the general comparison.
 
 \Needspace{26\baselineskip}
 
@@ -924,22 +908,20 @@ c(full_education = unname(coef(m2)["education"]),
   curve_education = unname(coef(ch8_curve)["education"]))
 ```
 
-The classical nested comparison gives $F(1,91)=6.736$ and $p=.011$;
-education changes from 0.1164 to $-0.0298$. In the enlarged equation,
-the prestige slope depends on prestige through
-$\beta_P+2\beta_{P^2}P$. This is a focused sensitivity for Pair 2, not a
-validation-tuned replacement for the frozen prediction rule in Pair 3.
+The comparison gives $F(1,91)=6.736$ and $p=.011$, and education moves
+from 0.1164 to $-0.0298$; in the enlarged equation the prestige slope,
+$\beta_P+2\beta_{P^2}P$, depends on prestige. This is a focused
+sensitivity for Pair 2, not a replacement for the prediction rule that
+Pair 3 fixed in advance.
 
-The record for general managers has the largest Cook's distance, about
-0.4467. Its high income relative to the model is not proof of error. A
-transparent deletion refit, the same formula fitted to the other 97
-records, asks how dependent the answer is on that record; the Computer
-Lab runs it. The education estimate moves from 0.1164 to 0.4372.
-Preserve the full-data estimate and disclose the sensitivity. Verify
-coding, measurement, and substantive distinctiveness before considering
-exclusion; a more attractive $p$ value is not an exclusion rule. The
-refit is a diagnostic perturbation, not a new research question or
-evidence that the reduced sample is preferable.
+General managers have the largest Cook's distance, about 0.4467; a high
+income relative to the model is not proof of an error. Refitting the
+formula to the other 97 records, as the Computer Lab does, moves
+education from 0.1164 to 0.4372. We keep the full-data estimate and
+disclose the sensitivity: excluding a record needs evidence about its
+coding, measurement, or distinctiveness, never a more attractive
+$p$-value. @tbl-ch8-checks collects what each check shows and what
+follows for the answer.
 
 ```{=latex}
 \Needspace{30\baselineskip}
@@ -956,26 +938,23 @@ evidence that the reduced sample is preferable.
 
 : Checks change the bounded answer rather than producing one omnibus pass/fail score. {#tbl-ch8-checks tbl-colwidths="[19,38,43]"}
 
-Appendix B develops Cook's distance, coefficient covariance, generalized
-VIF, and model-comparison criteria, with a caution about comparing
-criteria across outcome scales; the
-Computer Lab carries the diagnostic and matrix reproductions. The results
-needed to interpret the answer are already in this section.
+Appendix B gives the formulas for Cook's distance, the HC3 covariance,
+the generalized VIF, and the model-comparison criteria; the results
+needed to interpret the answer are all in this section.
 
-## Move from Coefficients to Fitted and Standardized Quantities {#sec-ch8-quantities}
+## Fitted and Standardized Quantities {#sec-ch8-quantities}
 
-The profile and standardization calculations in this section are **didactic
-extensions of the fitted model**, not extra question-facing answers owed by
-the occupation study. Pair 2 remains about $\beta_E$. A report that promoted
-one of these quantities to its own substantive conclusion would need to state
-the corresponding question, estimand, justification, and bounds.
+The fitted model also gives quantities for particular profiles: a fitted
+mean with its two intervals, and an average over a named set of
+profiles. These are teaching extensions of the model, not further
+answers the study owes; Pair 2 remains about $\beta_E$.
 
-### A fitted mean is not prediction performance
+### A fitted mean and its two intervals
 
-Start with a complete input row and ask R for the two interval types.
-`interval = "confidence"` concerns the model mean at that profile;
+For a complete input row, `predict()` returns two intervals:
+`interval = "confidence"` concerns the model's mean at that profile, and
 `interval = "prediction"` concerns one new outcome at the same profile.
-Both use the full fitted model and its stated classical assumptions.
+Both use the full fitted model and its classical assumptions.
 
 \Needspace{17\baselineskip}
 
@@ -988,13 +967,13 @@ predict(m2, newdata = profile, interval = "confidence")
 predict(m2, newdata = profile, interval = "prediction")
 ```
 
-Where do these intervals come from? For the white-collar profile in
-@sec-ch8-comparisons, collect the coefficient multipliers in
-$\mathbf x_*=(1,11,45,50,0,1)^{\mathsf T}$. Their order is intercept,
-education, prestige, women, professional indicator, and white-collar
-indicator, and the superscript $\mathsf T$ denotes the transpose. With
-$\widehat{\mathbf V}$, the coefficient covariance of Section 3.2, the
-fitted mean and its estimated classical variance are
+Where do these intervals come from? Collect the coefficient multipliers
+of the Section 2.3 profile in $\mathbf x_*=(1,11,45,50,0,1)^{\mathsf T}$,
+in the order intercept, education, prestige, women, professional
+indicator, and white-collar indicator; the superscript $\mathsf T$
+denotes the transpose. With $\widehat{\mathbf V}$, the coefficient
+covariance of Section 3.2, the fitted mean and its estimated classical
+variance are
 
 $$
 \widehat m_*=\mathbf x_*^{\mathsf T}\widehat{\boldsymbol\beta},\qquad
@@ -1002,27 +981,27 @@ $$
 \quad \widehat{\mathbf V}=\operatorname{vcov}(m2).
 $$
 
-The variance includes the coefficient variances **and their covariances**.
-For example, two terms $a\widehat\beta_j+b\widehat\beta_k$ contribute
+The variance includes the coefficient variances **and their
+covariances**: two terms $a\widehat\beta_j+b\widehat\beta_k$ contribute
 $a^2\widehat{\operatorname{Var}}(\widehat\beta_j)+
 b^2\widehat{\operatorname{Var}}(\widehat\beta_k)+
 2ab\widehat{\operatorname{Cov}}(\widehat\beta_j,\widehat\beta_k)$.
-Adding coefficient SEs, or ignoring covariance, is not the same
-calculation; take the square root only after calculating the variance.
-Here the fitted mean is 5.5886, its estimated variance 0.308 in squared
-units, and its SE 0.5549 thousand dollars, which gives the classical
-fitted-mean interval $[4.4865,6.6908]$ that `predict()` printed.
+Adding coefficient SEs, or ignoring the covariances, is a different
+calculation, and the square root comes only after the variance is
+complete. Here the fitted mean is 5.5886, its variance 0.308, and its SE
+0.5549 thousand dollars, giving the fitted-mean interval
+$[4.4865,6.6908]$ that `predict()` printed.
 
-For **one new outcome**, its own error variation adds $s^2=6.8575$: the SE
-is $\sqrt{s^2+\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*}\approx2.6768$,
-giving the much wider interval $[0.2722,10.9051]$. @fig-ch8-bands draws
-both intervals along the white-collar education range, holding prestige
-at 45 and women at 50. The dark fitted-mean band is narrowest near
-education 11.2, about 2.2 thousand dollars wide, and widens toward the
-edges of the records, to about 3.1 at 9.17 years. The light band for one
-new occupation stays between about 10.6 and 10.9 wide along the whole
-range, because the new occupation's error variance, 6.8575, dominates a
-fitted-mean variance of about 0.3.
+**One new outcome** adds its own error variance, $s^2=6.8575$, so its SE
+is $\sqrt{s^2+\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*}\approx2.6768$
+and its interval $[0.2722,10.9051]$. @fig-ch8-bands draws both intervals
+across the white-collar education range at prestige 45 and women 50. The
+dark fitted-mean band is narrowest near education 11.2, about 2.2
+thousand dollars wide, and widens toward the edges of the records, to
+about 3.1 at 9.17 years. The light band for one new occupation stays
+between about 10.6 and 10.9 wide along the whole range, because the new
+occupation's error variance, 6.8575, dominates a fitted-mean variance of
+about 0.3.
 
 ```{r}
 #| label: fig-ch8-bands
@@ -1054,19 +1033,18 @@ ggplot2::ggplot(band, ggplot2::aes(education)) +
                 y = "Income (thousand 1971 dollars)")
 ```
 
-This calculation uses the independent normal common-variance
-conditional-mean model; it is not a promise established by the
-diagnostics. Replacing $\widehat{\mathbf V}$ with HC3 alone does not
-estimate an arbitrary new outcome's conditional error distribution.
-Neither interval tells us how accurately a learning rule predicts
-held-out records on average. That requires Pair 3.
+Both intervals rest on the independent, Normal, common-variance model,
+which the checks of Section 4 qualify rather than confirm; replacing
+$\widehat{\mathbf V}$ with HC3 alone does not estimate a new outcome's
+conditional error distribution. Neither interval says how accurately a
+learning rule predicts held-out records; that is Pair 3's question.
 
-### Standardize over a named distribution
+### Standardizing over the observed profiles
 
-A conditional fitted value uses one specified profile. A standardized fitted
-value averages across a named distribution. To see the operation, copy the
-98 observed profiles, change their type to white-collar, predict each
-fitted value, then take the mean. Each continuous profile has equal weight.
+A standardized fitted value averages over a named set of profiles rather
+than using one. Copy the 98 observed profiles, change every type to
+white-collar, predict each fitted value, and average them with equal
+weights.
 
 \Needspace{11\baselineskip}
 
@@ -1078,31 +1056,30 @@ white_profiles$type <- factor("wc", levels = levels(d$type))
 mean(predict(m2, newdata = white_profiles))
 ```
 
-This is an average of model predictions after a specified profile change,
-not the observed white-collar group mean. For type $g$ and fixed
-nonnegative weights $w_i$ summing to one,
+The result, 7.0164, is an average of model predictions after a specified
+change of profile, not the observed white-collar group mean. For type
+$g$ and fixed nonnegative weights $w_i$ summing to one,
 
 $$
 \widehat\mu_g^{\mathrm{std}}=\sum_i w_i\mathbf x_{ig}^{\mathsf T}\widehat{\boldsymbol\beta}
-=\mathbf a_g^{\mathsf T}\widehat{\boldsymbol\beta},\qquad \mathbf a_g=\sum_i w_i\mathbf x_{ig}.
+=\mathbf a_g^{\mathsf T}\widehat{\boldsymbol\beta},\qquad \mathbf a_g=\sum_i w_i\mathbf x_{ig},
 $$
 
-Here $\mathbf x_{ig}$ is the design vector after assigning type $g$ to observed
-continuous profile $i$. With empirical weights $w_i=1/98$, this is
-standardization over these 98 profiles, not over a national population.
-Treating those profiles and weights as fixed gives estimated variance
-$\mathbf a_g^{\mathsf T}\widehat{\mathbf V}\mathbf a_g$.
-
-For the white-collar quantity, averaging the six coefficient multipliers
-over the 98 changed profiles gives $\mathbf a_{\mathrm{wc}}$, and
-$\mathbf a_{\mathrm{wc}}^{\mathsf T}\widehat{\boldsymbol\beta}$ returns the
-same 7.0164. Its SE is 0.6177 and its classical interval
-$[5.7896,8.2432]$; the variance includes the covariance between the
-predictions through their shared fitted coefficients, so averaging the
-98 individual interval endpoints would give a different calculation. The
-Computer Lab computes $\mathbf a_{\mathrm{wc}}$ and repeats the operation
-for each type. @tbl-ch8-standardized sets the results beside the observed
-mean income of each type.
+where the design vector $\mathbf x_{ig}$ holds the six coefficient
+multipliers of observed profile $i$, as $\mathbf x_*$ does in Section
+5.1, after its type is set to $g$; $\mathbf a_g$ is their weighted
+average. With empirical weights $w_i=1/98$ this
+standardizes over these 98 profiles, not over a national population, and
+treating the profiles and weights as fixed gives the estimated variance
+$\mathbf a_g^{\mathsf T}\widehat{\mathbf V}\mathbf a_g$. For
+white-collar, $\mathbf a_{\mathrm{wc}}^{\mathsf T}\widehat{\boldsymbol\beta}$
+returns 7.0164 with SE 0.6177 and classical interval $[5.7896,8.2432]$.
+The variance keeps the covariances among the 98 predictions, which share
+the fitted coefficients, so averaging their interval endpoints would be
+a different calculation. The Computer Lab computes
+$\mathbf a_{\mathrm{wc}}$ and repeats the operation for each type;
+@tbl-ch8-standardized sets the results beside each type's observed mean
+income.
 
 \Needspace{9\baselineskip}
 
@@ -1115,48 +1092,44 @@ mean income of each type.
 : Observed type means and empirical-profile standardization under the full additive model. {#tbl-ch8-standardized tbl-colwidths="[12,18,22,14,17,17]"}
 
 The observed means differ sharply: professional occupations average
-10.5595 thousand dollars, about twice the other two types. They also have
-more education, higher prestige and different percentages of women. The
-standardized estimates give every type the same 98 profiles, so they
-differ only by the type coefficients, 0.3242 for professional and
-0.2353 for white-collar relative to blue-collar.
+10.5595 thousand dollars, about twice the other two types, but they also
+have more education, higher prestige, and different percentages of
+women. The standardized estimates give every type the same 98 profiles,
+so they differ only by the type coefficients, 0.3242 for professional
+and 0.2353 for white-collar relative to blue-collar.
 
-Because *m2* is linear and additive in the continuous predictors, its average
-fitted value equals its fitted value at their means. This is an algebraic
-special case: with squared terms, interactions, or a nonlinear response
-function, prediction at means need not equal mean prediction. Constant
-additive type contrasts remain unchanged by common weights, although absolute
-standardized levels can change.
+Because *m2* is linear and additive in the continuous predictors, its
+average fitted value equals its fitted value at their means (education
+averages 10.7951 years); with squared terms, interactions, or a
+nonlinear response function, the prediction at the means need not equal
+the mean prediction. Any other fixed weighting used for all three
+types, whether another named set of profiles or unequal weights on these
+98, would move the three standardized levels but leave their differences
+at the type coefficients.
 
-The overall education mean is 10.7951 years. Relabelling every profile
-professional or white-collar creates some unsupported combinations. Averaging
-them does not solve that problem. The white-collar profile used above is a
-different, locally supported conditional quantity; it is not a three-type
-comparison. The intervals condition on the empirical profiles and use the
-classical covariance. Estimating a new population's covariate distribution
-would add uncertainty not included here.
+Relabelling every profile professional or white-collar creates some
+combinations the records do not support, and averaging does not remove
+that problem; the white-collar profile of Section 5.1 is a different,
+locally supported quantity. Standardization alone neither identifies a
+causal effect nor validates out-of-sample performance.
 
-Standardization does not identify a causal effect by itself and does not
-validate out-of-sample performance. Pair 3 requires a learning rule and
-held-out outcomes.
+\Needspace{12\baselineskip}
 
-## Ask and Answer the Separate Prediction Question {#sec-ch8-prediction}
+## The Held-Out Prediction Question {#sec-ch8-prediction}
 
-### Define the learning rule, new case, and loss
+### Learning rules and the loss
 
-A learning rule says how training data become a fitted prediction equation.
-Our two rules are fixed: fit education-only OLS, or fit the full additive
-OLS equation with education, prestige, women, and type. Both use the same
-outcome and records. OLS **fits** by minimizing squared training errors;
-we separately choose **mean absolute error (MAE)** to evaluate the
-resulting predictions in interpretable income units.
+A learning rule says how training records become a prediction equation.
+Our two rules are fixed: education-only OLS, and the full additive OLS
+equation with education, prestige, women, and type. OLS **fits** by
+minimizing squared training errors; we separately choose the **mean
+absolute error (MAE)** to evaluate the predictions in income units.
 
-A prediction opportunity here means a hypothetical same-source occupation
-with all declared predictors available before its income outcome is used.
-It does not mean predicting future earnings from information that would
-only become available afterward. The records do not establish that this
-hypothetical exchangeability assumption holds for new countries, periods,
-individual workers, or occupational types absent from the dictionary.
+A prediction opportunity here is a hypothetical same-source occupation
+whose predictors are all available before its income is used, not a
+forecast from information that arrives later. The records cannot show
+that this exchangeability holds for other countries, periods, individual
+workers, or types absent from the dictionary.
 
 For held-out outcomes $y_i$ and predictions $\widehat y_i^{(-)}$ fitted
 without those outcomes,
@@ -1166,77 +1139,16 @@ MAE=\frac{1}{n_{\mathrm{test}}}
        \sum_{i\in\mathrm{test}}\left|y_i-\widehat y_i^{(-)}\right|.
 $$
 
-The superscript reminds us that the case was held out of fitting. A smaller
-number means smaller average absolute prediction error on the evaluated
-cases. It does not say that every case was predicted better.
+A smaller MAE means a smaller average absolute error on the evaluated
+cases, not a better prediction for every case.
 
-### Keep held-out outcomes out of training
+### Shared ten-fold validation
 
-We use shared ten-fold cross-validation. The 98 records are divided into
-ten folds; each fold takes a turn as the held-out set. Fit both equations
-on the other records, predict the held-out cases, then combine the 98
-case-level errors.
-
-\Needspace{24\baselineskip}
-
-| Decision | Frozen teaching protocol | Why it matters |
-|:--|:--|:--|
-| Candidates | Education-only and the declared full additive OLS rule | No search for the best-looking model after validation |
-| Folds | Shared balanced random ten-fold assignment, seed 80806 | Both rules face the same held-out cases |
-| Training sizes | Eight fits use 88 records; two use 89 | Risk concerns those training sizes, not a model trained on all 98 |
-| Preparation | Same 98 complete records; fixed income/1,000 conversion and type dictionary | No outcome-informed preprocessing; selection still limits scope |
-| Estimability | Every training set must contain all three types and have full column rank | Stop rather than silently substitute a different rule |
-| Summary | Pool absolute errors over all 98 held-out cases | Each case receives equal weight; folds of different size do not |
-| Sensitivity | 200 new resplits of the same records, seed 80807 | Describes sensitivity to splitting, not new independent studies |
-
-: The internal-validation protocol was fixed before this teaching comparison. {#tbl-ch8-validation tbl-colwidths="[20,42,38]"}
-
-This is a retrospective teaching reanalysis of familiar historical data.
-“Fixed before this comparison” is not a claim of historical preregistration
-or that analysts had never seen the outcomes. The candidates are not revised
-after inspecting the primary errors; the association sensitivities in
-@sec-ch8-check are not covert additions to the validated candidate set.
-
-\Needspace{27\baselineskip}
-
-```{r}
-#| label: ch8-one-fold
-#| echo: true
-RNGkind("Mersenne-Twister", "Inversion", "Rejection")
-set.seed(80806)
-fold <- sample(rep(seq_len(10), length.out = nrow(d)))
-held_fold <- fold[1]
-train <- d[fold != held_fold, ]
-held <- d[fold == held_fold, ]
-c(fold = held_fold, training = nrow(train), held_out = nrow(held))
-fold_simple <- lm(income_k ~ education, data = train)
-fold_full <- lm(income_k ~ education + prestige + women + type,
-                data = train)
-first_case <- d[1, ]
-first_predictions <- c(
-  Education = unname(predict(fold_simple, first_case)),
-  Full = unname(predict(fold_full, first_case)))
-first_predictions
-abs(first_predictions - first_case$income_k)
-```
-
-This is one fold of the frozen protocol. Government administrators, the
-first source record, falls in fold 9, which leaves 89 training records
-and 9 held-out records; the record was excluded from both fits, and the
-code predicts it. Every training set must contain all three types for
-the full rule to be estimable; the Computer Lab checks this and the
-fitted ranks for every fold. Repeating the same train/predict/error
-steps across all ten folds gives the all-98 comparison below. One
-record's error is not that summary.
-
-The Computer Lab provides the complete ten-fold function and the
-200-resplit code; Chapter 13 develops
-held-out validation fully. The visible one-fold example needs
-only the preceding core data definitions, not that helper. No held-out
-outcome is used to estimate a coefficient. If we introduced learned scaling,
-imputation, or variable selection, each step would have to be fitted using
-training data only. A fixed unit conversion such as dollars to thousands is
-not an estimated preprocessing step.
+In shared ten-fold cross-validation the 98 records are divided into ten
+folds, and each fold takes a turn as the held-out set: both rules are
+fitted to the other records and predict the held-out cases
+(@fig-ch8-folds), and the 98 case-level errors are then pooled.
+@tbl-ch8-validation records the protocol.
 
 ```{r}
 #| label: fig-ch8-folds
@@ -1262,19 +1174,76 @@ arrows(6.2, 1.4, 7, 2.2, length = .08)
 text(5, .12, "Repeat across ten folds; pool the 98 case-level errors.", cex = .9)
 ```
 
-### Work one error, then read the comparison
+\Needspace{24\baselineskip}
 
-For government administrators, the first source record, observed income is
-12.351 thousand dollars. Its held-out fold is 9. The full-rule prediction
-is 11.5948, giving
+| Decision | Frozen teaching protocol | Why it matters |
+|:--|:--|:--|
+| Candidates | Education-only and the declared full additive OLS rule | No search for the best-looking model after validation |
+| Folds | Shared balanced random ten-fold assignment, seed 80806 | Both rules face the same held-out cases |
+| Training sizes | Eight fits use 88 records; two use 89 | Risk concerns those training sizes, not a model trained on all 98 |
+| Preparation | Same 98 complete records; fixed income/1,000 conversion and type dictionary | No outcome-informed preprocessing; selection still limits scope |
+| Estimability | Every training set must contain all three types and have full column rank | Stop rather than silently substitute a different rule |
+| Summary | Pool absolute errors over all 98 held-out cases | Each case receives equal weight; folds of different size do not |
+| Sensitivity | 200 new resplits of the same records, seed 80807 | Describes sensitivity to splitting, not new independent studies |
+
+: The internal-validation protocol was fixed before this teaching comparison. {#tbl-ch8-validation tbl-colwidths="[20,42,38]"}
+
+This is a retrospective reanalysis of familiar data, so "fixed before
+this comparison" is not a claim of historical preregistration. It means
+that the candidates were not revised after the primary errors were seen.
+The sensitivity refits of Section 4 are not added to the candidate set.
+The code below runs one fold of this protocol: the fold that holds the
+first source record.
+
+\Needspace{27\baselineskip}
+
+```{r}
+#| label: ch8-one-fold
+#| echo: true
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+set.seed(80806)
+fold <- sample(rep(seq_len(10), length.out = nrow(d)))
+held_fold <- fold[1]
+train <- d[fold != held_fold, ]
+held <- d[fold == held_fold, ]
+c(fold = held_fold, training = nrow(train), held_out = nrow(held))
+fold_simple <- lm(income_k ~ education, data = train)
+fold_full <- lm(income_k ~ education + prestige + women + type,
+                data = train)
+first_case <- d[1, ]
+first_predictions <- c(
+  Education = unname(predict(fold_simple, first_case)),
+  Full = unname(predict(fold_full, first_case)))
+first_predictions
+abs(first_predictions - first_case$income_k)
+```
+
+Government administrators, the first source record, fall in fold 9,
+leaving 89 training and 9 held-out records; both fits exclude the record,
+and the code predicts it. The full rule is estimable only if every
+training set contains all three types, which the Computer Lab checks for
+every fold together with the fitted ranks. The Lab also provides the
+complete ten-fold function and the 200 resplits, and Chapter 13 develops
+held-out validation fully.
+
+No held-out outcome is used to estimate a coefficient. Learned
+preprocessing, such as scaling, imputation, or variable selection, would
+also have to be fitted on training records only; a fixed unit conversion
+such as dollars to thousands is not learned.
+
+### Held-out errors and resplits
+
+For government administrators, observed income is 12.351 thousand
+dollars. The full-rule prediction is 11.5948, giving
 
 $$
-|12.351-11.5948|=0.7562.
+|12.351-11.5948|=0.7562,
 $$
 
-The education-only prediction is 8.9461, giving
+and the education-only prediction is 8.9461, giving
 $|12.351-8.9461|=3.4049$.
-This one record favors the full rule. We still need all 98 errors:
+This record favors the full rule, but one record is not the comparison;
+@tbl-ch8-mae pools all 98 errors.
 
 | Learning rule | Held-out MAE (thousand dollars) |
 |:--|--:|
@@ -1284,53 +1253,49 @@ This one record favors the full rule. We still need all 98 errors:
 
 : Case-weighted absolute errors from the frozen shared-fold comparison. {#tbl-ch8-mae tbl-colwidths="[60,40]"}
 
-The full rule's average held-out absolute error is about 862 dollars lower
-in this split. Because we subtract the two errors for **each same case**
-before averaging, difficulty differences between validation cases do not
-come from using different test sets for the two rules. A different loss
-can be read from the same held-out predictions: the root mean squared
-error, which weights large errors more heavily, is 3.5051 for
-education-only and 2.7111 for the full rule, so the preference does not
-change here; it need not agree with MAE in other data.
+The full rule's average held-out absolute error is about 862 dollars
+lower. Because the two errors are subtracted for **each same case**
+before averaging, differences in difficulty between cases cannot favor
+either rule through different test sets. The same predictions give the
+root mean squared error, which weights large errors more heavily: 3.5051
+for education-only and 2.7111 for the full rule, the same preference
+here, although the two losses need not agree in other data.
 
-What is the performance estimand? Eight test folds contain 10 cases whose
-predictions were trained on 88; two contain 9 cases trained on 89.
-Consequently the pooled quantity targets the declared mixture
+What exactly is estimated? Eight test folds contain 10 cases predicted
+from 88 training records, and two contain 9 cases predicted from 89, so
+the pooled quantity targets the mixture
 
 $$
 R_{\mathrm{mix}}=\frac{80}{98}R_{88}+\frac{18}{98}R_{89},
 $$
 
-where $R_m$ is expected absolute error of the specified learning rule
-trained on $m$ eligible same-source records and used on a new one under
-the stated repetition. Pair 3 compares the two rules' $R_{\mathrm{mix}}$.
-It does not directly estimate performance of the single equation fitted
-to all 98 observed records.
+where $R_m$ is the expected absolute error of the specified learning rule
+trained on $m$ eligible same-source records and used on a new one. Pair 3
+compares the two rules' $R_{\mathrm{mix}}$; it does not directly estimate
+the performance of the single equation fitted to all 98 records.
 
-The 200 resplits give full-minus-education MAE differences from $-0.914$ to
-$-0.741$, all favoring the full rule. This supports stability to the examined
-split choices. It is **not a 95% interval**: the same cases are reused,
-training sets overlap, and the results are not independent studies.
-We do not test a mean of ten fold errors as if those errors were independent.
-Uncertainty across newly drawn training samples is not quantified here.
-The estimated risk advantage is therefore provisional; its sign is not
-established for the hypothetical source population by the resplit range.
+The 200 resplits give full-minus-education MAE differences from $-0.914$
+to $-0.741$, all favoring the full rule. That range shows stability
+across the examined splits, but it is **not a 95% interval**: the same
+cases are reused, training sets overlap, and the splits are not
+independent studies, which is also why we do not test the ten fold
+errors as if they were independent. Uncertainty across newly drawn
+training samples is not quantified, so the advantage is provisional.
 
-The comparison supports lower internal held-out error for the full rule in
-these records and under this protocol. It does not isolate the predictive
-contribution of education: the rules differ by prestige, women, and type
-together. Nor does it establish external transport, individual earnings
-prediction, or a causal education effect.
+The comparison supports lower internal held-out error for the full rule
+in these records under this protocol. It does not isolate the predictive
+contribution of education, because the rules differ by prestige, women,
+and type together, and it does not establish external transport,
+individual earnings prediction, or a causal education effect.
 
 \Needspace{14\baselineskip}
 
-## Read the Coordinated Arguments, Then Evaluate and Synthesize {#sec-ch8-coordinate}
+## Reading and Evaluating the Three Answers {#sec-ch8-coordinate}
 
-### The chapter-authored study record
+### The study report
 
-The following report consolidates the preceding analysis. Treat its
-paragraphs, tables, equations, and code as an accessible teaching record,
-not as statements copied from the source investigators.
+The report below gathers the analyses of Sections 1--6. It is our
+teaching record, not a statement by the source investigators.
 
 > **R0 -- Common record and declared scope.** We analyzed the 98 complete
 > occupation records described in @sec-ch8-questions. Income was
@@ -1372,14 +1337,17 @@ not as statements copied from the source investigators.
 > education-only rule. These conclusions answer different questions and
 > do not establish that changing education would change income.
 
-### Read the functions and their traces
+### Functions and traces in the report
 
-A component is a logical function; the record contains study-specific
-content serving that function. A passage can carry several functions.
-For example, R0 identifies records for STAT-E and supplies historical
-context for SUB-E. It becomes J content only when it offers a reason
-connecting those records to a particular inference. “We used R” does not
-by itself supply that reason.
+Reading starts by locating what each passage does. In Chapter 1's
+terms, a component is a logical function, such as STAT-E or SUB-J, and
+the report's study-specific content serves it. One passage can serve
+several functions. R0, for example, identifies the records for STAT-E
+and supplies their historical context for SUB-E. It would become
+justification (J) content only if it offered a reason connecting those
+records to an inference; "we used R" offers none. @tbl-ch8-traces lists
+each function once, with the content shared by the three pairs and the
+content specific to each.
 
 | Function | Shared or pair-specific content | Trace in this teaching record |
 |:--|:--|:--|
@@ -1394,39 +1362,35 @@ by itself supply that reason.
 
 : Reading the linked-layer functions without three duplicate maps. {#tbl-ch8-traces tbl-colwidths="[15,47,38]"}
 
-SUB-E situates evidence; SUB-J **augments and contextualizes** statistical
-justification; SUB-I interprets the inference; SUB-C bounds the substantive
-answer. Sharing a dataset does not make Pair 2's independent-error model
-into Pair 3's validation procedure.
+SUB-E situates the evidence, SUB-J **augments and contextualizes** the
+statistical justification, SUB-I interprets the inference, and SUB-C
+bounds the substantive answer. Sharing a dataset does not make Pair 2's
+independent-error model into Pair 3's validation procedure.
 
-For each supporting statement, record what the report says and where the
-reader can find it: the report itself, the data documentation, or the
-executable calculation record. State gaps and conflicts in ordinary prose.
-For example, R2 states the independence assumption, but this teaching record
-does not supply evidence establishing independence under the original
-occupation-selection process. A stated assumption and evidence for it are
-different pieces of information.
+For each supporting statement, record what the report says and where
+the reader finds it: in the report, the data documentation, or the
+executable calculations. Gaps and conflicts are stated in ordinary
+prose. R2 states the independence assumption, for example, but nothing in
+the record shows that independence holds under the original selection of
+occupations; a stated assumption and evidence for it are different
+information. The unit conversion, by contrast, makes reading 0.883
+thousand dollars as about 883 dollars traceable. This record contains no
+conflicting source, though a real study may contain incompatible
+descriptions to record and investigate. A reason's documentary status is
+simply what has been stated or located and which support is missing; it
+is not a quality score or a set of categories to learn.
 
-Similarly, the income-unit conversion makes the interpretation of 0.883
-thousand dollars as about 883 dollars traceable without inventing an
-empirical premise. No conflicting source is identified in this defined
-record; a real study may contain incompatible descriptions that a reader
-should record and investigate. Here, a reason's documentary status means
-what has been stated or located, and which support is missing. It is not a
-quality score or a four-category classification to learn.
+Professional knowledge helps identify a trace's function but does not
+license adding an unreported design feature. An invalid reason such as
+"all rows are in the same dataset, therefore they are independent" is
+still **stated J**, whose adequacy is judged separately: reading records
+the reason actually offered, not a repaired one.
 
-Professional knowledge helps identify what function a trace serves. It
-does not authorize adding an unreported design feature. If an author gave
-the invalid reason “all rows are in the same dataset, therefore they are
-independent,” it would still be **stated J**, whose adequacy is judged
-separately. Reading records the claim actually offered, not a repaired
-claim the reader wishes had been offered.
+### Evaluating each answer
 
-### Evaluate each argument separately
-
-We now change from identifying the reported reasoning to evaluating its
-quality. The six Chapter 1 questions apply to each argument. They are not
-six scores to total, and not every concern needs to be counted repeatedly.
+Evaluation now judges the quality of the reasoning just identified.
+Chapter 1's six questions apply to each argument (@tbl-ch8-quality); they
+are not six scores to total.
 
 | Quality-evaluation question | Application to these arguments |
 |:--|:--|
@@ -1439,89 +1403,90 @@ six scores to total, and not every concern needs to be counted repeatedly.
 
 : Apply the six questions before evaluating the study-level synthesis. {#tbl-ch8-quality tbl-colwidths="[28,72]"}
 
-At an individual question, useful judgments include **adequate for this
+Each question receives a judgment with a reason: **adequate for this
 purpose**, **needs revision**, **insufficient information to judge**, or
-**not applicable**, with a reason. For example, the record is adequate to
-check Pair 3's held-out computations but gives insufficient information to
-establish exchangeability for an external population. These judgments assess adequacy; they are separate from recording
-what the report says and where its support can be found.
+**not applicable**. The record is adequate, for example, to check Pair
+3's held-out computations, but it gives insufficient information to
+establish exchangeability with an external population.
 
 \Needspace{6\baselineskip}
 
 Each whole pair then receives its own conclusion:
 
-- **Pair 1: supported as stated.** The answer is an accurate bounded
-  description of the retained records.
+- **Pair 1: supported as stated**, as an accurate bounded description of
+  the retained records.
 - **Pair 2: supported as stated**, as the explicitly conditional,
-  unresolved working-model answer about $\beta_E$ actually reported. This does not certify
-  the model or establish a population relationship. A claim that the true
-  national conditional slope is zero would not be supported by this record.
+  unresolved working-model answer about $\beta_E$ actually reported. This
+  certifies neither the model nor a population relationship, and a claim
+  that the true national conditional slope is zero would not be
+  supported.
 - **Pair 3: supported as stated**, as a qualified internal comparison with
-  assumptions and limits retained. External superiority of the final
-  all-record fitted equation is **not assessable from the accessible record**;
-  it is not the reported answer being accepted.
+  its assumptions and limits. External superiority of the final
+  all-record fitted equation is **not assessable from the accessible
+  record**, and it is not the answer being accepted.
 
-The other available whole-pair conclusions are **supported only after
-narrowing or revision**, **not supported**, and **not assessable from the
-accessible record**. A correctly reported inconclusive answer can be
-supported as stated. Evaluating what the study actually says prevents a
-bounded answer from being rejected merely because it does not answer a
-stronger question.
+The other whole-pair conclusions are **supported only after narrowing or
+revision**, **not supported**, and **not assessable from the accessible
+record**. A correctly reported inconclusive answer can be supported as
+stated; it is not rejected for failing to answer a stronger question.
 
-### Add Cross-question coherence for the synthesis
+### Is the synthesis coherent?
 
-For coordinated questions, ask one additional question:
-**Does the synthesis preserve the distinct questions, estimands, methods,
-analytic statuses, uncertainty, and limits of the separate answers?**
-This is **Cross-question coherence**, introduced locally here. Supplementary B
-develops it further but is not needed to apply it.
+Coordinated questions add one evaluation question, **Cross-question
+coherence**: does the synthesis preserve the distinct questions,
+estimands, methods, analytic statuses, uncertainty, and limits of the
+separate answers? We introduce it here; Supplementary B develops it
+further but is not needed to apply it.
 
-R4 is coherent because it reports three distinct outcomes. A positive
+R4 is coherent because it reports three distinct outcomes: a positive
 marginal slope, an unresolved conditional slope, and better internal
-prediction can coexist. They do not contradict one another.
-
-Now consider the alternative sentence:
+prediction can hold together without contradiction. Now consider this
+alternative:
 
 > Once the other predictors were controlled, education had no effect;
 > nevertheless, the significant full regression proves it will predict
 > workers' incomes accurately.
 
-Reading first identifies the offered inference and claim. Evaluation then
-finds several failures: “no effect” substitutes a causal null for the
-conditional-association answer; an omnibus test is not validation; and
-occupations become workers. No omnibus significance test can replace the
-held-out errors or rescue the change of unit. The corrected synthesis is
-R4, not a fourth overarching argument that erases the separate verdicts.
+Reading first identifies the inference and claim it offers. Evaluation
+then finds three failures: "no effect" substitutes a causal null for the
+conditional-association answer, an omnibus significance test is not
+held-out validation, and occupations have become workers. The corrected
+synthesis is R4, not a fourth overarching argument that erases the
+separate conclusions.
 
-### Auxiliary construction callback
+### Carrying out a study with several questions
 
-The construction workflow supports researchers carrying out the study; it
-is not a mandatory reading sequence. Each question retains its own
-six-stage cycle from Chapter 1. For coordinated questions, Supplementary B's
+Sections 7.1 to 7.4 read and evaluate a finished report. The approach
+also has an auxiliary use: Chapter 1's construction workflow, which
+serves researchers carrying out a study and is not a required reading
+sequence. Each question keeps its own six-stage
+cycle from Chapter 1, and for coordinated questions Supplementary B's
 extension aligns the plans at Stage 3 and adds Stage 7 for synthesis.
 
-In **Understand and plan**, researchers review the problem and literature,
-frame questions and candidate answers, and align design, measurement,
-estimands, evidence acquisition, and inference. Here, “separate questions”
-means separately owed conclusions. If the obligation were one integrated
-conclusion, jointly necessary estimands would be planned as strands instead.
+In **Understand and plan**, researchers review the problem and
+literature, frame questions and candidate answers, and align design,
+measurement, estimands, evidence acquisition, and inference. "Separate
+questions" means separately owed conclusions; estimands that one
+integrated conclusion needs would be planned as strands instead. The
+extended **Stage 3, Plan and align prospectively across questions**,
+fixes common rows and units but distinct marginal, model-based, and
+validation plans.
 
-The extended **Stage 3, Plan and align prospectively across questions**,
-specifies common rows and units but distinct marginal, model-based, and
-validation plans. In **Produce and complete**, **Stage 4, Produce or acquire
-and document evidence**, designates the question-specific records;
-**Stage 5, Estimate, check, and analyse**, performs the computations;
-and **Stage 6, Contextualize, interpret, and complete the bounded answer**, finishes each answer with its actual limits.
-**Stage 7, Give explicit outcomes and synthesize**, records all outcomes
-and brings them together without creating an omnibus argument.
+In **Produce and complete**, **Stage 4, Produce or
+acquire and document evidence**, designates each question's records;
+**Stage 5, Estimate, check, and analyse**, performs the computations; and
+**Stage 6, Contextualize, interpret, and complete the bounded answer**,
+finishes each answer with its actual limits. **Stage 7, Give explicit
+outcomes and synthesize**, records all outcomes and brings them together
+without creating an omnibus argument.
 
-Iteration remains within a phase. A same-anchor error correction or
-justified uncertainty repair can reopen Phase 2 work. A newly preferred
-outcome, question mode, or estimand requires a new or revised cycle, with
-reused records where appropriate and its timing disclosed. A newly chosen
-causal question cannot be “narrowed” into association and treated as answered.
-This teaching reanalysis does not retrospectively claim that the historical
-data were collected for our three questions.
+Iteration stays within a phase: a same-anchor error correction or a
+justified uncertainty repair can reopen Phase 2 work, but a newly
+preferred outcome, question mode, or estimand requires a new or revised
+cycle, reusing records where appropriate and disclosing its timing. A
+newly chosen causal question cannot be "narrowed" into association and
+treated as answered, and this reanalysis does not claim that the
+historical data were collected for our three questions.
 
 ```{=latex}
 \Needspace{22\baselineskip}
@@ -1531,23 +1496,22 @@ data were collected for our three questions.
 
 Multiple regression adds conditional comparisons, not automatic causal
 control. Subtracting fitted means showed what a coefficient compares;
-residualization connected it to covariance; residual, influence,
-support, and precision checks had different consequences for a bounded
-answer; a fitted profile and a standardized quantity were didactic
-extensions of the conditional model; and held-out errors answered a
-separately owed question. The occupation study owed three answers: a
-finite-record marginal description, a working-model conditional interval
-with unresolved magnitude, and a qualified internal prediction comparison.
-Shared records made the questions coordinated without making their
-justifications identical. The next regression question is different:
-might the education comparison itself vary with another predictor rather
-than remain the same additive slope? Chapter 9 first collects the tools this chapter used only briefly: factors
-with several levels and their contrasts, nested model comparison and
-information criteria, changed predictor and outcome forms, and robust,
-clustered, and bootstrap uncertainty, and it transfers the reading
-discipline to Project STAR, where a randomized design supplies a different
-warrant. Chapter 10 then extends the
-interaction reasoning from Chapters 4 and 6 to these regression comparisons.
+residualizing connected it to covariance; residual, influence, support,
+and precision checks each bounded the answer differently; a fitted
+profile and a standardized average extended the conditional model; and
+held-out errors answered a separately owed question. The occupation study
+owed three answers, a finite-record marginal description, a working-model
+conditional interval with unresolved magnitude, and a qualified internal
+prediction comparison, and its shared records made the questions
+coordinated without making their justifications identical. The next
+regression question is different: might the education comparison itself
+vary with another predictor? Chapter 9 first collects the tools this
+chapter used only briefly (factors with several levels and their
+contrasts, nested model comparison and information criteria, changed
+predictor and outcome forms, and robust, clustered, and bootstrap
+uncertainty) and transfers the reading to Project STAR, where a
+randomized design supplies a different warrant. Chapter 10 then extends
+the interaction reasoning of Chapters 4 and 6 to regression.
 
 \Needspace{22\baselineskip}
 
@@ -1578,24 +1542,20 @@ vocabulary used in this chapter is explained in Chapters 1--4 and 7.
 ### Further reading {.unnumbered}
 
 - The [OpenIntro multiple-predictor tutorial](https://openintro-ims.netlify.app/model-mlr)
-  offers concrete equations and indicator interpretations. We use that
-  equation-first teaching device without adopting automatic stepwise
-  selection as this chapter's route.
+  offers concrete equations and indicator interpretations; this chapter
+  borrows its equation-first device but not its stepwise selection.
 - The [ISLR regression lab](https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html)
-  connects fitting, coefficients, checks, and predictions [@james2021].
-- The [ISLR cross-validation lab](https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch5-resample-lab.html)
-  develops the train/predict/check sequence [@james2021]. Our fixed rules,
-  MAE, and training-size qualifications are specified for this teaching
-  example.
+  connects fitting, coefficients, checks, and predictions, and the
+  [ISLR cross-validation lab](https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch5-resample-lab.html)
+  develops the train, predict, and check sequence [@james2021].
 - The [carData documentation](https://cran.r-project.org/web/packages/carData/carData.pdf)
   [@carData2022; @fox2019] supplies the Prestige variable meanings and
-  provenance. The coordinated study and R0--R4 report are chapter-authored,
-  not claims attributed to that documentation.
+  provenance; the three questions and the R0--R4 report are this
+  chapter's own.
 - Fox [@fox2016] and Kutner and colleagues [@kutner2005] develop the
-  linear-model algebra behind partial slopes, indicators, and diagnostics.
-
-Supplementary B develops coordination and its auxiliary construction
-workflow in greater detail.
+  linear-model algebra behind partial slopes, indicators, and
+  diagnostics, and Supplementary B develops coordination and its
+  auxiliary construction workflow in greater detail.
 
 ## Exercises {.unnumbered}
 
@@ -1729,15 +1689,13 @@ A summary says:
    of their existing uncertainty calculation or a new/revised question-level
    cycle? Explain.
 
-## Appendix A: Adjustment, Coding, and Group-Comparison Mathematics {.unnumbered #app-ch8-a}
+## Appendix A: Omitted Variables, Group Means, and the Overall F Test {.unnumbered #app-ch8-a}
 
-This appendix develops the mathematics behind @sec-ch8-comparisons.
-Appendix B retains technical reproduction and sensitivity; Chapter 9
-develops contrasts, block tests, adjusted means, the matrix form, and the
-Project STAR transfer.
-The occupation calculations use the same 98-row object *d* and the
-models *m0*, *m1*, and *m2* defined in the main text. They do not introduce
-another sample. The type codes remain *bc*, *prof*, and *wc*.
+This appendix develops the mathematics behind @sec-ch8-comparisons. Its
+occupation calculations use the same 98-row object *d*, the models *m0*,
+*m1*, and *m2* of the main text, and the type codes *bc*, *prof*, and
+*wc*; they introduce no other sample. Chapter 9 develops contrasts, block
+tests, adjusted means, the matrix form, and the Project STAR transfer.
 
 ### Why the marginal slope includes another association {.unnumbered}
 
@@ -1765,43 +1723,36 @@ $$ {#eq-ch8a-omission}
 
 The zero-error-covariance condition removes the final term. The
 discrepancy therefore involves both the association between $X$ and $Z$
-and $Z$'s coefficient in the outcome model. Neither ingredient alone
+and $Z$'s coefficient in the outcome model; neither ingredient alone
 determines its size. If the target is the conditional coefficient,
-omission creates bias relative to that target. If the target is the
+omitting $Z$ creates bias relative to that target. If the target is the
 marginal slope, that marginal quantity is not a biased version of an
-unstated conditional target. Neither interpretation supplies a causal
-warrant for observational variables.
+unstated conditional target. The two coefficients name different
+comparisons, and neither supplies a causal warrant for observational
+variables.
 
-Changing a specification does not universally change a scientific
-estimand. Different estimators can target the same declared quantity,
-as Chapter 9's randomized adjustment example, Project STAR, illustrates.
-Releveling a factor merely changes coordinates. By contrast, the
-marginal and conditional coefficients in this example name different
-comparisons.
+### Repeated samples from the known process {.unnumbered}
 
-### A known process and repeated samples {.unnumbered}
-
-Let independent standard normal variables $X$ and $U$ generate
-$Z=.65X+\sqrt{1-.65^2}U$. Then both predictors have variance one and
-their correlation is .65. Independently generate a normal error with
-SD 6, and set
+Let independent standard Normal variables $X$ and $U$ generate
+$Z=.65X+\sqrt{1-.65^2}U$, so that both predictors have variance one and
+correlation .65. Independently generate a Normal error with SD 6, and set
 
 $$
 Y=50+2X+5Z+\varepsilon.
 $$ {#eq-ch8a-sim-process}
 
 This is the process of @sec-ch8-comparisons: the marginal slope is
-$2+5(.65)=5.25$ and the conditional $X$ slope is 2. The sample drawn in
+$2+5(.65)=5.25$ and the conditional $X$ slope is 2. The sample in
 @fig-ch8-known-process has 250 observations and uses seed 82108. Its
 marginal slope is 5.9971 and its conditional slope 3.0259: near their
-targets but not on them, as one sample's estimates should be. The
-Computer Lab's Round 1 reference, *Covariance objects, diagnostic displays
-and variations*, supplies the complete generator and fitted models.
+targets but not on them, as one sample's estimates should be.
 
-Now use a different, explicitly stated sample size: 150 observations in
-each of 1,000 repetitions. This is a distinct repeated-study design, with seed 82109; it is not
-repetition of the 250-observation draw. The same Computer Lab reference supplies
-the full simulation and density-plot code.
+A separate repeated-study design, with its own stated sample size, shows
+the sampling variation: 1,000 samples of 150 observations each, with seed
+82109. It is not a repetition of the 250-observation draw. The Computer
+Lab's Round 1 reference, *Covariance objects, diagnostic displays and
+variations*, supplies the generator, the fitted models, the simulation
+and the density plot.
 
 ```{r}
 #| label: ch8a-repetition
@@ -1858,17 +1809,17 @@ ggplot2::ggplot(ch8a_long, ggplot2::aes(Slope)) +
   ggplot2::labs(x = "Estimated slope of X", y = "Density")
 ```
 
-Both procedures center near their own targets. The conditional
-estimates are more variable here: separating correlated predictors
-uses less residual predictor variation. This is a result of the
-specified process, not a general promise that adjustment always lowers
-precision. Prognostic covariates and their relations to the focal
-predictor both matter. Simulation demonstrates consequences of its
-assumptions; it cannot certify the observational occupation study.
+Both procedures center near their own targets. The conditional estimates
+are more variable here, because separating correlated predictors leaves
+less residual variation in $X$. That is a result of this specified
+process, not a general promise that adjustment always lowers precision:
+prognostic covariates and their relations to the focal predictor both
+matter. A simulation shows the consequences of its assumptions; it cannot
+certify the observational occupation study.
 
 \Needspace{12\baselineskip}
 
-### Indicators recover fitted group means {.unnumbered}
+### Fitted group means from indicators {.unnumbered}
 
 Start with a model containing only the three-level type factor. With
 blue-collar as reference,
@@ -1883,15 +1834,15 @@ The fitted means are $\widehat\mu_{\mathrm{bc}}=\widehat\alpha$,
 $\widehat\mu_{\mathrm{prof}}=\widehat\alpha+\widehat\delta_{\mathrm{prof}}$,
 and $\widehat\mu_{\mathrm{wc}}=\widehat\alpha+\widehat\delta_{\mathrm{wc}}$.
 OLS minimizes squared deviations separately within each group, so these
-equal the observed group means. The hats distinguish fitted summaries
+equal the observed group means; the hats distinguish fitted summaries
 from hypothetical population means.
 
 @tbl-ch8a-group-means reads the fit on the 98 records. The group-only
 coefficients are $\widehat\alpha=5.3741$, $\widehat\delta_{\mathrm{prof}}=5.1853$
 and $\widehat\delta_{\mathrm{wc}}=-0.3218$; each fitted mean combines them
-as the indicator columns direct, and each equals the observed mean
-income of its type. Sums of the rounded coefficients can differ from the
-fitted means in the last digit.
+as the indicator columns direct and equals the observed mean income of
+its type. Sums of the rounded coefficients can differ from the fitted
+means in the last digit.
 
 \Needspace{9\baselineskip}
 
@@ -1903,31 +1854,27 @@ fitted means in the last digit.
 
 : The type-only regression reproduces the three observed group means. {#tbl-ch8a-group-means tbl-colwidths="[10,10,10,34,18,18]"}
 
-This group-only description is not the adjusted type comparison in
-*m2*. In *m2*, indicators compare fitted values at the same education,
-prestige, and percentage women. The factor is one term represented by
+This group-only description is not the adjusted type comparison in *m2*,
+where the indicators compare fitted values at the same education,
+prestige, and percentage of women. The factor is one term represented by
 two columns; it is neither an ordered numeric score nor one selected
 reference-category coefficient.
 
+\Needspace{8\baselineskip}
+
 Releveling changes the intercept and indicator coefficients, not the
-fitted values, residuals, or a fixed substantive contrast.
-
-\Needspace{14\baselineskip}
-
-The same Round 1 reference in the Computer Lab reproduces this releveling
-operation and checks the unchanged fitted values with complete code and
-output.
-
-Releveling reproduces the same fit up to floating-point noise. No new question has appeared merely
-because the coordinates changed. Centering continuous predictors also
-changes the intercept's reference profile without changing fitted
-values. It cannot create cross-type support.
+fitted values, the residuals, or a fixed substantive contrast; the same
+Round 1 reference in the Computer Lab relevels the factor and checks that
+the fitted values agree up to floating-point noise. No new question
+appears merely because the coordinates changed. Centering the continuous
+predictors likewise changes the intercept's reference profile without
+changing the fitted values, and it cannot create cross-type support.
 
 ### The overall F test {.unnumbered}
 
 The overall regression test sets all $p-1$ non-intercept coefficients to
-zero. Under the same normal-error conditions as the coefficient tests, its
-statistic is
+zero. Under the same Normal-error conditions as the coefficient tests,
+its statistic is
 
 $$
 F_{\mathrm{overall}}=
@@ -1945,30 +1892,22 @@ summary(m2)$fstatistic
 
 The full model gives $F(5,92)=32.1747$; the education-only model on the
 same 98 records gives $F(1,96)=47.1956$, which the Computer Lab prints
-beside it. Each tests its stated joint
-restriction. Neither verifies the mean function or shows how well the
-fitted rule will predict a held-out outcome. Chapter 9 develops the
-general nested comparison behind this statistic, its matrix form, and the
-contrasts, block tests, and adjusted group means that a factor with
-several levels invites.
+beside it. Each tests its stated joint restriction. Neither verifies the
+mean function or shows how well the fitted rule will predict a held-out
+outcome. Chapter 9 develops the general nested comparison behind this
+statistic, its matrix form, and the contrasts, block tests, and adjusted
+group means that a factor with several levels invites.
 
-## Appendix B: Technical Reproduction and Sensitivity {.unnumbered #app-ch8-b}
+## Appendix B: Formulas Behind the Checks and Criteria {.unnumbered #app-ch8-b}
 
-Sections 4 and 5 carry the ordinary support, diagnostic,
-standardization, and targeted-sensitivity lessons. This appendix supplies
-mathematical detail and worked results; the Computer Lab supplies the longer
-computational reproductions. It uses *d*, *m0*,
-*m1*, and *m2* without changing their source rows. Classical intervals are
-conditional-model benchmarks; technical refinements do not create missing
-design, measurement, independence, or transport warrants.
+This appendix gives the formulas and fuller tables behind Sections 3
+and 4, on the same *d*, *m0*, *m1*, and *m2*; the Computer Lab carries
+the longer reproductions. None of these refinements supplies a missing
+design, measurement, independence, or transport warrant.
 
 \Needspace{12\baselineskip}
 
-### Cook's distance and full deletion accounting {.unnumbered}
-
-The main route interprets residual, leverage, and influence views and shows
-the education-slope sensitivity. This section supplies the corresponding
-Cook's distance formula and complete coefficient accounting.
+### Cook's distance {.unnumbered}
 
 With $p$ coefficient columns including the intercept, leverage is
 $h_{ii}=\mathbf x_i^{\mathsf T}(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf x_i$. Cook's distance can be calculated as
@@ -1979,9 +1918,9 @@ D_i=\frac{e_i^2}{p s^2}\frac{h_{ii}}{(1-h_{ii})^2}
 (\widehat{\boldsymbol\beta}-\widehat{\boldsymbol\beta}_{(-i)})}{p s^2}.
 $$
 
-The second expression measures a coefficient change using the design
-matrix's metric, not an unweighted sum of squared coefficients with
-incompatible units.
+The second expression measures the change in all coefficients when
+record $i$ is deleted, in the design matrix's metric rather than as an
+unweighted sum of squared coefficients with incompatible units.
 
 ```{=latex}
 \Needspace{12\baselineskip}
@@ -2001,16 +1940,17 @@ knitr::kable(ch8_influence, row.names = FALSE,
   col.names = c("Occupation", "Residual", "Leverage", "Cook's distance"))
 ```
 
-The record for general managers has the largest Cook's distance, approximately 0.4467.
-The main route explains why this observation is inspected and retained.
+General managers have the largest Cook's distance, approximately 0.4467,
+and Section 4.3 explains why the record is inspected and retained.
+Refitting without it moves education from 0.1164 to 0.4372, and the type
+coefficients move as well; the Computer Lab prints the full coefficient
+comparison. That comparison records a diagnostic perturbation of the fit,
+not six new research questions or evidence that the reduced sample is
+preferable.
 
-Refitting without that record moves education from 0.1164 to 0.4372
-(@sec-ch8-check), and the type coordinates move as well; the Computer
-Lab prints the full coefficient comparison. That comparison records a
-diagnostic perturbation of the fit, not six new research questions or
-evidence that the reduced sample is preferable.
+\Needspace{9\baselineskip}
 
-### HC3 changes covariance, not the records or target {.unnumbered}
+### The HC3 covariance {.unnumbered}
 
 For independent observations, the HC3 covariance estimator is
 
@@ -2021,13 +1961,11 @@ $$
 $$
 
 The outer factors are the familiar design component. The middle
-component allows different residual scales and adjusts for leverage
-[@long2000; @zeileis2004]. It leaves the OLS coefficients unchanged.
-
-The Computer Lab's Round 1 reference, *Covariance objects, diagnostic
-displays and variations*, supplies the manual matrix reproduction of this expression and compares it with `vcovHC()`. The
-first classical/HC3 comparison in Section 3.3 already supplies the
-education interval; the table gives the full coefficient context.
+component lets each record carry its own residual scale, inflated for
+leverage [@long2000; @zeileis2004]. The OLS coefficients do not change;
+only their covariance does, as @tbl-ch8b-hc3 shows for all six
+coefficients. The Computer Lab's Round 1 reference reproduces the matrix
+calculation and compares it with `vcovHC()`.
 
 ```{r}
 #| label: tbl-ch8b-hc3
@@ -2041,25 +1979,25 @@ knitr::kable(data.frame(
   col.names = c("Term", "Estimate", "Classical SE", "HC3 SE"))
 ```
 
-Education's HC3 SE is 0.3823 rather than 0.2752. Using $t_{92}$ as
-an approximate reference gives $[-0.6429,0.8758]$. This is not an
-exact finite-sample HC3 coverage result. Women's HC3 SE is smaller
-than its classical counterpart: robust covariance need not widen
-every interval.
+Education's HC3 SE is 0.3823 rather than 0.2752, and with $t_{92}$ as an
+approximate reference the interval is $[-0.6429,0.8758]$; this is not an
+exact finite-sample HC3 coverage result. Women's HC3 SE is smaller than
+its classical counterpart: robust covariance need not widen every
+interval.
 
-For a maintained linear conditional mean, HC3 addresses unequal
-variance under independent observations. For a random-design
-best-linear-projection target, a suitable sandwich covariance can
-support large-sample projection inference without making the mean
-exactly linear. Neither interpretation repairs measurement error,
-dependence, selection, causal identification, or absent joint support.
+For a maintained linear conditional mean, HC3 addresses unequal variance
+among independent observations. For a random-design best-linear-projection
+target, a suitable sandwich covariance can support large-sample
+projection inference without making the mean exactly linear. Neither use
+repairs measurement error, dependence, selection, causal identification,
+or absent joint support.
 
 \Needspace{13\baselineskip}
 
-### VIF describes coefficient precision {.unnumbered}
+### VIF and generalized VIF {.unnumbered}
 
-For a single predictor column, classical conditional variance can be
-written
+For a single predictor column, the classical conditional variance of its
+coefficient can be written
 
 $$
 \operatorname{Var}(\widehat\beta_j\mid\mathbf X)=
@@ -2069,44 +2007,39 @@ $$
 
 Here $R_j^2$ comes from regressing that predictor on the remaining
 columns, including the intercept. The variance inflation factor is
-$VIF_j=1/(1-R_j^2)$; its square root is an SE multiplier, holding the
-residual variance and focal predictor variation fixed [@kutner2005].
+$VIF_j=1/(1-R_j^2)$, and its square root is an SE multiplier, holding the
+residual variance and the focal predictor's variation fixed
+[@kutner2005]. Education gives $R_j^2=.8765$, VIF 8.0968, and SE
+multiplier 2.8455 (Section 4.2); the Computer Lab computes them from the
+auxiliary regression and with `car::vif(m2)`. The education--prestige
+correlation is .8665, but the VIF uses all the other columns, not just
+that pair.
 
-Section 4.2 reads education's VIF from @fig-ch8-vif. The Computer Lab
-computes it from the auxiliary regression and with `car::vif(m2)`, which
-also reports the two-column type term.
+The two-column type term has a generalized VIF. Its raw GVIF is 7.7001;
+the dimension-adjusted value $GVIF^{1/(2\,df)}=1.6658$ is on a scale
+comparable to the square root of a one-column VIF [@fox2019], whereas the
+raw two-column GVIF is not comparable with an ordinary one-column VIF.
 
-Education gives $R_j^2=.8765$, VIF 8.0968, and SE multiplier
-2.8455. The predictor correlation between education and prestige
-is .8665, but VIF uses all the other columns, not just that pair.
+Exact collinearity makes the design rank-deficient. Near collinearity
+leaves the coefficients estimable but possibly imprecise, and under the
+maintained zero-conditional-mean model it does not by itself bias OLS. A
+cutoff of 5 or 10 neither establishes the model's assumptions nor
+justifies removing a variable the question requires. Measurement problems
+need their own evidence: the familiar attenuation story requires
+classical error assumptions and is not a rule for every coefficient in a
+multiple-predictor model.
 
-The two-column type term has a generalized VIF. Its raw GVIF is
-7.7001; the dimension-adjusted value
-$GVIF^{1/(2\,df)}=1.6658$ is on a comparable scale to the square
-root of a one-column VIF [@fox2019]. Do not compare a raw two-column
-GVIF with an ordinary one-column VIF as if their dimensions matched.
-
-Exact collinearity creates rank deficiency. Near collinearity leaves
-coefficients estimable but potentially imprecise. Under the maintained
-zero-conditional-mean model it does not itself bias OLS. A cutoff of
-5 or 10 neither establishes all assumptions nor justifies removing a
-variable required by the question. Measurement problems also need
-their own evidence: the familiar simple attenuation story requires
-classical error assumptions and is not a universal rule for every
-coefficient in a multiple-predictor model.
-
-### A local Normal likelihood and in-sample comparison criteria {.unnumbered}
+### The Normal likelihood, AIC, and BIC {.unnumbered}
 
 Chapter 6 varied the candidate probability for a fixed binomial count of
-32 successes in 50 trials. Here the data remain fixed again, but the
-response is continuous and the parameters are several regression
-coefficients plus an error scale. For a declared independent Normal
-linear model, the **likelihood** is the joint density of the observed
-outcomes at their fixed predictor values, viewed as a function of those
-parameters. It is not a probability assigned to a parameter. A continuous
-density value also differs from the probability of an exact observed
-vector. The **log-likelihood** adds log densities across the independent
-records.
+32 successes in 50 trials. Here the data again stay fixed, but the
+response is continuous and the parameters are several coefficients plus
+an error scale. For a declared independent Normal linear model, the
+**likelihood** is the joint density of the observed outcomes at their
+fixed predictor values, viewed as a function of those parameters; it is
+not a probability assigned to a parameter, nor the probability of the
+exact observed vector. The **log-likelihood** adds the log densities of
+the independent records.
 
 Write the predictor row for record $i$ as $\mathbf x_i^{\mathsf T}$ and let $\sigma>0$ be the
 error SD. Before fitting, the log-likelihood is
@@ -2116,18 +2049,18 @@ $$
 -\frac{1}{2\sigma^2}\sum_i(y_i-\mathbf x_i^{\mathsf T}\boldsymbol\beta)^2.
 $$
 
-At any fixed positive scale, only the last term changes with the
-coefficients. Maximizing it over $\boldsymbol\beta$ therefore minimizes the residual
+At any fixed positive scale only the last term changes with the
+coefficients, so maximizing over $\boldsymbol\beta$ minimizes the residual
 sum of squares: the Normal maximum-likelihood coefficients equal the OLS
 coefficients. This connects Chapter 7's squared-loss criterion to this
-particular distributional model. Least squares itself did not require
-that model to calculate a minimizing line.
+particular distributional model, although least squares did not need the
+model to calculate a minimizing line.
 
-Maximizing over scale gives
-$\widehat\sigma_{\mathrm{ML}}=\sqrt{RSS/n}$. The residual SD used for classical
-coefficient uncertainty is $s=\sqrt{RSS/(n-p)}$, with $p$ counting the
-regression coefficients. The two denominators serve different estimation
-purposes; substitute the ML scale when checking the fitted likelihood.
+Maximizing over the scale gives
+$\widehat\sigma_{\mathrm{ML}}=\sqrt{RSS/n}$, whereas the residual SD used
+for classical coefficient uncertainty is $s=\sqrt{RSS/(n-p)}$, with $p$
+counting the regression coefficients. The two serve different purposes,
+and the ML scale, not the residual SD, belongs in the fitted likelihood.
 At the fitted coefficients and ML scale,
 
 $$
@@ -2135,32 +2068,35 @@ $$
 =-\frac n2\left\{\log(2\pi)+1+\log(RSS/n)\right\}.
 $$
 
-R's `logLik()` returns this maximized value for an `lm()` fit by default,
-and adding the Normal log densities of the 98 outcomes at their fitted
-means with the ML scale returns the same number; the Computer Lab carries
-that check. Two information criteria combine this maximized
-log-likelihood with a parameter-count penalty:
+R's `logLik()` returns this maximized value for an `lm()` fit, and the
+Computer Lab checks that the Normal log densities of the 98 outcomes at
+their fitted means and the ML scale add to the same number. Two
+information criteria combine it with a penalty for the number of
+parameters:
 
 $$
 AIC=-2\log\widehat L+2k,\qquad
 BIC=-2\log\widehat L+k\log n.
 $$
 
-Here $k$ counts the regression coefficients **and** the estimated residual
-variance. For the full occupation model, six coefficient columns plus
-that variance give $k=7$. Smaller values are preferred under each
-criterion; neither is observed held-out MAE [@akaike1974; @schwarz1978].
+Here $k$ counts the regression coefficients **and** the estimated
+residual variance, so the full occupation model has $k=7$. Smaller values
+are preferred under each criterion; neither is a held-out MAE
+[@akaike1974; @schwarz1978]. For *m2* the ML scale is 2.5373 and the
+residual SD 2.6187; the maximized log-likelihood is $-230.302$, so its
+AIC is 474.6040 and its BIC 492.6988.
 
-The ML scale is 2.5373 and the residual SD is 2.6187. The maximized
-log-likelihood is $-230.302$, so the full model's AIC is 474.6040 and its
-BIC 492.6988. @tbl-ch8b-criteria compares the three declared models using
-the same 98 rows, response scale, and likelihood convention.
-The Computer Lab's Round 2 reference, *All three types, one weighting
-change and the criteria*, supplies the criterion-table construction. Chapter 11 develops likelihood fitting
-further for binomial outcomes and numerical calculations; that later
-treatment is not needed to read this local Normal-model calculation.
+@tbl-ch8b-criteria compares the three declared models on the same 98
+rows, response scale, and likelihood convention; the Computer Lab's
+Round 2 reference builds it. Its adjusted $R^2$, $1-(1-R^2)(n-1)/(n-p)$,
+charges each added coefficient a small penalty: it rises only when the
+added terms' nested-model $F$ statistic exceeds 1. Like $R^2$, AIC and
+BIC, it is computed from the fit to the same 98 rows, so it is an
+in-sample summary, not a held-out measure. Chapter 11 develops likelihood
+fitting further for binomial outcomes; this local Normal-model
+calculation does not need it.
 
-\Needspace{10\baselineskip}
+\Needspace{9\baselineskip}
 
 | Model | $k$ | $R^2$ | Adjusted $R^2$ | AIC | BIC |
 |:--|--:|--:|--:|--:|--:|
@@ -2170,24 +2106,17 @@ treatment is not needed to read this local Normal-model calculation.
 
 : In-sample summaries for comparable income models. {#tbl-ch8b-criteria}
 
-The raw AIC/BIC values for income and log income must not be compared
-as if they used the same response density. A scale change changes the
-likelihood's reference measure; a valid common-scale comparison would
-need the corresponding transformation adjustment. The simpler lesson
-here is to preserve the outcome and question in each comparison.
+A criterion printed for a log-income model is not comparable with these
+raw-income values, because changing the response scale changes the
+likelihood's reference measure; a common-scale comparison would need the
+corresponding transformation adjustment.
 
-No residual graph establishes independence. The occupations share
-one historical labour market, and metadata do not establish a
-probability sample of a wider population. For students within schools
-or repeated observations, the design may require dependence-aware
-uncertainty. HC3 alone is not such a repair.
-
-The practical response is consequential rather than pass/fail: retain
-the named comparison, report its form and influence sensitivities,
-distinguish classical from robust uncertainty, and bound interpretation
-by measurement, support, and source. Causal adjustment-set rules about
-confounders, mediators, and colliders apply to a declared causal target;
-they are not universal requirements for association or prediction.
+No residual graph establishes independence: the occupations share one
+historical labour market, and clustered or repeated records would need
+dependence-aware uncertainty, which HC3 alone does not supply. Rules
+for choosing a causal adjustment set, about confounders, mediators, and
+colliders, apply to a declared causal target (Chapter 14), not to
+association or prediction.
 
 ## References {.unnumbered}
 
