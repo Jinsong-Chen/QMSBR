@@ -65,6 +65,7 @@ format:
           \usepackage{array}
           \usepackage{caption}
           \captionsetup[table]{position=above,format=plain,justification=raggedright,singlelinecheck=false,labelsep=newline,labelfont=bf,textfont=it}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     toc: true
     toc-depth: 2
@@ -172,13 +173,30 @@ sle_candidate <- function() {
 
 # ---- render helpers --------------------------------------------------------
 
+# Round once, drop trailing zeros, and give a set one number of decimals
+# (companion plan, Section 7): a nonzero value that rounds to zero becomes a
+# bound, and a value that rounds to 1 without equalling 1 keeps its decimals.
+pt2_fmt <- function(x, digits=3) {
+  r <- round(x,digits); ok <- !is.na(x)
+  out <- format(r,digits=15,scientific=FALSE,trim=TRUE)
+  if(any(ok & abs(r)==1 & abs(x)!=1)) {
+    dec <- nchar(sub("^[^.]*\\.?","",out))
+    out[ok] <- paste0(out[ok],ifelse(grepl(".",out[ok],fixed=TRUE),"","."),
+      strrep("0",digits-dec[ok]))
+  }
+  tiny <- ok & r==0 & x!=0
+  bound <- format(10^-digits,scientific=FALSE)
+  out[tiny] <- ifelse(x[tiny]>0,paste0("< ",bound),paste0("> -",bound))
+  out
+}
+
 pt2_table <- function(x, digits=3, caption=NULL, row.names=FALSE) {
   x <- as.data.frame(x,check.names=FALSE)
   integer_columns <- c("df","Df","Factors","Moments","Free","npar","Dimension",
     "Effective_parameters","Candidate_df","Delta_df","Missing")
   for(nm in names(x)) if(is.numeric(x[[nm]])) {
     d <- if(nm %in% integer_columns) 0 else digits
-    x[[nm]] <- formatC(x[[nm]],digits=d,format="f")
+    x[[nm]] <- gsub("-","\u2212",pt2_fmt(x[[nm]],d),fixed=TRUE)
   }
   names(x) <- gsub("_"," ",names(x),fixed=TRUE)
   out <- knitr::kable(x,caption=caption,row.names=row.names,booktabs=TRUE,longtable=FALSE)
@@ -197,7 +215,7 @@ pt2_course_map <- function(labels) {
   }
 }
 
-pt2_num <- function(x, digits = 3) formatC(x, digits = digits, format = "f")
+pt2_num <- function(x, digits = 3) pt2_fmt(x, digits)
 pt2_p <- function(x) ifelse(x < .001, "< .001", paste0("= ", pt2_num(x)))
 
 pt2_heatmap <- function(M,title="",limit=max(abs(M)),digits=NULL,cex=.7) {
@@ -606,10 +624,16 @@ pt4_scores <- function(profile,x) {
 pt4_fit_table <- function(profiles) {
   t <- do.call(rbind,lapply(profiles,function(p) {
     f <- p$measures
-    data.frame(T=unname(f["chisq"]),df=unname(f["df"]),p=if(f["pvalue"]<.001) "<.001" else pt2_num(f["pvalue"]),
-      RMSEA=unname(f["rmsea"]),CI90=paste0("[",pt2_num(f["rmsea.ci.lower"]),", ",pt2_num(f["rmsea.ci.upper"]),"]"),
+    ci <- pt2_num(c(f["rmsea.ci.lower"],f["rmsea.ci.upper"]))  # one interval, one set
+    data.frame(T=unname(f["chisq"]),df=unname(f["df"]),p=unname(f["pvalue"]),
+      RMSEA=unname(f["rmsea"]),CI90=paste0("[",ci[1],", ",ci[2],"]"),
       CFI=unname(f["cfi"]),TLI=unname(f["tli"]),SRMR=unname(f["srmr"]))
   }))
+  t$p <- ifelse(t$p<.001,"<.001",pt2_num(t$p))  # the p column is one set
+  # fit-index boundary display: a column holding an RMSEA truncated at 0 or
+  # a CFI capped at 1 keeps three decimals, as the chapter tech doc records
+  for(nm in c("RMSEA","CFI","TLI","SRMR")) t[[nm]] <-
+    if(any(t[[nm]] %in% c(0,1))) formatC(t[[nm]],digits=3,format="f") else pt2_num(t[[nm]])
   data.frame(Model=rownames(t),t,row.names=NULL)
 }
 
@@ -626,12 +650,20 @@ pt4_interval_plot <- function(profiles) {
 pt4_donor_nesting <- function() {
   par(mar=c(0,0,0,0));plot.new();plot.window(xlim=c(0,10),ylim=c(0,5))
   rect(3.7,3.3,6.3,4.3,col="#e1ebf0");text(5,3.8,"D3: both Y3 loadings",cex=.85)
+  xs <- c(1.7,5,8.3)
   for(i in 1:3) {
-    x <- c(1.7,5,8.3)[i]
-    rect(x-1.4,.5,x+1.4,1.6,col="#f7f3e8")
-    text(x,1.05,c("D1: Y3 only on F1","D2: Y3 only on F2","D4: factors orthogonal")[i],cex=.75)
-    arrows(5,3.2,x,1.7,length=.08)
-    text((5+x)/2,2.25,c("lambda32 = 0","lambda31 = 0","phi12 = 0")[i],cex=.7)
+    rect(xs[i]-1.4,.5,xs[i]+1.4,1.6,col="#f7f3e8")
+    text(xs[i],1.05,c("D1: Y3 only on F1","D2: Y3 only on F2","D4: factors orthogonal")[i],cex=.75)
+    arrows(5,3.2,xs[i],1.7,length=.08)
+  }
+  # Each branch label sits on its own arrow over a white patch, so no line
+  # runs through the text.
+  labs <- expression(lambda[32]==0, lambda[31]==0, phi[12]==0)
+  for(i in 1:3) {
+    lx <- 5+(xs[i]-5)*.6
+    w <- strwidth(labs[i],cex=.8)/2+.1; h <- strheight(labs[i],cex=.8)/2+.1
+    rect(lx-w,2.3-h,lx+w,2.3+h,col="white",border=NA)
+    text(lx,2.3,labs[i],cex=.8)
   }
 }
 
@@ -1343,9 +1375,9 @@ inversion is completed in the
 intervals in Chapter 3 were 95%. These different levels should be
 labeled, not silently mixed.
 
-For M1-cross, RMSEA is `r pt2_num(fm["rmsea"])`, with 90% interval
-[`r pt2_num(fm["rmsea.ci.lower"])`,
-`r pt2_num(fm["rmsea.ci.upper"])`]. The zero estimate arises because
+For M1-cross, RMSEA is `r pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")])[1]`, with 90% interval
+[`r pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")])[2]`,
+`r pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")])[3]`]. The zero estimate arises because
 the test statistic is slightly below its df. The nonzero upper limit
 expresses uncertainty about population approximation error.
 
@@ -1402,10 +1434,15 @@ discrepancy can still have a high incremental index. The baseline
 may be much worse. An index's favorable appearance must be interpreted
 relative to the question it answers.
 
+```{=latex}
+\Needspace{17\baselineskip}
+```
+
 ## Compare the planned profiles
 
 ```{r}
 #| label: tbl-cfa-planned-fit
+#| tbl-colwidths: [22,11,4,8,12,18,8,8,9]
 #| tbl-cap: "Sample B planned models, all using identical observations, indicators, and conventional normal ML. M1-cross is the inherited target."
 pt2_table(pt4_fit_table(b$profiles))
 ```
@@ -1494,7 +1531,7 @@ own checked conventions.
 #| label: fig-cfa-local-residuals
 #| fig-width: 6.8
 #| fig-height: 5.6
-#| fig-cap: 'M1-cross standardized covariance residuals in Sample B, lower triangle including the diagonal, shaded on a symmetric scale of $\pm.10$. Numeric cells retain the sign of observed minus implied covariance.'
+#| fig-cap: 'M1-cross standardized covariance residuals in Sample B, lower triangle including the diagonal, shaded on a symmetric scale of $\pm.1$. Numeric cells retain the sign of observed minus implied covariance.'
 #| fig-alt: "A twelve-by-twelve lower-triangle residual display shows several negative residuals involving B4 and smaller positive and negative discrepancies elsewhere."
 Eplot <- primary$Es; Eplot[upper.tri(Eplot)] <- NA
 pt2_heatmap(Eplot,"Sample B: standardized residuals",limit=.10,digits=2,cex=.70)
@@ -1507,8 +1544,8 @@ pt2_table(head(primary$pairs,8))
 ```
 
 For B4 and S3, the observed covariance is
-`r pt2_num(primary$S["B4","S3"])` and the implied covariance is
-`r pt2_num(primary$Sigma["B4","S3"])`. Their raw residual is
+`r pt2_num(c(primary$S["B4","S3"],primary$Sigma["B4","S3"]))[1]` and the implied covariance is
+`r pt2_num(c(primary$S["B4","S3"],primary$Sigma["B4","S3"]))[2]`. Their raw residual is
 `r pt2_num(primary$E["B4","S3"])`; scaled by the observed SDs it
 is `r pt2_num(primary$Es["B4","S3"])`. The model overpredicts
 this pair's covariance. Several other negative cross-domain residuals
@@ -1681,7 +1718,7 @@ penalize complexity differently.
 #| label: tbl-cfa-information
 #| tbl-cap: "Likelihood and information criteria for planned Sample B models. Compare rows within this table, not against another sample or the six-indicator example."
 ic <- do.call(rbind,lapply(b$profiles,function(p)p$measures[c("logl","npar","aic","bic")]))
-pt2_table(data.frame(Model=rownames(ic),ic,row.names=NULL),digits=2)
+pt2_table(data.frame(Model=rownames(ic),ic,row.names=NULL),digits=3)
 ```
 
 For M1, the package count is 29. Substituting its log likelihood and
@@ -1692,8 +1729,8 @@ nested LR reference.
 
 D1 and D2 provide a compact nonnested comparison with the same six
 outcomes and 500 cases. Their AICs are
-`r pt2_num(b$donor$D1$measures["aic"],2)` and
-`r pt2_num(b$donor$D2$measures["aic"],2)`, respectively. D1 has
+`r pt2_num(c(b$donor$D1$measures["aic"],b$donor$D2$measures["aic"]))[1]` and
+`r pt2_num(c(b$donor$D1$measures["aic"],b$donor$D2$measures["aic"]))[2]`, respectively. D1 has
 the smaller value, but D3's profile still matters in the larger
 candidate set. Being preferable to a poor alternative does not
 establish adequate fit.
@@ -1816,12 +1853,12 @@ gam <- data.frame(Factor=names(extensions$gamma),
 pt2_table(gam)
 ```
 
-Thus $\widehat\gamma_1=$ `r pt2_num(extensions$gamma["Planning"])`,
-$\widehat\gamma_2=$ `r pt2_num(extensions$gamma["Strategy"])`, and
-$\widehat\gamma_3=$ `r pt2_num(extensions$gamma["Belonging"])`.
+Thus $\widehat\gamma_1=$ `r pt2_num(extensions$gamma[c("Planning","Strategy","Belonging")])[1]`,
+$\widehat\gamma_2=$ `r pt2_num(extensions$gamma[c("Planning","Strategy","Belonging")])[2]`, and
+$\widehat\gamma_3=$ `r pt2_num(extensions$gamma[c("Planning","Strategy","Belonging")])[3]`.
 For example, the ratio for $\widehat\gamma_1^2$ is
-`r pt2_num(phi[1,2])` times `r pt2_num(phi[1,3])`, divided by
-`r pt2_num(phi[2,3])`, which equals
+`r pt2_num(c(phi[1,2],phi[1,3],phi[2,3]))[1]` times `r pt2_num(c(phi[1,2],phi[1,3],phi[2,3]))[2]`, divided by
+`r pt2_num(c(phi[1,2],phi[1,3],phi[2,3]))[3]`, which equals
 `r pt2_num(extensions$gamma[1]^2)`.
 
 Under fixed-factor scaling the raw higher-order loadings sit on a
@@ -1840,13 +1877,18 @@ $$
 \frac{m(m-1)}2-m=\frac{m(m-3)}2.
 $$ {#eq-cfa-higher-count}
 
-For $m=3$, the difference is zero. At a regular admissible solution, the
-three correlations and three higher-order loadings are alternative
-axes for the same information. The fitted records confirm this
-equivalence rather than treating matching fit as accidental.
+For $m=3$, the difference is zero, but a matching count alone does not
+make two models equivalent. The inversion in @eq-cfa-higher-inversion
+does: whenever its conditions hold, the three correlations and three
+higher-order loadings are alternative axes for the same information, so
+each form can reproduce every covariance matrix the other can. On any
+such data the two forms give the same fitted covariance matrix,
+statistic, df, and fit indices. The fitted records below show that
+consequence; they do not test the equivalence.
 
 ```{r}
 #| label: tbl-cfa-extension-fit
+#| tbl-colwidths: [22,11,4,8,12,18,8,8,9]
 #| tbl-cap: "Sample B fit profiles for M1-cross, its equivalent higher-order representation, and the nonnested orthogonal bifactor rival. The extension fits are didactic post-confirmation analyses, not Sample-A-frozen rivals."
 pt2_table(pt4_fit_table(list(M1_cross=primary,
   Higher_order=extensions$profiles$HO_SLE,
@@ -1855,9 +1897,11 @@ pt2_table(pt4_fit_table(list(M1_cross=primary,
 
 M1-cross and the higher-order form have 29 free covariance parameters,
 49 df, the same fitted covariance matrix to numerical tolerance, and the
-same likelihood, AIC, and BIC. Therefore these data cannot decide which
-story is preferable. Interpretation must come from the intended construct
-representation and from evidence beyond the reproduced covariance.
+same likelihood, AIC, and BIC, as their equivalence requires. Therefore
+neither these data nor any other covariance data meeting the inversion
+conditions can decide which story is preferable. Interpretation must come
+from the intended construct representation and from evidence beyond the
+reproduced covariance.
 
 For $m=4$, six factor correlations are replaced by four higher-order
 loadings, so the higher-order model imposes two restrictions. The
@@ -1931,6 +1975,8 @@ general <- bl[bl$Factor=="General",c("Item","Std_all")]
 names(general)[2] <- "General"
 specific <- bl[bl$Factor!="General",c("Factor","Item","Std_all","p")]
 names(specific)[3:4] <- c("Specific","p_specific")
+# a p value computed as 0 underflowed; it is shown as a bound, never as zero
+specific$p_specific <- ifelse(specific$p_specific<.001,"<.001",pt2_num(specific$p_specific))
 bwide <- merge(general,specific,by="Item",sort=FALSE)
 bwide <- bwide[match(c(paste0("P",1:4),paste0("S",1:4),paste0("B",1:4)),bwide$Item),]
 pt2_table(bwide)
@@ -2036,8 +2082,8 @@ pt2_table(data.frame(
 The two rows without a constant ratio are the informative ones. They show that
 the Schmid-Leiman image of a higher-order model inherits the *whole*
 first-order loading pattern, cross-loadings included. A higher-order model is
-therefore nested within the bifactor model that shares that pattern - the one
-in which P4 and S4 each keep two specific loadings - and the difference in fit
+therefore nested within the bifactor model that shares that pattern -- the one
+in which P4 and S4 each keep two specific loadings -- and the difference in fit
 between those two tests proportionality rather than the existence of a general
 factor.
 
@@ -2067,7 +2113,7 @@ general factor does.
 A **method effect** is common variance among items that share a format rather
 than a content domain: reverse-keyed items, a distinct response scale, items
 answered by a different informant. A **testlet effect** is common variance
-among items attached to the same stimulus - the comprehension questions
+among items attached to the same stimulus -- the comprehension questions
 following one reading passage, the items scored from a single case vignette,
 a block of tasks sharing one apparatus. In both cases the extra dependence is
 a property of how the items were administered, and a model that ignores it
@@ -2083,10 +2129,10 @@ advance from the design, not discovered in the fitted output, and the specific
 factors are not competing with the general factor for a substantive
 interpretation.
 
-The same structure recurs across quite different literatures - testlets in
+The same structure recurs across quite different literatures -- testlets in
 educational measurement, method factors in multitrait-multimethod designs,
 wording effects on balanced attitude scales, and item-bundle dependence in
-health and personality inventories - and the modeling question is the same
+health and personality inventories -- and the modeling question is the same
 each time: is the extra dependence a nuisance to be absorbed, or an effect to
 be reported? The answer belongs to the design and the intended use of the
 scores, not to the fit statistics.
@@ -2103,8 +2149,8 @@ $$
 $$ {#eq-cfa-omega-h}
 
 For the unit-weighted sum of all 12 items, the fitted bifactor gives
-$\omega_h=$ `r pt2_num(extensions$omega_h)` and total model-based omega
-$=$ `r pt2_num(extensions$omega_total)`. Thus about
+$\omega_h=$ `r pt2_num(c(extensions$omega_h,extensions$omega_total))[1]` and total model-based omega
+$=$ `r pt2_num(c(extensions$omega_h,extensions$omega_total))[2]`. Thus about
 `r pt2_num(extensions$reliable_general_share)` of the score's modeled
 reliable variance is attributed to the general factor. The remainder is
 modeled reliable specific-factor variance, not automatically error.
@@ -2179,8 +2225,8 @@ select a new seed, or invent an explanation after seeing C.
 In Sample B, the actual decrease in the model statistic is
 `r pt2_num(v$lr_B["Delta_T"])` on one df, close to but not
 identical to the MI. The estimated added loading is
-`r pt2_num(added_B$est)`, with 95% interval
-[`r pt2_num(added_B$ci.lower)`, `r pt2_num(added_B$ci.upper)`].
+`r pt2_num(c(added_B$est,added_B$ci.lower,added_B$ci.upper))[1]`, with 95% interval
+[`r pt2_num(c(added_B$est,added_B$ci.lower,added_B$ci.upper))[2]`, `r pt2_num(c(added_B$est,added_B$ci.lower,added_B$ci.upper))[3]`].
 Its conventional same-sample LR $p$ value is
 `r pt2_num(v$lr_B["p"])`. Because this path was selected from
 the diagnostics, that value is descriptive of the refit, not an
@@ -2205,8 +2251,8 @@ pt4_revision_plot(v)
 ```
 
 In Sample C the added coefficient is
-`r pt2_num(added_C$est)`, with interval
-[`r pt2_num(added_C$ci.lower)`, `r pt2_num(added_C$ci.upper)`].
+`r pt2_num(c(added_C$est,added_C$ci.lower,added_C$ci.upper))[1]`, with interval
+[`r pt2_num(c(added_C$est,added_C$ci.lower,added_C$ci.upper))[2]`, `r pt2_num(c(added_C$est,added_C$ci.lower,added_C$ci.upper))[3]`].
 The LR improvement is only `r pt2_num(v$lr_C["Delta_T"])` on
 one df, with $p=$ `r pt2_num(v$lr_C["p"])`.
 The candidate relation does not receive independent support in this
@@ -2268,7 +2314,7 @@ correlation matrix,
 
 $$
 r_{12}r_{34}-r_{13}r_{24}
-=.712(.335)-.536(.370)=.0402,
+=.712(.335)-.536(.37)=.0402,
 $$
 
 whereas the fitted one-factor Belonging block imposes zero, apart from
@@ -2279,9 +2325,9 @@ Now that the generator is revealed, its first-order correlations also give a
 clean higher-order calculation:
 
 $$
-\gamma_1^2=\frac{.42(.30)}{.35}=.36,
+\gamma_1^2=\frac{.42(.3)}{.35}=.36,
 \qquad
-\boldsymbol\gamma=(.60,.70,.50)^{\mathsf T},
+\boldsymbol\gamma=(.6,.7,.5)^{\mathsf T},
 \qquad
 \operatorname{diag}(\boldsymbol\Psi_h)=(.64,.51,.75).
 $$
@@ -2318,7 +2364,7 @@ For population covariance $\boldsymbol\Sigma_0$ and its pseudo-true fitted
 covariance $\boldsymbol\Sigma^*$, define
 
 $$
-F_0=log|\boldsymbol\Sigma^*|
+F_0=\log|\boldsymbol\Sigma^*|
 +\operatorname{tr}(\boldsymbol\Sigma_0
  \boldsymbol\Sigma^{*-1})
 -\log|\boldsymbol\Sigma_0|-p.
@@ -2339,8 +2385,10 @@ $$
 pa <- population_audit$population
 sf <- population_audit$sample_formula
 pt2_table(data.frame(Quantity=c("Model statistic","df","RMSEA","CFI","SRMR"),
-  Population_definition=c(NA,population_audit$df,pa["RMSEA"],pa["CFI"],pa["SRMR"]),
-  Sample_formula_at_N360=c(sf["chisq"],sf["df"],sf["rmsea"],sf["cfi"],sf["srmr"])))
+  Population_definition=c("NA",formatC(population_audit$df,format="d"),
+    pt2_num(c(pa["RMSEA"],pa["CFI"],pa["SRMR"]))),
+  Sample_formula_at_N360=c(pt2_num(sf["chisq"]),formatC(sf["df"],format="d"),
+    pt2_num(c(sf["rmsea"],sf["cfi"],sf["srmr"])))))
 ```
 
 Applying the ordinary finite-sample formulas at $N=360$ to population input
@@ -2447,8 +2495,8 @@ $$
 =\frac{4.41}{5.92}\approx .745.
 $$
 
-If the first two residuals instead have covariance .10, the denominator
-increases by $.20$, because both symmetric covariance entries enter
+If the first two residuals instead have covariance .1, the denominator
+increases by $.2$, because both symmetric covariance entries enter
 the sum variance. The common numerator is unchanged. Ignoring that
 residual relation would overstate the common-variance proportion.
 
@@ -2528,13 +2576,13 @@ A possible compact report for this record is:
 > correlations, unit factor variances, and diagonal residual covariance.
 > Conventional normal ML was used without a mean structure. The fit
 > converged without warnings and was admissible. M1-cross had
-> $\chi^2(49)=$ `r pt2_num(fm["chisq"],2)`,
-> $p=$ `r pt2_num(fm["pvalue"])`, RMSEA =
-> `r pt2_num(fm["rmsea"])` (90% CI
-> [`r pt2_num(fm["rmsea.ci.lower"])`,
-> `r pt2_num(fm["rmsea.ci.upper"])`]), CFI =
-> `r pt2_num(fm["cfi"])`, TLI = `r pt2_num(fm["tli"])`,
-> and SRMR = `r pt2_num(fm["srmr"])`.
+> $\chi^2(49)=$ `r pt2_num(fm["chisq"])`,
+> $p=$ `r sub("^0", "", pt2_num(fm["pvalue"]))`, RMSEA =
+> `r sub("^0", "", pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")]))[1]` (90% CI
+> [`r sub("^0", "", pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")]))[2]`,
+> `r sub("^0", "", pt2_num(fm[c("rmsea","rmsea.ci.lower","rmsea.ci.upper")]))[3]`]), CFI =
+> `r pt2_num(fm[c("cfi","tli","srmr")])[1]`, TLI = `r pt2_num(fm[c("cfi","tli","srmr")])[2]`,
+> and SRMR = `r sub("^0", "", pt2_num(fm[c("cfi","tli","srmr")]))[3]`.
 > Planned restrictions removing the secondary loadings or forcing
 > orthogonality were opposed by compatible ML difference tests.
 > Local residuals involving B4 motivated one tentative sensitivity
@@ -2559,8 +2607,9 @@ improper fit or unsuccessful comparison.
 The canonical analysis reconstructs the ML statistic, RMSEA and its
 interval, CFI, TLI, SRMR, AIC, BIC, and eligible LR differences from
 the same fitted family. Reproduction is an arithmetic and provenance
-check; it does not replace substantive review. Public chapter renders
-have no dependency on private teaching files or archived data sets.
+check; it does not replace substantive review. A released report
+should reproduce from the materials its readers receive, without private
+files or unreleased data.
 
 ## Add structural restrictions without discarding measurement
 
@@ -2667,7 +2716,7 @@ there.
 | Nested difference test ($\chi^2$ difference; likelihood-ratio difference test) | $\Delta T=T_R-T_U$ on $\Delta df=df_R-df_U$ for regularly nested, compatible ML fits on identical cases, outcomes, scale, mean structure, and likelihood convention. A smaller parameter count is not proof of nesting, and failure to reject is not equivalence. |
 | Information criteria for covariance structures (AIC; BIC) eligibility | $-2\ell+2q$ and $-2\ell+q\log N$ with $q$ the effective free-parameter count. They rank eligible candidates fitted to the same observations and outcomes under one likelihood convention, including nonnested ones; neither is a test or an adequacy index. |
 | Score, Wald, and likelihood-ratio views of one restriction | Three statistics for one null: slope and information at the restricted fit; distance of the unrestricted estimate from the restriction relative to its uncertainty; difference of optimized likelihoods. Asymptotic equivalence is not finite-sample equality. |
-| Equivalent models (covariance-equivalent representation) | Distinct specifications that imply the same fitted covariance matrix, and hence the same statistic, df, and every fit index. No amount of covariance data can choose between them; only theory and evidence beyond reproduced covariance can. |
+| Equivalent models (covariance-equivalent representation) | Distinct specifications with the same set of admissible implied covariance matrices, so that each is nested in the other: every covariance matrix one can reproduce, the other can also reproduce, as an exact parameter mapping shows. On any data they therefore give the same fitted covariance matrix, statistic, df, and fit indices. Identical fit in one sample is a consequence, not a test, and no covariance data can choose between them; only theory and evidence beyond reproduced covariance can. |
 | Higher-order factor model (second-order factor; first-order disturbance) | A model in which one further latent variable accounts for the covariances among first-order factors, $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$. The first-order disturbances are not indicator residuals, and the form imposes $m(m-3)/2$ restrictions, hence none when $m=3$. |
 | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. |
 | Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain splits its common variance in the ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. |

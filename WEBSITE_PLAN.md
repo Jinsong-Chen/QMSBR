@@ -7,16 +7,25 @@ a page that says plainly what is available and what is not. A change that
 touches the frame is made once here and repeated in the practice project
 so the two read as one site.
 
-**Ownership.** This plan owns the site's navigation model, page inventory,
-theme, build and freeze, the add-a-chapter procedure, and the shared frame
-that the practice pages repeat. Three companion documents live in the
-author's private working repositories, beside the sources this site
-publishes: the publication plan (`materials/PUBLICATION_PLAN.md`) owns the
-repositories and the privacy boundary, the copy into this repository, the
-PDF rebuild, the licence and the release backlog; the WebR plan
+**Ownership.** This plan owns how the site presents its pages: the
+navigation model and its sidebars, the page inventory, layout, theme, build
+and freeze, the add-a-chapter procedure, and the shared frame that the
+practice pages repeat. What a page says belongs to the technical document
+(tech doc) that governs it, in the author's private instructor repository:
+the Home, About and Argument Approach pages, and the practice project's
+shared pages (its home, Workspace page and data register), to the Part One
+tech doc, Section 3 (`instructor/part_one_tech.qmd`); each part's
+introduction and concept reference to that part's tech doc, Section 3 (the
+Part One tech doc, or `instructor/part-two/part_two_tech.qmd` for Part
+Two); and each chapter to its chapter tech doc. Two companion documents live in the author's
+private materials repository, beside the sources this site publishes: the
+publication plan (`materials/PUBLICATION_PLAN.md`) owns the repositories
+and the privacy boundary, the copy into this repository, the PDF rebuild,
+the licence and the release backlog; the WebR plan
 (`materials/webr/WEBR_PLAN.md`) owns the practice project behind
-`practice/`; and the chapter technical documents own what a chapter
-teaches. Nothing here decides content.
+`practice/`. Nothing here decides content: where this plan names what a
+page carries, it does so to place it in the layout, and the tech doc's
+wording and order govern.
 
 ## 1. What is in this repository
 
@@ -75,7 +84,9 @@ yet available.
 ### Sidebars
 
 The book site uses Quarto's multiple docked sidebars, each with an `id`, a
-`title` and its own `contents`. A page belongs to one of them:
+`title` and its own `contents`. A part's sidebar is titled with the part's
+full title as its tech doc gives it, such as *Part One: Foundations,
+Regression, and Generalized Linear Models*. A page belongs to one of them:
 
 - **Part One** — `part-one/part_one_introduction.qmd` with the text
   *Introduction*, `part-one/part_one_concept_reference.qmd` as *Concept
@@ -93,37 +104,41 @@ its own (WebR plan, Section 1).
 
 ## 3. Pages
 
-**Home (`index.qmd`).** A site summary in learner-facing prose: what QMSBR
-is and who it is for, how the site is organized, and how to start. Then a
-**Collections** section of five cards — Part One, Part Two, Part Three
-(muted, carrying the id `part-three`: multilevel and longitudinal models,
-reserved, not yet available), R support, and Argument Approach (muted,
-listing supplements A and B as not yet available). Then **How to use this
-site** (read online or download the PDF, the concept reference, the practice
-pages, and the note that a course may add its own materials) and **What
-comes next** (Part One Chapters 10--14 by number and title, Part Two's SEM
-continuation, Part Three, and the supplementary chapters). The author band
-closes the page.
+The tech docs specify what each page says (see *Ownership*). This section
+fixes where each page sits and which layout elements it uses, so that a
+change of wording needs no change here.
 
-**About (`about.qmd`).** A short site summary, the author, how to cite,
-licences, accessibility, and using QMSBR in a course.
+**Home (`index.qmd`).** Full width (`page-layout: full`), with no sidebar
+and no table of contents, and the body class `qmsbr-home`. The page opens
+with the hero block (`.qmsbr-hero`: kicker, heading, the opening
+paragraphs, two buttons, and the release line in `.release-strip`), then
+carries its remaining parts in the order the Part One tech doc, Section 3,
+gives: the **Collections** grid (`#collections`, five `.collection-card`s
+in the order of the top row), *Using QMSBR in a course*, *How to use this
+site*, *What comes next* as a `.roadmap-grid`, and the `.author-band`. The
+Part Three card carries the id `part-three`, the `.unavailable` class and
+`aria-disabled="true"`, and lists no link. The Argument Approach card keeps
+its link to the approach page live and shows supplements A and B in a
+`.card-muted-block`. Wherever a unit that is not yet available is named,
+the `.badge-unavailable` chip marks it.
+
+**About (`about.qmd`).** No sidebar. Its sections keep the anchors that the
+footer and the Home page link to: `#citation`, `#licences` and `#courses`.
 
 **Argument Approach (`argument-approach.qmd`).** Titled *The Argument-Based
-Approach*. The approach text, then a **Supplementary chapters** section with
-two subsections carrying the ids `supplement-a` and `supplement-b`, each
-naming its chapter and saying that it is not yet available.
+Approach* and the first entry of its sidebar, with page navigation turned
+off so that a muted supplement entry never becomes a pagination link. Its
+closing section carries the anchors `supplement-a` and `supplement-b` that
+the sidebar's muted entries point at. It reads `references.bib` and
+`apa.csl` for its citations.
 
-**Part introductions.** Learner-facing guidance for the part: what it is and
-who it is for, how its chapters build on each other, how to read a chapter,
-and what comes later. Each is the first entry of its sidebar and the target
-of its Part button.
+**Part introductions.** Each is the first entry of its sidebar and the
+target of its Part button.
 
 **Concept references.** `part-one/part_one_concept_reference.qmd` and
 `part-two/part_two_concept_reference.qmd` are public units of their own,
-each a short opening on how to read the tables followed by the part's master
-concept tables and notation. They are copied from the tech docs and checked
-with the author's concept-reference sync tool; nothing on the site edits a
-table in place.
+the second entry of their part's sidebar. They are copied in like a
+chapter; nothing on the site edits a table in place.
 
 **Chapters.** One page per chapter, with the reviewed PDF beside it.
 
@@ -133,9 +148,14 @@ table in place.
 accent on a paper background, set once in the SCSS defaults and exposed as
 CSS variables for the cards and callouts. The stylesheet also carries the
 scroll offset the pinned navbar needs, so an in-page jump does not land
-under the bar, and the muted-link rule of Section 2. The practice project
-shares the same palette in its own `theme.scss`, so the top row reads as one
-bar across both sites.
+under the bar, and the muted-link rule of Section 2. The page clips sideways
+overflow so that the Home hero can bleed to full width; a wide table or
+display equation therefore scrolls sideways inside its own box, so on a
+phone the part beyond the screen edge stays reachable. A page's front-matter
+`description` serves as its meta description and is hidden in the title
+block, so the page's own first paragraph is the first one a reader sees.
+The practice project shares the same palette in its own `theme.scss`, so
+the top row reads as one bar across both sites.
 
 ## 5. Build and freeze
 
@@ -166,7 +186,10 @@ before rendering or the page keeps the old numbers.
    `part-one/` or `part-two/` (publication plan, Section 4); copy
    `references.bib` and `apa.csl` too if the citations or the style changed.
 2. Add the `.qmd` to `render:` in `_quarto.yml` and to the `contents:` of
-   its part's sidebar, in reading order.
+   its part's sidebar, in reading order. List under `project.resources` any
+   data file a reader should be able to download that no page links: the
+   build deploys a copied file only when a page links it or `resources:`
+   names it.
 3. Add its line to that part's card on `index.qmd`, and remove it from
    **What comes next** if it was listed there. A retitled chapter needs both
    the sidebar entry and the card line updated.
@@ -180,7 +203,8 @@ before rendering or the page keeps the old numbers.
 
 A unit that publishes into a muted slot — a supplementary chapter, Part
 Three — is the same work plus one step: the muted entry becomes an ordinary
-link, and its card and section text drop the not-yet-available sentence.
+link, and its card and section text drop the not-yet-available badge and
+sentence.
 
 `practice/` is never edited here. Fix the source in `materials/webr/` and
 copy the rendered output in again (publication plan, Section 4.1).

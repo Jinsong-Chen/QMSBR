@@ -1,7 +1,7 @@
 ---
 title: "QMSBR"
 subtitle: "Quantitative Methods for Social and Behavioral Research"
-description: "A modular collection of quantitative-methods chapters, with browser R support, for social and behavioral research."
+description: "A modular collection of chapters designed to support various quantitative and statistical courses, with R support pages that run in the browser."
 page-layout: full
 title-block-banner: false
 body-classes: qmsbr-home
@@ -13,40 +13,38 @@ aliases: ["library.html"]
 
 ::: {.qmsbr-hero}
 ::: {.hero-kicker}
-A modular quantitative-methods series
+A modular collection for quantitative courses
 :::
 
 # Quantitative reasoning that keeps the claim connected to the evidence
 
-QMSBR is a modular learning library for social and behavioral research. It is
-written for readers who have to make sense of quantitative studies: students
-meeting these methods for the first time, researchers returning to them, and
-anyone who has to judge whether a reported answer is warranted. Its first aim
-is to show how a quantitative study answers its question, so that research
-design, statistical reasoning, interpretation, and reproducible computing stay
-connected and a software result never stands in for an argument.
+QMSBR---*Quantitative Methods for Social and Behavioral Research*---is a modular collection of chapters designed to support various quantitative and statistical courses.
+Its modular design serves several courses at once: each course chooses its
+own route through one canonical set of chapters whose identities and links
+stay stable, so a correction to a chapter improves every route that uses it.
+The chapters help readers make sense of quantitative studies, following how a
+study turns a question into evidence and a bounded answer. They also help
+readers carry out analyses in which design, statistical reasoning,
+interpretation, and reproducible computing stay connected.
 
-The material is organized in parts. A part opens with a short **introduction**,
-keeps its central concepts, symbols, and notation in a **concept reference**
-you can consult while reading, and then works through its **chapters** in
-reading order. **Part One** covers foundations, regression, and generalized
-linear models; **Part Two** covers factor analysis and structural equation
-modeling. The **R support** pages run R inside the browser, so there is nothing
-to install before trying something out.
+The material is organized in parts. Each part opens with a short
+**introduction**, keeps a **concept reference** to consult while reading, and
+presents its **chapters** in reading order. **Part One** covers foundations,
+regression, and generalized linear models; **Part Two** covers factor analysis
+and structural equation modeling. The **R support** pages run R in the
+browser, with nothing to install.
 
-If you are new here, begin with the Part One introduction and then Chapter 1,
-which sets up the reading that every later chapter uses. If you already know
-where you are going, the collections below link to every page and its PDF.
+To start, read a part introduction and then its first chapter.
 
 ::: {.hero-actions}
 [Browse the collections](#collections){.btn .btn-primary .btn-lg}
-[Start with Part One](part-one/part_one_introduction.qmd){.btn .btn-outline-light .btn-lg}
+[Read the argument-based approach](argument-approach.qmd){.btn .btn-outline-light .btn-lg}
 :::
 
 ::: {.release-strip}
-Part One, Introduction, Concept Reference, and Chapters 1–9 · Part Two,
-Introduction, Concept Reference, and Chapters 1–4 · R support for Chapters 3
-and 4 · Read online or download the PDF
+Part One: Introduction, Concept Reference, and Chapters 1–9 · Part Two:
+Introduction, Concept Reference, and Chapters 1–4 · R support for Part One
+Chapters 3 and 4
 :::
 :::
 
@@ -99,9 +97,8 @@ Multilevel and Longitudinal Models
 
 Part Three is reserved for data with a nested or repeated structure:
 multilevel models for units grouped inside classes, schools, or sites, and
-longitudinal models for the same units measured more than once.
-
-The collection has no pages yet. It will appear here when it does.
+longitudinal models for the same units measured more than once. It is not yet
+available.
 :::
 
 ::: {.collection-card}
@@ -133,41 +130,54 @@ Reading a study as a question–answer contract
 - A. How to Read a Quantitative Study as an Argument
 - B. Extending the Argument-Based Approach to Quantitative Studies
 
-The two supplementary chapters extend the approach. No numbered chapter
-depends on them.
+These two supplementary chapters extend the approach and are not yet
+available. No numbered chapter depends on them.
 :::
 :::
 :::
+
+## Using QMSBR in a course {#using-in-a-course}
+
+Each course chooses its own route and sequence through the chapters. A course
+system such as Moodle holds the term schedule, announcements, classroom notes,
+and assessment, while this site holds the chapters themselves and carries no
+course-specific material. Chapter identities and links stay stable, so a
+course can cite a chapter page and rely on reaching the current version of it.
+[Using QMSBR in a course](about.qmd#courses), on the About page, sets out the
+division in more detail.
 
 ## How to use this site
 
-**Read online, or take the PDF.** Every chapter is a web page, which is the
-better format for reading: responsive layout, a table of contents, search,
-descriptive link text, and selectable code. The same chapter sits beside it as
-a PDF for printing and annotation. Both carry the same content, and the PDF
-link is on the chapter's line in the collections above.
+**Read online, or download the PDF.** Every chapter, introduction, and concept
+reference can be read online or downloaded as a PDF, and both are built from
+the same source. The web page
+adds a responsive layout, a table of contents, search, and selectable code;
+the PDF suits printing and annotation. The PDF link sits beside each page's
+title in the collections above.
 
-**Look a concept up in the concept reference.** Each part gathers its central
-concepts, symbols, and notation into one page of tables. Read a chapter for the
-lesson; open the concept reference when you meet a symbol or a term and want
-its definition and the chapter that develops it.
+**Keep the concept reference open while reading.** Each part gathers its
+central concepts, symbols, and notation in a concept reference. Read a chapter
+for the lesson, and open the concept reference when you meet a term or a
+symbol and want its meaning and the chapter that explains it.
 
-**Run the code in the browser.** The R support pages carry a live R session, so
-you can run a chapter's analysis, change it, and see what changes without
-installing anything. Your R workspace explains how to open, save, and reload
-your own work, and the data sources page says where every dataset on the site
-comes from and on what terms.
+**Try an analysis on the R support pages.** The R support pages carry a live R
+session in the browser, so you can run a chapter's analysis, change it, and see
+what changes without installing anything. The data sources page says where
+each dataset comes from and on what terms it can be reused.
 
-**A course may add its own materials.** QMSBR is a source library, not a
-syllabus. Chapter identities and public links stay stable, so a course can
-choose its own sequence and keep its schedule, announcements, assessment, and
-answer keys in its own space while linking here for the readings.
+**Read the argument-based approach the chapters share.** The chapters read a
+quantitative study as a question, the evidence and reasons that support an
+answer, and the limits of that answer.
+[The Argument-Based Approach](argument-approach.qmd) summarizes this reading,
+and Part One Chapter 1 develops it in full.
 
 ## What comes next
 
 ::: {.roadmap-grid}
 ::: {.roadmap-card}
 ### Part One, Chapters 10–14
+
+[Not yet available]{.badge-unavailable}
 
 10. Interaction and Moderation
 11. Binary Logistic Regression
@@ -179,9 +189,11 @@ answer keys in its own space while linking here for the readings.
 ::: {.roadmap-card}
 ### Part Two and Part Three
 
+[Not yet available]{.badge-unavailable}
+
 Part Two continues from confirmatory factor analysis into structural equation
-modeling: models that relate latent variables to one another rather than only
-to their indicators.
+models, which relate latent variables to one another as well as to their
+indicators.
 
 Part Three is reserved for multilevel and longitudinal models.
 :::
@@ -189,22 +201,19 @@ Part Three is reserved for multilevel and longitudinal models.
 ::: {.roadmap-card}
 ### Supplementary chapters
 
-A. How to Read a Quantitative Study as an Argument, and B. Extending the
-Argument-Based Approach to Quantitative Studies, extend the argument-based
-approach to coordinated questions, deeper evaluation, and regression-based
-methods.
+[Not yet available]{.badge-unavailable}
+
+A. How to Read a Quantitative Study as an Argument reads one question-level
+argument through a complete worked study. B. Extending the Argument-Based
+Approach to Quantitative Studies carries the approach from one question to
+several coordinated questions.
 :::
 :::
-
-Later collections can join this same site when their scope is clear and their
-material is ready.
-
-[Browse the collections](#collections){.btn .btn-outline-primary}
 
 ::: {.author-band}
-**Jinsong Chen** · Faculty of Education, The University of Hong Kong
+**Jinsong Chen** · Faculty of Education, The University of Hong Kong ·
 [jinsong.chen@live.com](mailto:jinsong.chen@live.com)
 
-QMSBR is an independently maintained educational resource. Affiliation is
-provided for author identification and does not imply institutional endorsement.
+QMSBR is independently maintained. The affiliation identifies the author and
+does not imply institutional endorsement.
 :::

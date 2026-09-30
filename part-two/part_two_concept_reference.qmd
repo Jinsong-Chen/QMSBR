@@ -69,6 +69,7 @@ format:
           \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
         \fi
         \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+        \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
         \addtokomafont{sectionentry}{\small}
         \let\chapteroldtableofcontents\tableofcontents
         \renewcommand{\tableofcontents}{\begingroup\small
@@ -134,7 +135,7 @@ distinction stay in the chapters themselves.
 
 \small
 
-## Latent Variables and the Common-Factor Model {#sec-p2-concepts-latent }
+## Latent Variables and the Common-Factor Model {#sec-p2-concepts-latent .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
 |:--|:--|:--|:--|
@@ -171,7 +172,7 @@ distinction stay in the chapters themselves.
 
 : Latent variables and the common-factor model. {#tbl-intro-p2-concepts-latent tbl-colwidths="[16,23,45,16]"}
 
-## Exploratory Factor Analysis and Model Development {#sec-p2-concepts-efa }
+## Exploratory Factor Analysis and Model Development {#sec-p2-concepts-efa .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
 |:--|:--|:--|:--|
@@ -207,7 +208,7 @@ distinction stay in the chapters themselves.
 
 : Exploratory factor analysis and model development. {#tbl-intro-p2-concepts-efa tbl-colwidths="[16,23,45,16]"}
 
-## Confirmatory Specification, Identification, and Estimation {#sec-p2-concepts-cfa }
+## Confirmatory Specification, Identification, and Estimation {#sec-p2-concepts-cfa .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
 |:--|:--|:--|:--|
@@ -237,7 +238,7 @@ distinction stay in the chapters themselves.
 
 : Confirmatory specification, identification, and estimation. {#tbl-intro-p2-concepts-cfa tbl-colwidths="[16,23,45,16]"}
 
-## Evaluation, Comparison, Reliability, and Extensions {#sec-p2-concepts-evaluation }
+## Evaluation, Comparison, Reliability, and Extensions {#sec-p2-concepts-evaluation .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
 |:--|:--|:--|:--|
@@ -250,7 +251,7 @@ distinction stay in the chapters themselves.
 | Comparison | Nested difference test ($\chi^2$ difference; likelihood-ratio difference test) | $\Delta T=T_R-T_U$ on $\Delta df=df_R-df_U$ for regularly nested, compatible ML fits on identical cases, outcomes, scale, mean structure, and likelihood convention. A smaller parameter count is not proof of nesting, and failure to reject is not equivalence. | Chapter 4, Sec. 4 |
 | Comparison | Information criteria for covariance structures (AIC; BIC) eligibility | $-2\ell+2q$ and $-2\ell+q\log N$ with $q$ the effective free-parameter count. They rank eligible candidates fitted to the same observations and outcomes under one likelihood convention, including nonnested ones; neither is a test or an adequacy index. | Chapter 4, Sec. 4 |
 | Comparison | Score, Wald, and likelihood-ratio views of one restriction | Three statistics for one null: slope and information at the restricted fit; distance of the unrestricted estimate from the restriction relative to its uncertainty; difference of optimized likelihoods. Asymptotic equivalence is not finite-sample equality. | Chapter 4, Sec. 4 |
-| Comparison | Equivalent models (covariance-equivalent representation) | Distinct specifications that imply the same fitted covariance matrix, and hence the same statistic, df, and every fit index. No amount of covariance data can choose between them; only theory and evidence beyond reproduced covariance can. | Chapter 4, Sec. 5 |
+| Comparison | Equivalent models (covariance-equivalent representation) | Distinct specifications with the same set of admissible implied covariance matrices, so that each is nested in the other: every covariance matrix one can reproduce, the other can also reproduce, as an exact parameter mapping shows. On any data they therefore give the same fitted covariance matrix, statistic, df, and fit indices. Identical fit in one sample is a consequence, not a test, and no covariance data can choose between them; only theory and evidence beyond reproduced covariance can. | Chapter 4, Sec. 5 |
 | Extensions | Higher-order factor model (second-order factor; first-order disturbance) | A model in which one further latent variable accounts for the covariances among first-order factors, $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$. The first-order disturbances are not indicator residuals, and the form imposes $m(m-3)/2$ restrictions, hence none when $m=3$. | Chapter 4, Sec. 5 |
 | Extensions | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. | Chapter 4, Sec. 5 |
 | Extensions | Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain splits its common variance in the ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. | Chapter 4, Sec. 5 |
@@ -264,7 +265,7 @@ distinction stay in the chapters themselves.
 
 : Evaluation, comparison, reliability, and extensions. {#tbl-intro-p2-concepts-evaluation tbl-colwidths="[16,23,45,16]"}
 
-## Notation for Chapters 1--4 {#sec-p2-concepts-notation }
+## Notation for Chapters 1--4 {#sec-p2-concepts-notation .unnumbered}
 
 | Group | Symbol (preferred form) | Meaning | Main use | Alternatives and notes |
 |:--|:--|:--|:--|:--|
@@ -287,8 +288,8 @@ distinction stay in the chapters themselves.
 | Coordinates | $\gamma$, $\delta$ | The oblimin parameter and the geomin parameter of the rotation criteria | Chapter 2, Sec. 5.2 | Plain letters; the bold $\boldsymbol\gamma$ and $\boldsymbol\delta$ of Chapter 4, Sec. 5 are second-order loadings and first-order disturbances |
 | Classical test theory | $X_{ir}$, $T_i$, $E_{ir}$ | Observed score on repetition $r$, true score, and error | Chapter 1, Sec. 1.2 | $E_r(\cdot\mid i)$ averages over repetitions with the person fixed |
 | Scores | $\widehat{\eta}_{ik}$ | A factor-score estimate for unit $i$ on factor $k$ | Chapter 1, Sec. 6.5 | The hat marks a prediction from a fitted model, never the factor; $\mathbf A_R$ and $\mathbf A_B$ of Chapter 4, Appendix supply the weights |
-| Fixed arrays | $\mathbf I_p$, $\mathbf 1_p$, $\operatorname{diag}(\cdot)$ | The $p\times p$ identity, the $p\times1$ vector of ones, and the diagonal matrix formed from the listed entries | Chapter 1, Sec. 6.1--6.2 | $\mathbf 1_6$ writes the one-factor record's equal loadings as $.70\,\mathbf 1_6$ |
-| Sample records | $\mathbf S$, $\mathbf R$ | The sample covariance matrix, divisor $n-1$, and the sample Pearson correlation matrix | Chapter 2 | Reserved in Chapter 1, which has no sample and uses $\mathbf S$ only for its rescaling anchor; the structure matrix is written $\boldsymbol\Lambda\boldsymbol\Phi$ and given no symbol; Part One's notation homes both as observed-variable matrices |
+| Fixed arrays | $\mathbf I_p$, $\mathbf 1_p$, $\operatorname{diag}(\cdot)$ | The $p\times p$ identity, the $p\times1$ vector of ones, and the diagonal matrix formed from the listed entries | Chapter 1, Sec. 6.1--6.2 | $\mathbf 1_6$ writes the one-factor record's equal loadings as $.7\,\mathbf 1_6$ |
+| Sample records | $\mathbf S$, $\mathbf R$ | The sample covariance matrix, divisor $n-1$, and the sample Pearson correlation matrix | Chapter 2 | Reserved in Chapter 1, which has no sample and uses $\mathbf S$ only for its rescaling anchor; the structure matrix is written $\boldsymbol\Lambda\boldsymbol\Phi$ and given no symbol; Part One's notation homes both as observed-variable matrices and, like Part Two, writes matrices and vectors bold with a superscript $\mathsf T$ for the transpose |
 | Sample records | $\mathbf D_S$ | The diagonal matrix of sample variances | Chapter 2 | $\mathbf D_y$ is the observed-variance counterpart in the correlation reparameterization of Chapter 3, Sec. 4 |
 | Sample records | $\mathbf V$, $\mathbf D$, $d_k$ | Eigenvectors, the eigenvalue matrix, and the $k$th eigenvalue of $\mathbf R$ | Chapter 2 | A spectral eigenvalue matrix; the $\mathbf D$ of Chapter 3, Sec. 4 is the diagonal factor-scale transformation and Part One's notation uses $\mathbf D$ for a diagonal SD matrix, $\widehat{\mathbf V}$ for estimated coefficient covariance (Part One Chapter 8) and $d$ for Cohen's $d$ (Part One Chapter 3), so the setting is named at first use |
 | Sample records | $\mathbf R_c^{(t)}$ | The reduced correlation matrix at iteration $t$ | Chapter 2, Sec. 2.3 | The superscript is an iteration index, not the free-parameter count $t$; the reduced matrix need not be positive semidefinite |

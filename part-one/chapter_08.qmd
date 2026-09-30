@@ -91,6 +91,7 @@ format:
           \AddToHook{cmd/section/before}{\Needspace{6\baselineskip}\phantomsection}
           \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
           \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     df-print: kable
     toc: true
@@ -115,7 +116,7 @@ editor:
 #| label: setup
 #| include: false
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
-  fig.pos = "H")
+  fig.pos = "!ht")
 if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
 options(digits = 7, width = 68)
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 11))
@@ -158,11 +159,16 @@ not the claims written for this chapter.
 A rounded coefficient equation explains a comparison; evaluate the
 unrounded fitted model when checking its last digits. Each visible R
 example follows from the earlier visible preparation in this chapter;
-Chapter 7 supplies familiarity, not an existing R session. Chapter 5's
-one-control partial correlation and Chapter 6's common-slope ANCOVA also
-prepare this analysis: we now handle several controls, track the full
-model's uncertainty, and distinguish a conditional comparison from an
-average over named profiles.
+Chapter 7 supplies familiarity, not an existing R session. Chapter 5
+held one variable fixed by residualizing: its partial correlation
+removed that variable's fitted linear component from two others before
+correlating what remained. A fitted equation with several predictors
+holds the others fixed directly, because two of its fitted means that
+differ in one predictor share every other term. We use that idea with
+several controls at once, track the full model's uncertainty, and
+distinguish a conditional comparison from an average over named
+profiles. Chapter 9, Section 2, applies the same idea to adjusted group
+means in the analysis of covariance.
 
 \clearpage
 
@@ -255,8 +261,8 @@ credible and stable the working-model reading is before judging its answer.
 A **best linear projection** can instead summarize a curved conditional
 relationship under a specified distribution of predictors. That is a
 different interpretation, not a rescue silently adopted after discovering
-curvature. The core uses the stated linear conditional-mean interpretation;
-Appendix B explains the alternative and its limitations.
+curvature. The main sections use the stated linear conditional-mean interpretation;
+Chapter 9, Appendix A, develops the alternative and its limitations.
 
 Pair 3 will declare a different hypothetical repetition: train a rule on
 eligible, exchangeable same-source records, then predict a new record
@@ -267,10 +273,10 @@ by the coefficient interval in Pair 2.
 
 ### What a partial slope compares
 
-Chapter 6's adjusted group coefficients compared fitted outcomes at the
-same baseline value. The idea extends to a continuous predictor and
-several controls: specify what changes, hold the other predictor values
-fixed, and subtract the two fitted means.
+Chapter 5's partial correlation held one variable fixed by residualizing
+both variables on it. A fitted equation holds its other predictors fixed
+directly: specify what changes, keep the other predictor values the
+same, and subtract the two fitted means.
 
 Let $e$ be education, $p$ prestige, $w$ percentage of women, and $t$ type.
 The fitted additive equation is
@@ -312,7 +318,7 @@ another predictor is the interaction question taken up later.
 A short known-process example makes the distinction visible. Suppose
 
 $$
-Y=10+2X+5Z+\varepsilon,
+Y=50+2X+5Z+\varepsilon,
 \qquad E(\varepsilon\mid X,Z)=0,
 $$
 
@@ -323,15 +329,58 @@ The conditional $X$ coefficient is 2. The marginal linear slope is
 $$
 \frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}
 =2+5\frac{\operatorname{Cov}(X,Z)}{\operatorname{Var}(X)}
-=2+5(0.65)=5.2500.
+=2+5(0.65)=5.25.
 $$
 
-The marginal comparison incorporates how $Z$ moves with $X$ in this
-specified process. The conditional comparison holds $Z$ fixed. Neither
-arithmetic result alone says what would happen if a researcher intervened
-on $X$. Calling 5.2500 “biased” requires naming an estimand for which it is
-being used incorrectly; as a marginal linear summary, 5.2500 is the right
-answer here. Appendix A retains the derivation and simulation.
+@fig-ch8-known-process draws one generated sample of 250 cases from this
+process, with the process's own mean lines rather than fitted ones. Each
+solid line holds $Z$ at one value and rises 2 for each unit of $X$. The
+dashed marginal line rises 5.25, because the darker points, those with
+higher $Z$, sit toward the upper right: higher $X$ comes with higher
+$Z$, and the marginal line carries that association along.
+
+```{r}
+#| label: fig-ch8-known-process
+#| fig-cap: "One generated sample from the known process, with its marginal line and three lines at fixed $Z$."
+#| fig-alt: "Scatterplot of 250 generated points of Y against standardized X, shaded by Z, with darker points higher and to the right. Three parallel solid lines at Z equal to minus one, zero and one rise with slope 2. A steeper dashed line, the marginal line, rises with slope 5.25 and crosses the three solid lines."
+#| fig-width: 6.1
+#| fig-height: 3.5
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+set.seed(82108)
+ch8a_n <- 250
+ch8a_x <- rnorm(ch8a_n)
+ch8a_z <- .65 * ch8a_x + sqrt(1 - .65^2) * rnorm(ch8a_n)
+ch8a_y <- 50 + 2 * ch8a_x + 5 * ch8a_z + rnorm(ch8a_n, sd = 6)
+ch8a_sim <- data.frame(strategy = ch8a_x, prior = ch8a_z,
+                       score = ch8a_y)
+ch8_lines <- data.frame(prior = c(-1, 0, 1),
+                        intercept = 50 + 5 * c(-1, 0, 1))
+ggplot2::ggplot(ch8a_sim, ggplot2::aes(strategy, score)) +
+  ggplot2::geom_point(ggplot2::aes(colour = prior), size = 1.2,
+                      alpha = .8) +
+  ggplot2::geom_abline(data = ch8_lines,
+                       ggplot2::aes(intercept = intercept, slope = 2),
+                       colour = "#245C78", linewidth = .8) +
+  ggplot2::geom_abline(intercept = 50, slope = 5.25, linetype = 2,
+                       linewidth = .9) +
+  ggplot2::annotate("text", x = 3.1, y = 50 + 2 * 3.1 + 5 * c(-1, 0, 1),
+                    label = c("Z = -1", "Z = 0", "Z = 1"),
+                    hjust = 0, vjust = -0.35, size = 3.1,
+                    colour = "#245C78") +
+  ggplot2::annotate("text", x = -2.6, y = 74, hjust = 0, vjust = 1,
+                    size = 3.1,
+                    label = "Dashed: marginal line, slope 5.25\nSolid: fixed Z, slope 2") +
+  ggplot2::scale_colour_gradient(low = "grey85", high = "black") +
+  ggplot2::scale_x_continuous(limits = c(-2.6, 3.6), breaks = -2:3) +
+  ggplot2::labs(x = "X (standardized)", y = "Y", colour = "Z")
+```
+
+The conditional comparison holds $Z$ fixed; the marginal comparison
+incorporates how $Z$ moves with $X$ in this specified process. Neither
+result alone says what would happen if a researcher intervened on $X$.
+Calling 5.25 “biased” requires naming an estimand for which it is being
+used incorrectly; as a marginal linear summary, 5.25 is the right
+answer here. Appendix A retains the derivation and the repeated samples.
 
 More generally, adding predictors can change the comparison, but it does
 not **always** change the scientific estimand. In a randomized study,
@@ -360,8 +409,8 @@ coefficients in the substitution gives
 $$
 \begin{aligned}
 \widehat m_*
-={}&\hat\beta_0+11\hat\beta_E+45\hat\beta_P
-+50\hat\beta_W+\hat\delta_{\mathrm{wc}}\\
+={}&\widehat\beta_0+11\widehat\beta_E+45\widehat\beta_P
++50\widehat\beta_W+\widehat\delta_{\mathrm{wc}}\\
 \approx{}&5.5886.
 \end{aligned}
 $$
@@ -372,32 +421,10 @@ values occur together within the observed white-collar covariate cloud?
 Separate minimum and maximum values cannot answer that question.
 
 Here is a checkable **joint-support witness**. A convex combination is a
-weighted average with nonnegative weights summing to one. Four retained
-white-collar records can be combined to recover education 11, prestige 45,
-and women 50 simultaneously. The source spelling *receptionsts* is retained
-in the code so that the record can be located exactly.
-
-Use the supplied weights to check the three weighted averages. The order of
-the weights matches the four named records. `weighted.mean()` performs the
-same weighted-average calculation for each variable; finding these weights
-is not a prerequisite for interpreting their evidence.
-
-\Needspace{23\baselineskip}
-
-```{r}
-#| label: ch8-profile-support
-#| echo: true
-support_names <- c("radio.tv.announcers", "tellers.cashiers",
-                   "receptionsts", "sales.supervisors")
-support_rows <- d[support_names, c("education", "prestige", "women")]
-support_weights <- c(0.245243736035, 0.230972611567,
-                     0.226143656937, 0.297639995461)
-d[support_names, "type"]
-sum(support_weights)
-c(education = weighted.mean(support_rows$education, support_weights),
-  prestige = weighted.mean(support_rows$prestige, support_weights),
-  women = weighted.mean(support_rows$women, support_weights))
-```
+weighted average with nonnegative weights summing to one. The four
+retained white-collar records in @tbl-ch8-profile-support can be combined
+with the listed weights: weighting each column by them returns education
+11, prestige 45 and women 50 at once.
 
 \Needspace{11\baselineskip}
 
@@ -405,11 +432,17 @@ c(education = weighted.mean(support_rows$education, support_weights),
 #| label: tbl-ch8-profile-support
 #| echo: false
 #| tbl-cap: "Four observed white-collar records recover the declared profile."
+support_names <- c("radio.tv.announcers", "tellers.cashiers",
+                   "receptionsts", "sales.supervisors")
+support_rows <- d[support_names, c("education", "prestige", "women")]
+support_weights <- c(0.245243736035, 0.230972611567,
+                     0.226143656937, 0.297639995461)
 support_display <- data.frame(
   Occupation = c("Radio/TV announcers", "Tellers/cashiers",
                  "Receptionists", "Sales supervisors"),
   support_rows,
-  Weight = sub("^0", "", sprintf("%.4f", unname(support_weights))),
+  Weight = sub("^0", "", format(round(unname(support_weights), 4),
+    digits = 15, scientific = FALSE, trim = TRUE)),
   row.names = NULL
 )
 knitr::kable(support_display,
@@ -417,9 +450,9 @@ knitr::kable(support_display,
   digits = c(0, 2, 1, 2, 4), align = c("l", "r", "r", "r", "r"))
 ```
 
-The supplied weights are all positive and sum to one; their weighted
-coordinates recover $(11,45,50)$ within $10^{-10}$ using the supplied reproduction constants in the R code. The table
-rounds weights for reading. This establishes membership in the joint
+The weights are all positive and sum to one; the table rounds them for
+reading, and the Computer Lab checks the weighted averages with the
+full-precision weights. The witness establishes membership in the joint
 covariate hull **within white-collar type**, using all three continuous
 predictors in the full model. It does not show that many occupations lie
 near this profile, that observed occupations match exactly, or that a
@@ -428,8 +461,12 @@ causal comparison is supported. Local data may still be sparse.
 The intercept refers to zero education, prestige, and women in the
 reference type. It helps construct the fitted surface; it need not describe
 a plausible occupation. Likewise, one type coefficient is not “the effect
-of occupational type” as a whole. Appendix A retains the group-mean and releveling calculation; Chapter 9
-develops contrasts, block tests, and the analysis-of-variance identity.
+of occupational type” as a whole. In Chapter 6's indicator fit the
+factor stood alone, so each coefficient was a difference between group
+means; here each type coefficient compares fitted means at the same
+education, prestige, and women. Appendix A retains the group-mean and
+releveling calculation; Chapter 9 develops contrasts, block tests, and
+the analysis-of-variance identity.
 
 ## Estimate the Conditional Association {#sec-ch8-estimate}
 
@@ -506,71 +543,64 @@ $$
 
 The slope identity is algebraic. The displayed SE estimates uncertainty
 under the independent, constant-variance error model; Normal errors give
-the exact $t_{92}$ reference for $H_0:\beta_E=0$. The following calculation
-keeps those full-model degrees of freedom.
+the exact $t_{92}$ reference for $H_0:\beta_E=0$. @tbl-ch8-partial-df
+reads the result on the occupation records. The first row is the
+education row of the full model, which the residual formulas above
+reproduce; the second is a fresh fit of residual income on residual
+education.
 
-\Needspace{15\baselineskip}
+\Needspace{10\baselineskip}
 
-```{r}
-#| label: ch8-partial
-#| echo: true
-r_E <- residuals(lm(education ~ prestige + women + type, data = d))
-r_Y <- residuals(lm(income_k ~ prestige + women + type, data = d))
-partial_r <- cor(r_E, r_Y)
-full_df <- df.residual(m2)
-partial_se <- sqrt((sum(residuals(m2)^2) / full_df) / sum(r_E^2))
-partial_t <- partial_r * sqrt(full_df / (1 - partial_r^2))
-c(slope = sum(r_E * r_Y) / sum(r_E^2), partial_r = partial_r,
-  SE = partial_se, df = full_df, t = partial_t,
-  p_value = 2 * pt(-abs(partial_t), full_df))
-```
+| Calculation on the same 98 rows | Slope | SE | df | $t$ | $p$ |
+|:--|--:|--:|--:|--:|--:|
+| Full model `m2`, education row; the residual formulas with $n-p=92$ | 0.1164 | 0.2752 | 92 | 0.4230 | .6732 |
+| A fresh fit of residual income on residual education | 0.1164 | 0.2694 | 96 | 0.4321 | .6666 |
 
-The slope is 0.1164, partial correlation .0441, SE 0.2752, $t=0.4230$,
-and two-sided $p=.6732$. These reproduce the education row of the full
-model. A fresh `lm(r_Y ~ r_E)` or ordinary `cor.test(r_E, r_Y)` instead
-uses 96 df: its default treats the residuals as if fitting the controls
-had used no coefficients. Use the original `m2` for uncertainty, or the
-explicit full-model calculation above. The HC3 calculation in the next
-subsection retains the slope and uses a different covariance estimate.
+: The residual slope reproduces the full-model coefficient; only the full model's df gives its uncertainty. {#tbl-ch8-partial-df tbl-colwidths="[44,11,11,8,12,14]"}
 
-This distinction also helps separate two meanings of covariance. Chapter
-5's `cov()` describes the spread and co-variation of recorded variables.
-The regression function `vcov()` estimates the covariance of the fitted
-coefficients. Compare them on the same 98 rows:
+Both rows share the slope 0.1164, and the residual correlation is the
+partial correlation .0441. The fresh fit treats the residuals as ordinary
+data and counts $98-2=96$ df, as if fitting the four control columns had
+cost nothing, so its SE is smaller by the factor $\sqrt{92/96}$. Use `m2`,
+or the formulas above with $n-p=92$, for uncertainty, and keep exactly
+the same rows in the auxiliary fits, the full fit and the correlations.
+The HC3 calculation in the next subsection retains the slope and uses a
+different covariance estimate.
 
-\Needspace{14\baselineskip}
+This distinction also separates two meanings of covariance. Chapter 5's
+`cov()` describes how recorded variables spread and move together; the
+regression function `vcov()` estimates the covariance of the fitted
+coefficients. @tbl-ch8-covariance-objects compares them on the same 98
+rows.
 
-```{r}
-#| label: ch8-covariance-objects
-#| echo: true
-data_cov <- cov(d[c("income_k", "education", "prestige", "women")])
-coefficient_cov <- vcov(m2)
-dim(data_cov)
-dim(coefficient_cov)
-c(education_data_variance = data_cov["education", "education"],
-  education_coefficient_variance =
-    coefficient_cov["education", "education"],
-  education_SE = sqrt(coefficient_cov["education", "education"]))
-```
+\Needspace{16\baselineskip}
 
-The recorded-data matrix is 4 by 4; this numeric summary excludes the type
-factor. Its diagonal entries are sample variances and its off-diagonal
-entries are sample covariances. Education variance is 7.5567 years squared.
-The coefficient matrix is 6 by 6, including the intercept and two type
-coefficients. Its diagonal entries are squared coefficient SEs and its
-off-diagonal entries describe joint coefficient uncertainty. The education
-coefficient's variance is 0.0757; its square root is SE 0.2752 thousand
-dollars per education year. These matrices answer different questions and
-are not interchangeable in a fitted-mean or contrast interval. Section 5
-uses the coefficient covariance in $x_*'\widehat Vx_*$.
+| | Recorded-data covariance | Coefficient covariance |
+|:--|:--|:--|
+| R call | `cov()` of income, education, prestige and women | `vcov(m2)` |
+| Rows and columns | 4 numeric variables; the type factor is left out | 6 fitted coefficients, including the intercept and two type indicators |
+| Diagonal entries | Sample variances | Squared coefficient SEs |
+| Off-diagonal entries | Sample covariances between variables | Joint uncertainty of two coefficients |
+| Education entry | 7.5567 years squared | 0.0757; its square root is the SE 0.2752 |
+| Question it answers | How the recorded variables spread and move together across occupations | How uncertain the fitted coefficients are, and how their errors move together |
+
+: Two covariance matrices from the same 98 records answer different questions. {#tbl-ch8-covariance-objects tbl-colwidths="[22,39,39]"}
+
+The education entries differ by a factor of about 100 because they
+measure different things: the spread of education across occupations in
+years squared, and the squared uncertainty of one fitted coefficient in
+(thousand dollars per year) squared. The matrices are not interchangeable
+in a fitted-mean or contrast interval; Section 5 uses the coefficient
+covariance in $\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*$.
 
 ```{r}
 #| label: fig-ch8-partial
-#| fig-pos: H
 #| fig-cap: "Marginal and residualized income--education comparisons in the same 98 occupations."
 #| fig-alt: "The marginal scatterplot has a positive fitted line. After linearly removing prestige, women, and type from both variables, the fitted line is nearly flat and substantial residual variation remains."
 #| fig-width: 6.4
 #| fig-height: 3.5
+r_E <- residuals(lm(education ~ prestige + women + type, data = d))
+r_Y <- residuals(lm(income_k ~ prestige + women + type, data = d))
 oldpar <- par(mfrow = c(1, 2), mar = c(4.3, 4.2, 1, .5), mgp = c(2.7, .8, 0))
 plot(d$education, d$income_k, pch = 1, xlab = "Education (years)",
      ylab = "Income (thousand dollars)")
@@ -581,6 +611,10 @@ abline(a = 0, b = coef(m2)["education"], col = "#245C78", lwd = 2)
 par(oldpar)
 ```
 
+@fig-ch8-partial sets the two comparisons side by side. The marginal
+line rises 0.8830 per year; after the fitted linear parts of prestige,
+women and type are removed from both variables, the residual line rises
+only 0.1164, and wide residual variation remains around it.
 Residualization does not remove all substantive differences between
 occupations. It removes the **fitted linear components** of the named
 variables. Chapter 9 develops the matrix version.
@@ -626,7 +660,7 @@ conditional-mean form.
 
 If a test is reported, its target belongs with this inference: the
 two-sided education-coefficient test addresses $H_0:\beta_E=0$ in the stated
-full model, not “education has no effect.” Its classical $t=0.4230$ and
+full model, not “education has no effect.” Its classical $t=0.423$ and
 $p=.6732$ do not prove the null. We do not use this test to choose which of
 the three questions deserves an answer.
 
@@ -649,6 +683,8 @@ Influence combines predictor and outcome information [@cook1977]. The
 first extraction collects these quantities for every retained occupation
 and lists the five with the largest Cook's distance.
 
+\Needspace{18\baselineskip}
+
 ```{r}
 #| label: ch8-diagnostics
 #| echo: true
@@ -659,7 +695,7 @@ ch8_diag <- data.frame(
   cooks = cooks.distance(m2)
 )
 ch8_top <- order(ch8_diag$cooks, decreasing = TRUE)[1:5]
-ch8_diag[ch8_top, ]
+ch8_diag[ch8_top, c("residual", "studentized", "leverage", "cooks")]
 ```
 
 ```{r}
@@ -739,8 +775,8 @@ that gap. A model can return both predictions there; software output does not
 create observations. Lack of support limits what can be learned or interpreted
 about a defined comparison rather than making the estimand cease to exist.
 
-The Computer Lab reference on conditional comparisons supplies the grid and
-plotting code used here. A conditional grid can also avoid pretending that an unrestricted rectangle
+The Computer Lab's Round 1 reference, *Covariance objects, diagnostic
+displays and variations*, supplies the grid and plotting code used here. A conditional grid can also avoid pretending that an unrestricted rectangle
 is supported. For *m1*, hold prestige at 30, 50, or 70 and plot education only
 over values observed within 7.5 prestige points of each target. The width is
 an explicit display convention, not a formal support guarantee.
@@ -784,38 +820,58 @@ The parallel lines share *m1*'s education slope. This display conditions on
 prestige only, not on the full set for Pair 2. It teaches a transparent plotting
 choice; it does not prove support for the full-model profile.
 
-Education's variance inflation factor makes the collinearity calculation
-checkable. Regress education on the remaining predictors; the auxiliary
-$R^2$ measures how much of its variation they account for:
-
-```{r}
-#| label: ch8-vif-first
-#| echo: true
-education_auxiliary <- lm(education ~ prestige + women + type, data = d)
-education_r2 <- summary(education_auxiliary)$r.squared
-education_vif <- 1 / (1 - education_r2)
-c(auxiliary_R2 = education_r2, VIF = education_vif,
-  SE_multiplier = sqrt(education_vif))
-```
+Education's variance inflation factor measures the collinearity cost.
+Regress education on the remaining predictors; the auxiliary $R^2$
+measures how much of its variation they account for, and
 
 $$
 VIF_E=\frac{1}{1-R^2_{E\mid P,W,T}}\approx8.0968,
-\qquad \sqrt{VIF_E}\approx2.8455.
+\qquad \sqrt{VIF_E}\approx2.8455,
 $$
 
+since the auxiliary $R^2$ is .8765. @fig-ch8-vif draws the SE multiplier
+$\sqrt{VIF}$ against the auxiliary $R^2$ and marks the model's three
+continuous predictors. The curve rises slowly at first: women, whose
+auxiliary $R^2$ is .2312, loses little precision (multiplier 1.1405).
+Beyond about .8 it climbs steeply, and prestige (.8066, multiplier
+2.2738) and education sit on that steep part.
+
+```{r}
+#| label: fig-ch8-vif
+#| fig-cap: "The SE multiplier grows steeply as the other predictors account for more of a predictor's variation."
+#| fig-alt: "A curve of the square root of the VIF against the auxiliary R-squared rises slowly from 1 at zero and steeply beyond about 0.8. Points mark women near 0.23 with multiplier 1.14, prestige near 0.81 with 2.27, and education near 0.88 with 2.85."
+#| fig-width: 6.1
+#| fig-height: 3.1
+ch8_vif <- car::vif(m2)[c("women", "prestige", "education"), 1]
+ch8_vif_points <- data.frame(name = c("Women", "Prestige", "Education"),
+                             r2 = 1 - 1 / ch8_vif,
+                             multiplier = sqrt(ch8_vif))
+ch8_vif_curve <- data.frame(r2 = seq(0, .95, length.out = 200))
+ch8_vif_curve$multiplier <- sqrt(1 / (1 - ch8_vif_curve$r2))
+ggplot2::ggplot(ch8_vif_curve, ggplot2::aes(r2, multiplier)) +
+  ggplot2::geom_line(linewidth = .8) +
+  ggplot2::geom_point(data = ch8_vif_points, size = 2.3,
+                      colour = "#245C78") +
+  ggplot2::geom_text(data = ch8_vif_points,
+                     ggplot2::aes(label = name),
+                     hjust = 1.15, vjust = -.4, size = 3.2) +
+  ggplot2::labs(x = "Auxiliary R-squared of the predictor on the others",
+                y = "SE multiplier, square root of VIF")
+```
+
 Under the classical model, holding residual variance and total education
-variation fixed, its coefficient SE is multiplied by
-$\sqrt{8.0968}\approx2.8455$ relative to an orthogonal design. This is a
-comparison of variance formulas, not a claim that deleting other predictors
-will divide the actual SE by 2.8455. Deletion changes the comparison and can
-change residual variance. VIF is not an automatic deletion threshold, and
-near collinearity does not by itself create bias under the maintained
+variation fixed, education's coefficient SE is multiplied by 2.8455
+relative to an orthogonal design. This is a comparison of variance
+formulas, not a claim that deleting other predictors will divide the
+actual SE by 2.8455. Deletion changes the comparison and can change
+residual variance. VIF is not an automatic deletion threshold, and near
+collinearity does not by itself create bias under the maintained
 zero-conditional-mean model.
 
 ### Use targeted sensitivities to bound the answer
 
 A component-plus-residual plot adds the fitted prestige contribution back to
-each residual, $e_i+\hat\beta_P P_i$. The smooth bends upward at high prestige
+each residual, $e_i+\widehat\beta_P P_i$. The smooth bends upward at high prestige
 relative to the straight fitted component. That pattern motivates a declared
 form sensitivity; it does not prove that one chosen curve is the true process.
 
@@ -842,6 +898,21 @@ ggplot2::ggplot(ch8_partial, ggplot2::aes(prestige, component)) +
   ggplot2::labs(x = "Prestige", y = "Component plus residual")
 ```
 
+The refit asks whether a squared prestige term improves on *m2*. The two
+fits are **nested**: they share the outcome and the 98 rows, and the
+smaller fit's predictors are a subset of the larger fit's, which adds one
+term. Chapter 6's nested-model $F$ compared an additive and a full model
+of the feedback-and-practice study; the same comparison applies here,
+with continuous predictors. Its null hypothesis is that the
+squared-prestige coefficient is zero, so that *m2*'s mean function
+suffices. The statistic compares the residual sum of squares that the
+added term removes with the larger fit's residual variance, on 1 and
+$98-7=91$ degrees of freedom. A small $p$ value says the added term
+removes more variation than the error scale would ordinarily produce under
+that null and the stated conditions. It does not establish that the
+enlarged equation is the correct mean function, and it is not a rule for
+selecting a model. Chapter 9 develops the general nested comparison.
+
 \Needspace{26\baselineskip}
 
 ```{r}
@@ -853,35 +924,25 @@ c(full_education = unname(coef(m2)["education"]),
   curve_education = unname(coef(ch8_curve)["education"]))
 ```
 
-The classical nested comparison gives $F(1,91)=6.7360$ and $p=.0110$;
+The classical nested comparison gives $F(1,91)=6.736$ and $p=.011$;
 education changes from 0.1164 to $-0.0298$. In the enlarged equation,
 the prestige slope depends on prestige through
 $\beta_P+2\beta_{P^2}P$. This is a focused sensitivity for Pair 2, not a
 validation-tuned replacement for the frozen prediction rule in Pair 3.
 
-The record for general managers has the largest Cook's distance, about 0.4467. Its high
-income relative to the model is not proof of error. A transparent deletion
-refit asks how dependent the answer is on that record:
-
-```{r}
-#| label: ch8-influence-sensitivity
-#| echo: true
-ch8_without_top <- lm(
-  income_k ~ education + prestige + women + type,
-  data = d[-ch8_top[1], ]
-)
-c(full_education = unname(coef(m2)["education"]),
-  omit_one_education = unname(coef(ch8_without_top)["education"]))
-```
-
-The education estimate moves to 0.4372. Preserve the full-data estimate and
-disclose the sensitivity. Verify coding, measurement, and substantive
-distinctiveness before considering exclusion; a more attractive $p$ value is
-not an exclusion rule. The refit is a diagnostic perturbation, not a new
-research question or evidence that the reduced sample is preferable.
+The record for general managers has the largest Cook's distance, about
+0.4467. Its high income relative to the model is not proof of error. A
+transparent deletion refit, the same formula fitted to the other 97
+records, asks how dependent the answer is on that record; the Computer
+Lab runs it. The education estimate moves from 0.1164 to 0.4372.
+Preserve the full-data estimate and disclose the sensitivity. Verify
+coding, measurement, and substantive distinctiveness before considering
+exclusion; a more attractive $p$ value is not an exclusion rule. The
+refit is a diagnostic perturbation, not a new research question or
+evidence that the reduced sample is preferable.
 
 ```{=latex}
-\Needspace{42\baselineskip}
+\Needspace{30\baselineskip}
 ```
 
 | Check | What is visible here | Consequence for the answer |
@@ -896,10 +957,10 @@ research question or evidence that the reduced sample is preferable.
 : Checks change the bounded answer rather than producing one omnibus pass/fail score. {#tbl-ch8-checks tbl-colwidths="[19,38,43]"}
 
 Appendix B develops Cook's distance, coefficient covariance, generalized
-VIF, changed-outcome interpretation, and model-comparison criteria. The
-Computer Lab's conditional-comparisons reference supplies the longer diagnostic and
-matrix reproductions. The first calculations needed to interpret the answer
-are already in this section.
+VIF, and model-comparison criteria, with a caution about comparing
+criteria across outcome scales; the
+Computer Lab carries the diagnostic and matrix reproductions. The results
+needed to interpret the answer are already in this section.
 
 ## Move from Coefficients to Fitted and Standardized Quantities {#sec-ch8-quantities}
 
@@ -922,70 +983,83 @@ Both use the full fitted model and its stated classical assumptions.
 #| label: ch8-profile-predict-check
 #| echo: true
 profile <- data.frame(education = 11, prestige = 45, women = 50,
-                     type = factor("wc", levels = levels(d$type)))
-mean_check <- predict(m2, newdata = profile, interval = "confidence")
-new_check <- predict(m2, newdata = profile, interval = "prediction")
-mean_check
-new_check
+                      type = factor("wc", levels = levels(d$type)))
+predict(m2, newdata = profile, interval = "confidence")
+predict(m2, newdata = profile, interval = "prediction")
 ```
 
-For the white-collar profile in @sec-ch8-comparisons, collect the
-coefficient multipliers in $x_*=(1,11,45,50,0,1)'$. Their order is intercept,
-education, prestige, women, professional indicator, and white-collar indicator.
-The fitted mean and its estimated classical variance are below. A prime denotes
-transpose (`t()` in R). Recall the two covariance objects in Section 3.2:
-`vcov(m2)` is the estimated covariance matrix of the six fitted
-coefficients. Its variances and covariances combine the uncertainty in the
-terms used to calculate this fitted mean.
+Where do these intervals come from? For the white-collar profile in
+@sec-ch8-comparisons, collect the coefficient multipliers in
+$\mathbf x_*=(1,11,45,50,0,1)^{\mathsf T}$. Their order is intercept,
+education, prestige, women, professional indicator, and white-collar
+indicator, and the superscript $\mathsf T$ denotes the transpose. With
+$\widehat{\mathbf V}$, the coefficient covariance of Section 3.2, the
+fitted mean and its estimated classical variance are
 
 $$
-\widehat m_*=x_*'\hat\beta,\qquad
-\widehat{\operatorname{Var}}(\widehat m_*)=x_*'\widehat Vx_*,
-\quad \widehat V=\operatorname{vcov}(m2).
+\widehat m_*=\mathbf x_*^{\mathsf T}\widehat{\boldsymbol\beta},\qquad
+\widehat{\operatorname{Var}}(\widehat m_*)=\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*,
+\quad \widehat{\mathbf V}=\operatorname{vcov}(m2).
 $$
 
 The variance includes the coefficient variances **and their covariances**.
-For example, two terms $a\hat\beta_j+b\hat\beta_k$ contribute
-$a^2\widehat{\operatorname{Var}}(\hat\beta_j)+
-b^2\widehat{\operatorname{Var}}(\hat\beta_k)+
-2ab\widehat{\operatorname{Cov}}(\hat\beta_j,\hat\beta_k)$.
-Adding coefficient SEs, or ignoring covariance, is not the same calculation.
-Take the square root only after calculating the variance.
+For example, two terms $a\widehat\beta_j+b\widehat\beta_k$ contribute
+$a^2\widehat{\operatorname{Var}}(\widehat\beta_j)+
+b^2\widehat{\operatorname{Var}}(\widehat\beta_k)+
+2ab\widehat{\operatorname{Cov}}(\widehat\beta_j,\widehat\beta_k)$.
+Adding coefficient SEs, or ignoring covariance, is not the same
+calculation; take the square root only after calculating the variance.
+Here the fitted mean is 5.5886, its estimated variance 0.308 in squared
+units, and its SE 0.5549 thousand dollars, which gives the classical
+fitted-mean interval $[4.4865,6.6908]$ that `predict()` printed.
 
-```{=latex}
-\Needspace{19\baselineskip}
-```
+For **one new outcome**, its own error variation adds $s^2=6.8575$: the SE
+is $\sqrt{s^2+\mathbf x_*^{\mathsf T}\widehat{\mathbf V}\mathbf x_*}\approx2.6768$,
+giving the much wider interval $[0.2722,10.9051]$. @fig-ch8-bands draws
+both intervals along the white-collar education range, holding prestige
+at 45 and women at 50. The dark fitted-mean band is narrowest near
+education 11.2, about 2.2 thousand dollars wide, and widens toward the
+edges of the records, to about 3.1 at 9.17 years. The light band for one
+new occupation stays between about 10.6 and 10.9 wide along the whole
+range, because the new occupation's error variance, 6.8575, dominates a
+fitted-mean variance of about 0.3.
 
 ```{r}
-#| label: ch8-profile-covariance
-#| echo: true
-x_star <- c(1, 11, 45, 50, 0, 1)
-V <- vcov(m2)
-profile_fit <- sum(x_star * coef(m2))
-profile_var <- drop(t(x_star) %*% V %*% x_star)
-s2 <- sum(residuals(m2)^2) / df.residual(m2)
-critical <- qt(.975, df.residual(m2))
-profile_mean_ci <- profile_fit +
-  c(-1, 1) * critical * sqrt(profile_var)
-profile_new_pi <- profile_fit +
-  c(-1, 1) * critical * sqrt(s2 + profile_var)
-rbind(fitted_mean = profile_mean_ci, new_case = profile_new_pi)
+#| label: fig-ch8-bands
+#| fig-cap: "Two 95% intervals for a white-collar profile at prestige 45 and women 50, across the white-collar education range."
+#| fig-alt: "A nearly flat fitted line runs from about 5.4 to 5.8 thousand dollars as education rises from 9.17 to 12.79 years. A narrow dark band around it, the fitted-mean interval, is narrowest near 11 years and widens toward both ends. A much wider light band, the interval for one new occupation, runs from about 0 to 11 thousand dollars along the whole range. A dotted vertical line marks education 11."
+#| fig-width: 6.1
+#| fig-height: 3.3
+wc_range <- range(d$education[d$type == "wc"])
+band <- data.frame(education = seq(wc_range[1], wc_range[2],
+                                   length.out = 60),
+                   prestige = 45, women = 50,
+                   type = factor("wc", levels = levels(d$type)))
+mean_band <- predict(m2, newdata = band, interval = "confidence")
+new_band <- predict(m2, newdata = band, interval = "prediction")
+band <- cbind(band, fit = mean_band[, "fit"],
+              mean_lwr = mean_band[, "lwr"], mean_upr = mean_band[, "upr"],
+              new_lwr = new_band[, "lwr"], new_upr = new_band[, "upr"])
+ggplot2::ggplot(band, ggplot2::aes(education)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = new_lwr, ymax = new_upr),
+                       fill = "grey88") +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = mean_lwr, ymax = mean_upr),
+                       fill = "#9DB9CC") +
+  ggplot2::geom_line(ggplot2::aes(y = fit), linewidth = .8) +
+  ggplot2::geom_vline(xintercept = 11, linetype = 3) +
+  ggplot2::annotate("text", x = 12.7, y = c(10.2, 6.75), hjust = 1,
+                    size = 3.1,
+                    label = c("One new occupation", "Fitted mean")) +
+  ggplot2::labs(x = "Education (years), over the white-collar range",
+                y = "Income (thousand 1971 dollars)")
 ```
 
-The fitted mean is 5.5886; its estimated variance is 0.3080 and
-SE is $\sqrt{\widehat{\operatorname{Var}}(\widehat m_*)}\approx0.5549$, in thousand-dollar units for the SE.
-Variance has squared units. The classical fitted-mean interval is therefore
-$[4.4865,6.6908]$ thousand dollars.
-
-For **one new outcome**, its own error variation adds $s^2=6.8575$:
-the SE is $\sqrt{s^2+x_*'\widehat Vx_*}$, giving the much wider interval
-$[0.2722,10.9051]$. This calculation uses the independent normal
-common-variance conditional-mean model; it is not a promise established by
-the diagnostics. Replacing $\widehat V$ with HC3 alone does not estimate an
-arbitrary new outcome's conditional error distribution.
-
-Neither interval tells us how accurately a learning rule predicts held-out
-records on average. That requires Pair 3.
+This calculation uses the independent normal common-variance
+conditional-mean model; it is not a promise established by the
+diagnostics. Replacing $\widehat{\mathbf V}$ with HC3 alone does not
+estimate an arbitrary new outcome's conditional error distribution.
+Neither interval tells us how accurately a learning rule predicts
+held-out records on average. That requires Pair 3.
 
 ### Standardize over a named distribution
 
@@ -1001,8 +1075,7 @@ fitted value, then take the mean. Each continuous profile has equal weight.
 #| echo: true
 white_profiles <- d
 white_profiles$type <- factor("wc", levels = levels(d$type))
-white_predictions <- predict(m2, newdata = white_profiles)
-mean(white_predictions)
+mean(predict(m2, newdata = white_profiles))
 ```
 
 This is an average of model predictions after a specified profile change,
@@ -1010,48 +1083,43 @@ not the observed white-collar group mean. For type $g$ and fixed
 nonnegative weights $w_i$ summing to one,
 
 $$
-\hat\mu_g^{\mathrm{std}}=\sum_i w_i x_{ig}'\hat\beta
-=a_g'\hat\beta,\qquad a_g=\sum_i w_i x_{ig}.
+\widehat\mu_g^{\mathrm{std}}=\sum_i w_i\mathbf x_{ig}^{\mathsf T}\widehat{\boldsymbol\beta}
+=\mathbf a_g^{\mathsf T}\widehat{\boldsymbol\beta},\qquad \mathbf a_g=\sum_i w_i\mathbf x_{ig}.
 $$
 
-Here $x_{ig}$ is the design vector after assigning type $g$ to observed
+Here $\mathbf x_{ig}$ is the design vector after assigning type $g$ to observed
 continuous profile $i$. With empirical weights $w_i=1/98$, this is
 standardization over these 98 profiles, not over a national population.
 Treating those profiles and weights as fixed gives estimated variance
-$a_g'\widehat V a_g$.
+$\mathbf a_g^{\mathsf T}\widehat{\mathbf V}\mathbf a_g$.
 
-For the white-collar quantity, `model.matrix()` gives the six coefficient
-multipliers for every changed profile. `colMeans()` averages each multiplier
-to obtain $a_{\mathrm{wc}}$. Its uncertainty is a direct application of
-the coefficient covariance calculation from Section 5.1:
+For the white-collar quantity, averaging the six coefficient multipliers
+over the 98 changed profiles gives $\mathbf a_{\mathrm{wc}}$, and
+$\mathbf a_{\mathrm{wc}}^{\mathsf T}\widehat{\boldsymbol\beta}$ returns the
+same 7.0164. Its SE is 0.6177 and its classical interval
+$[5.7896,8.2432]$; the variance includes the covariance between the
+predictions through their shared fitted coefficients, so averaging the
+98 individual interval endpoints would give a different calculation. The
+Computer Lab computes $\mathbf a_{\mathrm{wc}}$ and repeats the operation
+for each type. @tbl-ch8-standardized sets the results beside the observed
+mean income of each type.
 
-```{r}
-#| label: ch8-standardization-covariance
-#| echo: true
-white_X <- model.matrix(~ education + prestige + women + type,
-  data = white_profiles)
-white_a <- colMeans(white_X)
-white_fit <- sum(white_a * coef(m2))
-white_var <- drop(t(white_a) %*% vcov(m2) %*% white_a)
-white_se <- sqrt(white_var)
-c(estimate = white_fit, SE = white_se)
-white_fit + c(-1, 1) * qt(.975, df.residual(m2)) * white_se
-```
+\Needspace{9\baselineskip}
 
-The result is 7.0164 thousand dollars, with SE 0.6177 and interval
-[5.7896, 8.2432]. The variance includes the covariance between predictions
-through their shared fitted coefficients. Averaging individual interval
-endpoints would give a different calculation. Repeating this operation for
-each type produces the following table; the Computer Lab reference on common-profile
-averaging supplies the full loop and its output.
+| Type | Observed mean | Standardized estimate | SE | Lower | Upper |
+|:--|--:|--:|--:|--:|--:|
+| bc | 5.3741 | 6.7811 | 0.6942 | 5.4023 | 8.1598 |
+| prof | 10.5595 | 7.1053 | 0.9011 | 5.3156 | 8.8950 |
+| wc | 5.0523 | 7.0164 | 0.6177 | 5.7896 | 8.2432 |
 
-| Type | Estimate | SE | Lower | Upper |
-|:--|--:|--:|--:|--:|
-| bc | 6.7811 | 0.6942 | 5.4023 | 8.1598 |
-| prof | 7.1053 | 0.9011 | 5.3156 | 8.8950 |
-| wc | 7.0164 | 0.6177 | 5.7896 | 8.2432 |
+: Observed type means and empirical-profile standardization under the full additive model. {#tbl-ch8-standardized tbl-colwidths="[12,18,22,14,17,17]"}
 
-: Empirical-profile standardization under the full additive model. {#tbl-ch8-standardized tbl-colwidths="[20,20,20,20,20]"}
+The observed means differ sharply: professional occupations average
+10.5595 thousand dollars, about twice the other two types. They also have
+more education, higher prestige and different percentages of women. The
+standardized estimates give every type the same 98 profiles, so they
+differ only by the type coefficients, 0.3242 for professional and
+0.2353 for white-collar relative to blue-collar.
 
 Because *m2* is linear and additive in the continuous predictors, its average
 fitted value equals its fitted value at their means. This is an algebraic
@@ -1129,7 +1197,7 @@ or that analysts had never seen the outcomes. The candidates are not revised
 after inspecting the primary errors; the association sensitivities in
 @sec-ch8-check are not covert additions to the validated candidate set.
 
-\Needspace{30\baselineskip}
+\Needspace{27\baselineskip}
 
 ```{r}
 #| label: ch8-one-fold
@@ -1140,35 +1208,29 @@ fold <- sample(rep(seq_len(10), length.out = nrow(d)))
 held_fold <- fold[1]
 train <- d[fold != held_fold, ]
 held <- d[fold == held_fold, ]
+c(fold = held_fold, training = nrow(train), held_out = nrow(held))
 fold_simple <- lm(income_k ~ education, data = train)
 fold_full <- lm(income_k ~ education + prestige + women + type,
                 data = train)
-table(train$type)
-c(training = nrow(train), held_out = nrow(held),
-  simple_rank = fold_simple$rank, full_rank = fold_full$rank)
-first_case <- d[1, , drop = FALSE]
+first_case <- d[1, ]
 first_predictions <- c(
   Education = unname(predict(fold_simple, first_case)),
-  Full = unname(predict(fold_full, first_case))
-)
-rbind(prediction = first_predictions,
-      absolute_error = abs(first_predictions - first_case$income_k))
+  Full = unname(predict(fold_full, first_case)))
+first_predictions
+abs(first_predictions - first_case$income_k)
 ```
 
-The check should show all three types, 89 training records and nine held-out
-records. The fitted ranks are 2 and 6, the numbers of coefficient columns.
-Proceed with the declared comparison only when its training data can estimate
-both rules. The Computer Lab reference on all-fold prediction checks this for
-every fold.
+This is one fold of the frozen protocol. Government administrators, the
+first source record, falls in fold 9, which leaves 89 training records
+and 9 held-out records; the record was excluded from both fits, and the
+code predicts it. Every training set must contain all three types for
+the full rule to be estimable; the Computer Lab checks this and the
+fitted ranks for every fold. Repeating the same train/predict/error
+steps across all ten folds gives the all-98 comparison below. One
+record's error is not that summary.
 
-This is one fold of the frozen protocol, with 89 training records and 9
-held-out records. Government administrators, the first source record, is
-in fold 9 and was excluded from both fits. The displayed code predicts
-that record; repeat the same train/predict/error steps across all ten folds
-to obtain the all-98 comparison below. One record's error is not that summary.
-
-The Computer Lab reference on all-fold prediction provides the complete ten-fold
-function and 200-resplit code with their interpretation; Chapter 13 develops
+The Computer Lab provides the complete ten-fold function and the
+200-resplit code; Chapter 13 develops
 held-out validation fully. The visible one-fold example needs
 only the preceding core data definitions, not that helper. No held-out
 outcome is used to estimate a coefficient. If we introduced learned scaling,
@@ -1225,7 +1287,11 @@ This one record favors the full rule. We still need all 98 errors:
 The full rule's average held-out absolute error is about 862 dollars lower
 in this split. Because we subtract the two errors for **each same case**
 before averaging, difficulty differences between validation cases do not
-come from using different test sets for the two rules.
+come from using different test sets for the two rules. A different loss
+can be read from the same held-out predictions: the root mean squared
+error, which weights large errors more heavily, is 3.5051 for
+education-only and 2.7111 for the full rule, so the preference does not
+change here; it need not agree with MAE in other data.
 
 What is the performance estimand? Eight test folds contain 10 cases whose
 predictions were trained on 88; two contain 9 cases trained on 89.
@@ -1241,8 +1307,8 @@ the stated repetition. Pair 3 compares the two rules' $R_{\mathrm{mix}}$.
 It does not directly estimate performance of the single equation fitted
 to all 98 observed records.
 
-The 200 resplits give full-minus-education MAE differences from $-0.9140$ to
-$-0.7410$, all favoring the full rule. This supports stability to the examined
+The 200 resplits give full-minus-education MAE differences from $-0.914$ to
+$-0.741$, all favoring the full rule. This supports stability to the examined
 split choices. It is **not a 95% interval**: the same cases are reused,
 training sets overlap, and the results are not independent studies.
 We do not test a mean of ten fold errors as if those errors were independent.
@@ -1275,7 +1341,7 @@ not as statements copied from the source investigators.
 > sampling or randomized education.
 >
 > **R1 -- Marginal answer.** Across these records the education-only
-> least-squares slope was 0.8830 thousand dollars per year. This is a
+> least-squares slope was 0.883 thousand dollars per year. This is a
 > descriptive linear summary: occupations with more education tended to
 > have higher average income. It is not an individual or causal effect.
 >
@@ -1341,7 +1407,7 @@ does not supply evidence establishing independence under the original
 occupation-selection process. A stated assumption and evidence for it are
 different pieces of information.
 
-Similarly, the income-unit conversion makes the interpretation of 0.8830
+Similarly, the income-unit conversion makes the interpretation of 0.883
 thousand dollars as about 883 dollars traceable without inventing an
 empirical premise. No conflicting source is identified in this defined
 record; a real study may contain incompatible descriptions that a reader
@@ -1457,10 +1523,6 @@ causal question cannot be “narrowed” into association and treated as answere
 This teaching reanalysis does not retrospectively claim that the historical
 data were collected for our three questions.
 
-The occupation study supplies no randomized-design warrant. A second application
-now shows how covariate adjustment can seek the same assignment-effect estimand
-when design and weighting support that link.
-
 ```{=latex}
 \Needspace{22\baselineskip}
 ```
@@ -1487,10 +1549,12 @@ discipline to Project STAR, where a randomized design supplies a different
 warrant. Chapter 10 then extends the
 interaction reasoning from Chapters 4 and 6 to these regression comparisons.
 
+\Needspace{22\baselineskip}
+
 ### Key terms {.unnumbered}
 
 Use this short reference to revisit the concepts introduced here. The
-Part One introduction gives the broader reference and the principal home
+Part One Concept Reference gives the broader reference and the principal home
 of each concept; the simple-regression, interval, ANOVA, and reading
 vocabulary used in this chapter is explained in Chapters 1--4 and 7.
 
@@ -1500,7 +1564,7 @@ vocabulary used in this chapter is explained in Chapters 1--4 and 7.
 | Partial slope (conditional coefficient; adjusted coefficient) | The difference in fitted outcome per one-unit difference in one predictor, holding the model's other predictors fixed. Its meaning depends on the conditioning set named with it; it is not an intervention effect or a claim about unmeasured differences. |
 | Indicator variable (dummy variable) and reference category | A 0/1 variable marking membership in one category of a factor; a factor with $J$ levels needs $J-1$ indicators, and the omitted level is the reference. The intercept refers to the reference category; each indicator coefficient is a difference from it at the same other predictors. Releveling changes coordinates, not fitted values. |
 | Partial regression (residualization; added-variable form) | Regressing both the outcome and one predictor on the other predictors, then relating their residuals. The residual slope equals the partial slope; the residual correlation is the partial correlation, unit-free. |
-| Coefficient covariance matrix | The estimated variances and covariances of the fitted coefficients (`vcov()` in R). Any linear combination of coefficients, such as a fitted mean or a contrast, has variance $c'\widehat Vc$; adding SEs or ignoring covariances is a different, incorrect calculation. |
+| Coefficient covariance matrix | The estimated variances and covariances of the fitted coefficients (`vcov()` in R). Any linear combination of coefficients, such as a fitted mean or a contrast, has variance $\mathbf c^{\mathsf T}\widehat{\mathbf V}\mathbf c$; adding SEs or ignoring covariances is a different, incorrect calculation. |
 | Variance inflation factor (VIF) | One divided by one minus the $R^2$ from regressing a predictor on the other predictors. Its square root multiplies that coefficient's SE relative to an orthogonal design, holding residual variance fixed; it describes precision, not bias, and is not a deletion rule. |
 | Joint support (covariate hull) | Whether a combination of predictor values lies within the region where observations actually occur, not merely within each variable's separate range. A fitted value outside joint support is extrapolation even if each coordinate is observed somewhere. |
 | Standardization over a named distribution (model-averaged fitted value) | Averaging the model's fitted values after setting one predictor to a chosen value for every profile in a declared set with fixed weights. Its uncertainty uses the coefficient covariance; it is not an observed group mean, a causal effect, or held-out performance. |
@@ -1573,7 +1637,7 @@ Finally, explain why appropriately specified adjustment in a randomized
 study need not change its declared average assignment-effect estimand.
 
 <!-- prompt-id: CH08-E03 -->
-### Exercise 3: Interpret and calculate a fitted profile (Foundational) {.unnumbered #ex-ch08-03}
+### Exercise 3: Interpret a fitted comparison (Foundational) {.unnumbered #ex-ch08-03}
 
 Use this rounded hypothetical equation, with income in thousand dollars:
 
@@ -1582,28 +1646,39 @@ $$
            +0.15D_{\mathrm{wc}}.
 $$
 
-1. Calculate the fitted mean for a white-collar profile with $e=12$,
-   $p=40$, and $w=50$.
-2. Calculate its modeled difference from a profile with $e=10$ and the
-   same other values. Interpret the result in dollars.
-3. What must be checked before calling this a comparison supported by the
-   observed data?
-4. Why is neither calculation an estimate of the effect of giving a worker
-   two more years of education?
+1. Two white-collar profiles share prestige $p=40$ and women $w=50$;
+   one has education $e=12$ and the other $e=10$. Which terms cancel
+   when their fitted means are subtracted? Give the modeled difference
+   and interpret it in dollars.
+2. What does the coefficient 0.15 compare, and at which values of the
+   other predictors?
+3. What must be checked before calling the education comparison in
+   part 1 supported by the observed data?
+4. Why is the modeled difference not an estimate of the effect of
+   giving a worker two more years of education?
 
 \Needspace{18\baselineskip}
 
 <!-- prompt-id: CH08-E04 -->
 ### Exercise 4: Read held-out errors (Foundational) {.unnumbered #ex-ch08-04}
 
-For four held-out occupations, observed incomes are $(5,8,10,13)$ thousand
-dollars. The education-only predictions are $(4,10,7,12)$; full-rule
-predictions are $(6,8,9,11)$. Each prediction was fitted without the
+Four held-out occupations have the observed incomes and predictions
+below, in thousand dollars. Each prediction was fitted without the
 corresponding outcome.
 
-1. Calculate the four absolute errors and MAE for each rule.
-2. Calculate the average paired difference, full minus education-only.
-3. Does the better average rule have to be better for every occupation?
+| Occupation | Observed | Education-only prediction | Full-rule prediction |
+|:--|--:|--:|--:|
+| 1 | 5 | 4 | 6 |
+| 2 | 8 | 10 | 8 |
+| 3 | 10 | 7 | 9 |
+| 4 | 13 | 12 | 11 |
+
+1. Calculate the MAE of each rule.
+2. Explain why the average of the four paired differences, full minus
+   education-only, equals the difference between the two MAEs, and why
+   it matters that both rules predict the same four occupations.
+3. Does the better average rule have to be better for every
+   occupation? Point to the table.
 4. Explain why this comparison is neither a coefficient interval nor
    validation of a model subsequently fitted to all available records.
 
@@ -1715,92 +1790,18 @@ $$
 Y=50+2X+5Z+\varepsilon.
 $$ {#eq-ch8a-sim-process}
 
-The marginal slope is $2+5(.65)=5.2500$; the conditional $X$ slope is 2.
-The generated sample below has 250 observations and uses seed 82108.
-Its marginal slope is 5.9971 and conditional strategy slope is 3.0259.
-The strategy and prior-attainment labels are fictional teaching
-interpretations. The Computer Lab reference on conditional comparisons supplies
-the complete generator, fitted models, and plotting code for these figures.
-
-```{=latex}
-\Needspace{24\baselineskip}
-```
-
-```{r}
-#| label: ch8a-one-sample
-#| echo: false
-#| results: hide
-RNGkind("Mersenne-Twister", "Inversion", "Rejection")
-set.seed(82108)
-ch8a_n <- 250
-ch8a_x <- rnorm(ch8a_n)
-ch8a_z <- .65 * ch8a_x + sqrt(1 - .65^2) * rnorm(ch8a_n)
-ch8a_y <- 50 + 2 * ch8a_x + 5 * ch8a_z +
-  rnorm(ch8a_n, sd = 6)
-ch8a_sim <- data.frame(
-  strategy = ch8a_x, prior = ch8a_z, score = ch8a_y
-)
-ch8a_marginal <- lm(score ~ strategy, data = ch8a_sim)
-ch8a_adjusted <- lm(score ~ strategy + prior, data = ch8a_sim)
-c(marginal = unname(coef(ch8a_marginal)["strategy"]),
-  conditional = unname(coef(ch8a_adjusted)["strategy"]))
-```
-
-```{r}
-#| label: fig-ch8a-predictors
-#| fig-pos: H
-#| echo: false
-#| fig-cap: "Joint predictor support in one generated sample."
-#| fig-alt: >
-#|   A diagonal cloud shows positively related strategy and prior
-#|   attainment. The central region has more nearby comparisons
-#|   than the sparse corners.
-#| fig-width: 6.1
-#| fig-height: 3.5
-ggplot2::ggplot(ch8a_sim, ggplot2::aes(strategy, prior)) +
-  ggplot2::geom_point(shape = 1, alpha = .65) +
-  ggplot2::geom_smooth(method = "lm", se = FALSE) +
-  ggplot2::labs(x = "Strategy (standardized)",
-                y = "Prior attainment (standardized)")
-```
-
-```{r}
-#| label: fig-ch8a-outcome
-#| fig-pos: H
-#| echo: false
-#| fig-cap: "A marginal line does not hold prior attainment fixed."
-#| fig-alt: >
-#|   Score increases with strategy. Higher prior-attainment values,
-#|   represented by darker points, tend to accompany higher scores
-#|   and strategy. The black line is the marginal fitted relation.
-#| fig-width: 6.1
-#| fig-height: 3.5
-ggplot2::ggplot(
-  ch8a_sim, ggplot2::aes(strategy, score, colour = prior)
-) +
-  ggplot2::geom_point(alpha = .8) +
-  ggplot2::geom_smooth(
-    ggplot2::aes(group = 1), method = "lm", se = FALSE,
-    colour = "black"
-  ) +
-  ggplot2::scale_colour_gradient(low = "grey75", high = "black") +
-  ggplot2::labs(x = "Strategy (standardized)", y = "Score",
-                colour = "Prior attainment")
-```
-
-The first plot displays the support needed for a conditional
-comparison. The second shows that prior attainment varies along the
-marginal relation. A line calculated outside the observed predictor
-cloud is not made well supported by the existence of its equation.
+This is the process of @sec-ch8-comparisons: the marginal slope is
+$2+5(.65)=5.25$ and the conditional $X$ slope is 2. The sample drawn in
+@fig-ch8-known-process has 250 observations and uses seed 82108. Its
+marginal slope is 5.9971 and its conditional slope 3.0259: near their
+targets but not on them, as one sample's estimates should be. The
+Computer Lab's Round 1 reference, *Covariance objects, diagnostic displays
+and variations*, supplies the complete generator and fitted models.
 
 Now use a different, explicitly stated sample size: 150 observations in
 each of 1,000 repetitions. This is a distinct repeated-study design, with seed 82109; it is not
 repetition of the 250-observation draw. The same Computer Lab reference supplies
 the full simulation and density-plot code.
-
-```{=latex}
-\Needspace{16\baselineskip}
-```
 
 ```{r}
 #| label: ch8a-repetition
@@ -1822,16 +1823,17 @@ ch8a_slopes <- t(replicate(1000, ch8a_one_rep()))
 #| echo: false
 #| tbl-cap: "Targets and results across 1,000 generated samples."
 knitr::kable(data.frame(
-  Model = colnames(ch8a_slopes), Target = c(5.25, 2),
-  Mean = colMeans(ch8a_slopes),
-  SD = apply(ch8a_slopes, 2, sd), row.names = NULL
-), digits = 4)
+  Model = colnames(ch8a_slopes),
+  Target = format(round(c(5.25, 2), 4), digits = 15, trim = TRUE),
+  Mean = format(round(colMeans(ch8a_slopes), 4), digits = 15, trim = TRUE),
+  SD = format(round(apply(ch8a_slopes, 2, sd), 4), digits = 15,
+              trim = TRUE), row.names = NULL
+), align = c("l", "r", "r", "r"))
 ```
 
 ```{r}
 #| label: fig-ch8a-repeated
 #| echo: false
-#| fig-pos: H
 #| fig-cap: "Sampling distributions around two different targets."
 #| fig-alt: >
 #|   Separate panels show marginal slopes centered near 5.25 and
@@ -1853,7 +1855,7 @@ ggplot2::ggplot(ch8a_long, ggplot2::aes(Slope)) +
     linetype = 2
   ) +
   ggplot2::facet_wrap(~Model, scales = "free_x") +
-  ggplot2::labs(x = "Estimated strategy slope", y = "Density")
+  ggplot2::labs(x = "Estimated slope of X", y = "Density")
 ```
 
 Both procedures center near their own targets. The conditional
@@ -1872,31 +1874,34 @@ Start with a model containing only the three-level type factor. With
 blue-collar as reference,
 
 $$
-\widehat y_g=\hat\alpha+
-\hat\delta_{\mathrm{prof}}D_{\mathrm{prof}}+
-\hat\delta_{\mathrm{wc}}D_{\mathrm{wc}}.
+\widehat y_g=\widehat\alpha+
+\widehat\delta_{\mathrm{prof}}D_{\mathrm{prof}}+
+\widehat\delta_{\mathrm{wc}}D_{\mathrm{wc}}.
 $$
 
-The fitted means are $\hat\mu_{\mathrm{bc}}=\hat\alpha$,
-$\hat\mu_{\mathrm{prof}}=\hat\alpha+\hat\delta_{\mathrm{prof}}$,
-and $\hat\mu_{\mathrm{wc}}=\hat\alpha+\hat\delta_{\mathrm{wc}}$.
+The fitted means are $\widehat\mu_{\mathrm{bc}}=\widehat\alpha$,
+$\widehat\mu_{\mathrm{prof}}=\widehat\alpha+\widehat\delta_{\mathrm{prof}}$,
+and $\widehat\mu_{\mathrm{wc}}=\widehat\alpha+\widehat\delta_{\mathrm{wc}}$.
 OLS minimizes squared deviations separately within each group, so these
 equal the observed group means. The hats distinguish fitted summaries
 from hypothetical population means.
 
-```{r}
-#| label: ch8a-group-means
-#| echo: true
-ch8a_groups <- data.frame(
-  type = factor(c("bc", "prof", "wc"), levels = levels(d$type))
-)
-model.matrix(~type, data = ch8a_groups)
-ch8a_group_fit <- lm(income_k ~ type, data = d)
-cbind(ch8a_groups,
-      observed = as.numeric(tapply(d$income_k, d$type, mean)),
-      fitted = predict(ch8a_group_fit, ch8a_groups))
-coef(ch8a_group_fit)
-```
+@tbl-ch8a-group-means reads the fit on the 98 records. The group-only
+coefficients are $\widehat\alpha=5.3741$, $\widehat\delta_{\mathrm{prof}}=5.1853$
+and $\widehat\delta_{\mathrm{wc}}=-0.3218$; each fitted mean combines them
+as the indicator columns direct, and each equals the observed mean
+income of its type. Sums of the rounded coefficients can differ from the
+fitted means in the last digit.
+
+\Needspace{9\baselineskip}
+
+| Type | $D_{\mathrm{prof}}$ | $D_{\mathrm{wc}}$ | Coefficients combined | Fitted mean | Observed mean |
+|:--|--:|--:|:--|--:|--:|
+| bc | 0 | 0 | $\widehat\alpha$ | 5.3741 | 5.3741 |
+| prof | 1 | 0 | $\widehat\alpha+\widehat\delta_{\mathrm{prof}}$ | 10.5595 | 10.5595 |
+| wc | 0 | 1 | $\widehat\alpha+\widehat\delta_{\mathrm{wc}}$ | 5.0523 | 5.0523 |
+
+: The type-only regression reproduces the three observed group means. {#tbl-ch8a-group-means tbl-colwidths="[10,10,10,34,18,18]"}
 
 This group-only description is not the adjusted type comparison in
 *m2*. In *m2*, indicators compare fitted values at the same education,
@@ -1909,7 +1914,7 @@ fitted values, residuals, or a fixed substantive contrast.
 
 \Needspace{14\baselineskip}
 
-The Computer Lab reference on conditional comparisons reproduces this releveling
+The same Round 1 reference in the Computer Lab reproduces this releveling
 operation and checks the unchanged fitted values with complete code and
 output.
 
@@ -1927,7 +1932,7 @@ statistic is
 $$
 F_{\mathrm{overall}}=
 \frac{RegSS/(p-1)}{RSS/(n-p)},
-\qquad RegSS=\sum_i(\hat y_i-\bar y)^2.
+\qquad RegSS=\sum_i(\widehat y_i-\bar y)^2.
 $$
 
 \Needspace{10\baselineskip}
@@ -1936,34 +1941,21 @@ $$
 #| label: ch8a-overall-f
 #| echo: true
 summary(m2)$fstatistic
-summary(m0)$fstatistic
 ```
 
 The full model gives $F(5,92)=32.1747$; the education-only model on the
-same 98 records gives $F(1,96)=47.1956$. Each tests its stated joint
+same 98 records gives $F(1,96)=47.1956$, which the Computer Lab prints
+beside it. Each tests its stated joint
 restriction. Neither verifies the mean function or shows how well the
 fitted rule will predict a held-out outcome. Chapter 9 develops the
 general nested comparison behind this statistic, its matrix form, and the
 contrasts, block tests, and adjusted group means that a factor with
 several levels invites.
 
-### Extended practice: coding and known processes (Integrative) {.unnumbered}
-
-1. Recover fitted *m2* values for the three types at education 11,
-   prestige 50, and women 30. Treat this as algebra, then evaluate
-   whether all three combinations have observed support. Relevel
-   type to white-collar and verify a fixed fitted contrast is unchanged.
-2. Reproduce the repeated-sample process at $n=150$. Change exactly
-   one of the correlation's sign, its value to zero, or the omitted
-   variable's coefficient to zero. Derive both targets, run at least
-   1,000 repetitions with a recorded seed, and compare bias and SD
-   relative to each target. A further comparison uses separated
-   predictor clusters and explicitly recalculates their covariance.
-
 ## Appendix B: Technical Reproduction and Sensitivity {.unnumbered #app-ch8-b}
 
-The numbered route now carries the ordinary support, diagnostic,
-standardization, and targeted-sensitivity lessons. This appendix retains
+Sections 4 and 5 carry the ordinary support, diagnostic,
+standardization, and targeted-sensitivity lessons. This appendix supplies
 mathematical detail and worked results; the Computer Lab supplies the longer
 computational reproductions. It uses *d*, *m0*,
 *m1*, and *m2* without changing their source rows. Classical intervals are
@@ -1979,12 +1971,12 @@ the education-slope sensitivity. This section supplies the corresponding
 Cook's distance formula and complete coefficient accounting.
 
 With $p$ coefficient columns including the intercept, leverage is
-$h_{ii}=x_i'(X'X)^{-1}x_i$. Cook's distance can be calculated as
+$h_{ii}=\mathbf x_i^{\mathsf T}(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf x_i$. Cook's distance can be calculated as
 
 $$
 D_i=\frac{e_i^2}{p s^2}\frac{h_{ii}}{(1-h_{ii})^2}
-=\frac{(\hat\beta-\hat\beta_{(-i)})'X'X
-(\hat\beta-\hat\beta_{(-i)})}{p s^2}.
+=\frac{(\widehat{\boldsymbol\beta}-\widehat{\boldsymbol\beta}_{(-i)})^{\mathsf T}\mathbf X^{\mathsf T}\mathbf X
+(\widehat{\boldsymbol\beta}-\widehat{\boldsymbol\beta}_{(-i)})}{p s^2}.
 $$
 
 The second expression measures a coefficient change using the design
@@ -1999,47 +1991,41 @@ incompatible units.
 #| label: tbl-ch8b-influence
 #| echo: false
 #| tbl-cap: "The five largest Cook's distances in the full fit."
-knitr::kable(ch8_diag[ch8_top,
-  c("occupation", "residual", "leverage", "cooks")],
-  digits = 4, row.names = FALSE)
+ch8_minus4 <- function(x) sub("^-", "\u2212",
+  format(round(x, 4), digits = 15, scientific = FALSE, trim = TRUE))
+ch8_influence <- ch8_diag[ch8_top,
+  c("occupation", "residual", "leverage", "cooks")]
+ch8_influence[-1] <- lapply(ch8_influence[-1], ch8_minus4)
+knitr::kable(ch8_influence, row.names = FALSE,
+  align = c("l", "r", "r", "r"),
+  col.names = c("Occupation", "Residual", "Leverage", "Cook's distance"))
 ```
 
 The record for general managers has the largest Cook's distance, approximately 0.4467.
 The main route explains why this observation is inspected and retained.
 
-\Needspace{14\baselineskip}
-
-```{r}
-#| label: tbl-ch8b-deletion-coefficients
-#| echo: false
-#| tbl-cap: "Coefficient sensitivity to the most influential record."
-knitr::kable(data.frame(
-  Term = names(coef(m2)), Full = coef(m2),
-  Omit_one = coef(ch8_without_top),
-  Difference = coef(ch8_without_top) - coef(m2), row.names = NULL
-), digits = 4, row.names = FALSE)
-```
-
-The type coordinates also move. The table records a diagnostic perturbation
-of the fit, not six new research questions or evidence that the reduced
-sample is preferable.
+Refitting without that record moves education from 0.1164 to 0.4372
+(@sec-ch8-check), and the type coordinates move as well; the Computer
+Lab prints the full coefficient comparison. That comparison records a
+diagnostic perturbation of the fit, not six new research questions or
+evidence that the reduced sample is preferable.
 
 ### HC3 changes covariance, not the records or target {.unnumbered}
 
 For independent observations, the HC3 covariance estimator is
 
 $$
-\widehat V_{\mathrm{HC3}}=(X'X)^{-1}
-\left\{\sum_i x_ix_i'\frac{e_i^2}{(1-h_{ii})^2}\right\}
-(X'X)^{-1}.
+\widehat{\mathbf V}_{\mathrm{HC3}}=(\mathbf X^{\mathsf T}\mathbf X)^{-1}
+\left\{\sum_i \mathbf x_i\mathbf x_i^{\mathsf T}\frac{e_i^2}{(1-h_{ii})^2}\right\}
+(\mathbf X^{\mathsf T}\mathbf X)^{-1}.
 $$
 
 The outer factors are the familiar design component. The middle
 component allows different residual scales and adjusts for leverage
 [@long2000; @zeileis2004]. It leaves the OLS coefficients unchanged.
 
-The Computer Lab reference on conditional comparisons supplies the manual matrix
-reproduction of this expression and compares it with `vcovHC()`. The
+The Computer Lab's Round 1 reference, *Covariance objects, diagnostic
+displays and variations*, supplies the manual matrix reproduction of this expression and compares it with `vcovHC()`. The
 first classical/HC3 comparison in Section 3.3 already supplies the
 education interval; the table gives the full coefficient context.
 
@@ -2048,10 +2034,11 @@ education interval; the table gives the full coefficient context.
 #| echo: false
 #| tbl-cap: "Coefficient estimates and two covariance summaries."
 knitr::kable(data.frame(
-  Term = names(coef(m2)), Estimate = coef(m2),
-  Classical_SE = sqrt(diag(vcov(m2))),
-  HC3_SE = sqrt(diag(hc3_covariance)), row.names = NULL
-), digits = 4, row.names = FALSE)
+  Term = names(coef(m2)), Estimate = ch8_minus4(coef(m2)),
+  Classical_SE = ch8_minus4(sqrt(diag(vcov(m2)))),
+  HC3_SE = ch8_minus4(sqrt(diag(hc3_covariance))), row.names = NULL
+), row.names = FALSE, align = c("l", "r", "r", "r"),
+  col.names = c("Term", "Estimate", "Classical SE", "HC3 SE"))
 ```
 
 Education's HC3 SE is 0.3823 rather than 0.2752. Using $t_{92}$ as
@@ -2075,7 +2062,7 @@ For a single predictor column, classical conditional variance can be
 written
 
 $$
-\operatorname{Var}(\hat\beta_j\mid X)=
+\operatorname{Var}(\widehat\beta_j\mid\mathbf X)=
 \frac{\sigma^2}{\sum_i(X_{ij}-\bar X_j)^2}
 \frac{1}{1-R_j^2}.
 $$
@@ -2085,9 +2072,9 @@ columns, including the intercept. The variance inflation factor is
 $VIF_j=1/(1-R_j^2)$; its square root is an SE multiplier, holding the
 residual variance and focal predictor variation fixed [@kutner2005].
 
-The first education VIF calculation is in Section 4.2. The Computer Lab reference
-extends it to `car::vif(m2)` and the two-column type term, with the code and
-output kept beside the dimension qualification below.
+Section 4.2 reads education's VIF from @fig-ch8-vif. The Computer Lab
+computes it from the auxiliary regression and with `car::vif(m2)`, which
+also reports the two-column type term.
 
 Education gives $R_j^2=.8765$, VIF 8.0968, and SE multiplier
 2.8455. The predictor correlation between education and prestige
@@ -2121,41 +2108,42 @@ density value also differs from the probability of an exact observed
 vector. The **log-likelihood** adds log densities across the independent
 records.
 
-Write the predictor row for record $i$ as $x_i'$ and let $\sigma>0$ be the
+Write the predictor row for record $i$ as $\mathbf x_i^{\mathsf T}$ and let $\sigma>0$ be the
 error SD. Before fitting, the log-likelihood is
 
 $$
-\ell(\beta,\sigma)=-n\log\sigma-\frac n2\log(2\pi)
--\frac{1}{2\sigma^2}\sum_i(y_i-x_i'\beta)^2.
+\ell(\boldsymbol\beta,\sigma)=-n\log\sigma-\frac n2\log(2\pi)
+-\frac{1}{2\sigma^2}\sum_i(y_i-\mathbf x_i^{\mathsf T}\boldsymbol\beta)^2.
 $$
 
 At any fixed positive scale, only the last term changes with the
-coefficients. Maximizing it over $\beta$ therefore minimizes the residual
+coefficients. Maximizing it over $\boldsymbol\beta$ therefore minimizes the residual
 sum of squares: the Normal maximum-likelihood coefficients equal the OLS
 coefficients. This connects Chapter 7's squared-loss criterion to this
 particular distributional model. Least squares itself did not require
 that model to calculate a minimizing line.
 
 Maximizing over scale gives
-$\hat\sigma_{\mathrm{ML}}=\sqrt{RSS/n}$. The residual SD used for classical
+$\widehat\sigma_{\mathrm{ML}}=\sqrt{RSS/n}$. The residual SD used for classical
 coefficient uncertainty is $s=\sqrt{RSS/(n-p)}$, with $p$ counting the
 regression coefficients. The two denominators serve different estimation
 purposes; substitute the ML scale when checking the fitted likelihood.
 At the fitted coefficients and ML scale,
 
 $$
-\ell(\hat\beta,\hat\sigma_{\mathrm{ML}})
+\ell(\widehat{\boldsymbol\beta},\widehat\sigma_{\mathrm{ML}})
 =-\frac n2\left\{\log(2\pi)+1+\log(RSS/n)\right\}.
 $$
 
-R's `logLik()` returns this maximized value for an `lm()` fit by default.
-We can check its meaning directly by adding Normal log densities with
-the fitted means and maximum-likelihood scale. Two information criteria
-combine this maximized log-likelihood with a parameter-count penalty:
+R's `logLik()` returns this maximized value for an `lm()` fit by default,
+and adding the Normal log densities of the 98 outcomes at their fitted
+means with the ML scale returns the same number; the Computer Lab carries
+that check. Two information criteria combine this maximized
+log-likelihood with a parameter-count penalty:
 
 $$
-AIC=-2\log\hat L+2k,\qquad
-BIC=-2\log\hat L+k\log n.
+AIC=-2\log\widehat L+2k,\qquad
+BIC=-2\log\widehat L+k\log n.
 $$
 
 Here $k$ counts the regression coefficients **and** the estimated residual
@@ -2163,42 +2151,19 @@ variance. For the full occupation model, six coefficient columns plus
 that variance give $k=7$. Smaller values are preferred under each
 criterion; neither is observed held-out MAE [@akaike1974; @schwarz1978].
 
-```{r}
-#| label: ch8b-likelihood-first
-#| echo: true
-ch8b_ll <- logLik(m2)
-ch8b_n <- nobs(m2)
-ch8b_k <- attr(ch8b_ll, "df")
-ch8b_sigma_ml <- sqrt(mean(residuals(m2)^2))
-ch8b_manual_ll <- sum(dnorm(d$income_k,
-  mean = fitted(m2), sd = ch8b_sigma_ml, log = TRUE))
-c(sigma_ML = ch8b_sigma_ml, residual_SD = sigma(m2),
-  logLik = as.numeric(ch8b_ll), manual = ch8b_manual_ll, k = ch8b_k,
-  AIC = -2 * as.numeric(ch8b_ll) + 2 * ch8b_k,
-  BIC = -2 * as.numeric(ch8b_ll) + ch8b_k * log(ch8b_n))
-```
-
-\Needspace{7\baselineskip}
-
-```{r}
-#| label: ch8b-likelihood-criteria-check
-#| echo: true
-c(AIC_R = AIC(m2), BIC_R = BIC(m2))
-```
-
-The ML scale is 2.5373 and the residual SD is 2.6187. The two
-log-likelihood calculations agree at $-230.3020$. The full model's
-AIC is 474.6040 and BIC is 492.6988. The table compares the three declared
-models using the same 98 rows, response scale, and likelihood convention.
-The Computer Lab reference on common-profile averaging supplies the repeated
-criterion-table construction. Chapter 11 develops likelihood fitting
+The ML scale is 2.5373 and the residual SD is 2.6187. The maximized
+log-likelihood is $-230.302$, so the full model's AIC is 474.6040 and its
+BIC 492.6988. @tbl-ch8b-criteria compares the three declared models using
+the same 98 rows, response scale, and likelihood convention.
+The Computer Lab's Round 2 reference, *All three types, one weighting
+change and the criteria*, supplies the criterion-table construction. Chapter 11 develops likelihood fitting
 further for binomial outcomes and numerical calculations; that later
 treatment is not needed to read this local Normal-model calculation.
 
 \Needspace{10\baselineskip}
 
-| Model | k | R2 | Adjusted_R2 | AIC | BIC |
-|:--|:--|--:|--:|--:|--:|
+| Model | $k$ | $R^2$ | Adjusted $R^2$ | AIC | BIC |
+|:--|--:|--:|--:|--:|--:|
 | m0 | 3 | .3296 | .3226 | 526.5052 | 534.2601 |
 | m1 | 4 | .4996 | .4891 | 499.8328 | 510.1727 |
 | m2 | 7 | .6362 | .6164 | 474.6040 | 492.6988 |
@@ -2223,34 +2188,6 @@ distinguish classical from robust uncertainty, and bound interpretation
 by measurement, support, and source. Causal adjustment-set rules about
 confounders, mediators, and colliders apply to a declared causal target;
 they are not universal requirements for association or prediction.
-
-### Extended practice: reproduction and critique (Integrative) {.unnumbered}
-
-1. Compute the white-collar conditional profile (11, 45, 50) and the
-   empirical-profile standardized value, with appropriately labelled
-   intervals. Name each target and assess support. Propose different
-   weights and explain which part of the target changes.
-2. Rebuild the 102-to-98 audit and three-model sequence from a clean
-   session. Preserve names, units, type levels, and source row order.
-   Add one supported display and a bounded occupation-level report.
-3. A school-level analysis reports a slope 0.40, classical SE 0.18,
-   and HC3 SE 0.31. Its residual smooth curves, spread increases,
-   deleting one influential school changes the slope to $-0.05$, and
-   sectors have little prior-score overlap. Assess the claim:
-   "The causal effect is robust because VIFs are below 10; deleting
-   the unusual school will make the model reliable." Match each
-   finding to its consequence and propose a transparent sensitivity.
-
-   \Needspace{10\baselineskip}
-
-4. Choose another documented public dataset with a continuous outcome,
-   two continuous predictors, and a factor with at least three levels.
-   Declare an additive question and analytic sample before fitting.
-   Document source, licence, units, missingness, coding, support,
-   conditional interpretation, a block comparison, checks, and one
-   sensitivity. Read the reported reasons and answer, then separately
-   evaluate them. Do not require every changed estimator to imply a
-   changed scientific estimand. Record versions and stochastic seeds.
 
 ## References {.unnumbered}
 

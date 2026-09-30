@@ -1,9 +1,11 @@
 # QMSBR website. Everything the site needs is in this one file.
 # The plan for the site — navigation, pages, theme, build and freeze, and the
 # add-a-chapter procedure — is WEBSITE_PLAN.md.
-# To add a chapter: drop the .qmd and .pdf in part-one/ or part-two/, add it
-# to `render:` and to its part's sidebar below, add its line to the matching
-# collection card on index.qmd, push.
+# To add a chapter: drop the .qmd, the .pdf and any data file it reads in
+# part-one/ or part-two/, add it to `render:` and to its part's sidebar below,
+# list under `resources:` any data file that no page links (the build deploys
+# only linked or listed files), add its line to the matching collection card
+# on index.qmd, push.
 # The navbar below is the pinned top row. The brand "QMSBR" is the Home
 # button, so there is no separate Home item; the items are Part One, Part Two,
 # Part Three, R support, Argument Approach, About. The practice pages under
@@ -19,6 +21,8 @@ project:
   resources:
     - practice
     - part-one/realinho2022_students.csv
+    - part-one/chapter_03_special_practice.csv
+    - part-one/galton1886_sons.csv
   render:
     - index.qmd
     - about.qmd
@@ -71,7 +75,7 @@ website:
     search: true
   sidebar:
     - id: part-one
-      title: "Part One — Foundations and Regression"
+      title: "Part One: Foundations, Regression, and Generalized Linear Models"
       style: docked
       contents:
         - href: part-one/part_one_introduction.qmd
@@ -88,7 +92,7 @@ website:
         - part-one/chapter_08.qmd
         - part-one/chapter_09.qmd
     - id: part-two
-      title: "Part Two — Factor Analysis and SEM"
+      title: "Part Two: Factor Analysis and Structural Equation Modeling"
       style: docked
       contents:
         - href: part-two/part_two_introduction.qmd

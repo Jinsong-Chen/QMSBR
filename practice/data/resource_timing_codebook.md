@@ -30,5 +30,5 @@ classical F reference additionally assumes Normal errors.
 
 For an import check, the 36 scores sum to 407. The cell means in
 resource order Textbook, Tutorial, Video and timing order Same day,
-Two days, One week are (8.5000, 9.0000, 8.2500), (15.7500, 14.2500, 18.2500),
-and (9.7500, 9.7500, 8.2500). The data contain no missing values.
+Two days, One week are (8.50, 9.00, 8.25), (15.75, 14.25, 18.25) and
+(9.75, 9.75, 8.25). The data contain no missing values.

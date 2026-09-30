@@ -30,6 +30,44 @@ html { overflow-x: clip; }
    in-page jump would land its target underneath the bar. */
 html { scroll-padding-top: 4.5rem; }
 body { line-height: 1.68; overflow-x: clip; }
+
+/* html and body clip sideways overflow so that the Home hero can bleed to the
+   full viewport width without a sideways page scroll. The clip would also cut
+   a wide table or display equation off at the screen edge, so each gets a
+   horizontal scroll of its own.
+   A table scrolls inside the div that holds it, as Bootstrap's
+   .table-responsive does, so a full-width table keeps its full width. Code
+   output (.cell-output-display) and .table-responsive already scroll. The
+   holder takes over the table's own .5rem top and bottom margins, which
+   would otherwise stop collapsing, so the spacing around tables is unchanged.
+   A pipe table placed directly in a section has no holder, so on a narrow
+   screen the table itself becomes the scroll box.
+   MathJax gives a numbered display equation an inline min-width; setting it
+   to zero lets that equation scroll inside the column as well. */
+main div:not(.cell-output-display, .table-responsive):has(> table) {
+  overflow-x: auto;
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+}
+main div:not(.cell-output-display, .table-responsive):has(> table) > table.table {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+@media (max-width: 767.98px) {
+  main section > table { display: block; overflow-x: auto; }
+}
+main mjx-container[display="true"] {
+  min-width: 0 !important;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* A page's front-matter description is its meta description, for search
+   results and link previews. The page's own opening paragraph introduces it,
+   so the title block does not repeat the description above that paragraph. */
+#title-block-header .description { display: none; }
+
 h1, h2, h3 { letter-spacing: -0.018em; }
 h2 { margin-top: 2.2rem; }
 .navbar-brand { font-weight: 750; letter-spacing: .035em; }

@@ -1,7 +1,9 @@
 ---
 title: "The Argument-Based Approach"
 subtitle: "Reading a quantitative study as a question–answer contract"
-description: "The argument-based approach used throughout QMSBR: one question–answer pair, one argument, with linked statistical and substantive layers."
+description: "The argument-based approach the QMSBR chapters share: one question–answer pair, one argument with linked statistical and substantive layers, and six questions for evaluating it."
+bibliography: references.bib
+csl: apa.csl
 # The sidebar for this page lists the two supplementary chapters as muted,
 # unclickable entries pointing at #supplement-a and #supplement-b. Page
 # navigation would turn the next one into a live pagination button and a
@@ -10,95 +12,131 @@ page-navigation: false
 ---
 
 A finalized quantitative study can be read as a **question--answer contract**.
-The research question declares what answer is owed. Methods, results,
-supplemental materials, and reservations provide the record from which a reader
-decides whether the final answer is warranted. This page describes the approach
-the chapters use; Chapter 1 develops it as a lesson, with a worked route, and
-is the sole common prerequisite for the series.
+The research question declares what answer is owed. The methods, results,
+supplementary materials, and stated reservations provide the record from which
+a reader decides whether the reported answer is warranted. This page
+summarizes the reading approach the chapters share. Part One Chapter 1,
+[The Quantitative Research Journey](part-one/chapter_01.qmd), develops it in
+full with worked examples and is the place to learn it.
 
 ::: {.framework-feature}
 ::: {.framework-copy}
 ## One question--answer pair, one argument, linked layers
 
-The basic rule is deliberately simple: **one question--answer pair has one
-argument**. That argument has linked statistical and substantive layers. A
-study with several separable questions needs several arguments; shared data do
-not erase question-specific obligations.
+**One question--answer pair has one argument with linked layers.** Pairs are
+counted by the substantive answers a study separately owes, not by its
+estimates, tests, or coefficients, so several results can contribute to one
+answer, and a study with several separable questions needs several arguments.
 
-In each layer, Evidence and Justification support Inference, which supports a
-bounded Claim. Across layers, substantive reasoning situates the records,
-evaluates their relevance, interprets the statistical result, and keeps the
-final answer within its design, measurement, uncertainty, and population
-boundaries.
+The **statistical layer** (STAT) concerns the recorded variables, the
+statistical support, the analysis, and the statistical conclusion. The
+**substantive layer** (SUB) connects that work to the people, practices,
+meanings, and setting named by the question. Substantive reasoning enters when
+a question and its measures are chosen, as well as when results are
+interpreted.
 :::
 
-::: {.evidence-flow aria-label="Evidence to bounded claim sequence"}
-`STAT-E` **record** + `STAT-J` **justify** → `STAT-I` **infer** → `STAT-C` **bound**
+::: {.evidence-flow aria-label="Within each layer, evidence and justification support an inference, which supports a bounded claim; the substantive components situate, augment and contextualize, interpret, and bound their statistical counterparts."}
+`STAT-E` **evidence** + `STAT-J` **justification** → `STAT-I` **inference** → `STAT-C` **claim**
 
-↓ *situate · augment/evaluate · interpret · bound/calibrate*
+↑ *situates · augments and contextualizes · interprets · bounds* ↑
 
-`SUB-E` **contextualize** + `SUB-J` **justify** → `SUB-I` **interpret** → `SUB-C` **answer**
+`SUB-E` **evidence** + `SUB-J` **justification** → `SUB-I` **inference** → `SUB-C` **answer**
 :::
 :::
 
-## The eight components
+## Evidence, justification, inference, and a bounded claim
 
-| Component | Statistical layer | Substantive layer |
-|---|---|---|
-| **Evidence (E)** | Recorded observations and how they were produced | What those records represent in their setting, population, and period |
-| **Justification (J)** | Why the design, measurement, and procedure can address the statistical target | Why the contextualized evidence bears on the substantive question |
-| **Inference (I)** | Estimate or prediction, uncertainty, checking, sensitivity, and analytic status | Meaning, magnitude, importance, alternatives, and scope |
-| **Bounded Claim (C)** | A qualified statistical result | The final bounded answer, including reservations |
+In each layer, Evidence and Justification support an Inference, which supports
+a bounded Claim: **E + J → I → C**. Each layer contributes all four functions.
 
-Within each layer, Evidence and Justification jointly support Inference, which
-supports a bounded Claim: **E + J → I → C**. Across layers, the substantive
-components situate, evaluate, interpret, and bound their statistical
-counterparts. The statistical layer is therefore not a second argument, and a
-software result is not the whole inference.
+::: {.table-responsive}
 
-## Construction and evaluation
+| Function | Statistical layer | Substantive layer |
+|:--|:--|:--|
+| **Evidence (E)** | The observations, variables, and procedures through which the analysis data were produced or acquired | The people, setting, activities, and meaning those data represent |
+| **Justification (J)** | The reasons and conditions that support the intended statistical comparison and inference | The domain reasons that support measurement meaning, implementation, explanation, and applicability |
+| **Inference (I)** | The analysis connecting evidence and justification to a statistical conclusion: estimates, uncertainty, comparisons, and checks | The interpretation of that statistical inference in substantive terms, keeping its uncertainty and conditions |
+| **Bounded claim (C)** | The statistical conclusion about the estimand, with its uncertainty, conditions, and scope | The question-facing answer, with its substantive scope, qualifications, and unresolved matters |
 
-The basic chapter also introduces two supporting extensions. A six-stage,
-two-phase **construction workflow** describes how one simple argument may be
-built. Iteration stays within its current phase; changing a Phase 1 commitment
-after Phase 2 has begun starts a new or revised cycle, although valid work may be
-reused. Six **evaluation questions** test question alignment, evidence integrity,
-justification adequacy, inferential adequacy, transition fidelity, and claim
-calibration. Authors evaluate first, but collaborators, reviewers, editors, and
-readers also have independent responsibility; the questions produce a reasoned
-profile, not a mechanical score.
+: The four functions in the linked statistical and substantive layers. {#tbl-argument-functions tbl-colwidths="[18,41,41]"}
 
-Regression can instantiate targets, estimates, contrasts, and checks, but it
-cannot by itself supply construct meaning, representative evidence, or a causal
-design.
+:::
+
+Across the layers, each substantive component works on its statistical
+counterpart: SUB-E **situates** STAT-E, SUB-J **augments and contextualizes**
+STAT-J, SUB-I **interprets** STAT-I, and SUB-C **bounds** the substantive
+reach of STAT-C. These contributions give statistical work its meaning for the
+question. A software result is therefore part of the inference, not the whole
+of it.
+
+## Six questions for evaluating an argument
+
+Reading identifies how a study's information supports its answer. Evaluating
+the argument's quality is a separate step that asks whether that support is
+adequate for the question and the answer. Six evaluation questions guide it,
+in three groups.
+
+::: {.table-responsive}
+
+| Group | Evaluation question | What it asks |
+|:--|:--|:--|
+| Alignment | **Question alignment** | Whether the question, estimand, design, evidence, analysis, and answer stay directed at the same aim |
+| Support | **Evidence integrity** | Whether the observations and contextual records, their production, and their representation are trustworthy, traceable, and appropriate |
+| Support | **Justification adequacy** | Whether the statistical, design, measurement, and contextual reasons warrant the proposed moves |
+| Support | **Inferential adequacy** | Whether the reasoning within both layers is adequate, including estimation, uncertainty, checks, sensitivity, and interpretation |
+| Translation | **Transition fidelity** | Whether the links between the layers keep meaning, uncertainty, design status, and scope |
+| Translation | **Claim calibration** | Whether the strength and breadth of the reported answer match its support |
+
+: Six questions for evaluating one question-level argument. {#tbl-argument-evaluation tbl-colwidths="[16,26,58]"}
+
+:::
+
+Each question receives a reasoned judgment rather than a score, and the whole
+question--answer pair receives one conclusion: the answer is supported as
+stated, supported only after narrowing or revision, not supported, or not
+assessable from the accessible record. Chapter 1 works through these judgments
+on an example and also outlines how a researcher constructs one argument.
 
 ## Where the approach comes from
 
-The approach is **Toulmin-informed**: it retains evidence, justified inferential
-bridges, qualified claims, and explicit reservations without treating the eight
-components as one-to-one replacements for Toulmin's roles. LeMire (2010)
-provides a related statistical precedent focused on null-hypothesis testing.
+The approach is **Toulmin-informed**: it keeps evidence, justified inferential
+steps, qualified claims, and explicit reservations from Toulmin's account of
+argument [@toulmin2003] without treating its components as one-to-one
+replacements for Toulmin's roles. LeMire's link between statistical testing
+and subject-matter claims [@lemire2010] is a related statistical precedent, and
+Kane's argument-based treatment of the interpretation and use of test scores
+[@kane2013] is a related precedent in measurement. The linked layers, the
+evaluation questions, and the construction workflow bring these influences
+together for the chapters rather than reproduce one source's arrangement.
+
+### References {.unnumbered}
+
+::: {#refs}
+:::
 
 ## Supplementary chapters
 
-Two supplementary chapters extend the approach beyond the basic route. They are
+Two supplementary chapters extend the approach beyond Chapter 1. They are
 optional enrichment: no numbered chapter in Part One or Part Two depends on
-them, and Chapter 1 remains the only common prerequisite.
+them.
 
 ### A. How to Read a Quantitative Study as an Argument {#supplement-a}
 
-A complete worked reading of one study: the question--answer contract, the
-single argument with its linked layers, the evaluation of a question-level
-argument, and the six-stage construction workflow.
+A complete worked reading of one study as an argument: the question--answer
+contract; one argument with linked statistical and substantive layers, traced
+across a report and its related materials; the reading of a reported
+regression argument; evaluating a question-level argument; and a six-stage
+construction cycle.
 
 This chapter is not yet available.
 
 ### B. Extending the Argument-Based Approach to Quantitative Studies {#supplement-b}
 
-Coordinating question-specific arguments in a more complex study: extended
-evidence, measurement, estimands, and missingness; research design and the
-claims it supports; the extended workflow and quality evaluation for
-coordinated questions; and how regression-based methods instantiate the
-approach.
+The approach carried from one question to several: separate questions and
+statistical strands; one complex argument with several strands; coordinated
+questions and their dependencies; evaluating answers and their coherence
+across questions; coordinated construction and revision; and transfer to a
+published experiment.
 
 This chapter is not yet available.

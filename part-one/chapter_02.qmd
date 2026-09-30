@@ -89,6 +89,7 @@ format:
           \usepackage{array}
           \usepackage{float}
           \usepackage{needspace}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     df-print: kable
     toc: true
@@ -127,6 +128,20 @@ if (knitr::is_latex_output()) {
 
 options(digits = 3, width = 72, scipen = 4)
 library(ggplot2)
+
+## Display helper: round once to four decimals and drop trailing zeros. A
+## vector is one set and shares the fewest decimals that show every member;
+## a nonzero value that rounds to zero becomes a bound; lead = FALSE drops
+## the leading zero of a proportion or correlation; minus signs are U+2212
+## (figures pass minus = "-", which their embedded fonts handle cleanly).
+fmt4 <- function(x, lead = TRUE, minus = "\u2212") {
+  r <- round(x, 4)
+  out <- format(r, digits = 15, scientific = FALSE, trim = TRUE)
+  tiny <- r == 0 & x != 0
+  out[tiny] <- ifelse(x[tiny] > 0, "< 0.0001", "> -0.0001")
+  if (!lead) out <- sub("^([<>] )?(-?)0[.]", "\\1\\2.", out)
+  gsub("-", minus, out)
+}
 theme_set(
   theme_minimal(base_size = 12) +
     theme(
@@ -346,14 +361,16 @@ preparing us to understand statistical uncertainty.
 By the end of the chapter you will be able to read a dataset as cases,
 variables, and values, recognize long and wide layouts, and identify
 the denominator and sample-selection procedure; see and summarize one
-distribution by shape, center, and spread; compare groups while keeping
+distribution by shape, center, and spread, telling a left from a right
+skew by its long tail; compare groups while keeping
 their variation visible; connect variable forms to probability models,
 calculate transformations and Normal areas, and describe a relationship
 with a graph, covariance, correlation and linear adjustment; interpret
 each description within its study setting;
 explain what a sampling distribution and standard error show about
-repeated samples; and distinguish one sample's sampling error from
-that distribution and its standard error.
+repeated samples and how sample size and the sampling design change
+them; and distinguish one sample's sampling error from that
+distribution and its standard error.
 :::
 
 ## Understanding the Dataset
@@ -580,7 +597,8 @@ selection process, volunteers, or an available source. How the students
 enter the sample matters for extending a description to the population.
 
 The next subsection compares selection procedures in this invented
-system, and Section 4 returns to it to examine repeated samples. Our
+system. Section 4 returns to it to examine repeated samples, and
+Section 4.4 compares two designs with the same sample size. Our
 395-student dataset comes instead from two schools. Its source supports
 a description of these students, while extending the description to all
 secondary students would need an additional basis.
@@ -677,12 +695,15 @@ Selection and dependence matter when a sample supports a population
 summary. If students have unequal inclusion probabilities, the
 calculation can require weights to account for how they were selected.
 If observations are related, their contribution to precision differs
-from that of independent observations. Chapter 3 develops uncertainty
-for paired and clustered observations and for finite-population
-sampling without replacement. Section 4.1 below repeats the simple
-random sampling procedure from this overview. Its later waiting-time
-illustration uses a separate independent-observation model; an SE from
-that model does not apply unchanged to every sampling scheme.
+from that of independent observations: Section 4.4 shows what selecting
+schools first and then students within them does to the spread of
+sample means. Chapter 3 develops
+uncertainty for paired and clustered observations and for
+finite-population sampling without replacement. Section 4.1 below
+repeats the simple random sampling procedure from this overview. Its
+later waiting-time illustration uses a separate independent-observation
+model; an SE from that model does not apply unchanged to every sampling
+scheme.
 
 ## Describing Distributions and Groups
 
@@ -731,7 +752,7 @@ points keep the observations visible in a small sample.
 #| fig-cap: "Several views of invented learning records: category proportions and the distribution of completion times."
 #| fig-alt: "Bar and pie panels show counts four, seven and five for three learning formats. A histogram, density curve and boxplot show the same sixteen completion times, with a long right tail. The final panel shows individual times."
 #| fig-height: 5.5
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 times <- c(2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9, 11, 14, 20)
 formats <- c(Reading = 4, Practice = 7, Discussion = 5)
@@ -758,7 +779,7 @@ several features visible: the score is bounded between 0 and 20, centered near
 #| fig-cap: "Distribution of final mathematics grades for the 395 students. Dashed and dotted lines mark the mean and median, respectively."
 #| fig-alt: "A histogram of grades from zero to twenty is centered near eleven, bounded at both ends, and shows a visible group at zero."
 #| fig-height: 3
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 ggplot(students, aes(x = final_grade)) +
   geom_histogram(
@@ -773,7 +794,7 @@ ggplot(students, aes(x = final_grade)) +
              color = "#315B45", linetype = 3, linewidth = .7) +
   scale_x_continuous(breaks = seq(0, 20, 2)) +
   labs(
-    x = "Final mathematics grade (0--20)",
+    x = "Final mathematics grade (0\u201320)",
     y = "Number of students"
   )
 ```
@@ -789,7 +810,96 @@ Describe a distribution with four kinds of language:
 An unusual value is not automatically a mistake. Its recorded meaning and
 provenance should be investigated before it is changed or removed.
 
-### Five summaries with distinct jobs
+Shape often begins with symmetry. A distribution is **skewed** when one
+tail stretches further from the center than the other, and the
+direction of the skew is named by that longer tail. In a
+**right-skewed** (positively skewed) distribution most values sit
+toward the lower end and the long tail reaches toward larger values, as
+with waiting times or incomes; in a **left-skewed** (negatively skewed)
+distribution the long tail reaches toward smaller values, as with
+scores on an easy test. The mean usually lies toward the longer tail.
+Every value contributes to the mean, so a few far values in one tail
+pull it their way, while the median depends only on the middle position
+of the ordered values.
+
+@fig-ch02-skew-centers shows three invented sets of 300 test scores on
+a 0--100 scale. In the right-skewed panel the mean, 19.5477, lies above
+the median, 13.7055. The left-skewed panel reflects those scores, so
+its mean, 80.4523, lies the same distance below its median, 86.2945; in
+the symmetric panel the two lines nearly coincide. The ordering is a
+common pattern rather than a rule: a gap, a second cluster or many tied
+values on a discrete scale can break it, so read it together with the
+graph.
+
+```{r}
+#| label: fig-ch02-skew-centers
+#| fig-cap: "Three invented distributions of 300 test scores. The long tail names the direction of a skew, and the mean lies toward it; dashed and dotted lines mark the mean and median."
+#| fig-alt: "Three histograms of invented test scores share an axis from 0 to 100. In the left-skewed panel most scores lie above 70 and a long tail reaches down toward 15; the dashed mean line, at 80.4523, lies left of the dotted median line, at 86.2945. The symmetric panel is centered near 50, with the two lines almost together. The right-skewed panel mirrors the left one: most scores lie below 30, a long tail reaches up toward 85, and the mean, 19.5477, lies right of the median, 13.7055."
+#| fig-height: 3
+#| fig-pos: "!ht"
+
+set.seed(12345)
+right_scores <- 100 * rbeta(300, 1, 4)
+shape_levels <- c("Left skew (negative)", "Symmetric", "Right skew (positive)")
+skew_shapes <- data.frame(
+  Shape = factor(rep(shape_levels, each = 300), levels = shape_levels),
+  Score = c(100 - right_scores, 100 * rbeta(300, 5, 5), right_scores)
+)
+skew_centers <- data.frame(
+  Shape = factor(rep(shape_levels, 2), levels = shape_levels),
+  Center = rep(c("Mean", "Median"), each = 3),
+  Value = c(tapply(skew_shapes$Score, skew_shapes$Shape, mean),
+            tapply(skew_shapes$Score, skew_shapes$Shape, median))
+)
+stopifnot(abs(skew_centers$Value[c(3, 6)] - c(19.5477, 13.7055)) < 5e-5)
+
+ggplot(skew_shapes, aes(x = Score)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "#B9D5E5", color = "white") +
+  geom_vline(data = skew_centers,
+             aes(xintercept = Value, linetype = Center, color = Center),
+             linewidth = .8, key_glyph = "path") +
+  facet_wrap(~ Shape, nrow = 1) +
+  scale_linetype_manual(values = c(Mean = "dashed", Median = "dotted")) +
+  scale_color_manual(values = c(Mean = "#9B3D45", Median = "#315B45")) +
+  scale_x_continuous(breaks = seq(0, 100, 25)) +
+  theme(panel.spacing.x = grid::unit(1.4, "lines"),
+        legend.box.spacing = grid::unit(2, "pt"),
+        legend.key.width = grid::unit(1.6, "lines")) +
+  labs(
+    x = "Invented test score (0\u2013100)",
+    y = "Number of students",
+    linetype = NULL,
+    color = NULL
+  )
+```
+
+The 395 grades in @fig-grade-distribution are left-skewed. Their long
+tail is the separate group of 38 zero grades at the lower bound, and
+the dashed mean line lies below the dotted median line: the zeros pull
+the mean down, while the median stays at the middle position. Section
+2.3 shows how each summary changes when that group is set aside.
+
+Skewness concerns the balance of the two tails; **kurtosis** concerns
+their weight. It compares how much of a distribution lies far from its
+center with a Normal curve of the same mean and standard deviation,
+the bell-shaped probability model that Section 2.5 introduces. A
+distribution with heavier tails than that curve has more values far
+from the center, and one with lighter tails, such as a flat, evenly
+spread distribution, has fewer. A symmetric distribution can still have
+heavy tails, so symmetry and tail weight are separate questions, and
+kurtosis does not measure how peaked a distribution looks. The grades
+give a concrete case. Section 2.6 sets them beside a Normal curve with
+their own mean and SD: the curve expects 6.0136 grades at or below 0.5,
+yet 38 students have zero grades, so the lower tail is far heavier than
+the curve's. Statistical software summarizes the two features with
+coefficients. Skewness is negative for a left skew, near zero for a
+symmetric distribution and positive for a right skew; excess kurtosis
+is near zero for a Normal distribution, positive when the tails are
+heavier and negative when they are lighter. This chapter reads skew
+from histograms and tail weight from tail counts set against a Normal
+curve, and computes neither coefficient.
+
+### Five summaries with distinct jobs {#sec-ch02-summaries}
 
 We use five summaries to describe center and spread: mean, median, variance,
 standard deviation, and interquartile range. A small example shows what each
@@ -797,9 +907,9 @@ one contributes before we write the general formulas.
 
 Consider four invented completion times, already ordered: **1, 3, 3, and 5
 minutes**. Their sum is $1+3+3+5=12$. The **mean** shares that total equally
-across the four observations, giving $\bar x=12/4=3.0000$ minutes. The **median**
+across the four observations, giving $\bar x=12/4=3$ minutes. The **median**
 is the middle of the ordered values: here the two middle observations are both
-3, so their average is also 3.0000 minutes.
+3, so their average is also 3 minutes.
 
 **Quartiles** locate the lower and upper quarters of an ordered distribution.
 The first quartile $Q_1$ is approximately the 25th percentile and the third
@@ -808,8 +918,8 @@ of the lower half and the median of the upper half, excluding the overall
 middle observation when the number of values is odd. Here,
 
 $$
-Q_1=(1+3)/2=2.0000,\qquad Q_3=(3+5)/2=4.0000,\qquad
-\operatorname{IQR}=4-2=2.0000\text{ minutes}.
+Q_1=(1+3)/2=2,\qquad Q_3=(3+5)/2=4,\qquad
+\operatorname{IQR}=4-2=2\text{ minutes}.
 $$
 
 The **interquartile range (IQR)** is the width of the middle half of the
@@ -824,11 +934,11 @@ distance to spread.
 
 | Observation $x_i$ | Deviation $x_i-3$ | Squared deviation $(x_i-3)^2$ |
 |-----------------:|-----------------:|----------------------------:|
-| 1 | $-2.0000$ | 4.0000 |
-| 3 | 0.0000 | 0.0000 |
-| 3 | 0.0000 | 0.0000 |
-| 5 | 2.0000 | 4.0000 |
-| **Sum** | **0.0000** | **8.0000** |
+| 1 | $-2$ | 4 |
+| 3 | 0 | 0 |
+| 3 | 0 | 0 |
+| 5 | 2 | 4 |
+| **Sum** | **0** | **8** |
 
 : *Working from observations to squared-deviation spread.* {#tbl-worked-variance tbl-colwidths="[25,30,45]"}
 
@@ -838,7 +948,7 @@ deviation (SD)** is its square root:
 
 $$
 s^2=\frac{8}{4-1}=\frac83=2.6667\text{ squared minutes},\qquad
-s=\sqrt{\frac83}=1.6330\text{ minutes}.
+s=\sqrt{\frac83}=1.633\text{ minutes}.
 $$
 
 Keep the unrounded variance while taking its square root. Variance expresses
@@ -890,10 +1000,13 @@ These five summaries differ from the **five-number summary**, which lists
 the minimum, $Q_1$, median, $Q_3$, and maximum.
 
 A fixed set of values also has a mean squared deviation obtained by dividing
-by $n$: $8/4=2.0000$ squared minutes here. Both conventions describe spread when
+by $n$: $8/4=2$ squared minutes here. Both conventions describe spread when
 clearly named. We use the conventional sample variance throughout, including
 when describing the 395 grades. The choice of divisor alone says
-nothing about how the observations were selected.
+nothing about how the observations were selected. The mean is also the
+center that makes the sum of squared deviations as small as possible:
+around 3 the four squared deviations sum to 8, around 4 they sum to
+$9+1+1+1=12$, and every other center gives a sum larger than 8.
 
 ```{r}
 #| label: tbl-grade-summary
@@ -901,7 +1014,7 @@ nothing about how the observations were selected.
 #| tbl-colwidths: [32, 24, 28]
 
 grade_print <- grade_summary
-grade_print$Value <- sprintf("%.4f", grade_summary$Value)
+grade_print$Value <- fmt4(grade_summary$Value)
 knitr::kable(
   grade_print,
   booktabs = TRUE,
@@ -909,8 +1022,8 @@ knitr::kable(
 )
 ```
 
-The mean grade is 10.4152 and the median is 11.0000. The variance is 20.9896 squared
-grade points; SD is 4.5814 grade points, and IQR is 6.0000 grade points. The graph
+The mean grade is 10.4152 and the median is 11. The variance is 20.9896 squared
+grade points; SD is 4.5814 grade points, and IQR is 6 grade points. The graph
 helps us interpret these summaries, particularly the visible group at zero.
 
 ```{=latex}
@@ -925,10 +1038,10 @@ of 10. Their shapes and spreads are plainly different.
 
 ```{r}
 #| label: fig-same-mean
-#| fig-cap: "Three invented distributions share a mean of 10.0000 but differ in shape and spread."
+#| fig-cap: "Three invented distributions share a mean of 10 but differ in shape and spread."
 #| fig-alt: "Faceted dot plots show a concentrated distribution around ten, a broad evenly spaced distribution, and a right-skewed distribution. Each has mean ten."
 #| fig-height: 2.1
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 ggplot(same_mean, aes(x = Value, y = 0)) +
   geom_dotplot(binaxis = "x", stackdir = "up", binwidth = .55,
@@ -946,48 +1059,61 @@ they change relatively little when a small number of extreme values changes.
 They often describe a skewed distribution more clearly. In either case,
 the graph supplies information about tails, gaps, and clusters.
 
+The school grades show resistance on real data. The 38 zero grades
+form a separate cluster below the rest of the distribution
+(@fig-grade-distribution). @tbl-ch02-zero-grades compares each summary
+for all 395 students with the same summary for the 357 students whose
+grades are above zero. The comparison shows how each summary responds
+to one cluster. It does not treat the zeros as errors, and the
+description of all 395 students remains the primary one.
 
-@fig-ch02-skew-centers compares three further invented shapes without
-holding their means fixed. The symmetric values have mean and median
-6.0000. For the right-skewed values, the longer upper tail pulls the
-mean to 5.1111 while the median is 4.0000. Reflecting those values gives
-the left-skewed panel, with mean 4.8889 and median 6.0000. The dashed
-and dotted lines mark the mean and median. This ordering is a common
-pattern to interpret alongside the graph, not a theorem for every
-distribution described as skewed.
-
-```{r}
-#| label: fig-ch02-skew-centers
-#| fig-cap: "Three invented shapes: the mean moves toward the longer tail."
-#| fig-alt: "The symmetric values have mean and median six. Right-skewed values have mean 5.1111 and median four; reflected left-skewed values have mean 4.8889 and median six. Dashed and dotted lines mark mean and median."
-#| fig-height: 2.5
-#| fig-pos: "H"
-
-shapes <- list(Symmetric = c(2, 3, 4, 5, 6, 7, 8, 9, 10),
-               Right = c(1, 2, 2, 3, 4, 5, 6, 8, 15))
-shapes$Left <- 10 - shapes$Right
-op <- par(mfrow = c(1, 3), mar = c(4, 2, 2, 1))
-for (nm in names(shapes)) {
-  v <- shapes[[nm]]
-  stripchart(v, method = "stack", pch = 19, xlim = c(-5, 15),
-             xlab = "Value", main = nm)
-  abline(v = mean(v), lty = 2, col = "firebrick")
-  abline(v = median(v), lty = 3, col = "navy")
-}
-par(op)
+```{=latex}
+\Needspace{13\baselineskip}
+\phantomsection
 ```
 
-### Comparing groups while keeping their variation visible
+```{r}
+#| label: tbl-ch02-zero-grades
+#| tbl-cap: "What 38 zero grades do to each summary"
+#| tbl-colwidths: [30, 22, 26, 22]
+
+zero_print <- data.frame(
+  Summary = grade_summary$Summary,
+  All = grade_summary$Value,
+  Without = unname(grade_zero_sensitivity[c("mean", "median", "variance",
+                                            "sd", "IQR")])
+)
+zero_print$Change <- zero_print$Without - zero_print$All
+zero_print[-1] <- lapply(zero_print[-1], fmt4)
+knitr::kable(zero_print, booktabs = TRUE, row.names = FALSE,
+             align = c("l", "r", "r", "r"),
+             col.names = c("Summary", "All 395 students",
+                           "357 without zero grades", "Change"))
+```
+
+Removing the cluster raises the mean by more than a grade point and
+roughly halves the variance; the SD falls from 4.5814 to 3.2278. The
+median does not move. The IQR narrows by one grade point because the
+lower quartile rises from 8 to 9: with almost a tenth of the students
+removed from one end, even a resistant summary shifts a little.
+Resistance is a matter of degree, and here the median and IQR change
+far less than the mean and SD. Without the zeros the mean lies above
+the median, so the left skew of all 395 grades (Section 2.1) comes
+from that one cluster. Section 3.4 returns to the same 38 students
+when it examines the absence--grade relationship.
+
+### Comparing groups while keeping their variation visible {#sec-ch02-groups}
 
 A single distribution can combine groups with different centers or
-spreads. In the school data, grades might be displayed separately by
-school. Before doing that with many students, consider six invented
+spreads. In the school data, grades can be displayed separately for
+students who did and did not report an intention to pursue higher
+education. Before doing that with 395 students, consider six invented
 task-completion times from two training groups:
 
 | Group | Completion times (minutes) | Number of learners | Mean (minutes) |
 |:------|:---------------------------|-------------------:|---------------:|
-| A | 1, 3 | 2 | 2.0000 |
-| B | 3, 3, 5, 9 | 4 | 5.0000 |
+| A | 1, 3 | 2 | 2 |
+| B | 3, 3, 5, 9 | 4 | 5 |
 
 : *A small grouped dataset for describing center and spread* {#tbl-ch02-group-times tbl-colwidths="[15,39,24,22]"}
 
@@ -1018,7 +1144,7 @@ and the group means summarize rather than replace those observations.
 #| fig-cap: "Completion times and group means in the invented six-learner example"
 #| fig-alt: "Group A has times one and three, with mean two. Group B has times three, three, five, and nine, with mean five. The two three-minute learners in group B are shown separately. Diamonds mark group means."
 #| fig-height: 2.7
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 group_plot <- group_times
 group_plot$Position <- c(.96, 1.04, 1.94, 2.06, 2.14, 2)
 ggplot(group_plot, aes(x = Minutes, y = Position)) +
@@ -1039,7 +1165,7 @@ ggplot(group_plot, aes(x = Minutes, y = Position)) +
 The **grand mean** is the mean across all six learners:
 
 $$
-\bar x=\frac{1+3+3+3+5+9}{6}=\frac{24}{6}=4.0000\text{ minutes}.
+\bar x=\frac{1+3+3+3+5+9}{6}=\frac{24}{6}=4\text{ minutes}.
 $$
 
 ```{=latex}
@@ -1051,21 +1177,21 @@ We can obtain it from the group means too, provided each group receives
 its learner count as a weight:
 
 $$
-\bar x=\frac{2(2)+4(5)}{2+4}=4.0000.
+\bar x=\frac{2(2)+4(5)}{2+4}=4.
 $$
 
-The unweighted average $(2+5)/2=3.5000$ would give the two groups equal
+The unweighted average $(2+5)/2=3.5$ would give the two groups equal
 influence despite their different sizes. That answers a different
 averaging question. When the aim is to describe all learners equally,
 the larger group contributes more to the grand mean.
 
 There is also variation **within** each group. For Group A, the squared
 deviations from 2 are 1 and 1, so its sample variance is
-$2/(2-1)=2.0000$ and its SD is 1.4142 minutes. For Group B, deviations from
+$2/(2-1)=2$ and its SD is 1.4142 minutes. For Group B, deviations from
 5 are $-2,-2,0,4$. Thus,
 
 $$
-s_B^2=\frac{4+4+0+16}{4-1}=8.0000,\qquad
+s_B^2=\frac{4+4+0+16}{4-1}=8,\qquad
 s_B=\sqrt{8}=2.8284\text{ minutes}.
 $$
 
@@ -1079,7 +1205,7 @@ is five minutes. That learner is four minutes above the group mean,
 and the group mean is one minute above the grand mean:
 
 $$
-9-4=(9-5)+(5-4)=4+1=5.0000\text{ minutes}.
+9-4=(9-5)+(5-4)=4+1=5\text{ minutes}.
 $$
 
 In words, the total deviation combines the learner's position
@@ -1087,8 +1213,102 @@ In words, the total deviation combines the learner's position
 **overall mean**. This elementary identity prepares the later
 analysis of between-group and within-group variation. For now,
 the displays, means, and separate SDs give the descriptive comparison.
-Appendix A develops weighted means and squared deviations a little
-further.
+
+The same reasoning applies to the school grades. The dataset records
+whether each student reported an intention to pursue higher
+education; this is a reported intention, not eventual enrollment.
+@fig-ch02-intention-groups shows every student's grade in the two
+groups, with a boxplot for each group and a diamond at each mean. The
+dashed line separates passing grades, 10 or above, from the rest, so
+the share of each group to its right is the passing proportion that
+Section 3.1 compares.
+
+```{r}
+#| label: fig-ch02-intention-groups
+#| fig-cap: "Final mathematics grades of the 395 students by reported higher-education intention. Boxes mark quartiles and medians, diamonds the group means, and the dashed line the pass mark between 9 and 10; points are jittered slightly to separate students with equal grades."
+#| fig-alt: "Horizontal boxplots with every student's grade shown as a point. The 20 students with no intention have a box from zero to ten, median eight and mean 6.8, with six zero grades. The 375 students with the intention have a box from nine to fourteen, median eleven and mean 10.6, with 32 zero grades set apart from the rest of their group."
+#| fig-height: 2.2
+#| fig-pos: "!ht"
+
+intention_plot <- students
+intention_plot$Intention <- factor(
+  ifelse(intention_plot$higher_education == "yes",
+         "Intends higher\neducation (n = 375)", "No intention\n(n = 20)"),
+  levels = c("No intention\n(n = 20)", "Intends higher\neducation (n = 375)"))
+set.seed(60210)
+ggplot(intention_plot, aes(x = final_grade, y = Intention)) +
+  geom_boxplot(width = .55, outlier.shape = NA, fill = "#E9F0F5",
+               color = "#44657D") +
+  geom_jitter(width = .15, height = .17, alpha = .35, size = 1.1,
+              color = "#28536B") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3.8,
+               color = "#A24B2A") +
+  geom_vline(xintercept = 9.5, linetype = 2, color = "#9B3D45") +
+  scale_x_continuous(breaks = seq(0, 20, 2)) +
+  scale_y_discrete(limits = rev) +
+  labs(x = "Final mathematics grade (0\u201320); diamonds mark means", y = NULL)
+```
+
+```{=latex}
+\Needspace{8\baselineskip}
+\phantomsection
+```
+
+```{r}
+#| label: tbl-ch02-intention-summary
+#| tbl-cap: "Final-grade summaries by reported higher-education intention"
+#| tbl-colwidths: [24, 6, 10, 10, 10, 10, 17, 13]
+
+group_grades <- list(
+  "No intention" = students$final_grade[students$higher_education == "no"],
+  "Intends higher education" =
+    students$final_grade[students$higher_education == "yes"],
+  "All students" = students$final_grade
+)
+intention_summary <- do.call(rbind, lapply(names(group_grades), function(nm) {
+  x <- group_grades[[nm]]
+  data.frame(Group = nm, Students = length(x), Mean = mean(x), SD = sd(x),
+             Median = median(x), IQR = IQR(x), Zeros = sum(x == 0),
+             Zero_pct = 100 * mean(x == 0), Passing = 100 * mean(x >= 10))
+}))
+intention_print <- data.frame(
+  intention_summary[c("Group", "Students")],
+  lapply(intention_summary[c("Mean", "SD", "Median", "IQR")], fmt4),
+  Zeros = paste0(intention_summary$Zeros, " (",
+                 fmt4(intention_summary$Zero_pct), "%)"),
+  Passing = paste0(fmt4(intention_summary$Passing), "%"))
+knitr::kable(intention_print, booktabs = TRUE, row.names = FALSE,
+             align = c("l", rep("r", 7)),
+             col.names = c("Group", "n", "Mean", "SD", "Median",
+                           "IQR", "Zero grades", "Passing"))
+```
+
+The two distributions differ in more than their centers. The middle
+half of the 375 students reporting the intention runs from 9 to 14
+grade points; the middle half of the 20 without it runs from 0 to 10,
+and six of those 20, 30.0000%, have zero grades, against 8.5333% of the
+larger group. The smaller group's mean of 6.8 lies below its median
+of 8 because its zeros pull the balance point down. The group
+means differ by 3.808 grade points, but the small group's wide spread
+and its zero cluster belong in the description as well.
+
+The overall mean can be rebuilt from the group means, provided each
+group receives its size as a weight. With $j$ indexing the $J$ groups,
+$n_j$ the size of group $j$ and $\bar x_j$ its mean, each product
+$n_j\bar x_j$ recovers a group's total:
+
+$$
+\bar x=\frac{\sum_{j=1}^{J}n_j\bar x_j}{\sum_{j=1}^{J}n_j}
+=\frac{20(6.800)+375(10.608)}{20+375}
+=\frac{136+3978}{395}=\frac{4114}{395}=10.4152 .
+$$
+
+This equals the mean of all 395 grades in @tbl-grade-summary. The
+unweighted average of the two group means, $(6.800+10.608)/2=8.704$,
+gives the 20 students as much influence as the 375: it answers a
+question about the two groups as groups, not about the students. With
+groups this unequal the two averages differ by 1.7112 grade points;
+with equal group sizes they would agree.
 
 ### Common probability models
 
@@ -1150,9 +1370,9 @@ boundary. Positive skew alone establishes none of these models.
 ```{r}
 #| label: fig-ch02-model-gallery
 #| fig-cap: "Six probability models with declared parameters: masses for discrete outcomes and density curves for continuous outcomes."
-#| fig-alt: "Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD .5 is positive and right-skewed."
+#| fig-alt: "Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD 0.5 is positive and right-skewed."
 #| fig-height: 5.5
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
           mgp = c(2.2, .7, 0))
@@ -1215,9 +1435,9 @@ $$
 s_w^2=b^2s_x^2,\qquad s_w=|b|s_x.
 $$
 
-The four completion times 1, 3, 3 and 5 minutes have mean 3.0000
-minutes and SD 1.6330 minutes. Converting to seconds multiplies the
-mean by 60 to give 180.0000 seconds and the unrounded SD by 60 to give
+The four completion times 1, 3, 3 and 5 minutes have mean 3
+minutes and SD 1.633 minutes. Converting to seconds multiplies the
+mean by 60 to give 180 seconds and the unrounded SD by 60 to give
 97.9796 seconds. Adding a constant moves the center without changing
 the spread. A negative multiplier reverses the order, while its absolute
 value scales SD. A zero multiplier produces a constant with zero spread.
@@ -1233,7 +1453,7 @@ specified mean in SD units. In an invented commute sample with mean
 26 minutes and SD 6 minutes, a 38-minute commute gives
 
 $$
-z=\frac{38-26}{6}=2.0000.
+z=\frac{38-26}{6}=2.
 $$
 
 For observed values, $z_i=(x_i-\bar x)/s$. Subtracting the mean
@@ -1261,14 +1481,14 @@ $$
 #| fig-cap: "Central Normal probabilities within one, two and three SDs."
 #| fig-alt: "Three identical standard Normal curves shade the areas between minus and plus one, two, and three. Their central probabilities are .6827, .9545 and .9973."
 #| fig-height: 2.6
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 op <- par(mfrow = c(1, 3), mar = c(4, 4, 2, 1),
           mgp = c(2.2, .7, 0))
 for (k in 1:3) {
   curve(dnorm(x), from = -4, to = 4, ylim = c(0, .42),
         xlab = "z", ylab = "Density",
-        main = sprintf("Within %d SD: %.4f", k, 2 * pnorm(k) - 1))
+        main = paste0("Within ", k, " SD: ", fmt4(2 * pnorm(k) - 1)))
   zz <- seq(-k, k, length.out = 300)
   polygon(c(-k, zz, k), c(0, dnorm(zz), 0),
           col = "lightblue", border = NA)
@@ -1278,10 +1498,10 @@ par(op)
 ```
 
 These give the familiar approximate 68%, 95%, 99.7% rule. The exact
-central 95% range uses approximately $\pm1.9600$ rather than exactly
+central 95% range uses approximately $\pm1.96$ rather than exactly
 $\pm2$. Let $\Phi$ denote the standard Normal CDF and $\Phi^{-1}$ its
 quantile function. Under a score model $X\sim N(50,10^2)$, a score of
-65 is $(65-50)/10=1.5000$ SDs above the mean. Therefore,
+65 is $(65-50)/10=1.5$ SDs above the mean. Therefore,
 
 $$
 P(X\le65)=P(Z\le1.5)=\Phi(1.5)=.9332.
@@ -1302,6 +1522,92 @@ The calculations use a supplied probability table or quantile value.
 Applying them to recorded scores requires a suitable Normal model;
 computing sample z scores alone does not establish that suitability.
 
+How can we judge whether a Normal model suits recorded scores? Compare
+what the model predicts with what was observed. For the 395 grades,
+take the Normal model with the observed mean 10.4152 and SD 4.5814.
+@fig-ch02-normal-check draws that model's density over a histogram of
+the grades, scaled so that bar areas are proportions, and
+@tbl-ch02-within-k-sd compares the shares the model predicts within
+one, two and three SDs of the mean with the shares observed. Its last
+row compares the zero grades with the model's whole lower tail at or
+below 0.5, which also contains negative values that no grade can take.
+
+```{r}
+#| label: fig-ch02-normal-check
+#| fig-cap: "Checking a Normal model against the 395 final grades. The curve is the Normal density with the observed mean and SD; the darker band marks one SD and the lighter band two SDs on each side of the mean."
+#| fig-alt: "A histogram of the grades, scaled to proportions, with a Normal curve centered near 10.4. Across the middle grades the bars and the curve broadly agree. At zero a bar of 38 students stands far above the curve, which expects between two and three students in that bar, and no student has a grade of one, two or three although the curve is above zero there. The curve also extends below zero, where no grade can occur."
+#| fig-height: 2.9
+#| fig-pos: "!ht"
+
+grade_mean <- mean(students$final_grade)
+grade_sd <- sd(students$final_grade)
+ggplot(students, aes(x = final_grade)) +
+  annotate("rect", xmin = grade_mean - 2 * grade_sd,
+           xmax = grade_mean + 2 * grade_sd, ymin = 0, ymax = Inf,
+           fill = "#D9D9D9", alpha = .45) +
+  annotate("rect", xmin = grade_mean - grade_sd, xmax = grade_mean + grade_sd,
+           ymin = 0, ymax = Inf, fill = "#BDBDBD", alpha = .45) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 1, boundary = -.5,
+                 fill = "#B9D5E5", color = "white") +
+  stat_function(fun = dnorm, args = list(mean = grade_mean, sd = grade_sd),
+                xlim = c(-4, 25), n = 400, color = "#9B3D45", linewidth = .9) +
+  annotate("text", x = .6, y = .112, hjust = 0, size = 3.2,
+           label = "38 zero grades;\nthe model expects 2.6173 here") +
+  scale_x_continuous(breaks = seq(0, 20, 2)) +
+  coord_cartesian(xlim = c(-2, 22), ylim = c(0, .155), expand = FALSE) +
+  labs(x = "Final mathematics grade (0\u201320)", y = "Proportion per grade point")
+```
+
+```{=latex}
+\Needspace{9\baselineskip}
+\phantomsection
+```
+
+```{r}
+#| label: tbl-ch02-within-k-sd
+#| tbl-cap: "Observed and Normal-model shares of the 395 grades"
+#| tbl-colwidths: [17, 25, 14, 14, 14, 16]
+
+grades <- students$final_grade
+k_check <- data.frame(
+  Check = c(sprintf("Within %d SD", 1:3), "Lower tail"),
+  Range = c(vapply(1:3, function(k) paste(fmt4(grade_mean + c(-k, k) *
+              grade_sd), collapse = " to "), character(1)),
+              "At or below 0.5"),
+  Observed = c(vapply(1:3, function(k)
+              sum(abs(grades - grade_mean) <= k * grade_sd), integer(1)),
+              sum(grades <= .5)),
+  Model = c(2 * pnorm(1:3) - 1, pnorm(.5, grade_mean, grade_sd))
+)
+k_check$Share <- k_check$Observed / length(grades)
+k_check$Expected <- k_check$Model * length(grades)
+k_print <- data.frame(
+  k_check[c("Check", "Range", "Observed")],
+  Share = fmt4(k_check$Share, lead = FALSE),
+  Model = fmt4(k_check$Model, lead = FALSE),
+  Expected = fmt4(k_check$Expected)
+)
+knitr::kable(k_print, booktabs = TRUE, row.names = FALSE,
+             align = c("l", "l", "r", "r", "r", "r"),
+             col.names = c("Check", "Grade range", "Observed students",
+                           "Observed share", "Model share",
+                           "Model students"))
+```
+
+The middle of the distribution agrees with the model: a share of .6987
+of the grades lies within one SD, against the model's .6827. The lower
+tail does not. Thirty-eight students have zero grades. The model expects
+only 2.6173 grades in the zero bar of @fig-ch02-normal-check and 6.0136 in
+its whole lower tail at or below 0.5, a tail that includes probability
+.0115 below zero, where no grade can occur. The same cluster explains
+why only .9013 of the grades lie within two SDs rather than .9545: 38
+of the 39 grades outside that range are zeros. A Normal model could
+describe the typical grades reasonably well but would misstate any
+question about the lowest grades, and standardizing the grades would
+not change that, since standardization preserves shape. With
+whole-number grades, read the tail counts rather than small
+differences between the shares.
+
 ## Describing and Interpreting Relationships
 
 Describing a relationship means keeping two measurements together.
@@ -1314,11 +1620,15 @@ setting that produced it.
 
 ### Counts and proportions for two categorical variables
 
-The dataset includes whether each student wanted to pursue higher
-education. This is a reported intention, not a record of eventual
-enrollment. We can compare it with **pass status**, defined here as a
-final mathematics grade of 10 or higher. The following table counts
-every student once.
+Section 2.4 compared the grades of students who did and did not report
+an intention to pursue higher education. We now count how many in each
+group passed. **Pass status** is defined here as a final mathematics
+grade of 10 or higher. The following table counts every student once.
+
+```{=latex}
+\Needspace{9\baselineskip}
+\phantomsection
+```
 
 ```{r}
 #| label: tbl-ch02-intention-pass
@@ -1345,8 +1655,8 @@ To compare passing within the two groups, divide each passing count by
 the size of its own group:
 
 $$
-\frac{7}{20}=.3500=35.0000\%,\qquad
-\frac{258}{375}=.6880=68.8000\%.
+\frac{7}{20}=.350=35.0\%,\qquad
+\frac{258}{375}=.688=68.8\%.
 $$
 
 ```{=latex}
@@ -1358,22 +1668,52 @@ These are **conditional proportions**: each describes passing among
 students meeting a stated condition. The difference is
 
 $$
-68.8000\%-35.0000\%=33.8000\text{ percentage points}.
+68.8\%-35.0\%=33.8\text{ percentage points}.
 $$
 
 Thus the passing proportion is higher among the students reporting a
 higher-education intention. Percentage points express the subtraction
 of two percentages; the calculation above is not a relative percentage
-increase.
+increase. The left panel of @fig-ch02-conditional-bars draws the two
+conditional proportions.
 
-Changing the question changes the denominator. Among the 265 passing
-students, the proportion reporting higher-education intention is
-$258/265=97.3585\%$, rather than the 68.8000% passing within the
-intention group. For reference, $258/395=65.3165\%$ of all students both
-report that intention and pass, while overall passing is
-$265/395=67.0886\%$. The word *among* identifies the conditioning group.
-These are descriptions of observed counts. Intention was not randomly
-assigned, so their difference alone does not establish a causal effect.
+```{r}
+#| label: fig-ch02-conditional-bars
+#| fig-cap: "The same 395 students read in two directions. Left: percent passing among each intention group. Right: percent reporting the intention among each pass-status group. Each bar's denominator is the group named beneath it."
+#| fig-alt: "Two bar charts. On the left, 35.0 percent of the 20 students without the intention passed, against 68.8 percent of the 375 with it. On the right, 97.3585 percent of the 265 students who passed reported the intention, against 90.0000 percent of the 130 who did not pass."
+#| fig-height: 2.7
+#| fig-pos: "!ht"
+
+op <- par(mfrow = c(1, 2), mar = c(3.2, 4, 2.8, 1), mgp = c(2.4, .7, 0))
+pass_share <- 100 * intention_counts[, "Yes"] / rowSums(intention_counts)
+bars <- barplot(pass_share, names.arg = c("No intention\n(n = 20)",
+                "Intention\n(n = 375)"), ylim = c(0, 100), col = "#6C9EAE",
+                border = NA, ylab = "Percent", cex.names = .85,
+                main = "Passing, among each\nintention group", cex.main = .95)
+text(bars, pass_share + 6, paste0(fmt4(pass_share), "%"), cex = .85)
+intent_share <- 100 * intention_counts["yes", ] / colSums(intention_counts)
+bars <- barplot(intent_share, names.arg = c("Passed\n(n = 265)",
+                "Did not pass\n(n = 130)"), ylim = c(0, 100), col = "#B9D5E5",
+                border = NA, ylab = "Percent", cex.names = .85,
+                main = "Reporting intention, among\neach pass-status group",
+                cex.main = .95)
+text(bars, intent_share - 7, paste0(fmt4(intent_share), "%"), cex = .85)
+par(op)
+```
+
+Changing the question changes the denominator. The right panel of
+@fig-ch02-conditional-bars conditions on pass status instead: among
+the 265 passing students, $258/265=97.3585\%$ reported the intention,
+and among the 130 who did not pass, $117/130=90.0000\%$ did. Read this
+way the two groups look alike, because 375 of the 395 students report
+the intention whatever their result; read the first way, passing
+differs sharply between the intention groups. Both panels describe the
+same table, and the word *among* names the conditioning group. For
+reference, $258/395=65.3165\%$ of all students both report the
+intention and pass, and overall passing is $265/395=67.0886\%$. These
+are descriptions of observed counts. Intention was not randomly
+assigned, so their difference alone does not establish a causal
+effect.
 
 ### Form before coefficient
 
@@ -1387,7 +1727,7 @@ a coefficient.
 #| fig-cap: "Linear, curvilinear, and patternless relationships require different descriptions."
 #| fig-alt: "Four panels show a positive line, a negative line, a U-shaped curve, and no clear pattern."
 #| fig-height: 3.4
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 ggplot(relationship_patterns, aes(x = X, y = Y)) +
   geom_point(alpha = .55, size = 1.2, color = "#2F6073") +
@@ -1414,7 +1754,7 @@ cancel.
 \phantomsection
 ```
 
-### Covariance and Pearson's correlation
+### Covariance and Pearson's correlation {#sec-ch02-correlation}
 
 **Covariance** describes how paired deviations vary together. Deviations
 on the same side of their respective means give a positive product:
@@ -1423,7 +1763,7 @@ Deviations on opposite sides give a negative product. A value exactly
 at its mean contributes a zero deviation and hence a zero product.
 
 Consider measurements on four invented learners with $x=(1,3,3,5)$ practice hours
-and $y=(2,2,4,4)$ score points. Both means are 3.0000. The deviations and their
+and $y=(2,2,4,4)$ score points. Both means are 3. The deviations and their
 products are
 
 $$
@@ -1468,7 +1808,7 @@ $$
 
 The units cancel as well: hour-points divided by hours times points is
 unit-free. If hours become minutes, both covariance and $s_x$ are multiplied
-by 60. Covariance becomes $60(4/3)=80.0000$ minute-points, while $r$ remains .7071.
+by 60. Covariance becomes $60(4/3)=80$ minute-points, while $r$ remains .7071.
 
 ```{=latex}
 \Needspace{6\baselineskip}
@@ -1495,11 +1835,44 @@ $$
 
 Positive standardized products contribute to a positive linear association;
 negative products contribute to a negative one. The divisor is $n-1$
-because these z scores use sample SDs. Correlation ranges from $-1$ to $1$,
-keeps its value under positive rescaling, and reverses sign when one scale
-is reversed. If either SD is zero, the denominator is zero and correlation
-is undefined. Appendix A explains the mathematical bound and why zero correlation can
-coexist with a relationship.
+because these z scores use sample SDs. Correlation keeps its value under
+positive rescaling and reverses sign when one scale is reversed. If either
+SD is zero, the denominator is zero and correlation is undefined.
+
+Correlation cannot leave the range from $-1$ to 1. Because
+$\sum_i z_{xi}^2=\sum_i z_{yi}^2=n-1$ and $\sum_i z_{xi}z_{yi}=(n-1)r$,
+expanding the square gives $\sum_i(z_{xi}-z_{yi})^2=2(n-1)(1-r)$. A
+sum of squares cannot be negative, so $r\le1$, and the same argument
+with $z_{xi}+z_{yi}$, whose squares sum to $2(n-1)(1+r)$, gives
+$r\ge-1$. The endpoints mark exact lines: $r$ reaches 1 only when
+every standardized pair is equal, so the points lie exactly on a rising
+line, and $-1$ only when every pair is opposite, so they lie exactly on
+a falling line.
+
+A correlation of zero can still accompany a perfectly patterned
+relationship. For five invented pairs with $y=x^2$,
+@tbl-ch02-zero-correlation works the covariance, with means
+$\bar x=0$ and $\bar y=2$. The two outer pairs contribute $-4$ and
+$+4$, the next two $+1$ and $-1$, and the middle pair 0, so the
+products cancel: covariance and correlation are both 0, although
+each $y$ is determined exactly by its $x$. The U-shaped graph supplies
+the relationship that the linear coefficient leaves out.
+
+```{=latex}
+\Needspace{11\baselineskip}
+\phantomsection
+```
+
+| $x_i$ | $y_i=x_i^2$ | $x_i-\bar x$ | $y_i-\bar y$ | Product |
+|--:|--:|--:|--:|--:|
+| $-2$ | 4 | $-2$ | 2 | $-4$ |
+| $-1$ | 1 | $-1$ | $-1$ | 1 |
+| 0 | 0 | 0 | $-2$ | 0 |
+| 1 | 1 | 1 | $-1$ | $-1$ |
+| 2 | 4 | 2 | 2 | 4 |
+| **Sum** | **10** | **0** | **0** | **0** |
+
+: A perfect curve with zero correlation, in invented values {#tbl-ch02-zero-correlation tbl-colwidths="[16,22,20,20,22]"}
 
 | Feature | Sample covariance $s_{xy}$ | Pearson correlation $r$ |
 |:--------|:-------------------------------|:--------------------------|
@@ -1529,31 +1902,6 @@ from a strong negative to a strong positive coefficient changes the
 linear pattern. The earlier U-shaped example remains a reminder that
 one linear summary cannot describe every form of relationship.
 
-```{r}
-#| label: fig-ch02-r-gallery
-#| fig-cap: "Six simulated scatterplots show different directions and strengths of linear association; labels report the sample correlation of each panel."
-#| fig-alt: "Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation."
-#| fig-height: 4.8
-#| fig-pos: "H"
-
-set.seed(60206)
-targets <- c(-.9, -.5, 0, .3, .6, .9)
-panels <- lapply(targets, function(rho) {
-  x <- rnorm(80)
-  y <- rho * x + sqrt(1 - rho^2) * rnorm(80)
-  data.frame(x = x, y = y)
-})
-lim <- range(unlist(panels))
-op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
-          mgp = c(2.2, .7, 0))
-for (d in panels) {
-  plot(d$x, d$y, pch = 19, cex = .6, xlim = lim, ylim = lim,
-       xlab = "x", ylab = "y",
-       main = sprintf("Sample r = %.4f", cor(d$x, d$y)))
-}
-par(op)
-```
-
 Different questions can motivate different correlations
 [@rCoreCorrelation]. **Ranks** replace each value by its ordered
 position. Spearman correlation applies Pearson's calculation to those
@@ -1582,6 +1930,34 @@ by itself does not determine which coefficient answers the relationship
 question. Inspect the paired pattern, variable meaning and unusual
 observations before choosing a summary.
 
+```{r}
+#| label: fig-ch02-r-gallery
+#| fig-cap: "Six simulated scatterplots show different directions and strengths of linear association; labels report the sample correlation of each panel."
+#| fig-alt: "Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation."
+#| fig-height: 4.3
+#| fig-pos: "!ht"
+
+set.seed(60206)
+targets <- c(-.9, -.5, 0, .3, .6, .9)
+panels <- lapply(targets, function(rho) {
+  x <- rnorm(80)
+  y <- rho * x + sqrt(1 - rho^2) * rnorm(80)
+  data.frame(x = x, y = y)
+})
+lim <- range(unlist(panels))
+op <- par(mfrow = c(2, 3), mar = c(4, 4, 2, 1),
+          mgp = c(2.2, .7, 0))
+r_labels <- fmt4(vapply(panels, function(d) cor(d$x, d$y), numeric(1)),
+                 lead = FALSE, minus = "-")
+for (k in seq_along(panels)) {
+  d <- panels[[k]]
+  plot(d$x, d$y, pch = 19, cex = .6, xlim = lim, ylim = lim,
+       xlab = "x", ylab = "y",
+       main = paste("Sample r =", r_labels[k]))
+}
+par(op)
+```
+
 ### Returning to absences and grades
 
 We can now specify the **estimand** for the school comparison: the Pearson
@@ -1599,7 +1975,7 @@ for the coefficient.
 #| fig-cap: "Recorded absences and final mathematics grade in the observational two-school dataset."
 #| fig-alt: "A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. The smooth rises from zero absences to low positive counts, then declines, with fewer students in the high-absence tail."
 #| fig-height: 3.1
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 
 set.seed(60205)
 ggplot(students, aes(x = absences, y = final_grade)) +
@@ -1611,7 +1987,7 @@ ggplot(students, aes(x = absences, y = final_grade)) +
   scale_y_continuous(breaks = seq(0, 20, 5), limits = c(-.5, 20.5)) +
   labs(
     x = "Recorded absences (count)",
-    y = "Final mathematics grade\n(0--20)"
+    y = "Final mathematics grade\n(0\u201320)"
   )
 ```
 
@@ -1633,9 +2009,10 @@ appropriate sampling design or other explicit basis for that inference.
 All 38 zero-grade students also have zero absences; 25 have positive
 second-period grades from 4 to 10. The accessible codebook leaves this
 joint pattern unexplained. A **sensitivity analysis** examines how a
-result changes when an analytical choice changes. Omitting these 38
-records gives $r=-.2131$ among 357 students, compared with $.0342$
-among all 395. Relative to the original means, the $(0,0)$ observations
+result changes when an analytical choice changes. Section 2.3 showed
+what omitting these 38 records does to each summary of grade
+(@tbl-ch02-zero-grades); for the relationship, it gives $r=-.2131$
+among 357 students, compared with $.0342$ among all 395. Relative to the original means, the $(0,0)$ observations
 contribute positive products of deviations; removing them also changes
 the means used for every remaining deviation.
 
@@ -1649,7 +2026,7 @@ and use the contrast to show why the unexplained coding pattern matters.
 A different descriptive question keeps the same cases and accounts for
 a third variable. Consider separate, invented summaries of practice
 time $x$, final score $y$, and baseline score $z$. Suppose the Pearson
-correlations are $r_{xy}=.60$, $r_{xz}=.50$, and $r_{yz}=.60$, all
+correlations are $r_{xy}=.6$, $r_{xz}=.5$, and $r_{yz}=.6$, all
 calculated from the same complete set of students. These are stipulated
 summary inputs, not correlations from the Portuguese school dataset.
 
@@ -1659,8 +2036,8 @@ linear adjustment for baseline is
 $$
 r_{xy\cdot z}=\frac{r_{xy}-r_{xz}r_{yz}}
  {\sqrt{(1-r_{xz}^2)(1-r_{yz}^2)}}
-=\frac{.60-(.50)(.60)}{\sqrt{(1-.50^2)(1-.60^2)}}
-=.4330.
+=\frac{.6-(.5)(.6)}{\sqrt{(1-.5^2)(1-.6^2)}}
+=.433.
 $$
 
 To understand the operation, imagine removing each variable's fitted
@@ -1669,7 +2046,7 @@ two remaining parts. Those remaining parts are **residuals**. Chapter 7
 develops fitted lines and their residual calculations, while Chapter 8
 extends the adjustment to several variables. The formula above gives
 the descriptive calculation directly. In this example, adjustment
-reduces the correlation from .6000 to .4330.
+reduces the correlation from .600 to .433.
 
 The result describes association after this specified linear adjustment.
 It does not establish a direct causal effect, remove every influence of
@@ -1807,7 +2184,7 @@ of 100 students.
 #| fig-cap: "Repeating the same sampling process produces a distribution of sample means. The grade values are invented illustrations."
 #| fig-alt: "The same population of twenty thousand students supplies three repeated samples of one hundred. Their sample means are ten point six, eleven point two, and ten point nine. The individual grades within a sample and the sample means across repetitions form different distributions."
 #| fig-height: 3.1
-#| fig-pos: "H"
+#| fig-pos: "!ht"
 par(mar = c(0, 0, 0, 0), family = "sans")
 plot.new()
 plot.window(xlim = c(0, 10), ylim = c(0, 5), xaxs = "i", yaxs = "i")
@@ -1830,16 +2207,16 @@ The **sampling distribution** of a statistic describes its possible
 values under a specified repetition of the sampling or data-generating
 process. Here the statistic is the mean, the sample size is 100, and
 the process is simple random selection from the school system. Naming
-these features matters: changing the sample size or selecting whole
-classes instead of individual students would change the repetition we
-are considering.
+these features matters: changing the sample size, or selecting
+schools first and then students within them, would change the
+repetition we are considering, as Section 4.4 shows.
 
 In practice, researchers usually have one sample. Repeated sampling
 helps us reason about the variation behind that one result. Simulation
 makes this idea visible by creating many samples under conditions we
 have explicitly chosen.
 
-### See repeated sampling in a waiting-time model
+### See repeated sampling in a waiting-time model {#sec-ch02-repeated-sampling}
 
 We now change from bounded grades to waiting times in an invented
 service where people wait for assistance. The chosen model allows
@@ -1862,39 +2239,58 @@ way.
 The procedure is straightforward. First generate five waiting times,
 then calculate their mean. Start afresh and do this 5,000 times,
 saving one mean from each repetition. Next repeat the procedure with
-30 waiting times per sample, and finally with 100. Each panel in
-@fig-ch02-sampling-means therefore summarizes **5,000 sample means**,
-not 5,000 individual waiting times.
+30 waiting times per sample, and finally with 100. The first panel of
+@fig-ch02-sampling-means shows the model for individual waits; each of
+the other three summarizes **5,000 sample means**, not 5,000 individual
+waiting times.
 
 ```{r}
 #| label: fig-ch02-sampling-means
-#| fig-cap: "Simulated sampling distributions of the mean waiting time. Each panel contains 5,000 sample means from independent exponential waiting times with population mean and SD both 10 minutes. The dashed line marks the population mean."
-#| fig-alt: "Three histograms share an axis from zero to thirty-five minutes. For samples of five, sample means are broad and right-skewed. For samples of thirty they are narrower and more symmetric. For samples of one hundred they are tightly concentrated around ten and approximately bell-shaped."
+#| fig-cap: "Individual waiting times and simulated sampling distributions of their mean. The first panel shows the exponential model for individual waits, with population mean and SD both 10 minutes, scaled to the counts expected among 5,000 waits. Each other panel contains 5,000 sample means from independent waits at the stated sample size, labelled with their SD, the empirical SE. The dashed line marks the population mean."
+#| fig-alt: "Four panels share an axis from zero to thirty-five minutes. The model for individual waits falls steadily from zero with a long right tail and SD 10. Means of five waits are broad and right-skewed, with SE 4.5395. Means of thirty are narrower and more symmetric, with SE 1.7878. Means of one hundred are tightly concentrated around ten and approximately bell-shaped, with SE 1.0076."
 #| fig-height: 3.4
-#| fig-pos: "H"
-ggplot(sampling_means, aes(x = Sample_mean)) +
-  geom_histogram(binwidth = .5, boundary = 0,
-                 fill = "#527D98", color = "white", linewidth = .15) +
+#| fig-pos: "!ht"
+
+panel_levels <- c("Individual waits", "n = 5", "n = 30", "n = 100")
+sampling_plot <- sampling_means
+sampling_plot$Panel <- factor(paste("n =", sampling_plot$Sample_size),
+                              levels = panel_levels)
+wait_model <- data.frame(Minutes = seq(0, 35, by = .1))
+wait_model$Count <- 5000 * .5 * dexp(wait_model$Minutes, rate = 1 / 10)
+wait_model$Panel <- factor("Individual waits", levels = panel_levels)
+spread_labels <- data.frame(
+  Panel = factor(panel_levels, levels = panel_levels),
+  Label = c("SD 10",
+            paste("SE", fmt4(sampling_summary$Empirical_SE)))
+)
+ggplot(sampling_plot, aes(x = Sample_mean)) +
+  geom_area(data = wait_model, aes(x = Minutes, y = Count),
+            fill = "#B9D5E5", color = "#28536B", linewidth = .4) +
+  geom_histogram(binwidth = .5, boundary = 0, fill = "#527D98",
+                 color = "white", linewidth = .15) +
   geom_vline(xintercept = 10, linetype = "dashed", color = "#9D4938") +
-  facet_wrap(~ Sample_size, nrow = 1,
-             labeller = labeller(Sample_size = function(x) paste("n =", x))) +
+  geom_text(data = spread_labels, aes(x = 34, y = 1080, label = Label),
+            hjust = 1, size = 3.2) +
+  facet_wrap(~ Panel, nrow = 1, drop = FALSE) +
   scale_x_continuous(breaks = c(0, 10, 20, 30)) +
   coord_cartesian(xlim = c(0, 35)) +
-  labs(x = "Sample mean waiting time (minutes)", y = "Number of sample means") +
+  labs(x = "Waiting time or sample mean (minutes)",
+       y = "Count per half-minute bin") +
   theme(panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank(),
-        strip.text = element_text(size = 12))
+        strip.text = element_text(size = 11))
 ```
 
-All three distributions are centered near 10 minutes, the mean built
-into the model. With only five people per sample, the means vary
+The three distributions of sample means are centered near 10 minutes,
+the mean built into the model. With only five people per sample, the means vary
 considerably and the distribution still has a noticeable right tail.
 One long wait can pull a small sample's mean upward. With 100 people
 per sample, individual long waits have less influence on the average,
 and sample means tend to be closer to 10.
 
 The simulation also connects with the Normal model introduced earlier.
-The individual waiting times are right-skewed, yet the sample means
+The first panel shows that the individual waits stay right-skewed, with
+SD 10 minutes, at every sample size, while the means concentrate and
 become more nearly bell-shaped as sample size increases. The variable
 being graphed has changed: it is now a mean calculated from several
 waiting times. Neither collecting more cases nor standardizing their
@@ -1920,7 +2316,7 @@ build on the meaning we can see here.
 #| tbl-cap: "Center and spread of the simulated sample means, in minutes"
 #| tbl-colwidths: [18, 27, 28, 27]
 sampling_print <- sampling_summary
-sampling_print[-1] <- lapply(sampling_print[-1], function(x) sprintf("%.4f", x))
+sampling_print[-1] <- lapply(sampling_print[-1], fmt4)
 knitr::kable(
   sampling_print,
   col.names = c("Sample size", "Mean of sample means", "Empirical SE", "Model SE"),
@@ -1935,20 +2331,21 @@ is developed with statistical inference. Comparing the two columns
 checks whether the simulation is behaving as expected. Their small
 differences reflect the finite number of simulation repetitions.
 
-For samples of five, a mean varies on a scale of about 4.4721 minutes.
-For samples of 100, that scale is about 1.0000 minute. Both are much smaller
-than the **10-minute SD of individual waiting times**, which stays the
-same in all three conditions. SD and SE are therefore answering
-different questions: how much do people's waiting times differ, and
-how much would the mean differ across samples of the stated size?
+The panel labels of @fig-ch02-sampling-means place the two kinds of
+spread side by side. The **10-minute SD of individual waiting times**
+stays the same whatever the sample size, while the SE of the mean falls
+from 4.5395 minutes for samples of five to 1.0076 minutes for samples
+of 100. SD and SE therefore answer different questions: how much do
+people's waiting times differ, and how much would the mean differ
+across samples of the stated size?
 
 It also helps to distinguish SE from the discrepancy in one particular
 sample. Suppose one sample of 100 has a mean of 11.3 minutes. Because
 the model's population mean is known to be 10, this sample's estimation
-error is $11.3-10=1.3000$ minutes. **Sampling error** is the part of an
+error is $11.3-10=1.3$ minutes. **Sampling error** is the part of an
 estimate's departure from the population quantity that arises from
 observing a sample rather than the whole population. Under this
-illustration's stated model, the 1.3000-minute departure is attributable
+illustration's stated model, the 1.3-minute departure is attributable
 to sampling. Other samples can have positive or
 negative errors. SE describes the spread across those possible
 results; it is neither the signed error of this one result nor a bound
@@ -1962,7 +2359,7 @@ nonresponse, or an inaccurate measurement can change what an estimate
 describes. SE characterizes sampling spread under the stated process;
 it does not encompass every source of error in a study.
 
-### Sample size and number of repetitions
+### Sample size, repetitions, and sampling design {#sec-ch02-sample-size-design}
 
 The simulation has two counts with different jobs. **Sample size** is
 the number of people whose waits enter one mean: 5, 30, or 100.
@@ -1982,66 +2379,175 @@ The model SE column shows a useful square-root regularity. Moving
 from 5 to 100 people multiplies sample size by 20, while SE falls
 from about 4.4721 to 1.0000, a reduction by about $\sqrt{20}=4.4721$ rather
 than by 20. Under the same independent model, quadrupling sample
-size from 100 to 400 would halve SE from 1.0000 to 0.5000 minute. This
+size from 100 to 400 would halve SE from 1.0 to 0.5 minute. This
 explains why substantial gains in precision can require substantial
 increases in sample size.
 
-The conditions remain important. Sampling students in the same class
-or observing patients during the same busy period can supply less
-independent information than the same number of unrelated observations.
-More cases can improve precision while leaving a systematic selection
-problem in place. A very large volunteer sample may describe its
-volunteers precisely and still differ from the population of interest.
+These comparisons hold the model and the sampling process constant.
+Sample size is not, however, the only feature of a design that sets
+the spread of sample means. Suppose the invented school system's
+20,000 students attend 100 schools of 200 students each, and students
+in the same school tend to have similar grades. We compare two ways of
+selecting 100 students: a simple random sample from the whole
+register, and a multistage sample that randomly selects 4 schools and
+then 25 students within each selected school.
+@fig-ch02-design-effect repeats each design 5,000 times from the same
+invented population.
+
+```{r}
+#| label: ch02-design-simulation
+#| include: false
+
+set.seed(60207)
+school_id <- rep(1:100, each = 200)
+school_mean <- rnorm(100, mean = 10.5, sd = 1.5)
+system_grade <- pmin(20, pmax(0, round(school_mean[school_id] +
+                                         rnorm(20000, 0, 4.2))))
+by_school <- split(system_grade, school_id)
+system_mu <- mean(system_grade)
+srs_means <- replicate(5000, mean(system_grade[sample.int(20000, 100)]))
+cluster_means <- replicate(5000, {
+  chosen <- sample.int(100, 4)
+  mean(unlist(lapply(chosen, function(j) by_school[[j]][sample.int(200, 25)])))
+})
+between_var <- mean((vapply(by_school, mean, numeric(1)) - system_mu)^2)
+within_var <- mean(vapply(by_school, function(v) mean((v - mean(v))^2),
+                          numeric(1)))
+system_icc <- between_var / (between_var + within_var)
+stopifnot(
+  abs(system_mu - 10.43965) < 1e-8,
+  abs(sd(srs_means) - 0.4397) < 5e-5,
+  abs(sd(cluster_means) - 0.8730) < 5e-5,
+  abs(system_icc - 0.1304) < 5e-5
+)
+```
+
+```{r}
+#| label: fig-ch02-design-effect
+#| fig-cap: "Same sample size, different design. Each panel contains 5,000 means of 100 grades drawn from one invented population of 20,000 students in 100 schools. The dashed line marks the population mean, 10.4397, and the shading the range within one grade point of it."
+#| fig-alt: "Two histograms on a shared axis from seven to fourteen. Means from simple random samples of 100 students cluster tightly around 10.4, with SD 0.4397. Means from samples of 4 schools with 25 students each spread about twice as widely, with SD 0.8730, and many fall more than one grade point from the population mean."
+#| fig-height: 3
+#| fig-pos: "!ht"
+
+design_sd <- fmt4(c(sd(srs_means), sd(cluster_means)))
+design_levels <- c(
+  paste0("Simple random sample of 100\nSD of means ", design_sd[1]),
+  paste0("4 schools, 25 students each\nSD of means ", design_sd[2]))
+design_means <- data.frame(
+  Design = factor(rep(design_levels, each = 5000), levels = design_levels),
+  Mean = c(srs_means, cluster_means))
+ggplot(design_means, aes(x = Mean)) +
+  annotate("rect", xmin = system_mu - 1, xmax = system_mu + 1,
+           ymin = 0, ymax = Inf, fill = "#D9D9D9", alpha = .5) +
+  geom_histogram(binwidth = .2, boundary = 0, fill = "#527D98",
+                 color = "white", linewidth = .15) +
+  geom_vline(xintercept = system_mu, linetype = "dashed", color = "#9D4938") +
+  facet_wrap(~ Design, nrow = 1) +
+  scale_x_continuous(breaks = 7:14) +
+  coord_cartesian(xlim = c(7, 14)) +
+  labs(x = "Sample mean grade", y = "Number of samples") +
+  theme(panel.grid.minor = element_blank(),
+        strip.text = element_text(size = 10.5))
+```
+
+Both designs select 100 students, and both sets of means center on the
+population mean of 10.4397. Their spreads differ. The multistage means
+have SD 0.8730, about twice the 0.4397 of simple random samples, and
+only .7396 of them fall within one grade point of the population mean,
+against .9778 for simple random samples. Twenty-five students from the
+same school share that school's teaching and circumstances, so they
+supply overlapping information about the whole system.
+
+The **intraclass correlation (ICC)** describes how strongly units in
+the same cluster resemble one another: it is the share of the
+outcome's variance lying between clusters. Because this invented
+population is complete, we describe its spread with the mean squared
+deviation, dividing by the number of values. The total grade variance
+is 19.5885. Of this, 2.5546 is the variance of the 100 school means
+around the population mean, and 17.0339 is the average variance of
+grades around their own school's mean. The two parts add to the total,
+just as a deviation split into within-group and group-to-overall parts
+in Section 2.4. Thus
+
+$$
+\mathrm{ICC}=\frac{2.5546}{2.5546+17.0339}=\frac{2.5546}{19.5885}=.1304 .
+$$
+
+When each selected cluster contributes $m$ units, the variance of the
+sample mean is multiplied, relative to a simple random sample of the
+same size, by about the **design effect**
+
+$$
+\mathrm{deff}=1+(m-1)\,\mathrm{ICC}=1+(25-1)(.1304)=4.1299,
+$$
+
+calculated from the unrounded ICC. The SE is multiplied by the square
+root, $\sqrt{4.1299}=2.0322$, close to the ratio of the two simulated
+SDs, 1.9856. Put another way, the 100 students carry about as much
+information about the population mean as $100/4.1299=24.2137$
+students selected independently. The formula shows its two
+ingredients: when the ICC is 0, or when each cluster contributes a
+single unit ($m=1$), the design effect is 1, and a larger ICC or more
+units per cluster make it larger. Here $m$ counts students per
+selected school, a different quantity from the number of Binomial
+trials in Section 2.5. Chapter 3, Section 2.3, uses the design effect
+to calculate the SE of a clustered mean.
+
+The same reasoning applies whenever observations share a source:
+students in the same class, or patients seen during the same busy
+period, supply less independent information than the same number of
+unrelated observations. More cases improve precision but leave a
+systematic selection problem in place; a very large volunteer sample
+may describe its volunteers precisely and still differ from the
+population of interest.
 
 ### What stabilizes and what becomes more nearly Normal
 
-Two changes are visible as sample size increases, and it helps to
-describe them separately. First, the means concentrate more closely
-around 10. Larger samples are less likely to give a mean far from the
-model's population mean. This illustrates the stabilization of an
-average: short and long waits tend to balance more effectively across
-many observations.
+Returning to the waiting-time panels of @fig-ch02-sampling-means, two
+changes are visible as sample size increases, and it helps to describe
+them separately. First, the means concentrate more closely around 10.
+Larger samples are less likely to give a mean far from the model's
+population mean, because short and long waits tend to balance across
+many observations. Second, the distribution of sample means becomes
+more nearly symmetric and bell-shaped, while the individual waits in
+the first panel stay right-skewed. Shape and spread are different
+features: a narrow distribution need not be Normal, and a Normal
+distribution can be wide or narrow.
 
-Second, the distribution of sample means becomes more nearly symmetric
-and bell-shaped. Shape and spread are different features. A narrow
-distribution need not be Normal, and a Normal distribution can be wide
-or narrow. Here the three panels show both concentration and a change
-in shape, under one explicitly stated model.
-
-The law of large numbers and the central limit theorem provide formal
-accounts of these ideas under their respective conditions. The
-simulation gives us something concrete to attach to those later
-accounts: averages settling near a population value, and the shape of
-their variation across samples becoming more nearly Normal. A sample
+These are interpretations of one explicitly stated simulation. A sample
 size such as 30 is not a universal threshold; the behavior depends on
-the distribution and dependence of the observations.
-
-The progression from grades to sample means is now complete. We began
-by describing variation among cases, then used the same descriptive
-tools to examine variation among summaries. The next step is to use a
-stated sampling or data-generating process to quantify uncertainty
-about an estimand from the one sample actually available.
+the distribution and dependence of the observations. The law of large
+numbers gives the formal account of the concentration, and the central
+limit theorem that of the shape, each under its own conditions. Chapter 3 states both results with those conditions and
+develops the general formulas, using the stated repetition to quantify
+uncertainty about an estimand from the one sample actually available.
 
 ## Reading Bridge
 
 This chapter began by reading cases, variables, layouts, denominators,
 and sample-selection procedures. We then turned measurements into
-descriptions: the shape, center, and spread of one distribution;
-group means with separate spreads and a count-weighted grand mean;
-conditional proportions for two categorical variables; and a
-scatterplot with covariance and correlation for two quantitative ones.
-Grouping indicators made category membership explicit. Probability models
-describe possible values; transformations and Normal areas connect
-measurement scales with probabilities. Partial correlation adds a
-specified linear adjustment while retaining the same cases.
+descriptions: the shape, center, and spread of one distribution, with
+a skew named by its long tail and resistant summaries for a skewed or
+clustered one; group means with
+separate spreads and a count-weighted grand mean; conditional
+proportions for two categorical variables, read in both directions;
+and a scatterplot with covariance and correlation for two quantitative
+ones. Grouping indicators made category membership explicit.
+Probability models describe possible values; standardization and
+Normal areas connect measurement scales with probabilities, and
+comparing a model's predictions with the recorded grades shows where
+it fits. Partial correlation adds a specified linear adjustment while
+retaining the same cases.
 
 We then interpreted a description in its study setting and watched the
 same tools describe sample means under a stated repetition. A sampling
 distribution shows how a statistic varies, and its standard error
 describes that spread. One sample's sampling error is its particular
-departure attributable to sampling. The selection design matters to
-the repetition and its spread.
-Larger samples and more simulation repetitions change different things.
+departure attributable to sampling. Larger samples and more simulation
+repetitions change different things, and the selection design matters
+too: selecting schools first and then students within them widens
+the spread of sample means, and the design effect summarizes by how
+much.
 
 Chapter 3 uses the stated repetition and its conditions to calculate
 uncertainty for an estimate from one sample, through standard errors,
@@ -2057,9 +2563,9 @@ of variance.
 ### Key terms {.unnumbered #sec-ch02-key-terms}
 
 Use this short reference to revisit the main concepts as needed. The
-Part One introduction gives the broader reference and the principal
-home of each concept; familiar alternative labels appear there when
-helpful.
+Part One Concept Reference gives the broader reference and the
+principal home of each concept; familiar alternative labels appear
+there when helpful.
 
 | Term and common alternatives | Meaning |
 |:--|:--|
@@ -2073,6 +2579,7 @@ helpful.
 | Sampling design (sampling scheme) | The specified procedure for selecting a sample, including selection stages, grouping, and, for probability sampling, the selection probabilities. |
 | Simple random sampling | Selection in which every possible sample of the specified size has the same probability of being chosen. |
 | Empirical distribution (observed distribution; data distribution) | How the observed values are distributed across values or intervals, including their frequencies, center, spread, and shape. A probability model is a separate description of possible values. |
+| Skewness and kurtosis (left or negative skew; right or positive skew; tail weight) | Skewness describes asymmetry: in a right (positive) skew the long tail points toward larger values and the mean usually lies above the median; in a left (negative) skew the long tail points toward smaller values and the mean usually lies below the median. Kurtosis describes tail weight relative to a Normal distribution with the same mean and SD, not peakedness. |
 | Mean (arithmetic mean) | The sum of the numerical values divided by their count. Every included value contributes, so unusual values can shift the mean. |
 | Median | The middle value after ordering the data, or the average of the two middle values when the count is even. It describes the center by position. |
 | Quartile | A cut point dividing ordered data into quarters. The first and third quartiles mark approximately the lower and upper edges of the middle half; calculation conventions can differ. |
@@ -2085,10 +2592,11 @@ helpful.
 | Normal distribution (Gaussian distribution) | A symmetric, bell-shaped probability model described by a mean and standard deviation. The standard Normal has mean zero and SD one; observed data need not follow this model. |
 | Conditional proportion | The proportion in one category among cases satisfying a stated condition. Its denominator is the count in that conditioning group, such as students in one education-intention category. |
 | Covariance | A summary based on products of paired deviations from the two means. Its sign shows the direction of joint variation; its magnitude depends on both variables' units and spreads. |
-| Pearson's correlation (Pearson's r; product-moment correlation) | Covariance divided by the product of the two SDs. For variables with nonzero spread, it describes direction and strength of linear association on a scale from -1 to 1. |
+| Pearson's correlation (Pearson's r; product-moment correlation) | Covariance divided by the product of the two SDs. For variables with nonzero spread, it describes direction and strength of linear association on a scale from $-1$ to 1. |
 | Sampling distribution | The distribution of a statistic, such as a sample mean, across repeated samples generated by a stated sampling procedure or model. Repeated sample summaries in a simulation approximate this distribution. |
 | Sampling error | The part of an estimate's departure from the population quantity that arises from observing a sample rather than the whole population. It varies across repetitions, and its spread is the SE; coverage, nonresponse, and measurement error are separate. |
 | Standard error (SE) | The standard deviation of a statistic's sampling distribution under a stated sampling procedure or model. It describes spread across repeated sample summaries, distinct from individual-value SD and one sample's difference from the population quantity. |
+| Design effect (deff) | The factor by which a sampling design multiplies the variance of a statistic relative to simple random sampling of the same size. For a mean from equal clusters of $m$ units it is about $1+(m-1)\,\mathrm{ICC}$, where the intraclass correlation (ICC) is the share of outcome variance lying between clusters: units in one cluster supply overlapping information. |
 | Data matrix | A rectangular arrangement with cases in rows and variables in columns; $x_{ij}$ denotes case $i$ on variable $j$. |
 | Binary variable (0/1 coding) | A binary variable has two possible categories; a 0/1 coding marks membership or occurrence. Its sample mean is the proportion coded 1. |
 | Linear transformation | $Y=a+bX$ changes the center to $a+bE(X)$ and the SD to $\lvert b\rvert SD(X)$; a negative $b$ also reverses order. |
@@ -2154,8 +2662,9 @@ Identify:
 2. the observational unit or occasion;
 3. one identifier, one quantitative variable, and one categorical variable;
 4. why 1,240 visits should not be described as 1,240 independent patients;
-5. the complete-case denominator for an analysis using waiting time and return
-   status; and
+5. the error in a report that $1240-36-81=1123$ visits have both waiting
+   time and return status, and the correct complete-case denominator for
+   an analysis using both; and
 6. one question that must be answered before generalizing beyond these visits.
 
 ```{=latex}
@@ -2170,13 +2679,21 @@ Eight invented completion times, in minutes, are:
 
 > 2, 4, 4, 4, 5, 5, 7, 9
 
-1. Sketch a dotplot or ordered display.
-2. Calculate the mean, median, sample variance, sample standard deviation, and
-   IQR. For quartiles, use the medians of the lower and upper halves.
+1. Sketch a dotplot or ordered display. From its shape, predict
+   whether the mean lies above or below the median, and explain why.
+2. The five summaries of these times are mean 5, median 4.5,
+   sample variance 4.5714, sample standard deviation 2.1381, and IQR
+   2, with quartiles taken as the medians of the lower and upper
+   halves, 4 and 6. Check your prediction from part 1. Then explain which
+   values the standard deviation and the IQR each use to describe spread.
 3. State the units of the variance and standard deviation.
-4. If the question asks for a resistant description of typical time and spread,
-   choose a pair of summaries and explain why.
-5. Name one feature that the chosen pair does not show.
+4. Suppose the 9 should have been recorded as 90. Before
+   recalculating, predict which of the five summaries in part 2 change
+   and which stay the same. Then recalculate the mean only, and use the
+   ordered values to check your prediction for the median and IQR.
+5. If the question asks for a resistant description of typical time
+   and spread, choose a pair of summaries and explain why, using part 4.
+   Name one feature that the chosen pair does not show.
 
 ```{=latex}
 \Needspace{12\baselineskip}
@@ -2187,15 +2704,21 @@ Eight invented completion times, in minutes, are:
 ### Exercise 3: Interpret a Normal model and standardized value (Foundational) {.unnumbered #ex-ch02-03}
 
 A reference model for a score is Normal with mean 50 and standard deviation 10.
-A learner receives 65.
+A learner receives 38.
 
 1. Calculate and interpret the learner's z score.
 2. Distinguish this model-based standardization from using a sample mean and
    sample standard deviation.
 3. Explain why transforming every observed score to z scores would not make a
    skewed observed distribution Normal.
-4. State one question that cannot be answered without additional probability
-   information or a Normal table.
+4. A separate invented class of 20 records these quiz scores: 0, 0,
+   52, 58, 61, 63, 65, 66, 68, 70, 71, 72, 74, 75, 77, 79, 81, 84,
+   88, 95. Their mean is 64.95 and their SD is 24.468. Count the scores
+   within one SD and within two SDs of the mean, and compare those
+   shares with the Normal values .6827 and .9545. A Normal model with
+   this mean and SD gives $P(X<40)=.1539$. Would you use that model to
+   describe how many learners scored below 40? Explain, including what
+   the two zeros do.
 
 ```{=latex}
 \Needspace{12\baselineskip}
@@ -2206,7 +2729,7 @@ A learner receives 65.
 ### Exercise 4: Compare a graph, covariance, and correlation (Foundational) {.unnumbered #ex-ch02-04}
 
 In an invented study, a scatterplot of weekly practice hours and assessment score follows a clear
-U-shaped curve. The sample covariance is 0.80 hour-points and Pearson's
+U-shaped curve. The sample covariance is 0.8 hour-points and Pearson's
 correlation is .03.
 
 1. Why can the graph show a strong relationship while $r$ is near zero?
@@ -2227,14 +2750,22 @@ correlation is .03.
 
 In the mathematics dataset, 375 students reported an intention to pursue
 higher education: 258 passed and 117 did not. Of the 20 students without
-that intention, 7 passed and 13 did not.
+that intention, 7 passed and 13 did not. Among students with the
+intention, 68.8% passed; among those without it, 35.0% passed.
 
-1. Organize the counts in a two-way table with totals.
-2. Calculate the passing proportion within each intention group and
-   their difference in percentage points.
-3. Among students who passed, what proportion reported a
-   higher-education intention? Explain why its denominator differs
-   from the denominators in part 2.
+1. Name the denominator of each passing percentage, and explain why
+   their difference, 33.8, is a difference in percentage points
+   rather than a 33.8% relative increase.
+2. Among the 265 students who passed, 97.3585% reported the intention;
+   among the 130 who did not pass, 90.0000% did. Explain why these
+   denominators differ from those in part 1, and why the two pass groups
+   look alike when the counts are read in this direction.
+3. Suppose, as an invented change, that the dataset had held 200
+   students without the intention, passing at the same rate of
+   35%, with the 375 students who reported the intention unchanged.
+   Before calculating, predict which of the four percentages in parts 1
+   and 2 change. Then calculate the new percentage of passing students
+   who reported the intention, and explain the change.
 4. Explain why comparing 258 passes with 7 passes alone would be
    misleading.
 5. Give one plausible reason for the association other than a causal
@@ -2250,22 +2781,30 @@ that intention, 7 passed and 13 did not.
 
 An invented task produces the following completion times, in minutes:
 
-- Group A: 2, 4.
-- Group B: 4, 4, 6, 10.
+- Group A: 2, 4 (mean 3).
+- Group B: 4, 4, 6, 10 (mean 6).
 
-1. Display the observations by group and calculate each group mean.
-2. Calculate the grand mean from all six times, then reproduce it
-   using the group means and group sizes.
+Across all six learners the grand mean is 5 minutes. The sample
+standard deviations are 1.4142 minutes for Group A and 2.8284 minutes
+for Group B.
+
+1. Display the observations by group and mark each group mean. What
+   does the display show that the two means alone do not?
+2. Explain, using the group sizes, why the grand mean lies closer to
+   Group B's mean than to Group A's.
 3. Explain why an unweighted average of the two group means gives a
    different answer.
-4. Calculate each group's sample variance and SD. Describe the
-   difference in both center and spread.
-5. Split the ten-minute learner's deviation from the grand mean into
-   a within-group deviation and the group mean's deviation from the
-   grand mean.
-6. Does the difference in group means establish that membership in
+4. Using the standard deviations and your display, describe the
+   difference between the groups in both center and spread. Which time
+   contributes most to Group B's larger standard deviation?
+5. Does the difference in group means establish that membership in
    Group B caused a longer completion time? State the design
    information you would need.
+6. Suppose Group B's times had instead been 5, 6, 6, 7, with Group A
+   unchanged. Before calculating, predict which of the values given
+   above change. Then calculate Group B's new standard deviation, and
+   explain why the same difference in group means is now easier to see
+   in the display.
 
 ```{=latex}
 \Needspace{12\baselineskip}
@@ -2323,7 +2862,7 @@ supplies the following illustrative results: the mean of the 5,000
 sample means is 10.02 minutes, their SD is 1.01 minutes, and one sample
 has a mean of 11.3 minutes. These supplied results serve the exercise;
 the chapter's particular seeded run has its own reported summaries.
-The model SE for samples of 100 is 1.00 minute.
+The model SE for samples of 100 is 1 minute.
 
 1. Identify the population parameter being estimated and the statistic
    calculated in each sample. What does one value in the simulated
@@ -2342,108 +2881,6 @@ The model SE for samples of 100 is 1.00 minute.
    Normally distributed when the sample size is large. Use the
    simulation to distinguish the distribution of individual waits
    from the distribution of their sample mean.
-
-```{=latex}
-\Needspace{12\baselineskip}
-\phantomsection
-```
-
-## Appendix A: Weighted Means and Descriptive Identities {.unnumbered #sec-ch02-appendix}
-
-These short developments explain relationships used in the main text.
-They concern observed values and can be followed without a probability
-model.
-
-```{=latex}
-\Needspace{6\baselineskip}
-\phantomsection
-```
-
-### Why the grand mean uses group sizes {.unnumbered #sec-ch02-weighted-mean}
-
-Let group $j$ contain $n_j$ observations with mean $\bar x_j$. The
-sum of its observations is $n_j\bar x_j$. Adding those sums over $J$
-groups and dividing by the total number of observations gives
-
-$$
-\bar x=\frac{\sum_{j=1}^{J}n_j\bar x_j}{\sum_{j=1}^{J}n_j}.
-$$
-
-For the two training groups, this is $(2\times2+4\times5)/6=4.0000$.
-Equal group sizes make the simple average of group means agree with
-the grand mean. Unequal sizes require the learner counts when each
-learner is to contribute equally. Equal weighting of groups is also
-possible, but it describes an average across groups rather than across
-all learners.
-
-```{=latex}
-\Needspace{6\baselineskip}
-\phantomsection
-```
-
-### Why the mean is a useful center for squared deviations {.unnumbered #sec-ch02-squared-deviations}
-
-Take any proposed center $a$. Write each deviation as
-
-$$
-x_i-a=(x_i-\bar x)+(\bar x-a).
-$$
-
-After squaring and adding, the cross-products cancel because
-$\sum_i(x_i-\bar x)=0$. Therefore,
-
-$$
-\sum_i(x_i-a)^2
-=\sum_i(x_i-\bar x)^2+n(\bar x-a)^2.
-$$
-
-The last term is nonnegative and equals zero when $a=\bar x$.
-Thus the mean gives the smallest sum of squared deviations.
-
-For the four completion times $1,3,3,5$, the squared deviations around
-their mean of 3 sum to 8. Around a proposed center of 4 they sum to
-$9+1+1+1=12$. The identity gives the same answer:
-$8+4(3-4)^2=12$. This is the descriptive basis for the least-squares
-idea developed with statistical models.
-
-The conventional sample variance is the sum around the observed mean
-divided by $n-1$. Dividing by $n$ instead gives the mean squared
-deviation of that fixed set. Which convention is reported should be
-clear; the additional reason for using $n-1$ to estimate a population
-variance belongs with sampling and estimation.
-
-```{=latex}
-\Needspace{6\baselineskip}
-\phantomsection
-```
-
-### Why correlation is bounded {.unnumbered #sec-ch02-correlation-bound}
-
-When both sample SDs are positive, the standardized values satisfy
-$\sum_i z_{xi}^2=\sum_i z_{yi}^2=n-1$.
-From the main-text correlation formula,
-
-$$
-\sum_i(z_{xi}-z_{yi})^2=2(n-1)(1-r).
-$$
-
-The left side is a sum of squares and cannot be negative, so $r\le1$.
-Similarly,
-
-$$
-\sum_i(z_{xi}+z_{yi})^2=2(n-1)(1+r)\ge0,
-$$
-
-which gives $r\ge-1$. The endpoints require standardized values that
-align perfectly, either in the same or the opposite direction.
-
-Zero correlation can still accompany a fully patterned relationship.
-For invented values $x=(-2,-1,0,1,2)$ and $y=x^2=(4,1,0,1,4)$,
-the means are 0 and 2. The products of deviations are
-$(-4,1,0,-1,4)$ and sum to zero. The covariance and correlation
-therefore equal zero, although each $y$ value is determined by its
-paired $x$ value. The U-shaped graph supplies the relationship that
-the linear coefficient leaves out.
 
 ```{=latex}
 \Needspace{6\baselineskip}

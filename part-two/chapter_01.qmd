@@ -73,7 +73,9 @@ format:
           \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
         \fi
         \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+        \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
         \addtokomafont{sectionentry}{\scriptsize}
+        \RedeclareSectionCommand[tocbeforeskip=.4em plus 1pt]{section}
         \let\chapteroldtableofcontents\tableofcontents
         \renewcommand{\tableofcontents}{\begingroup\scriptsize
           \setlength{\parskip}{0pt}\chapteroldtableofcontents\endgroup}
@@ -577,9 +579,9 @@ ones.
 #| label: fig-lvm
 #| fig-cap: "A latent variable with three indicators. Rectangles are recorded variables, the circle is a variable introduced by the model, and single-headed arrows denote loading relations."
 #| fig-alt: "One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow."
-#| fig-width: 7
-#| fig-height: 3.2
-#| out-width: "58%"
+#| fig-width: 5
+#| fig-height: 2.4
+#| out-width: "70%"
 
 pt2_fa_diagram(
   rep(1L, 3),
@@ -1036,9 +1038,9 @@ $$
 = \lambda_j\phi\lambda_k .
 $$
 
-Concretely, with $\lambda_j = .80$ and $\phi = 1$, setting $a = 2$ gives
-a loading of $.40$ and a factor variance of $4$; the common contribution
-to the indicator's variance is $.40^{2}(4) = .64$ either way. Everything
+Concretely, with $\lambda_j = .8$ and $\phi = 1$, setting $a = 2$ gives
+a loading of $.4$ and a factor variance of $4$; the common contribution
+to the indicator's variance is $.4^{2}(4) = .64$ either way. Everything
 else — $\nu_j$, $\epsilon_{ij}$, $\theta_{jk}$ — is untouched, because
 the transformation acts only on the factor's own metric. The observed
 data cannot choose between these descriptions, because they imply
@@ -1070,8 +1072,8 @@ where the freedom is used deliberately for interpretation.
 
 Setting $a = -1$ in @eq-rescale reverses the sign of every factor value
 and every loading while leaving each product, and therefore the implied
-covariance, unchanged. A factor with loadings $(.80, .70, .60)$ and one
-with $(-.80, -.70, -.60)$ describe the same observed correlations. The
+covariance, unchanged. A factor with loadings $(.8, .7, .6)$ and one
+with $(-.8, -.7, -.6)$ describe the same observed correlations. The
 direction is fixed by convention and by what the items say, not by the
 data; a negative sign is not by itself a problem, and a sign flip
 between two equivalent solutions is not evidence that anything changed.
@@ -1400,10 +1402,10 @@ across all six indicators. Let us check that representation rather than
 infer it from appearance alone.
 
 Let all six standardized indicators relate to a single unit-variance
-factor with loading $.70$:
+factor with loading $.7$:
 
 $$
-\boldsymbol{\Lambda}_1 = (.70,\,.70,\,.70,\,.70,\,.70,\,.70)^{\mathsf T},
+\boldsymbol{\Lambda}_1 = (.7,\,.7,\,.7,\,.7,\,.7,\,.7)^{\mathsf T},
 \qquad
 \boldsymbol{\Phi}_1 = [1],
 \qquad
@@ -1414,25 +1416,26 @@ $$
 
 ```{r}
 #| label: fig-onefactor
-#| fig-cap: "The one-factor model that reproduces the first record. Every loading is .70."
-#| fig-alt: "One factor points to six indicators, with every loading labeled point 70 and a separate residual for every indicator."
-#| fig-width: 6.5
-#| fig-height: 6.3
-#| out-width: "64%"
+#| fig-cap: "The one-factor model that reproduces the first record. Every loading is .7."
+#| fig-alt: "One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator."
+#| fig-width: 5.5
+#| fig-height: 4.2
+#| out-width: "80%"
+#| fig-pos: "!htb"
 
 pt2_fa_diagram(
   rep(1L, 6),
-  loading_labels = matrix(rep(".70", 6), 6, 1)
+  loading_labels = matrix(rep(".7", 6), 6, 1)
 )
 ```
 
 Apply @eq-cov and @eq-var. Each diagonal entry is
-$.70^{2} + .51 = .49 + .51 = 1$, as a correlation matrix requires. Each
-off-diagonal entry is $.70 \times 1 \times .70 = .49$. That reproduces
-@tbl-record-one exactly. Every communality is $.70^{2} = .49$ and every
-uniqueness is $1 - .70^{2} = .51$.
+$.7^{2} + .51 = .49 + .51 = 1$, as a correlation matrix requires. Each
+off-diagonal entry is $.7 \times 1 \times .7 = .49$. That reproduces
+@tbl-record-one exactly. Every communality is $.7^{2} = .49$ and every
+uniqueness is $1 - .7^{2} = .51$.
 
-The column sum of squared loadings is $6(.70^{2}) = 2.94$. This quantity
+The column sum of squared loadings is $6(.7^{2}) = 2.94$. This quantity
 is often called the factor's eigenvalue, and the label is safe only
 under specific conditions. Here it is the sum of squares of a loading
 column — an **SS loading**. It happens to equal the single nonzero
@@ -1462,14 +1465,14 @@ across blocks.
 : *A constructed two-factor correlation matrix.* {#tbl-record-two}
 
 For the second matrix, let the first three indicators relate to $\eta_1$
-with loading $.80$ and the last three to $\eta_2$ with loading $.60$,
+with loading $.8$ and the last three to $\eta_2$ with loading $.6$,
 with the factors uncorrelated:
 
 $$
 \boldsymbol{\Lambda}_2 =
 \begin{bmatrix}
-.80 & 0\\ .80 & 0\\ .80 & 0\\
-0 & .60\\ 0 & .60\\ 0 & .60
+.8 & 0\\ .8 & 0\\ .8 & 0\\
+0 & .6\\ 0 & .6\\ 0 & .6
 \end{bmatrix},
 \qquad
 \boldsymbol{\Phi}_2 = \mathbf{I}_2,
@@ -1482,14 +1485,15 @@ $$
 ```{r}
 #| label: fig-orthogonal
 #| fig-cap: "The orthogonal two-factor model that reproduces the second record."
-#| fig-alt: "Eta 1 loads point 80 on Y1 through Y3, eta 2 loads point 60 on Y4 through Y6, and their covariance is zero."
-#| fig-width: 7
-#| fig-height: 6.2
-#| out-width: "88%"
+#| fig-alt: "Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero."
+#| fig-width: 5.5
+#| fig-height: 4.4
+#| out-width: "80%"
+#| fig-pos: "!htb"
 
 labels_orthogonal <- matrix("", 6, 2)
 labels_orthogonal[cbind(seq_len(6), c(1, 1, 1, 2, 2, 2))] <-
-  c(rep(".80", 3), rep(".60", 3))
+  c(rep(".8", 3), rep(".6", 3))
 pt2_fa_diagram(
   rep(1:2, each = 3), loading_labels = labels_orthogonal,
   factor_cov_labels = "0"
@@ -1497,20 +1501,20 @@ pt2_fa_diagram(
 ```
 
 Within the first block,
-$\operatorname{Cov}(Y_1, Y_2) = .80 \times 1 \times .80 = .64$. Within
-the second, $.60 \times 1 \times .60 = .36$. Across the blocks,
+$\operatorname{Cov}(Y_1, Y_2) = .8 \times 1 \times .8 = .64$. Within
+the second, $.6 \times 1 \times .6 = .36$. Across the blocks,
 
 $$
 \operatorname{Cov}(Y_1, Y_4) =
-\begin{bmatrix} .80 & 0 \end{bmatrix}
+\begin{bmatrix} .8 & 0 \end{bmatrix}
 \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
-\begin{bmatrix} 0 \\ .60 \end{bmatrix} = 0 ,
+\begin{bmatrix} 0 \\ .6 \end{bmatrix} = 0 ,
 $$
 
 which reproduces @tbl-record-two. The first three communalities are
 $.64$ with uniquenesses $.36$; the last three are $.36$ with
-uniquenesses $.64$. The SS loadings are $3(.80^{2}) = 1.92$ and
-$3(.60^{2}) = 1.08$.
+uniquenesses $.64$. The SS loadings are $3(.8^{2}) = 1.92$ and
+$3(.6^{2}) = 1.08$.
 
 The exact zeros between blocks follow from three restrictions acting
 together: the simple-structure loading pattern, the orthogonality of the
@@ -1580,16 +1584,16 @@ required, and keeping the residuals diagonal gives a cross-block
 covariance of
 
 $$
-\operatorname{Cov}(Y_1, Y_4) = .80\,\rho\,(.60) = .48\rho .
+\operatorname{Cov}(Y_1, Y_4) = .8\,\rho\,(.6) = .48\rho .
 $$ {#eq-cross}
 
-At $\rho = .40$ this is $.192$, and every one of the nine cross-block
+At $\rho = .4$ this is $.192$, and every one of the nine cross-block
 pairs becomes nonzero. The calculation shows exactly what the
 orthogonality restriction had been doing, and it also sets a ceiling:
 because the common part of a covariance is bounded by the product of the
 two communality square roots, no factor correlation can push
 $\operatorname{Cov}(Y_1, Y_4)$ beyond $.48$ under this loading pattern.
-If two such indicators correlated at $.60$, no two-factor model of this
+If two such indicators correlated at $.6$, no two-factor model of this
 shape could account for it.
 
 Real sample covariance matrices do not usually repeat these clean values
@@ -1774,12 +1778,12 @@ matrix becomes
 $$
 \boldsymbol{\Lambda}_2^*=
 \begin{bmatrix}
-.80/\sqrt{2}&-.80/\sqrt{2}\\
-.80/\sqrt{2}&-.80/\sqrt{2}\\
-.80/\sqrt{2}&-.80/\sqrt{2}\\
-.60/\sqrt{2}& .60/\sqrt{2}\\
-.60/\sqrt{2}& .60/\sqrt{2}\\
-.60/\sqrt{2}& .60/\sqrt{2}
+.8/\sqrt{2}&-.8/\sqrt{2}\\
+.8/\sqrt{2}&-.8/\sqrt{2}\\
+.8/\sqrt{2}&-.8/\sqrt{2}\\
+.6/\sqrt{2}& .6/\sqrt{2}\\
+.6/\sqrt{2}& .6/\sqrt{2}\\
+.6/\sqrt{2}& .6/\sqrt{2}
 \end{bmatrix}.
 $$
 
@@ -1787,9 +1791,9 @@ The simple zeros have disappeared, yet the implied covariance has not.
 For example, the common covariance of $Y_1$ and $Y_4$ is now
 
 $$
-\frac{.80}{\sqrt{2}}\frac{.60}{\sqrt{2}}
+\frac{.8}{\sqrt{2}}\frac{.6}{\sqrt{2}}
 +
-\frac{-.80}{\sqrt{2}}\frac{.60}{\sqrt{2}}
+\frac{-.8}{\sqrt{2}}\frac{.6}{\sqrt{2}}
 =.24-.24=0.
 $$
 
@@ -1803,8 +1807,8 @@ changes is the allocation to the two columns, as @tbl-axis-ss shows:
 
 | Axes | SS loading 1 | SS loading 2 | Total common variance |
 |:--|--:|--:|--:|
-| Original | 1.92 | 1.08 | 3.00 |
-| Rotated | 1.50 | 1.50 | 3.00 |
+| Original | 1.92 | 1.08 | 3 |
+| Rotated | 1.50 | 1.50 | 3 |
 
 : *Factor-specific allocations change while their total is invariant.* {#tbl-axis-ss}
 
@@ -1834,7 +1838,7 @@ observable covariance. The choice of axes belongs here as a convention;
 it is not an observed finding.
 
 **Inference.** Substitution gives the same implied covariance,
-communalities, and total common variance of $3.00$. The displayed
+communalities, and total common variance of $3$. The displayed
 cancellation $.24-.24=0$ verifies a cross-block entry, while the SS
 loading calculation shows that factor-specific allocations change from
 $1.92$ and $1.08$ to $1.50$ and $1.50$.
@@ -1875,7 +1879,7 @@ A calibrated replacement is:
 
 **Answer returned to the opening pair.** The two descriptions imply the
 same indicator covariance, communalities, and total common variance of
-$3.00$. Their loadings and factor-specific SS allocations
+$3$. Their loadings and factor-specific SS allocations
 differ. Thus the covariance representation survives the change of axes, whereas the convenience and factor-specific allocation of the
 original simple axes do not. The rotated description is outside the
 original fixed-zero CFA class: equivalence in the broader factor
@@ -1925,6 +1929,8 @@ for (k in seq_along(route_labels)) {
 }
 par(op)
 ```
+
+\Needspace{5\baselineskip}
 
 The model is
 
@@ -2028,9 +2034,11 @@ correlate, and all residual covariances are zero.
    not interchangeable. (In a refitted model the remaining estimates would
    also move; the point here is the direct algebraic consequence.)
 
+\Needspace{10\baselineskip}
+
 ## Exercise 5 - Scale and conventions {.unnumbered .unlisted}
 
-Begin with a standardized one-factor indicator having $\lambda = .80$,
+Begin with a standardized one-factor indicator having $\lambda = .8$,
 $\phi = 1$ and $\theta = .36$.
 
 1. Rescale the factor by $a = 2$. Give the new loading and factor

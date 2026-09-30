@@ -63,7 +63,7 @@ references:
         given: Graham N.
     issued:
       date-parts: [[1979]]
-    container-title: Robustness in Statistics
+    container-title: Robustness in statistics
     publisher: Academic Press
     publisher-place: New York
     page: 201-236
@@ -209,6 +209,7 @@ format:
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     toc: true
     toc-depth: 3
@@ -595,7 +596,7 @@ with its full specification beside it. For the feedback study:
 > eligible students' follow-up achievement?
 >
 > **Specification:** The students belong to 24 participating classes in
-> 12 schools. Achievement is the score on a common 0-40 assessment two
+> 12 schools. Achievement is the score on a common 0--40 assessment two
 > weeks after a six-week program. The comparison gives each of the 480
 > eligible students equal weight and concerns assignment of their class
 > to a format, regardless of their individual attendance.
@@ -718,7 +719,7 @@ may have a different meaning from one given at the beginning of a semester.
 
 A researcher might average the three confidence indicators to form a
 **composite score**. For example, one student's responses of 60, 80, and
-70 give an average of $(60+80+70)/3=70.0000$. The three responses are observed
+70 give an average of $(60+80+70)/3=70$. The three responses are observed
 indicator values; their average is a calculated score. Another researcher
 might use a factor model to represent their
 relationships through a **latent variable**, a variable specified within
@@ -770,7 +771,7 @@ An invented language-learning study follows students across four equally
 spaced assessments. Student A scores 58, 65, 68, and 76; Student B scores
 62, 63, 67, and 68. Their successive gains are 7, 3, and 8 points, and
 1, 4, and 1 point. Across three intervals, average changes are
-$(76-58)/3=6.0000$ and $(68-62)/3=2.0000$ points. Equal time spacing thus accompanies
+$(76-58)/3=6$ and $(68-62)/3=2$ points. Equal time spacing thus accompanies
 uneven progress. Keeping the sequences reveals differences that a single
 average for each student would hide.
 
@@ -1278,14 +1279,14 @@ from the 480-student experimental dataset. Both panels have the same
 average delayed score and the same fitted straight line:
 
 $$
-\widehat{Y}=8+0.70x.
+\widehat{Y}=8+0.7x.
 $$
 
 Here $x$ is baseline achievement and $\widehat{Y}$, read “Y-hat,” is
 fitted delayed achievement, both in assessment points. The intercept
-is 8 and the slope is 0.70. At baseline 20, the fitted score is
-$8+0.70(20)=22.0000$. The left-panel student with an observed score of 21
-is one point below that fitted value, so its residual is $-1.0000$
+is 8 and the slope is 0.7. At baseline 20, the fitted score is
+$8+0.7(20)=22$. The left-panel student with an observed score of 21
+is one point below that fitted value, so its residual is $-1$
 point. The slope describes an association between the two scores;
 it does not by itself describe what an intervention raising baseline
 achievement would do.
@@ -1352,11 +1353,11 @@ influences on interruptions and performance to be considered.
 
 The language-learning data add change over time. Student A's scores
 are 58, 65, 68, and 76 across four equally spaced occasions; Student B's
-are 62, 63, 67, and 68. Their mean rises from 60.0000 at the first assessment
-to 72.0000 at the last, but their starting levels and patterns differ.
+are 62, 63, 67, and 68. Their mean rises from 60 at the first assessment
+to 72 at the last, but their starting levels and patterns differ.
 Student A's successive gains are 7, 3, and 8 points; Student B's are
 1, 4, and 1. The total gains of 18 and 6 points correspond to average
-changes of 6.0000 and 2.0000 points per interval. Those averages summarize the
+changes of 6 and 2 points per interval. Those averages summarize the
 whole period, while the observed changes vary from one interval to the
 next.
 
@@ -1473,8 +1474,8 @@ uncertainty about the estimated quantity, rather than a range containing
 95% of individual students' outcomes.
 
 For this reading example, the invented feedback report supplies an
-estimated effect of 2.50 points and a 95% confidence interval from 1.00 to
-4.00 points. The single-number estimate is the **point estimate**. The
+estimated effect of 2.5 points and a 95% confidence interval from 1 to
+4 points. The single-number estimate is the **point estimate**. The
 report's uncertainty procedure reflects assignment of classes, while the
 result concerns the eligible students in those classes. Complete follow-up
 still leaves uncertainty about the average assignment effect because
@@ -1572,7 +1573,7 @@ and uncertainty attached to the answer.
 ### From numerical output to a statistical conclusion
 
 The feedback result is an estimated average assignment effect of
-2.50 points, with an approximate 95% interval of 1.00 to 4.00 points
+2.5 points, with an approximate 95% interval of 1 to 4 points
 for the eligible cohort. A statistical conclusion can state that
 the comparison indicates a positive average effect under the
 reported analysis, while retaining uncertainty about its size.
@@ -1591,7 +1592,7 @@ prediction in those cohorts and at the intended decision time.
 
 ### Substantive meaning, importance, and scope
 
-Units are part of meaning. A difference of 2.50 achievement points
+Units are part of meaning. A difference of 2.5 achievement points
 refers to the named delayed assessment and the course topics it
 covers. Interpreting it as improved learning depends on what that
 assessment measures and when it was administered. A reader should
@@ -1629,7 +1630,7 @@ positive, with its practical size still uncertain.
 
 In the student case, using probabilities to flag students requires choosing
 a cut-off. At 0.5, the rule identifies 73 of the 427 held-out students
-recorded as Dropout: $73/427\approx17.0960\%$. Better average probability
+recorded as Dropout: $73/427\approx17.096\%$. Better average probability
 predictions can therefore coexist with missing many recorded dropouts at
 a selected cut-off. Choosing a cut-off requires considering missed cases
 and unnecessary alerts. Recorded dropout is also only one possible sign
@@ -1639,9 +1640,9 @@ parts of that decision.
 
 ### Reading numerical results accurately
 
-**Read an estimate with its estimand.** “The difference is 2.50”
+**Read an estimate with its estimand.** “The difference is 2.5”
 gives a number. “The estimated student-average assignment effect
-is 2.50 points on the delayed assessment in the eligible cohort”
+is 2.5 points on the delayed assessment in the eligible cohort”
 identifies the quantity it is intended to describe. Keep that
 comparison and scope when moving from a table to a written answer.
 
@@ -1654,10 +1655,10 @@ knowledge helps explain why its size matters.
 
 **Read a nonsignificant finding through its interval and question.**
 Using the two-sided test and interval procedure described in Section 4.4,
-an illustrative 95% interval from -8 to 8 points contains zero and gives
+an illustrative 95% interval from $-8$ to 8 points contains zero and gives
 a nonsignificant result. It leaves
 substantial effects in both directions unresolved. An interval from
--0.3 to 0.3 would be much more informative if the study had justified
+$-0.3$ to 0.3 would be much more informative if the study had justified
 one point as the smallest important difference. Evidence that an effect
 is small needs an appropriate comparison and sufficient precision;
 “nonsignificant” alone establishes neither equality nor absence
@@ -1679,9 +1680,9 @@ conclusion.
 Consider these excerpts from the feedback report:
 
 > **Results:** The estimated student-average assignment effect was
-> 2.50 points on the 0-40 assessment administered two weeks after the
+> 2.5 points on the 0--40 assessment administered two weeks after the
 > six-week program. The approximate 95% confidence interval was
-> 1.00 to 4.00 points, with uncertainty reflecting class assignment.
+> 1 to 4 points, with uncertainty reflecting class assignment.
 >
 > **Discussion:** Assignment to explanatory feedback improved average
 > performance on the assessed course topics for eligible students in
@@ -2131,7 +2132,7 @@ one source's arrangement.
 ### Key terms {.unnumbered}
 
 Use this short glossary to revisit the chapter's own vocabulary. The
-concept reference in the Part One introduction gives common
+Part One Concept Reference gives common
 alternative names and the main explanation of the statistical ideas
 the later chapters develop.
 
@@ -2187,9 +2188,9 @@ Consider this short passage from an invented feedback study:
 > format would improve delayed achievement for eligible students in
 > 24 participating classes. We expected explanatory feedback to help
 > students apply the taught material. Classes were randomly allocated to
-> the two formats. The estimated average assignment effect was 2.50 points
+> the two formats. The estimated average assignment effect was 2.5 points
 > on a common assessment two weeks after the six-week program, with a
-> 95% confidence interval from 1.00 to 4.00 points. We conclude
+> 95% confidence interval from 1 to 4 points. We conclude
 > that assignment improved average performance on the assessed topics in
 > these classes under the study conditions.
 
@@ -2198,7 +2199,7 @@ a. Identify the research question, substantive expectation, numerical
    answer and what the answer adds.
 b. State the estimand in words, including the comparison, outcome,
    students, and timing. Explain how it differs from the estimate of
-   2.50 points.
+   2.5 points.
 c. Write a descriptive question that the same assessment records could
    address. Explain how the answer sought differs from the assignment
    effect in the passage.
@@ -2296,9 +2297,9 @@ c. Explain why a GLM could be useful for the student prediction
 <!-- prompt-id: CH01-E05 -->
 ### Exercise 5: Turn a result into a bounded answer (Integrative) {.unnumbered #ex-ch01-05}
 
-In the feedback study, the estimated assignment effect is 2.50 points on
+In the feedback study, the estimated assignment effect is 2.5 points on
 the common 0 to 40 delayed achievement assessment, with an approximate
-95% interval from 1.00 to 4.00 points. The local educational benchmark
+95% interval from 1 to 4 points. The local educational benchmark
 is two points and has a stated assessment-based rationale. The study
 concerns eligible students in participating classes, assessed two weeks
 after a six-week program.
@@ -2393,7 +2394,7 @@ Dropout indicator, coded 1 for Dropout and 0 otherwise, for each of the
 1,328 held-out students.
 At a probability threshold of 0.5, the logistic rule
 identified 73 of the 427 students with recorded Dropout status, about
-17.0960%. Its use for later cohorts and the value of acting on an alert
+17.096%. Its use for later cohorts and the value of acting on an alert
 remain to be established. Semester results
 were excluded because they become available after enrollment; the
 released file also has no cohort-year field for a later-cohort check.
@@ -2413,8 +2414,8 @@ programming.
 
 ### Feedback {.unnumbered}
 
-The invented report supplies an estimated assignment effect of 2.50
-points and a 95% interval from 1.00 to 4.00 points. These quantities support
+The invented report supplies an estimated assignment effect of 2.5
+points and a 95% interval from 1 to 4 points. These quantities support
 the chapter's reading exercises; a numerical derivation is outside this
 example.
 
@@ -2423,7 +2424,7 @@ The report and supporting materials describe the study as follows.
 > **Paper, Methods:** Twelve participating schools contributed two
 > classes each, with 20 eligible students per class. Before the six-week
 > program, 12 of the 24 classes were randomly assigned to each format
-> across the full class pool. A common 0-40 assessment was administered two weeks after the
+> across the full class pool. A common 0--40 assessment was administered two weeks after the
 > program. All 480 eligible students supplied scores and were analyzed
 > according to their class's assignment.
 >
@@ -2488,7 +2489,7 @@ membership when reusing these files.
 
 **Confidence and belonging.** Confidence concerns handling learning
 tasks; belonging concerns acceptance and inclusion in the academic
-community. Three 0-100 confidence indicators concern explaining,
+community. Three 0--100 confidence indicators concern explaining,
 applying, and checking; three belonging indicators concern acceptance,
 inclusion, and participation. @fig-journey-measurement-map shows a
 candidate representation. Each indicator also has variation beyond
@@ -2526,7 +2527,7 @@ arrows(2.35, 1.7, 4.15, 1.7, code = 3, length = .075, col = "#71818C")
 ```
 
 **Language-learning progress.** The four equally spaced assessments
-use a common 0-100 scale. Student A scores 58, 65, 68, and 76; Student B
+use a common 0--100 scale. Student A scores 58, 65, 68, and 76; Student B
 scores 62, 63, 67, and 68. Their successive gains are 7, 3, and 8 points
 and 1, 4, and 1 point, respectively. Student, classroom, school, and
 occasion identifiers preserve the grouping and timing. These trajectories

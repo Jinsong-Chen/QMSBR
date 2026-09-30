@@ -68,6 +68,7 @@ format:
           \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
         \fi
         \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+        \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
         \addtokomafont{sectionentry}{\small}
         \let\chapteroldtableofcontents\tableofcontents
         \renewcommand{\tableofcontents}{\begingroup\small
@@ -313,8 +314,8 @@ it hands to the chapter after it.
 Using one model family repeatedly does not give every record the same
 inferential role. Part Two keeps the analysis history visible so that
 development, first evaluation and independent revalidation are not collapsed
-into one favorable account. Every decision is developmental, planned in
-advance, a planned sensitivity, or post hoc, always in relation to a named
+into one favorable account. Every decision is inherited, prespecified, a
+planned sensitivity, or post hoc, always in relation to a named
 body of evidence, and that status follows the timing and provenance of the
 decision rather than the name of the function that fitted it: a model
 developed after inspecting a record is exploratory with respect to that
@@ -331,7 +332,7 @@ larger analysis, and availability is not permission to use a record early.
 | **SLE Sample B, 360 cases, confirmation** | Chapter 3 estimates the frozen candidate; Chapter 4 evaluates it, diagnoses it, and compares the rivals declared in advance | Independent support for a relation first noticed in Sample B, which stays exploratory until fresh evidence tests it |
 | **SLE Sample C, 360 cases, revalidation** | Chapter 4 evaluates the one revision frozen after Sample B | General validity, measurement invariance, or permission to search Sample C repeatedly for a revision that survives |
 | **Known SLE generating moments** | Chapter 4 discloses them only after the Sample B and Sample C sequence is complete, then computes the population optimum and the population discrepancies directly | Contemporaneous justification for an earlier choice, or a finite-sample conclusion from one realization beyond what the audit separates |
-| **Separate donor microcases** | Compact demonstrations of a specified calculation or model comparison, declared from their own population and seed | The development or confirmation status of the SLE sequence, which they never join |
+| **Separate six-indicator examples** | Compact demonstrations of a specified calculation or model comparison, declared from their own population and seed | The development or confirmation status of the SLE sequence, which they never join |
 
 : *Records keep distinct analytical roles even when they illustrate the same model family.* {#tbl-part-two-evidence tbl-colwidths="[24,38,38]"}
 
@@ -375,8 +376,17 @@ and extensions the main route does not require. A term is explained where it
 is first used, and the chapters carry the statistics themselves: a model
 appears as equations, as parameter matrices, as a path diagram and as an
 explanation, and every reported number is computed for the reader and read in
-prose and in named tables. Results are reported to four decimals from
-full-precision computation unless a source's own precision applies.
+prose and in named tables. Results are rounded to three decimals from
+full-precision computation, with trailing zeros dropped
+(3.1 rather than 3.100), unless a source's own precision applies. Counts and degrees of
+freedom stay whole numbers, values shown together share one number of
+decimals, and a very small probability is shown as a bound, such as below
+.001, rather than as zero. Chapter 1's exactly constructed values appear at
+their natural precision, and a few values carry the digits their purpose
+needs: a very small numerical check is written in scientific notation, and
+Chapter 4 shows its reconstructed discrepancy to six decimals and its
+population discrepancy to seven significant digits, so that the arithmetic
+can be followed.
 
 The software is named where the methods need it rather than taught as a
 course of its own. Chapter 1 asks for none: its records are constructed, its

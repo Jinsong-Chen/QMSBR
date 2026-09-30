@@ -90,8 +90,9 @@ format:
           \usepackage{array}
           \usepackage{float}
           \usepackage{needspace}
-          \AddToHook{cmd/section/before}{\Needspace{8\baselineskip}\phantomsection}
+          \AddToHook{cmd/section/before}{\Needspace{10\baselineskip}\phantomsection}
           \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     df-print: kable
     toc: true
@@ -119,46 +120,465 @@ editor:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
                      collapse = TRUE, comment = "#>")
 if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
-options(digits = 10, width = 65)
+options(digits = 10, width = 65, show.signif.stars = FALSE)
 ```
-
-\clearpage
 
 ::: {.callout-note title="Chapter overview"}
 Chapter 5 made estimates, intervals and tests executable in base R. Here we
 return to Chapter 4's group comparisons and use R to connect a fitted model
-with the question it answers. We begin with three means, compare selected
-differences, and then examine a six-cell pattern. A separate example adds a
-pretest so that a group comparison can hold baseline performance fixed.
+with the question it answers. We begin with three condition means from
+Chapter 4's background-sound experiment and compare selected differences
+inside stated families. We then examine a six-cell pattern from its
+feedback-by-practice study and test how one comparison changes across a
+second factor by comparing two named models on the same records.
 
-Counts require a different response model. They also provide a small example
-of likelihood, which makes a fitting criterion explicit. Finally, simulation
-examines procedures under a stated generating process, and planning relates
-sample size to either power or interval width. Throughout, a useful result
-keeps its data, target, uncertainty calculation and conditions together.
+Counts require a different response model, and the size of a difference
+between two groups' proportions can be stated on several scales, which we
+set side by side. The same counts provide a small example of likelihood,
+which makes a fitting criterion explicit. Finally, simulation examines
+procedures under a stated generating process, and planning relates sample
+size to either power or interval width. Throughout, a useful result keeps
+its data, target, uncertainty calculation and conditions together.
 :::
 
-Chapter 5 made estimates, intervals and tests executable for one mean and
-for one correlation. Studies rarely stop at one mean. Twelve pupils of the
-invented feedback study practised in the massed schedule, four in each of
-three feedback conditions, and their three group means on the 20-item
-assessment are 6, 8 and 10 correct answers. Means that differ in a record
-differ for more than one reason, so the question is what a stated model and
-its conditions let us say about three means at once, and what a single
-answer to that question leaves unsettled. These pupils are authored
-teaching inputs allocated by stipulation, so each analysis shows what a
-procedure reports, not what feedback does.
+Studies rarely stop at one mean. Chapter 4's invented background-sound
+experiment compares mean reading comprehension under three conditions,
+silence, instrumental music and music with lyrics, and its second
+invented study asks how the difference between spaced and massed
+practice changes across three kinds of feedback. Means that differ in a
+record differ for more than one reason, so the question is what a stated
+model and its conditions let us say about several means at once, and
+what a single answer to that question leaves unsettled. Both studies are
+invented teaching inputs, so each analysis shows what a procedure
+reports, not what background sound or feedback does.
 
 ## Fit and read group means {#ch06-group-models}
 
 ### Begin with the question and records
 
-Does mean assessment performance differ across three feedback conditions?
-Chapter 4 developed this question with an invented study of 24 pupils.
-Each pupil was individually assigned to one combination of feedback
-(Rereading, Answer feedback or Explanatory feedback) and practice
-(Massed or Spaced). The outcome is the number correct on a 20-item assessment.
-Four pupils contribute scores to each cell in @tbl-ch06-feedback-data.
+Does mean reading comprehension differ across three background-sound
+conditions? Chapter 4 developed this question with an invented experiment.
+Each of thirty first-year university students read the same passage for
+20 minutes and then answered a 20-item reading-comprehension quiz, scored
+from 0 to 20. Ten students were randomly assigned to each sound condition:
+Silence, Instrumental music or Music with lyrics. Each student supplies
+one quiz score, so @tbl-ch06-sound-data holds thirty scores from thirty
+different students.
+
+| Sound condition | Scores (out of 20) |
+|:--|:--|
+| Silence | 8, 9, 9, 11, 12, 13, 13, 14, 15, 16 |
+| Instrumental music | 6, 8, 8, 9, 9, 11, 11, 12, 12, 14 |
+| Music with lyrics | 4, 5, 6, 7, 8, 8, 9, 10, 11, 12 |
+
+: The same 30 invented comprehension scores as Chapter 4. {#tbl-ch06-sound-data tbl-colwidths="[30,70]"}
+
+These values were constructed to keep the calculations transparent. They
+are teaching inputs, not empirical findings about music and reading. The
+student is both the unit of random assignment and the unit of
+measurement: the ten scores in a condition come from ten different
+students, not from repeated measurements of one student. Silence is the
+natural reference condition, so it comes first.
+
+The following code creates the complete data. The factor levels fix the
+display order, make Silence the reference level for later model
+coefficients and fix the direction of each subtraction. The course data
+file `background_sound.csv` holds the same thirty rows with a student
+identifier; reading it with `read.csv()` and applying the same `factor()`
+levels gives identical results.
+
+```{r}
+#| label: ch06-sound-setup
+sound_data <- data.frame(
+  sound = factor(rep(c("Silence", "Instrumental music",
+    "Music with lyrics"), each = 10),
+    levels = c("Silence", "Instrumental music",
+      "Music with lyrics")),
+  score = c(8, 9, 9, 11, 12, 13, 13, 14, 15, 16,
+    6, 8, 8, 9, 9, 11, 11, 12, 12, 14,
+    4, 5, 6, 7, 8, 8, 9, 10, 11, 12))
+table(sound_data$sound)
+with(sound_data, tapply(score, sound, mean))
+with(sound_data, tapply(score, sound, sd))
+```
+
+Each condition holds ten students. The condition means are 12, 10 and 8
+correct answers, and the grand mean of all thirty scores is 10. The SDs,
+2.7080, 2.4037 and 2.5820, are similar without being identical. Before
+asking whether a difference is large relative to its uncertainty, we can
+see each difference on the quiz's own scale: Instrumental music lies
+2 points and Music with lyrics 4 points below Silence.
+
+@fig-ch06-sound-groups shows every student beside the three condition
+means. Each point is one student's score, moved a small random distance
+sideways so that equal scores in a condition stay visible, and each
+diamond marks a condition mean. Two kinds of variation appear together.
+The diamonds step down by 2 points from Silence to Instrumental music and
+by another 2 points to Music with lyrics, while the ten scores in each
+condition spread across 8 points around their own diamond. Whether a
+2-point step is large depends on that spread within conditions, and the
+model below turns this visual comparison into numbers.
+
+```{r}
+#| label: fig-ch06-sound-groups
+#| echo: false
+#| fig-width: 6.4
+#| fig-height: 3.5
+#| fig-cap: "Individual comprehension scores and their three condition means."
+#| fig-alt: "Ten scores in each of Silence, Instrumental music and Music with lyrics, spread slightly sideways so that tied scores stay visible, lie around means 12, 10 and 8. Larger diamonds mark the means; the three spreads are similar."
+library(ggplot2)
+set.seed(12345)
+group_means <- aggregate(score ~ sound, sound_data, mean)
+p <- ggplot(sound_data, aes(sound, score))
+p + geom_jitter(width = 0.15, height = 0, size = 2) +
+  geom_point(data = group_means, shape = 18, size = 5,
+    colour = "black") +
+  labs(x = "Background sound",
+    y = "Comprehension score (out of 20)") +
+  theme_minimal(base_size = 11)
+```
+
+The figure is drawn with the `ggplot2` package, which describes a graph
+as a data frame, a mapping of variables to position or colour, and layers
+of marks; Computer Lab 6 builds it one layer at a time and sets this way
+of working beside base R and the wider tidyverse.
+
+### Fit the group model and read its decomposition
+
+For student $i$ in sound condition $j$, the one-way model is
+
+$$
+Y_{ij}=\mu_j+\varepsilon_{ij}.
+$$
+
+Here $\mu_j$ is the condition's process mean and $\varepsilon_{ij}$ is its
+student's deviation from that mean. Fitting by least squares estimates
+each $\mu_j$ with the corresponding sample mean, so
+$\widehat Y_{ij}=\bar Y_j$. The residual is $e_{ij}=y_{ij}-\bar y_j$: an
+observed score minus its fitted condition mean. For Silence the fitted
+values are all 12 and the residuals are $-4,-3,-3,-1,0,1,1,2,3,4$.
+
+The model separates differences between conditions from differences
+among students within a condition. Chapter 4's decomposition becomes
+
+$$
+\begin{aligned}
+SS_T&=\sum_{j}\sum_i(y_{ij}-\bar y)^2=SS_B+SS_W,\\
+SS_B&=\sum_j n_j(\bar y_j-\bar y)^2,\\
+SS_W&=\sum_j\sum_i(y_{ij}-\bar y_j)^2.
+\end{aligned}
+$$
+
+The total measures deviation from the grand mean. The between-group term
+measures deviation of the three condition means from that grand mean,
+weighted by their group counts. The within-group term measures deviation
+of students from their own fitted condition means. In this example,
+$SS_B=10(12-10)^2+10(10-10)^2+10(8-10)^2=80$. The squared residuals
+within Silence, Instrumental music and Music with lyrics sum to 66, 52
+and 60, giving $SS_W=178$ and $SS_T=80+178=258$. In
+@fig-ch06-sound-groups these are the steps between the diamonds and the
+spread of the points around them.
+
+The formula `score ~ sound` tells `aov()` to explain score using the
+sound factor, and `anova()` extracts the decomposition from the fitted
+object.
+
+\Needspace{10\baselineskip}
+
+```{r}
+#| label: ch06-oneway-fit
+one_fit <- aov(score ~ sound, data = sound_data)
+anova(one_fit)
+```
+
+Three fitted condition means use three parameters. Consequently the
+within-group degrees of freedom are $30-3=27$. The between-group component
+has $3-1=2$ degrees of freedom, and the total has $30-1=29$. Dividing each
+sum of squares by its degrees of freedom gives a mean square. The
+within-group mean square $MS_W=178/27=6.5926$ estimates the common error
+variance.
+
+| Source | SS | df | MS | F | p |
+|:--|--:|--:|--:|--:|--:|
+| Sound condition | 80 | 2 | 40.0000 | 6.0674 | .0067 |
+| Within groups | 178 | 27 | 6.5926 | | |
+| Total | 258 | 29 | | | |
+
+: One-way ANOVA on the thirty background-sound scores. {#tbl-ch06-oneway}
+
+The null hypothesis is $H_0:\mu_S=\mu_I=\mu_L$ for Silence, Instrumental
+music and Music with lyrics. Under independent Normal errors with a common
+variance, the ratio
+
+$$
+F=\frac{MS_B}{MS_W}=\frac{40}{178/27}=6.0674
+$$
+
+has an $F_{2,27}$ reference distribution when that null holds. The p-value
+.0067 is the probability, under this null model, of an F statistic at least
+this large. At a .05 threshold it provides evidence against equal process
+means. It does not say that every pair of conditions differs, that every
+kind of background sound changes comprehension, or that the invented
+result establishes a real effect of music on reading. The next section
+asks the individual comparison questions.
+
+The observed share of score variation associated with these condition
+means is
+
+$$
+\eta^2=\frac{SS_B}{SS_T}=\frac{80}{258}=.3101.
+$$
+
+This is an in-sample variation summary, accompanying differences expressed
+in score points. It is neither the probability that background sound
+caused a result nor a replacement for a confidence interval. The
+bias-adjusted omega-squared of Chapter 4, Appendix B.2, is .2525 for
+these scores, and the Computer Lab rebuilds both summaries from the scores.
+
+### Express the same fit with indicators
+
+A factor with three levels can also enter a linear model as two indicator
+variables. Let $D_I=1$ for Instrumental music and 0 otherwise, and let
+$D_L=1$ for Music with lyrics and 0 otherwise. Silence has both indicators
+0. The fitted equation is
+
+$$
+\widehat y=12-2D_I-4D_L.
+$$
+
+Substituting the indicators gives 12 for Silence, $12-2=10$ for
+Instrumental music and $12-4=8$ for Music with lyrics. The intercept is
+the reference mean; each other coefficient is a difference from that mean,
+negative here because both music conditions have lower means than Silence.
+The factor order in the original setup makes Silence the reference level.
+
+```{r}
+#| label: ch06-indicator-fit
+indicator_fit <- lm(score ~ sound, data = sound_data)
+coef(indicator_fit)
+```
+
+`lm()` and `aov()` describe the same set of fitted means, so they give the
+same residuals and the same ANOVA table. The formula names the outcome and
+the explanatory variable; the study's design supplies the independence
+assumption. A different reference level changes which comparisons the
+coefficients name, but not the fitted means, the residuals or the table:
+with Instrumental music as the reference, the coefficients become 10, 2
+and $-2$. This indicator representation prepares the named models of
+Section 3.2. Chapter 7 develops a continuous predictor's slope, and
+Chapter 8 extends the conditional interpretation to several predictors.
+
+## Ask comparisons within stated families {#ch06-contrast-families}
+
+### Specify the comparison and its standard error
+
+Suppose the two questions compare each music condition with Silence:
+Instrumental music versus Silence, and Music with lyrics versus Silence.
+In the order Silence, Instrumental music, Music with lyrics, their
+coefficient vectors are $(-1,1,0)$ and $(-1,0,1)$. Each vector sums to
+zero. A quantity
+
+$$
+C=\sum_jc_j\mu_j,\qquad \sum_jc_j=0,
+$$
+
+is a contrast of the process means. Its estimate replaces process means with
+the observed group means:
+$\widehat C=\sum_jc_j\bar y_j$. Thus our estimates are $-2$ and $-4$
+points: both music conditions lie below Silence. Calling a comparison a
+contrast specifies this mathematical form; it does not say whether the
+comparison was planned before seeing the results or selected afterward.
+That is additional information about the analysis.
+
+For independent groups with a common error variance, Chapter 4 extends
+Chapter 3's pooled SE, $s_p\sqrt{1/n_1+1/n_0}$, from two means to a
+contrast by replacing $s_p^2$ with $MS_W$:
+
+$$
+SE(\widehat C)=\sqrt{MS_W\sum_j\frac{c_j^2}{n_j}}.
+$$
+
+Each comparison uses two of the means, so both have estimated SE
+$\sqrt{(178/27)(1/10+1/10)}=1.1483$ points. The third condition still
+contributes to the common error estimate and its 27 residual degrees of
+freedom. This matters when comparing these results with an analysis
+restricted to only two conditions.
+
+### Calibrate the two-comparison family
+
+An individual 95% interval uses a .05 error probability for that one
+comparison. The declared family here is *each music condition against
+Silence*. To cover both of its comparisons with at least 95% familywise
+confidence, Bonferroni allocates .025 to each two-sided comparison. Each
+tail then receives $.05/(2\times2)=.0125$. The calibration uses the $t$
+reference distribution with the model's 27 residual degrees of freedom
+[@student1908], giving the critical value
+
+$$
+t_{1-.05/(2\times2),27}=2.3734.
+$$
+
+The calculations retain the same estimates and SEs but multiply each SE by
+this larger critical value. The following code extracts the common variance
+estimate from the fitted object and calculates both results from unrounded
+inputs.
+
+\Needspace{8\baselineskip}
+
+```{r}
+#| label: ch06-bonferroni
+mse <- deviance(one_fit) / df.residual(one_fit)
+means <- with(sound_data, tapply(score, sound, mean))
+estimate <- c(Instrumental = unname(means[2] - means[1]),
+  Lyrics = unname(means[3] - means[1]))
+se <- sqrt(mse * (1/10 + 1/10))
+critical <- qt(1 - .05/(2*2), df.residual(one_fit))
+raw_p <- 2 * pt(-abs(estimate/se), df.residual(one_fit))
+cbind(estimate, SE = se, lower = estimate-critical*se,
+  upper = estimate+critical*se,
+  adjusted_p = p.adjust(raw_p, method = "bonferroni"))
+```
+
+| Comparison | Estimate | SE | Simultaneous interval | Adjusted p |
+|:--|--:|--:|:--|--:|
+| Instrumental music minus Silence | $-2$ | 1.1483 | [$-4.7253$, 0.7253] | .1859 |
+| Music with lyrics minus Silence | $-4$ | 1.1483 | [$-6.7253$, $-1.2747$] | .0034 |
+
+: Bonferroni results for the declared family of two comparisons. {#tbl-ch06-bonferroni tbl-colwidths="[34,13,11,28,14]"}
+
+Multiplying each raw p-value by two and capping at one gives the
+corresponding Bonferroni-adjusted p-value. Music with lyrics minus Silence
+is distinguishable from zero with this familywise calibration: its whole
+interval lies below zero. The Instrumental-music interval includes zero
+although the omnibus ANOVA rejected equality. It allows a difference from
+4.7253 points below Silence to 0.7253 points above it. The two results are
+compatible, because the omnibus test and each contrast address different
+statements.
+
+The family calibration has a purpose and a price. Chapter 4, Section 3.3,
+defined the familywise error rate as the probability that a declared
+family produces at least one false rejection when every null in it holds.
+Two independent comparisons, each calibrated at .05, would leave that rate
+at $1-.95^2=.0975$. These two comparisons share the Silence mean, and
+dividing .05 across the family bounds the rate at .05 under any
+dependence between them. The guarantee is paid for in width, which
+Section 2.3 compares, and in power. Suppose a replication of this study
+used three balanced groups and took this study's error SD,
+$\sqrt{178/27}=2.5676$, as its planning value. A 2-point difference would
+first reach .8 power at 27 students per group when the comparison stands
+alone, and at 33 per group when it belongs to the two-comparison family.
+Section 6 shows how such targets are calculated, there with the smaller
+planning SD of the feedback study. Declare the family from the question
+before seeing the results; enlarging it afterwards spends that power on
+questions nobody asked.
+
+### Compare with an all-pairs family
+
+If the question includes every pair, there are three comparisons. Tukey's
+procedure uses the joint distribution of pairwise mean differences under the
+common-variance Normal-error model. `TukeyHSD()` supplies those simultaneous
+intervals and their adjusted p-values [@tukey1953].
+
+\Needspace{8\baselineskip}
+
+```{r}
+#| label: ch06-tukey
+TukeyHSD(one_fit, "sound", conf.level = .95)
+```
+
+The output labels each subtraction direction. Music with lyrics minus
+Silence is $-4$, with interval [$-6.847$, $-1.153$] and adjusted p
+.0047. Instrumental music minus Silence and Music with lyrics minus
+Instrumental music both equal $-2$, with interval [$-4.847$, 0.847] and
+adjusted p .2085. @tbl-ch06-calibrations sets one comparison, Instrumental
+music minus Silence, under the three calibrations met so far.
+
+\Needspace{8\baselineskip}
+
+| Calibration | Family protected | Multiplier | 95% interval |
+|:--|:--|--:|:--|
+| Pointwise t | This comparison alone | 2.0518 | [$-4.3561$, 0.3561] |
+| Bonferroni | The two comparisons with Silence | 2.3734 | [$-4.7253$, 0.7253] |
+| Tukey | All three pairs | 2.4794 | [$-4.8470$, 0.8470] |
+
+: Instrumental music minus Silence, $-2$ points with SE 1.1483, under three calibrations. {#tbl-ch06-calibrations tbl-colwidths="[17,39,16,28]"}
+
+The estimate, $-2$, and its SE, 1.1483, are the same in every row; only
+the multiplier changes. A larger protected family needs a larger
+multiplier to hold its familywise error rate at .05, so its intervals are
+wider. An interval should therefore be read together with the comparison
+and the family it represents.
+
+The all-pairs family also covers a comparison chosen after seeing the
+means. Suppose Music with lyrics minus Silence were reported because it is
+the largest observed difference. That choice looked at all three pairs, so
+its calibration would come from the all-pairs family, [$-6.8470$,
+$-1.1530$], rather than from the declared two-comparison family,
+[$-6.7253$, $-1.2747$]. An omnibus rejection does not by itself protect
+any comparison selected after examining the means. Conversely, a
+separately specified contrast can have its own valid uncertainty procedure
+without requiring omnibus rejection as an automatic preliminary gate. The
+relevant information is the question, selection process and calibration,
+rather than a universal sequence of significance decisions.
+
+### Check what changes when the variance model changes
+
+The common-variance model assumes that within-group variability estimates
+one shared error variance. In a real study, design information and observed
+patterns help assess that working model. A small normality or variance test
+cannot certify it, and ten students per condition give limited information
+about the error distribution. In these invented data the three SDs, 2.7080,
+2.4037 and 2.5820, are similar by construction, and every condition's
+residuals lie between $-4$ and 4. In @fig-ch06-sound-groups each residual
+is a point's vertical distance from its diamond, and the three conditions
+spread alike.
+
+For independent groups whose error variances may differ, Welch's one-way
+procedure provides an alternative [@welch1947]. It is the several-group
+counterpart of Chapter 3's Welch t test, as Chapter 4's conditions section
+explains. R selects it by default in `oneway.test()` [@rcore2025]:
+
+\Needspace{8\baselineskip}
+
+```{r}
+#| label: ch06-welch-oneway
+oneway.test(score ~ sound, data = sound_data)
+```
+
+It gives $F(2, 17.9561)=5.5144$ and p .0136, beside the pooled
+$F(2,27)=6.0674$ and p .0067. Welch weights each condition mean by
+$n_j/s_j^2$, the inverse of its own estimated sampling variance, and
+refers the statistic to fewer denominator degrees of freedom because each
+condition now estimates its own variance. With similar observed SDs the
+two procedures reach the same conclusion at .05, while their p-values
+differ. Each p-value belongs to its own variance model and small-sample
+calibration, so the two are results to explain through those assumptions
+rather than votes on which numerical conclusion to prefer. With small
+groups or clearly unequal spreads, the model choice can matter
+appreciably.
+
+A useful exact identity connects Chapter 3's equal-variance (pooled)
+two-sample t test, requested with `var.equal = TRUE`, with a two-group
+ANOVA: $F=t^2$, with the same two-sided p-value. It requires the same records,
+equal-variance denominator and group comparison. R's default `t.test()` is
+Welch's test, Chapter 3's last t procedure, and does not meet that
+specification. Nor is our three-group contrast the same calculation,
+because it uses residual information from the third condition. The
+Computer Lab reproduces the matched identity for Silence and Instrumental
+music.
+
+## Compare a two-way pattern {#ch06-factorial-comparisons}
+
+### Read cells and margins before fitting
+
+Chapter 4's second study asks how one comparison changes across a second
+factor. In this invented study, each of 24 pupils was individually
+assigned to one combination of feedback (Rereading, Answer feedback or
+Explanatory feedback) and practice (Massed or Spaced). The outcome is the
+number correct on a 20-item assessment. A cell is one combination of
+feedback and practice, and four pupils contribute scores to each cell in
+@tbl-ch06-feedback-data. The question is how the Spaced-minus-Massed
+comparison changes across feedback conditions.
 
 | Feedback | Massed scores | Spaced scores |
 |:--|:--|:--|
@@ -175,10 +595,8 @@ are not repeated measurements of one pupil. Repeated patterns in their
 deviations were deliberately chosen and cannot establish assumptions about a
 population.
 
-The following code creates the complete data. The factor levels specify the
-display order and the reference group for subsequent model coefficients.
-`subset()` selects the twelve pupils assigned to Massed practice; the selected
-rows still represent twelve distinct pupils.
+The following code creates the complete data. The factor levels specify
+the display order and the reference levels for later model coefficients.
 
 ```{r}
 #| label: ch06-feedback-setup
@@ -192,328 +610,12 @@ feedback_data <- data.frame(
     each = 4), 3), levels = c("Massed", "Spaced")),
   score = c(4,5,7,8, 4,5,7,8, 6,7,9,10, 10,11,13,14,
     8,9,11,12, 16,17,19,20))
-massed <- subset(feedback_data, practice == "Massed")
-table(massed$feedback)
-with(massed, tapply(score, feedback, mean))
-with(massed, tapply(score, feedback, sd))
 ```
 
-The Massed means are 6, 8 and 10 correct answers, with four pupils in each
-group and a sample SD of 1.8257 in every group. Their grand mean is 8.
-Before asking whether a difference is large relative to its uncertainty,
-we can see the difference on the outcome's own scale: Answer feedback exceeds
-Rereading by 2 points and Explanatory feedback exceeds it by 4 points.
+Computing cell counts and means before fitting any model makes the six
+cells and their denominators visible.
 
-### Extend a graph one useful component at a time
-
-Chapter 5 used base-R plotting functions. The package `ggplot2` provides
-another way to describe a graph: name a data frame, map its variables to
-visual properties, and add the kinds of marks that should be drawn. Its
-incremental advantage is that another layer or mapping can extend the same
-description without rebuilding the graph from separate drawing commands.
-Load this one package after its installation has been checked in the
-Computer Lab.
-
-```{r}
-#| label: ch06-first-ggplot
-#| fig-width: 6.4
-#| fig-height: 2.9
-#| fig-alt: "The first ggplot places the twelve Massed pupil scores in three vertical groups, labelled Rereading, Answer feedback and Explanatory feedback."
-library(ggplot2)
-p <- ggplot(massed, aes(feedback, score))
-p + geom_point()
-```
-
-`ggplot(massed, ...)` supplies the records. Inside `aes()`, the feedback
-variable maps to horizontal position and score maps to vertical position.
-`geom_point()` adds one point for each record. The object `p` stores the
-data and mapping; the expression with `+` adds a plotting component.
-
-We can now add the three group means as larger diamonds. `aggregate()` uses
-the same twelve scores to make one mean per feedback group. The second point
-layer inherits the mapping from `p` but uses this three-row data frame.
-
-```{r}
-#| label: fig-ch06-feedback-groups
-#| fig-width: 6.4
-#| fig-height: 3.5
-#| fig-cap: "Individual Massed scores and their three group means."
-#| fig-alt: "Four scores in each of Rereading, Answer feedback and Explanatory feedback lie around means 6, 8 and 10. Larger diamonds mark the means; all groups have the same constructed spread."
-group_means <- aggregate(score ~ feedback, massed, mean)
-p + geom_point(size = 2) +
-  geom_point(data = group_means, shape = 18, size = 4,
-    colour = "black") +
-  labs(x = "Feedback", y = "Number correct (out of 20)") +
-  theme_minimal(base_size = 11)
-```
-
-The fixed colour is an argument outside `aes()`. Later, placing a variable
-inside `aes(colour = ...)` will give different colours to its levels and
-create a legend. `labs()` names the axes, and `theme_minimal()` changes their
-presentation. Neither changes the observations or the means. In
-@fig-ch06-feedback-groups the raw points keep the denominator and within-group
-variation visible beside the means.
-
-### Fit the group model and read its decomposition
-
-For pupil $i$ in feedback group $j$, the one-way model is
-
-$$
-Y_{ij}=\mu_j+\varepsilon_{ij}.
-$$
-
-Here $\mu_j$ is the group's process mean and $\varepsilon_{ij}$ is its pupil's
-deviation from that mean. Fitting by least squares estimates each $\mu_j$
-with the corresponding sample mean, so $\widehat Y_{ij}=\bar Y_j$.
-The residual is $e_{ij}=y_{ij}-\bar y_j$: an observed score minus its fitted
-group mean. For the first group the fitted values are all 6 and the residuals
-are $-2,-1,1,2$.
-
-The model lets us separate differences between groups from differences among
-pupils within a group. Chapter 4's decomposition becomes
-
-$$
-\begin{aligned}
-SS_T&=\sum_{j}\sum_i(y_{ij}-\bar y)^2=SS_B+SS_W,\\
-SS_B&=\sum_j n_j(\bar y_j-\bar y)^2,\\
-SS_W&=\sum_j\sum_i(y_{ij}-\bar y_j)^2.
-\end{aligned}
-$$
-
-The total measures deviation from the grand mean. The between-group term
-measures deviation of the three group means from that grand mean, weighted
-by their group counts. The within-group term measures deviation of pupils
-from their own fitted group means. In this example,
-$SS_B=4(6-8)^2+4(8-8)^2+4(10-8)^2=32$ and each group contributes
-$(-2)^2+(-1)^2+1^2+2^2=10$ to $SS_W$, giving $SS_W=30$.
-
-The formula `score ~ feedback` tells `aov()` to explain score using the
-feedback factor. `anova()` extracts the decomposition from the fitted
-object; `fitted()` and `resid()` expose its predicted values and residuals.
-
-```{r}
-#| label: ch06-oneway-fit
-one_fit <- aov(score ~ feedback, data = massed)
-anova(one_fit)
-fitted(one_fit)
-resid(one_fit)
-```
-
-Three fitted group means use three parameters. Consequently the within-group
-degrees of freedom are $12-3=9$. The between-group component has $3-1=2$
-degrees of freedom, and the total has $12-1=11$. Dividing each sum of squares
-by its degrees of freedom gives a mean square. The within-group mean square
-$MS_W=30/9=3.3333$ estimates the common error variance.
-
-| Source | SS | df | MS | F | p |
-|:--|--:|--:|--:|--:|--:|
-| Feedback | 32.0000 | 2 | 16.0000 | 4.8000 | .0381 |
-| Within groups | 30.0000 | 9 | 3.3333 | | |
-| Total | 62.0000 | 11 | | | |
-
-: One-way ANOVA on the twelve Massed pupils. {#tbl-ch06-oneway}
-
-The null hypothesis is $H_0:\mu_R=\mu_A=\mu_E$. Under independent Normal
-errors with a common variance, the ratio
-
-$$
-F=\frac{MS_B}{MS_W}=\frac{16}{30/9}=4.8000
-$$
-
-has an $F_{2,9}$ reference distribution when that null holds. The p-value
-.0381 is the probability, under this null model, of an F statistic at least
-this large. At a .05 threshold it provides evidence against equal process
-means. It does not say that every pair differs, that all feedback improves
-performance, or that the invented result establishes a real intervention
-effect. The next section asks the individual comparison questions.
-
-The observed share of score variation associated with these group means is
-
-$$
-\eta^2=\frac{SS_B}{SS_T}=\frac{32}{62}=.5161.
-$$
-
-This is an in-sample variation summary, accompanying differences expressed in
-score points. It is neither the probability that feedback caused a result
-nor a replacement for a confidence interval. Appendix A gives the related
-bias-adjusted omega-squared calculation, with its denominator and interpretation.
-
-### Express the same fit with indicators
-
-A factor with three levels can also enter a linear model as two indicator
-variables. Let $D_A=1$ for Answer feedback and 0 otherwise, and let $D_E=1$
-for Explanatory feedback and 0 otherwise. Rereading has both indicators 0.
-The fitted equation is
-
-$$
-\widehat y=6+2D_A+4D_E.
-$$
-
-Substituting the indicators gives 6 for Rereading, $6+2=8$ for Answer feedback
-and $6+4=10$ for Explanatory feedback. The intercept is the reference mean;
-each other coefficient is a difference from that mean. The factor order in
-the original setup makes Rereading the reference level.
-
-```{r}
-#| label: ch06-indicator-fit
-indicator_fit <- lm(score ~ feedback, data = massed)
-coef(indicator_fit)
-anova(indicator_fit)
-```
-
-`lm()` and `aov()` describe the same set of fitted means and give the same
-residuals and ANOVA here. The formula names the outcome and explanatory
-variable; the study's design supplies the independence assumption. This
-indicator representation will make the adjusted group comparison easier to
-read. Chapter 7 develops a continuous predictor's slope, and Chapter 8
-extends the conditional interpretation to several predictors.
-
-## Ask comparisons within stated families {#ch06-contrast-families}
-
-### Specify the comparison and its standard error
-
-Suppose the two questions concern Answer feedback versus Rereading and
-Explanatory feedback versus Rereading, among Massed pupils. In the order
-Rereading, Answer feedback, Explanatory feedback, their coefficient vectors
-are $(-1,1,0)$ and $(-1,0,1)$. Each vector sums to zero. A quantity
-
-$$
-C=\sum_jc_j\mu_j,\qquad \sum_jc_j=0,
-$$
-
-is a contrast of the process means. Its estimate replaces process means with
-the observed group means:
-$\widehat C=\sum_jc_j\bar y_j$. Thus our estimates are 2 and 4 points.
-Calling a comparison a contrast specifies this mathematical form; it does
-not say whether the comparison was planned before seeing the results or
-selected afterward. That is additional information about the analysis.
-
-For independent groups with a common error variance, Chapter 3's variance
-rule for a linear combination gives
-
-$$
-SE(\widehat C)=\sqrt{MS_W\sum_j\frac{c_j^2}{n_j}}.
-$$
-
-Each comparison uses two of the means, so both have estimated SE
-$\sqrt{(30/9)(1/4+1/4)}=1.2910$ points. The third group still contributes
-to the common error estimate and its 9 residual degrees of freedom.
-This matters when comparing these results with an analysis restricted to
-only two groups.
-
-### Calibrate the two-comparison family
-
-An individual 95% interval uses a .05 error probability for that one
-comparison. To cover both declared comparisons with at least 95% familywise
-confidence, Bonferroni allocates .025 to each two-sided comparison. Each tail
-then receives $.05/(2\times2)=.0125$. The calibration uses the $t$
-reference distribution with the model's 9 residual degrees of freedom
-[@student1908], giving the critical value
-
-$$
-t_{1-.05/(2\times2),9}=2.6850.
-$$
-
-The calculations retain the same estimates and SEs but multiply each SE by
-this larger critical value. The following code extracts the common variance
-estimate from the fitted object and calculates both results from unrounded
-inputs.
-
-```{r}
-#| label: ch06-bonferroni
-mse <- deviance(one_fit) / df.residual(one_fit)
-means <- with(massed, tapply(score, feedback, mean))
-estimate <- c(Answer = unname(means[2] - means[1]),
-  Explain = unname(means[3] - means[1]))
-se <- sqrt(mse * (1/4 + 1/4))
-critical <- qt(1 - .05/(2*2), df.residual(one_fit))
-raw_p <- 2 * pt(-abs(estimate/se), df.residual(one_fit))
-cbind(estimate, SE = se, lower = estimate-critical*se,
-  upper = estimate+critical*se,
-  adjusted_p = p.adjust(raw_p, method = "bonferroni"))
-```
-
-| Comparison | Estimate | SE | Simultaneous interval | Adjusted p |
-|:--|--:|--:|:--|--:|
-| Answer minus Rereading | 2.0000 | 1.2910 | [$-1.4663$, 5.4663] | .3115 |
-| Explanatory minus Rereading | 4.0000 | 1.2910 | [0.5337, 7.4663] | .0255 |
-
-: Bonferroni results for the declared family of two comparisons. {#tbl-ch06-bonferroni tbl-colwidths="[32,13,13,28,14]"}
-
-Multiplying each raw p-value by two and capping at one gives the corresponding
-Bonferroni-adjusted p-value. Explanatory minus Rereading is distinguishable
-from zero with this familywise calibration, whereas Answer minus Rereading
-is not. Its interval allows both a small negative difference and a positive
-difference of several points. This uncertainty is compatible with the earlier
-omnibus rejection: the omnibus test and each contrast address different
-statements.
-
-### Compare with an all-pairs family
-
-If the question includes every pair, there are three comparisons. Tukey's
-procedure uses the joint distribution of pairwise mean differences under the
-common-variance Normal-error model. `TukeyHSD()` supplies those simultaneous
-intervals and their adjusted p-values [@tukey1953].
-
-```{r}
-#| label: ch06-tukey
-TukeyHSD(one_fit, "feedback", conf.level = .95)
-```
-
-The output labels each subtraction direction. Explanatory minus Rereading is
-4, with interval [0.3955, 7.6045] and adjusted p .0310. Answer minus Rereading
-and Explanatory minus Answer both equal 2, with intervals [$-1.6045$, 5.6045]
-and adjusted p .3150. These limits differ from the preceding intervals
-because the declared family and its calibration differ. An interval should
-therefore be read together with the comparison and family it represents.
-
-An omnibus rejection does not by itself protect any comparison selected
-after examining the means. Conversely, a separately specified contrast can
-have its own valid uncertainty procedure without requiring omnibus rejection
-as an automatic preliminary gate. The relevant information is the question,
-selection process and calibration, rather than a universal sequence of
-significance decisions.
-
-### Check what changes when the variance model changes
-
-The common-variance model assumes that within-group variability estimates
-one shared error variance. In a real study, design information and observed
-patterns help assess that working model. A small normality or variance test
-cannot certify it, especially with four pupils per group. Here the identical
-SDs were deliberately constructed.
-
-For independent groups whose error variances may differ, Welch's one-way
-procedure provides an alternative [@welch1947]. R selects it by default in
-`oneway.test()` [@rcore2025]:
-
-```{r}
-#| label: ch06-welch-oneway
-oneway.test(score ~ feedback, data = massed)
-```
-
-It gives $F(2,6)=4.3200$, p .0688. Although the observed group SDs happen to
-be equal, Welch's small-sample correction and reference degrees of freedom
-differ from the pooled-variance ANOVA. Its uncertainty calculation is built
-for a different variance model. The two p-values are therefore results to
-explain through their assumptions and calibration, rather than votes on
-which numerical conclusion to prefer. With small groups, the model choice
-can matter appreciably.
-
-A useful exact identity connects a two-group pooled t test with a two-group
-ANOVA: $F=t^2$, with the same two-sided p-value. It requires the same records,
-equal-variance denominator and group comparison. R's default Welch t test
-does not meet that specification. Nor is our three-group contrast the same
-calculation, because it uses residual information from the third group.
-Appendix A reproduces the matched identity explicitly.
-
-## Compare a two-way pattern {#ch06-factorial-comparisons}
-
-### Read cells and margins before fitting
-
-We now return to all 24 pupils and ask how the Spaced-minus-Massed comparison
-changes across feedback conditions. A cell is one combination of feedback
-and practice. Computing cell counts and means first makes the six cells
-and their denominators visible.
+\Needspace{15\baselineskip}
 
 ```{r}
 #| label: ch06-cell-summaries
@@ -521,10 +623,12 @@ with(feedback_data, table(feedback, practice))
 cell_mean <- with(feedback_data,
   tapply(score, list(feedback, practice), mean))
 cell_mean
-rowMeans(cell_mean)
-colMeans(cell_mean)
-mean(feedback_data$score)
 ```
+
+\Needspace{12\baselineskip}
+
+@tbl-ch06-cell-means adds the margins and the three practice changes to
+these cell means.
 
 | Feedback | Massed | Spaced | Equally weighted margin | Spaced minus Massed |
 |:--|--:|--:|--:|--:|
@@ -541,13 +645,14 @@ equally across the three feedback conditions. In an unbalanced design, a
 margin must specify its weights: the observed mix of pupils and an equally
 weighted target can answer different questions.
 
-The new graph uses the same data/mapping/layer idea as the earlier group
-plot. Here a colour identifies each feedback condition and `group` identifies
-the means to connect. The line joins separate cell means; it does not trace
-individual pupils across repeated measurements.
+@fig-ch06-feedback-interaction draws the six cell means with one line for
+each feedback condition. Each line joins two separate cell means; it does
+not trace individual pupils across repeated measurements.
 
 ```{r}
 #| label: fig-ch06-feedback-interaction
+#| echo: false
+#| fig-pos: "!ht"
 #| fig-width: 6.4
 #| fig-height: 3.6
 #| fig-cap: "The practice difference depends on feedback."
@@ -561,14 +666,12 @@ ggplot(cell_plot, aes(practice, score, colour = feedback,
   theme_minimal(base_size = 11)
 ```
 
-`colour = feedback` is inside `aes()` because a variable now determines
-colour. The mapping also creates the legend. The observed changes are 0,
-4 and 8 points, producing nonparallel lines in
-@fig-ch06-feedback-interaction. This describes interaction in the observed
-means. Inference about a process interaction additionally requires a model
-and a measure of residual variation.
+The observed changes are 0, 4 and 8 points, so the three lines have
+different slopes. This describes interaction in the observed means.
+Inference about a process interaction additionally requires a model and a
+measure of residual variation.
 
-### Fit the full model and identify its tests
+### Fit the full model, identify its tests and compare nested models
 
 Chapter 4 wrote the two-way model as
 
@@ -587,10 +690,11 @@ shift freely while leaving the same fitted means.
 There is one grand-mean parameter, $3-1=2$ feedback degrees of freedom,
 $2-1=1$ practice degree of freedom, and $(3-1)(2-1)=2$ interaction degrees
 of freedom. Together these describe six fitted cell means. The model
-therefore has $24-6=18$ residual degrees of freedom.
+therefore has $24-6=18$ residual degrees of freedom. In an R formula,
+`feedback * practice` includes both main effects and their interaction.
+It expands to `feedback + practice + feedback:practice`.
 
-In an R formula, `feedback * practice` includes both main effects and their
-interaction. It expands to `feedback + practice + feedback:practice`.
+\Needspace{12\baselineskip}
 
 ```{r}
 #| label: ch06-factorial-fit
@@ -599,13 +703,15 @@ two_fit <- aov(score ~ feedback * practice,
 anova(two_fit)
 ```
 
+\Needspace{9\baselineskip}
+
 | Source | SS | df | MS | F | p |
 |:--|--:|--:|--:|--:|--:|
-| Feedback | 256.0000 | 2 | 128.0000 | 38.4000 | < .0001 |
-| Practice | 96.0000 | 1 | 96.0000 | 28.8000 | < .0001 |
-| Interaction | 64.0000 | 2 | 32.0000 | 9.6000 | .0015 |
-| Residual | 60.0000 | 18 | 3.3333 | | |
-| Total | 476.0000 | 23 | | | |
+| Feedback | 256 | 2 | 128.0000 | 38.4 | < .0001 |
+| Practice | 96 | 1 | 96.0000 | 28.8 | < .0001 |
+| Interaction | 64 | 2 | 32.0000 | 9.6 | .0015 |
+| Residual | 60 | 18 | 3.3333 | | |
+| Total | 476 | 23 | | | |
 
 : Full balanced factorial decomposition. {#tbl-ch06-factorial}
 
@@ -614,7 +720,7 @@ over practice. The practice test concerns equality of practice margins
 averaged equally over feedback. The interaction test asks whether the
 practice difference is the same across all feedback conditions. With
 independent Normal errors of common variance, its null reference is
-$F_{2,18}$; the observed value 9.6000 and p .0015 provide evidence against
+$F_{2,18}$; the observed value 9.6 and p .0015 provide evidence against
 that common-difference null.
 
 The balanced layout makes the source components orthogonal: the variation
@@ -622,8 +728,72 @@ attributed to one component does not compete with another component for
 the same fitted direction. A single-model `anova()` table ordinarily uses
 sequential sums of squares, entering terms in formula order. This convenient
 balanced decomposition should not be extended automatically to unbalanced
-or adjusted data. Later in this chapter, we compare explicitly named nested
-models on identical rows to specify adjusted questions.
+data.
+
+To see why, suppose the two Explanatory–Spaced pupils who scored 19 and 20
+were unavailable. The cell counts become 4, 4, 4, 4, 4 and 2, and the full
+model leaves $22-6=16$ residual degrees of freedom. The equally weighted
+Spaced margin is then $(6+12+16.5)/3=11.5$, whereas the mean of the ten
+remaining Spaced pupils is 10.5: two answers to two different questions.
+@tbl-ch06-unbalanced refits the full model to the 22 remaining pupils with
+the formula written in each order.
+
+\Needspace{10\baselineskip}
+
+| Term | Formula `feedback * practice` | Formula `practice * feedback` |
+|:--|--:|--:|
+| Feedback | 139.7576 | 157.7500 |
+| Practice | 52.0833 | 34.0909 |
+| Interaction | 36.2500 | 36.2500 |
+| Residual | 50.5000 | 50.5000 |
+
+: Sequential sums of squares for the 22 remaining pupils, by the order of the formula. {#tbl-ch06-unbalanced tbl-colwidths="[28,36,36]"}
+
+Sequential sums of squares give each term only what the terms entered
+before it have not taken. The feedback and practice rows therefore move
+with the order, while the interaction and the residual stay where they
+are. With unequal cells, one sequential table does not supply order-free
+tests of the main effects. Naming the two models to be compared does.
+
+The interaction row can itself be read as a comparison of two fits to the
+same 24 pupils. The **additive model**, `score ~ feedback + practice`,
+gives every feedback condition the same Spaced-minus-Massed difference;
+the **full model**, `score ~ feedback * practice`, lets that difference
+vary. For nested models fitted to the same response and records, with
+residual sum of squares $RSS_0$ on $df_0$ degrees of freedom for the
+smaller model and $RSS_1$ on $df_1$ for the larger,
+
+$$
+F=\frac{(RSS_0-RSS_1)/(df_0-df_1)}{RSS_1/df_1}
+=\frac{(124-60)/(20-18)}{60/18}=9.6,
+$$
+
+with the denominator taken from the larger model. The following code fits
+both models with `lm()` and compares them.
+
+\Needspace{8\baselineskip}
+
+```{r}
+#| label: ch06-nested-f
+additive_fit <- lm(score ~ feedback + practice, data = feedback_data)
+full_fit <- lm(score ~ feedback * practice, data = feedback_data)
+coef(additive_fit)
+anova(additive_fit, full_fit)
+```
+
+The additive coefficients, 4 for Rereading under Massed practice, 4 and 8
+for Answer and Explanatory feedback minus Rereading, and 4 for Spaced
+minus Massed, show the single practice difference that the smaller model
+imposes. The comparison returns $F(2,18)=9.6$ and $p=.0015$: the
+interaction row of @tbl-ch06-factorial, now read as a question about two
+named models. Because it names both models, no term's position in a
+formula enters it. For the 22 remaining pupils, the additive model (RSS
+86.75 on 18 df) against the full model (RSS 50.50 on 16 df) gives
+$F(2,16)=5.7426$ and $p=.0132$, whichever order the formula uses. Keep
+the response and the records explicitly the same, because default removal
+of missing values can otherwise change the comparison. Chapter 9,
+Section 2, uses the same comparison of named models for the analysis of
+covariance and its parallel-slopes check.
 
 The feedback and practice margins remain meaningful descriptions, but the
 interaction clarifies their limits. For example, the 4-point overall practice
@@ -662,6 +832,8 @@ $$
 The complete calculation keeps the cell subtraction, residual variance and
 family calibration visible:
 
+\Needspace{13\baselineskip}
+
 ```{r}
 #| label: ch06-selected-interaction
 dd <- (cell_mean["Answer feedback", "Spaced"] -
@@ -675,7 +847,7 @@ c(estimate = dd, SE = se_dd, multiplier = scheffe)
 dd + c(-1, 1) * scheffe * se_dd
 ```
 
-The resulting interval is $4\pm2.6663(1.8257)=[-0.8680,8.8680]$.
+The resulting interval is $4\pm2.6663(1.8257)=[-0.868,8.868]$.
 It includes zero even though the interaction F test rejects its null.
 The F test asks whether both interaction directions are zero jointly;
 this interval addresses one selected direction while allowing for the
@@ -683,272 +855,37 @@ entire family. Other directions can carry substantial evidence, and a
 simultaneous interval for this direction can remain broad. Neither result
 cancels the other.
 
-Three related quantities help distinguish the questions. Answer feedback's
-simple practice effect is 4, with SE 1.2910 and pointwise t interval
-[1.2877, 6.7123]. The selected DD also happens to equal 4, but its SE is
-1.8257 because it compares two practice effects. Its pointwise interval is
-[0.1643, 7.8357], whereas its simultaneous interval is [$-0.8680$, 8.8680].
-Appendix A shows both DD calculations using the same estimate and SE.
+@tbl-ch06-dd-quantities sets the selected DD beside Answer feedback's
+simple practice effect, which happens to share its estimate, 4.
 
-A simple effect includes the overall practice component as well as an
-interaction component. It is therefore outside the interaction-only family
-used above. The shared numerical estimate does not give it the DD's meaning,
-SE or familywise guarantee. State which effect was selected, which family
-was considered and which interval was used before interpreting a result.
+\Needspace{9\baselineskip}
 
-## Adjust a group comparison for baseline {#ch06-ancova}
+| Quantity | Estimate | SE | 95% interval | Calibration |
+|:--|--:|--:|:--|:--|
+| Answer's simple practice effect | 4 | 1.2910 | [1.2877, 6.7123] | Pointwise |
+| Answer-minus-Rereading DD | 4 | 1.8257 | [0.1643, 7.8357] | Pointwise |
+| Answer-minus-Rereading DD | 4 | 1.8257 | [$-0.8680$, 8.8680] | Scheffé |
 
-### State the new data and the conditional question
+: Three quantities from the interaction section; the Scheffé interval covers the two-dimensional interaction family. {#tbl-ch06-dd-quantities tbl-colwidths="[38,11,10,25,16]"}
 
-Suppose we want to compare group means at a common pretest score. The earlier
-24-pupil dataset has no pretest. We therefore introduce a separate authored
-example of twelve pupils in @tbl-ch06-adjustment-data. These are new teaching
-inputs, with individual assignment to feedback stipulated to occur after the
-pretest. Each row records one pupil's two assessments, both counting correct
-answers out of 20. The pupil is the assignment and measurement unit; distinct
-pupils supply the independent error units in the working model.
+The simple effect compares only two cell means, so its SE is smaller. It
+also contains the overall practice component as well as an interaction
+component, so it lies outside the interaction-only family, and the
+Scheffé guarantee does not transfer to it. The DD's two intervals differ
+only in their multiplier: the pointwise interval excludes zero and the
+simultaneous one includes it. Choosing the narrower interval after seeing
+which conclusion it gives does not keep the family's guarantee. State
+which quantity was selected, which family was considered and which
+interval was used before interpreting a result.
 
-| Pupil | Feedback | Pretest | Posttest |
-|--:|:--|--:|--:|
-| 1 | Rereading | 4 | 5 |
-| 2 | Rereading | 6 | 9 |
-| 3 | Rereading | 8 | 11 |
-| 4 | Rereading | 10 | 11 |
-| 5 | Answer feedback | 6 | 9 |
-| 6 | Answer feedback | 8 | 13 |
-| 7 | Answer feedback | 10 | 15 |
-| 8 | Answer feedback | 12 | 15 |
-| 9 | Explanatory feedback | 5 | 10 |
-| 10 | Explanatory feedback | 7 | 14 |
-| 11 | Explanatory feedback | 9 | 16 |
-| 12 | Explanatory feedback | 11 | 16 |
-
-: Fixed inputs for a separate baseline-adjustment illustration. {#tbl-ch06-adjustment-data tbl-colwidths="[12,48,20,20]"}
-
-Missing values are absent by construction. The regular residual pattern
-makes adjustment arithmetic easy to follow, but cannot demonstrate Normal
-errors, independence or a common slope in a real study. The observed pretest
-ranges are 4–10, 6–12 and 5–11, so their common range is 6–10. Pretest 8
-lies within each group's observed range. Comparing fitted means there is
-more supportable than extending a group's line far beyond its observations.
-
-```{r}
-#| label: ch06-adjustment-setup
-feedback_adjustment <- data.frame(
-  student = 1:12,
-  feedback = factor(rep(c("Rereading", "Answer feedback",
-    "Explanatory feedback"), each = 4),
-    levels = c("Rereading", "Answer feedback",
-      "Explanatory feedback")),
-  pretest = c(4,6,8,10, 6,8,10,12, 5,7,9,11),
-  posttest = c(5,9,11,11, 9,13,15,15, 10,14,16,16))
-feedback_adjustment$baseline <- feedback_adjustment$pretest - 8
-aggregate(cbind(pretest, posttest) ~ feedback,
-  feedback_adjustment, mean)
-```
-
-The raw posttest means are 9, 13 and 14, while the pretest means are 7, 9
-and 8. A raw group mean averages over that group's own baselines. Our new
-question fixes pretest at 8 and compares the fitted posttest means there.
-The difference between these questions explains why the adjusted differences
-can differ from the raw differences.
-
-### Describe and fit a common-slope model
-
-Analysis of covariance, or ANCOVA, uses a linear model that includes both
-group indicators and quantitative covariates. Define the centered baseline
-$x_c=x-8$. With the same indicator meanings as before, the model is
-
-$$
-Y_i=\beta_0+\beta_x x_{ci}+\beta_A D_{Ai}+\beta_E D_{Ei}
-+\varepsilon_i.
-$$
-
-At $x=8$, the centered baseline is zero. The intercept is therefore
-Rereading's fitted mean at pretest 8. The two group coefficients are
-differences from Rereading at that same pretest. The common slope $\beta_x$
-describes the fitted change in mean posttest for a one-point pretest change
-within any group. Graphically, the model uses three parallel lines.
-
-Centering changes the intercept's reference point, while leaving the fitted
-values unchanged. Choosing 8 also makes the intercept refer to a value
-supported by observations in all three groups. Chapter 7 develops how a
-slope is fitted, and Chapter 8 develops conditioning on several predictors;
-here the line gives a concrete first adjusted comparison.
-
-```{r}
-#| label: ch06-adjustment-fit
-unadjusted <- lm(posttest ~ feedback,
-  data = feedback_adjustment)
-adjusted <- lm(posttest ~ baseline + feedback,
-  data = feedback_adjustment)
-coef(summary(adjusted))
-confint(adjusted)
-```
-
-| Term | Estimate | SE | 95% pointwise interval |
-|:--|--:|--:|:--|
-| Rereading at pretest 8 | 10.0000 | 0.6325 | [8.5416, 11.4584] |
-| Pretest slope | 1.0000 | 0.1581 | [0.6354, 1.3646] |
-| Answer minus Rereading | 2.0000 | 0.9220 | [$-0.1260$, 4.1260] |
-| Explanatory minus Rereading | 4.0000 | 0.8803 | [1.9699, 6.0301] |
-
-: Common-slope fit, with residual MSE 1.5000 on 8 df. {#tbl-ch06-ancova-coefficients tbl-colwidths="[40,16,16,28]"}
-
-`coef(summary(adjusted))` returns estimates, SEs, t statistics and two-sided
-p-values for the individual zero-coefficient tests. The adjusted Answer
-difference has p .0619 and the Explanatory difference has p .0019.
-`confint()` uses the residual t reference to form the corresponding intervals.
-These intervals are pointwise: a simultaneous conclusion about a family
-requires an explicitly chosen family adjustment.
-
-### Read fitted means at the same baseline
-
-To obtain a fitted mean for each group at pretest 8, construct one profile
-per group with `baseline = 0`. `predict()` evaluates the fitted equation at
-each profile and returns an interval for its conditional mean.
-
-```{r}
-#| label: ch06-adjusted-means
-profiles <- data.frame(baseline = 0,
-  feedback = levels(feedback_adjustment$feedback))
-predict(adjusted, newdata = profiles,
-  interval = "confidence")
-```
-
-The adjusted means are 10, 12 and 14. Their 95% pointwise confidence
-intervals are [8.5416, 11.4584], [10.5416, 13.4584] and
-[12.5879, 15.4121], respectively. They estimate group means at a stated
-baseline, rather than ranges containing individual future pupils. Prediction
-for a new pupil would include that pupil's additional residual variation;
-Chapter 8 develops the distinction.
-
-The adjustment can also be read directly from the raw means. For the
-common-slope fit,
-
-$$
-\widehat\mu_j(8)=\bar y_j-\widehat\beta_x(\bar x_j-8).
-$$
-
-With slope 1, Rereading's adjusted mean is $9-(7-8)=10$; Answer feedback's
-is $13-(9-8)=12$; Explanatory feedback's is $14-(8-8)=14$.
-Thus the raw differences of 4 and 5 points become conditional differences
-of 2 and 4 points. Adjustment compares groups at a common baseline rather
-than at their different average baselines.
-
-@fig-ch06-ancova shows this geometry. The fitted segments are restricted
-to the shared observed range 6–10, and the dashed line marks pretest 8.
-The points still show the full range of each group's data.
-
-```{r}
-#| label: fig-ch06-ancova
-#| echo: false
-#| fig-width: 6.4
-#| fig-height: 3.8
-#| fig-cap: "Compare fitted group means at a shared baseline."
-#| fig-alt: "The twelve pretest/posttest points appear by feedback group. Three parallel fitted segments over common baseline support 6 to 10 pass through means 10, 12 and 14 at the dashed baseline 8 line."
-line_grid <- expand.grid(pretest = seq(6, 10, length.out = 20),
-  feedback = levels(feedback_adjustment$feedback))
-line_grid$baseline <- line_grid$pretest - 8
-line_grid$fitted <- predict(adjusted, newdata = line_grid)
-ggplot(feedback_adjustment,
-  aes(pretest, posttest, colour = feedback)) +
-  geom_point(size = 2) +
-  geom_line(data = line_grid, aes(y = fitted)) +
-  geom_vline(xintercept = 8, linetype = 2) +
-  labs(x = "Pretest (out of 20)", y = "Posttest (out of 20)",
-    colour = "Feedback") + theme_minimal(base_size = 11)
-```
-
-The Computer Lab's adjustment reference constructs the plotting grid and
-changes the supported baseline value. The statistical calculation remains
-the printed `predict()` call: specify the profiles first, then interpret the
-fitted means at those profiles.
-
-### Compare named nested models on identical records
-
-Two questions about this fit require different smaller models. First, does
-baseline add information after accounting for the feedback groups? Compare
-the groups-only fit, `unadjusted`, with the larger fit, `adjusted`. Second,
-do the group indicators jointly add information after accounting for
-baseline? Compare a baseline-only fit with the same larger fit.
-
-```{r}
-#| label: ch06-nested-tests
-baseline_only <- lm(posttest ~ baseline,
-  data = feedback_adjustment)
-anova(unadjusted, adjusted)
-anova(baseline_only, adjusted)
-```
-
-For nested models fitted to the same outcome and rows, let $RSS_0$ and
-$df_0$ denote the smaller model's residual sum of squares and degrees of
-freedom, and let $RSS_1$ and $df_1$ denote the larger model's. Then
-
-$$
-F=\frac{(RSS_0-RSS_1)/(df_0-df_1)}{RSS_1/df_1}.
-$$
-
-The numerator measures the improvement per added parameter. The denominator
-is the residual variance estimate from the larger model. Here the larger
-model estimates four coefficients from twelve pupils, leaving 8 residual
-degrees of freedom and $RSS_1/df_1=12/8=1.5000$.
-
-Adding baseline to groups reduces RSS from 72 on 9 df to 12 on 8 df, giving
-$F(1,8)=40.0000$, p .0002. Adding the group indicators to baseline alone
-reduces RSS from 43.0588 on 10 df to 12 on 8 df, giving
-$F(2,8)=10.3529$, p .0060. The latter tests both adjusted group coefficients
-jointly. As with the earlier omnibus tests, it does not establish that each
-individual adjusted comparison differs from zero.
-
-The same-row condition is essential. If different predictors contain missing
-values, automatic omission can fit the smaller and larger models to
-different pupils. Their RSS difference would then mix a model change with
-a data change. Explicit model comparison also clarifies the question more
-reliably than treating every entry in a single sequential ANOVA table as an
-order-free adjusted test.
-
-### Check the fit and state its scope
-
-The classical tests and intervals use independent errors, an appropriate
-linear common-slope conditional mean, a common conditional error variance,
-and a Normal-error reference. A graph of the fitted relationship helps
-locate unsupported extrapolation or a changing group comparison. A residual
-plot examines departures left after fitting; a Normal-quantile plot compares
-their shape with Normal quantiles.
-
-```{r}
-#| label: fig-ch06-residuals
-#| echo: false
-#| fig-width: 6.4
-#| fig-height: 3.1
-#| fig-cap: "Residual checks describe the deliberately regular ANCOVA construction."
-#| fig-alt: "Residuals are approximately plus or minus one at the fitted values. The Normal-quantile panel displays the same two-level pattern, illustrating why an authored arithmetic example cannot validate a Normal population model."
-oldpar <- par(mfrow = c(1, 2), mar = c(4, 4, 1, .5))
-plot(fitted(adjusted), resid(adjusted), xlab = "Fitted posttest",
-  ylab = "Residual", pch = 1)
-abline(h = 0, lty = 2)
-qqnorm(resid(adjusted), main = "", pch = 1)
-qqline(resid(adjusted))
-par(oldpar)
-```
-
-In @fig-ch06-residuals, residuals near $-1$ and 1 reflect the deliberately
-regular construction. The display illustrates what to examine; these
-twelve chosen values cannot validate a Normal population model. Similarly,
-a nonsignificant test for a group-by-baseline term would not prove equal
-slopes. Such a term asks whether the adjusted group comparison changes with
-baseline; later chapters develop that moderation question.
-
-In real data, report the observed denominators and exclusions as well as
-the fitted model. Random allocation does not restore unavailable outcomes.
-Adjustment alone does not identify a causal effect in observational data,
-repair missing outcomes, or change the population sampled. Here the
-assignment story and values are invented; the result demonstrates an
-analysis, not an intervention finding. Chapter 8 develops several controls,
-covariance-based fitted quantities and comparisons averaged over a named
-population. Chapter 9 carries the separate Baumann adjusted-mean reference
-as an independent extension.
+Report the interaction's magnitude in score points first. The practice
+difference is 0 points under Rereading, 4 under Answer feedback and 8 under
+Explanatory feedback, and the selected DD is 4 points with SE 1.8257. A
+variation share may follow once its denominator is named. The interaction
+sum of squares is $64/476=.1345$ of the total sum of squares, but
+$64/124=.5161$ of the interaction and residual sums of squares together.
+Both shares are in-sample summaries of an authored design, and neither
+replaces the pattern of practice differences.
 
 ## Analyse proportions and counts {#ch06-counts}
 
@@ -958,8 +895,10 @@ A score model is not the appropriate starting point for every outcome.
 Chapter 3 introduced the invented completion table in
 @tbl-ch06-completion-counts. It contains aggregate counts for 100 records,
 classified by learning format and completion. These records have no
-pupil-level linkage to either feedback dataset above. The counts themselves
-establish neither random allocation nor representative sampling.
+linkage to either score dataset above. The counts themselves establish
+neither random allocation nor representative sampling.
+
+\Needspace{9\baselineskip}
 
 | Format | Completed | Not completed | Total |
 |:--|--:|--:|--:|
@@ -972,7 +911,7 @@ establish neither random allocation nor representative sampling.
 For the Online group, the event is completion and the denominator is its
 50 records. Under an independent Bernoulli model with a common completion
 probability $p$, the count of completions has a binomial distribution. The
-estimated probability is $\widehat p=32/50=.6400$. If records were clustered
+estimated probability is $\widehat p=32/50=.64$. If records were clustered
 within dependent classes or came from repeated observations of the same
 people, this ordinary independent-unit uncertainty model would require
 modification.
@@ -985,11 +924,11 @@ z=\frac{\widehat p-p_0}{\sqrt{p_0(1-p_0)/50}}
 =\frac{.64-.5}{\sqrt{.5(.5)/50}}=1.9799.
 $$
 
-Squaring gives $X^2=z^2=3.9200$, compared with a chi-squared distribution
+Squaring gives $X^2=z^2=3.92$, compared with a chi-squared distribution
 on one degree of freedom. The procedure uses a large-sample reference;
 the expected numbers of successes and failures under this null are both 25.
 
-\Needspace{17\baselineskip}
+\Needspace{8\baselineskip}
 
 ```{r}
 #| label: ch06-one-proportion
@@ -1001,7 +940,7 @@ one_prop$conf.int
 ```
 
 The two-sided p-value is .0477. The estimated completion probability is
-.6400, with 95% Wilson score interval [.5014, .7586]. `correct = FALSE`
+.64, with 95% Wilson score interval [.5014, .7586]. `correct = FALSE`
 explicitly selects the uncorrected score procedure; accepting R's default
 continuity correction would specify a different calculation. The call and
 the reported result should identify which procedure was used.
@@ -1010,8 +949,9 @@ The score interval contains the candidate probabilities that their own
 two-sided score tests would retain [@wilson1927]. Each candidate supplies
 the variance for its null calculation. This inversion explains why the
 interval is linked to the score test and is not simply
-$\widehat p\pm1.96\sqrt{\widehat p(1-\widehat p)/n}$, the Wald interval.
-Appendix A gives the Wilson endpoints directly. The p-value assesses the
+$\widehat p\pm1.96\sqrt{\widehat p(1-\widehat p)/n}$, the Wald interval,
+and why its center lies slightly closer to .5 than .64 does. The Computer
+Lab computes the Wilson endpoints directly. The p-value assesses the
 stipulated benchmark; it is not the probability that $p=.5$ is true or a
 measure of the completion rate's practical importance.
 
@@ -1023,7 +963,7 @@ working population model, equivalently equal completion probabilities in
 this two-group setting. Constructing labelled counts prevents an accidental
 change in the event or group direction.
 
-\Needspace{28\baselineskip}
+\Needspace{12\baselineskip}
 
 ```{r}
 #| label: ch06-two-way-counts
@@ -1031,7 +971,6 @@ counts <- matrix(c(32, 18, 18, 32), nrow = 2,
   byrow = TRUE,
   dimnames = list(Format = c("Online", "In person"),
     Result = c("Completed", "Not completed")))
-counts
 prop.table(counts, margin = 1)
 count_test <- chisq.test(counts, correct = FALSE)
 count_test$expected
@@ -1040,9 +979,9 @@ count_test$p.value
 count_test$residuals
 ```
 
-`margin = 1` divides each row by its own total. Completion rates are .6400
-for Online and .3600 for In person, a difference of .2800, or 28.0000
-percentage points, in the Online-minus-In-person direction. Under independence the
+`margin = 1` divides each row by its own total. Completion rates are .64
+for Online and .36 for In person, a difference of .28, or 28 percentage
+points, in the Online-minus-In-person direction. Under independence the
 fitted expected count in row $j$, column $k$ is
 
 $$
@@ -1056,7 +995,7 @@ counts:
 
 $$
 X^2=\sum_{j,k}\frac{(O_{jk}-E_{jk})^2}{E_{jk}}
-=4\left(\frac{7^2}{25}\right)=7.8400.
+=4\left(\frac{7^2}{25}\right)=7.84.
 $$
 
 For a $J$-by-$K$ table the usual independence reference has
@@ -1085,26 +1024,47 @@ null from the full table. Their different p-values answer different
 questions. Neither test establishes that changing format would cause
 completion to change without relevant design information.
 
-### Use alternatives as changes to a stated analysis {#ch06-categorical-reference}
+### Choose an effect scale and keep alternatives within the analysis {#ch06-categorical-reference}
 
-The Computer Lab's categorical reference compares the two-proportion
-interface, a continuity-corrected calculation, Fisher's conditional test
-[@fisher1935] and a standardized association summary, Cramer's V
-[@cramer1946], using the same table.
-These alternatives keep their own conditions and uncertainty calculations.
-For example, the two-proportion difference interval is a large-sample
-interval for a difference, while the preceding Wilson interval concerns
-one probability. A shared software function name does not make the
-intervals identical procedures.
+A chi-square test says whether the table departs from no association, not
+how large the association is or on which scale. @tbl-ch06-effect-scales
+sets four common scales side by side for the completion table, with
+$p_1$ the Online and $p_0$ the In-person completion proportion, and
+gives the question that each one answers [@agresti2018].
 
-That reference also continues Chapters 2–3's observational student
-intention-by-pass example. Its complete primary calculation keeps zero
-grades, states the original denominators and compares the outcome under
-a documented source-coding sensitivity analysis. This is a separate
-application with its own provenance. The small invented completion table
-above supplies the first complete procedure; the reference shows how
-method choice and unresolved source information matter in an existing
-dataset.
+\Needspace{17\baselineskip}
+
+| Scale | Definition | Value | What it answers |
+|:--|:--|--:|:--|
+| Difference in proportions | $p_1-p_0$ | .2800 | How many percentage points more often the event occurs in one group: an absolute gap |
+| Risk ratio | $p_1/p_0$ | 1.7778 | How many times as probable the event is in one group: a relative gap, which changes when the other outcome is called the event |
+| Odds ratio | $\dfrac{p_1/(1-p_1)}{p_0/(1-p_0)}$ | 3.1605 | How many times as large the odds of the event are; it stays the same when rows and columns exchange roles, so a design that samples on the outcome can still estimate it |
+| Cramér's V | $\sqrt{\dfrac{X^2}{N\min(J-1,K-1)}}$ | .2800 | How strong the association is, from 0 to 1, for a table of any size; it carries no direction and names no cell comparison |
+
+: Four effect scales for the completion table, Online versus In person. {#tbl-ch06-effect-scales tbl-colwidths="[15,25,9,51]"}
+
+The same counts give a gap of 28 percentage points, a risk ratio of
+1.7778 and an odds ratio of 3.1605. The odds ratio lies farther from 1
+than the risk ratio because completion is common: Online's completion
+odds are $32/18=1.7778$ and In person's are $18/32=.5625$, so an odds
+ratio is not read as a risk ratio. Calling non-completion the event
+changes the risk ratio to $.36/.64=.5625$ and the odds ratio to its
+reciprocal, .3164, so the event and the direction are named beside every
+scale. Cramér's V [@cramer1946] equals the difference in proportions here
+only because every row and column total is 50. Chapter 11 reads the odds
+ratio again as an exponentiated logistic coefficient.
+
+Other procedures change one part of the analysis while keeping the same
+table, and each answers its own question. The two-proportion interface
+gives a large-sample interval for the difference in proportions, a
+different quantity from the one-probability Wilson interval of
+Section 4.1. A continuity correction changes the calibration of the
+Pearson statistic. Fisher's exact test [@fisher1935] conditions on the
+table margins and uses an exact reference, which matters when expected
+counts are small. The Computer Lab runs each alternative on this table and
+then continues the observational student intention-by-pass example of
+Chapter 2, Section 3.1, where these scales, the choice of procedure and an
+unresolved source-coding question meet in an existing dataset.
 
 ## Fit by an objective function and likelihood {#ch06-likelihood}
 
@@ -1112,46 +1072,48 @@ dataset.
 
 The fitted means in Section 1 were chosen by a rule: minimize the sum
 of squared deviations from the observations. We can inspect this rule
-with the four Massed Rereading scores, 4, 5, 7 and 8. These observations
-stay fixed. What changes is the proposed center, denoted by $c$.
+with the ten Silence scores, 8, 9, 9, 11, 12, 13, 13, 14, 15 and 16.
+These observations stay fixed. What changes is the proposed center,
+denoted by $c$.
 
 An **objective function** assigns a numerical criterion to each candidate
 parameter value for fixed data. For a center fitted by least squares,
 the objective is
 
 $$
-Q(c)=\sum_{i=1}^{4}(y_i-c)^2
-     =(4-c)^2+(5-c)^2+(7-c)^2+(8-c)^2.
+Q(c)=\sum_{i=1}^{10}(y_i-c)^2
+     =(8-c)^2+(9-c)^2+\cdots+(16-c)^2.
 $$
 
-At $c=6$, the squared deviations sum to $4+1+1+4=10.0000$
-squared score points. At either 5 or 7, they sum to 14.0000. Chapter 2
-showed why the sample mean minimizes this criterion. Here the mean is
-6.0000 points. A numerical search lets us reproduce the minimizing
-value without writing it into the fitting instruction.
+At $c=12$, the deviations are the Silence residuals of Section 1, and
+their squares sum to 66 squared score points. At either 11 or 13, they
+sum to 76. Chapter 2, Section 2.2, states that the sample mean minimizes
+this criterion, and Chapter 3's Appendix A derives the identity behind
+it. Here the mean is 12 points. A numerical search lets us reproduce the
+minimizing value without writing it into the fitting instruction.
+
+\Needspace{6\baselineskip}
 
 ```{r}
 #| label: ch06-scalar-squared-loss
-#| echo: true
-rereading <- subset(massed, feedback == "Rereading")$score
-loss <- function(center) sum((rereading - center)^2)
-mean_fit <- optimize(loss, interval = range(rereading))
+silence <- subset(sound_data, sound == "Silence")$score
+loss <- function(center) sum((silence - center)^2)
+mean_fit <- optimize(loss, interval = range(silence))
 c(center = mean_fit$minimum, squared_loss = mean_fit$objective)
-c(loss_at_5 = loss(5), loss_at_6 = loss(6), loss_at_7 = loss(7))
 ```
 
-`function(center)` makes an R function whose input is a candidate
-center. Subtracting it from the vector forms four deviations; squaring
-and summing returns one number. `optimize()` searches for a minimum
-of that function over the interval supplied. Here `range(rereading)`
-gives $[4,8]$, which contains the sample mean. The objective is a
-single smooth bowl over this interval, so the scalar search has one
-minimum to locate.
+`subset()` keeps the Section 1 rows whose condition is Silence, and
+`loss()` returns the sum of squared deviations for any candidate center.
+`optimize()` searches for a minimum of that function over the interval
+supplied, here `range(silence)`, or $[8,16]$, which contains the sample
+mean. The objective is a single smooth bowl over this interval, so the
+scalar search has one minimum to locate.
 
 The two returned quantities have different meanings. `minimum` is
-the **parameter location**, 6.0000 points; `objective` is the function
-value there, 10.0000 squared points. The latter is a sum of squared
-deviations, not an SE or an estimate of the mean. The search interval
+the **parameter location**, 12 points; `objective` is the function
+value there, 66 squared points. The latter is a sum of squared
+deviations, Silence's contribution to $SS_W$ in Section 1, rather than an
+SE or an estimate of the mean. The search interval
 also belongs to the fitting instruction: excluding the best center
 would restrict which answer the search could return. Numerical stopping
 tolerance concerns the accuracy of that search; statistical uncertainty
@@ -1161,8 +1123,8 @@ the study.
 These least-squares identities are arithmetic. An uncertainty statement
 for the fitted mean adds a model or design and its conditions. Chapter 7
 extends this criterion from one center to a line with an intercept and
-slope. The Computer Lab reference varies the search interval while
-keeping the observations fixed.
+slope. The Computer Lab evaluates the criterion at several centers and
+narrows the search interval while keeping the observations fixed.
 
 ### Change the fitting criterion for a binomial outcome
 
@@ -1214,7 +1176,7 @@ $$
 $$
 
 Setting this slope to zero gives $32-50p=0$, and therefore
-$\widehat p=32/50=.6400$. The denominator is positive inside $(0,1)$.
+$\widehat p=32/50=.64$. The denominator is positive inside $(0,1)$.
 The slope is positive below .64 and negative above .64: the curve rises
 to this point and then falls. This verifies a maximum rather than
 merely finding a flat point.
@@ -1223,11 +1185,10 @@ To use the default minimization operation in `optimize()`, supply the
 **negative** log-likelihood. A smaller negative log-likelihood means a
 larger log-likelihood, so its minimum locates the same fitted probability.
 
-\Needspace{12\baselineskip}
+\Needspace{11\baselineskip}
 
 ```{r}
 #| label: ch06-scalar-binomial-mle
-#| echo: true
 negative_loglik <- function(p) {
   -dbinom(32, size = 50, prob = p, log = TRUE)
 }
@@ -1239,17 +1200,17 @@ negative_loglik(.5)
 
 `dbinom()` evaluates the binomial probability for the fixed count 32.
 With `log = TRUE`, it computes the log probability directly. The
-numerical and analytic estimates both round to .6400. The small
+numerical and analytic estimates both round to .64. The small
 numerical difference from exactly .64 reflects the search tolerance.
 At the fitted probability the negative log-likelihood is 2.1465,
 compared with 4.1330 at $p=.5$. The smaller value is the better fit
-according to this criterion. The parameter estimate .6400 is a
+according to this criterion. The parameter estimate .64 is a
 completion probability; the criterion value 2.1465 is not.
 
 ```{r}
 #| label: fig-ch06-likelihood
 #| echo: false
-#| fig-pos: H
+#| fig-pos: "!ht"
 #| fig-width: 6.1
 #| fig-height: 3.4
 #| fig-cap: "The binomial log-likelihood is largest at the observed proportion."
@@ -1269,7 +1230,7 @@ vertical axis gives the log-likelihood of the same observed count at
 each candidate. Thus the curve displays a fitting criterion, not a
 sampling distribution or a distribution of probabilities over $p$.
 The peak identifies the fitted value. The score test and interval in
-Section 5 answer additional questions about a proposed null and the
+Section 4 answer additional questions about a proposed null and the
 uncertainty of estimation under their stated calibration.
 
 Finally, check the boundaries of the parameter space. With both
@@ -1295,19 +1256,20 @@ sample size for a specified comparison.
 
 Imagine three independent groups whose outcomes follow Normal distributions,
 each with standard deviation $\sqrt{10/3}=1.8257$ points. First set all three
-population means to 8, so that the equal-means null hypothesis is true.
-These values define a hypothetical world in which we know the truth. The
-constructed feedback scores used earlier help motivate the scale of the
-example; they do not establish that this generating model describes real
-pupils.
+population means to 8, so that the equal-means null hypothesis is true;
+later the unequal means 6, 8 and 10 describe an alternative. These values
+borrow the scale of the feedback study in Section 3, whose Massed cells
+have means 6, 8 and 10 with four pupils each and whose factorial fit has
+residual mean square $10/3$. They define a hypothetical world in which we
+know the truth; the constructed scores do not establish that this
+generating model describes real pupils.
 
 Begin with four observations per group and analyse one generated study.
 
-\Needspace{15\baselineskip}
+\Needspace{13\baselineskip}
 
 ```{r}
 #| label: ch06-one-generated-anova
-#| echo: true
 set.seed(60630)
 n_per_group <- 4
 sim_group <- factor(rep(1:3, each = n_per_group))
@@ -1316,41 +1278,31 @@ sim_score <- rnorm(3*n_per_group,
 anova(lm(sim_score ~ sim_group))
 ```
 
-`set.seed()` makes this particular sequence of generated observations
-reproducible. `rep(1:3, each = n_per_group)` creates four labels for each
-of three groups, and `factor()` tells the model to treat those labels as
-categories. The second `rep()` supplies the population mean for each of
-the 12 observations. `rnorm()` draws independent outcomes with those means
-and the declared common SD.
-
-The formula `sim_score ~ sim_group` fits a separate mean for each group;
-`anova()` compares that fit with a common mean. Its table has 2 group degrees
-of freedom and $12-3=9$ error degrees of freedom. For these generated data,
-$SS_{\mathrm{between}}=7.5977$ and $SS_{\mathrm{within}}=32.9851$, giving
-$F=1.0365$ and $p=.3935$. Applying the rule $p<.05$ therefore does not reject
-the equal-means null in this study. Although the three generating means are
-identical, the three sample means vary, so the between-group sum of squares
-is positive. The estimated error variance, $MS_E=3.6650$, also varies around
+`rep()` and `factor()` label four observations in each of three groups,
+`rnorm()` draws the twelve outcomes from the declared means and common
+SD, and `set.seed()` makes this particular draw reproducible. The formula
+`sim_score ~ sim_group` fits a separate mean for each group; `anova()`
+compares that fit with a common mean. Its table has 2 group degrees of
+freedom and $12-3=9$ error degrees of freedom. For these generated data,
+$SS_B=7.5977$ and $SS_W=32.9851$, giving $F=1.0365$ and $p=.3935$.
+Applying the rule $p<.05$ therefore does not reject the equal-means null
+in this study. Although the three generating means are identical, the
+three sample means vary, so the between-group sum of squares is
+positive. The estimated error variance, $MS_W=3.665$, also varies around
 the generating variance $10/3$.
 
-One generated study cannot describe a procedure's long-run behaviour. The
-Computer Lab puts the same calculation in a small function: its arguments
-are the group size, the three generating means and the common SD; its result
-is one omnibus p-value. Repeating that function gives a collection of
-p-values to compare with .05.
-
-@tbl-ch06-simulation reports 2,000 studies for each of four conditions.
-The null conditions use means $(8,8,8)$; the alternative conditions use
-$(6,8,10)$. Each condition retains independent Normal observations and
-the same common SD. For reproducibility, the lab restarts at seed 60630
-and runs the conditions in this order: four per group under the null,
-four under the alternative, 12 under the null, then 12 under the alternative,
-without resetting the seed between conditions.
+One generated study cannot describe a procedure's long-run behaviour.
+Repeating the same calculation many times gives a collection of p-values
+to compare with .05. @tbl-ch06-simulation reports 2,000 studies for each
+of four conditions. The null conditions use means $(8,8,8)$; the
+alternative conditions use $(6,8,10)$. Each condition retains independent
+Normal observations and the same common SD, and the Computer Lab
+reproduces the table from seed 60630.
 
 | Pupils per group | Null rejection rate | MCSE | Power at means 6/8/10 | MCSE |
 |--:|--:|--:|--:|--:|
-| 4 | .0560 | 0.0051 | .6545 | 0.0106 |
-| 12 | .0500 | 0.0049 | .9990 | 0.0007 |
+| 4 | .056 | 0.0051 | .6545 | 0.0106 |
+| 12 | .050 | 0.0049 | .9990 | 0.0007 |
 
 : Operating characteristics in the declared generating models, $B=2000$ studies per condition. {#tbl-ch06-simulation}
 
@@ -1363,51 +1315,45 @@ unequal means. It rises from .6545 with four pupils per group to .9990 with
 spread and independence; a smaller separation would give different power.
 
 Each rate is itself an estimate based on finitely many repetitions. If
-$\hat q$ is a simulated rejection proportion from $B$ independent studies,
+$\widehat q$ is a simulated rejection proportion from $B$ independent studies,
 its approximate Monte Carlo standard error is
 
 $$
-MCSE(\hat q)=\sqrt{\frac{\hat q(1-\hat q)}{B}}.
+MCSE(\widehat q)=\sqrt{\frac{\widehat q(1-\widehat q)}{B}}.
 $$
 
-For the estimated power .6545, the calculation is:
-
-```{r}
-#| label: ch06-power-mcse
-#| echo: true
-sqrt(.6545 * (1 - .6545) / 2000)
-```
-
-The result, 0.0106, describes the numerical uncertainty from using 2,000
-simulations. A fresh set of 2,000 simulated studies can give a somewhat
-different power estimate. This MCSE is distinct from a pupil outcome's
-SD or the SE of a group mean or contrast within one study. A rate very
-close to one, such as .9990, also deserves care: only two of the 2,000
-studies failed to reject, so its tiny plug-in MCSE rests on very few
-non-rejections.
+For the estimated power .6545, it is $\sqrt{.6545(1-.6545)/2000}=0.0106$,
+and the table's MCSE columns apply the same formula to each rate. This
+value describes the numerical uncertainty from using 2,000 simulations:
+a fresh set of 2,000 simulated studies can give a somewhat different
+power estimate. The MCSE is distinct from a pupil outcome's SD or the SE
+of a group mean or contrast within one study. A rate very close to one,
+such as .999, also deserves care: only two of the 2,000 studies failed
+to reject, so its tiny plug-in MCSE rests on very few non-rejections.
 
 Increasing the number of pupils $n$ changes the information within a study,
 its error degrees of freedom and its ability to detect the specified
 difference. Increasing the number of repetitions $B$ makes the simulated
-rate more precise; it leaves the study being simulated unchanged. The
-Computer Lab develops these changes in the repetition task and its
-reference extension. Simulation describes a procedure under the declared
-model; agreement with its expected behaviour does not establish that the
-model fits a particular real study.
+rate more precise; it leaves the study being simulated unchanged.
+Simulation describes a procedure under the declared model; agreement with
+its expected behaviour does not establish that the model fits a
+particular real study.
 
 ### Plan for a specified comparison and precision target
 
 The omnibus simulation asks whether some population group means differ.
 A future study may instead be planned to estimate or detect one particular
-difference. Return to the two comparisons with Rereading from the one-way
-example: Answer feedback versus Rereading, and Explanatory feedback versus
-Rereading. Keep this declared **two-comparison Bonferroni family**, with
-family significance level .05, even when calculating power for just one
-of its comparisons.
+difference. Consider a future balanced one-factor study of the three
+feedback conditions, with a declared **two-comparison Bonferroni family**:
+Answer feedback versus Rereading, and Explanatory feedback versus
+Rereading. The family has the same form as Section 2's two comparisons
+with Silence. Keep it, with family significance level .05, even when
+calculating power for just one of its comparisons.
 
 Suppose the comparison of interest has a population difference of
 $\delta=2$ points. Plan equal group sizes $n$, independent Normal outcomes
-and common SD $\sigma=\sqrt{10/3}$. The planning SE for a difference of two
+and common SD $\sigma=\sqrt{10/3}$, the square root of the factorial fit's
+residual mean square in Section 3. The planning SE for a difference of two
 group means is $\sigma\sqrt{2/n}$. All three groups contribute to the
 pooled error variance, so its degrees of freedom are $3(n-1)$, even though
 the contrast compares only two of the means.
@@ -1439,9 +1385,10 @@ over future studies, rather than a p-value from observed data. Both tails
 belong to the two-sided procedure, even when the planning difference is
 positive.
 
+\Needspace{10\baselineskip}
+
 ```{r}
 #| label: ch06-contrast-power
-#| echo: true
 contrast_power <- function(n, delta = 2, sigma = sqrt(10/3)) {
   df <- 3*(n-1)
   critical <- qt(1 - .05/(2*2), df)
@@ -1456,9 +1403,9 @@ The function accepts a proposed group size and returns power. Its first
 `pt()` call obtains the lower-tail probability; the second obtains the
 upper-tail probability. At $n=17$, the planning SE is 0.6262, the error
 degrees of freedom are 48, the critical value is 2.3139, and
-$\lambda=2/0.6262\approx3.1937$. Summing the two tail areas gives power
+$\lambda=3.1937$. Summing the two tail areas gives power
 .8073. Checking successive integer sizes gives 17 pupils per group,
-51 in total, as the first size reaching .80 power; 16 gives .7793.
+51 in total, as the first size reaching .8 power; 16 gives .7793.
 
 This is the power of **one specified comparison within the declared
 family**. It is neither the probability that both comparisons reject nor
@@ -1479,109 +1426,103 @@ $$
 $$
 
 This calculation substitutes the planning SD $\sigma$ for the error SD
-that the future study will estimate. Evaluating the two sizes either side
-of the threshold gives:
-
-```{r}
-#| label: ch06-planned-half-width
-#| echo: true
-n_width <- c(34, 35)
-round(data.frame(
-  n = n_width,
-  planned_half_width = qt(1 - .05/(2*2), 3*(n_width-1)) *
-    sqrt(2*(10/3)/n_width)
-), 4)
-```
-
-The first group size meeting this planning target is 35, or 105 pupils in
-total: the planned half-width is 0.9929 points, compared with 1.0078 at 34.
-The realised interval uses the observed $\sqrt{MS_E}$ and therefore has a
-random width. Choosing 35 does not guarantee that its half-width will be
-at most one in every study. @fig-ch06-planning shows why a power target and
-an interval-width target can select quite different sample sizes.
+that the future study will estimate. The planned half-width is 1.0078
+points at 34 per group and 0.9929 at 35, so 35 per group, or 105 pupils
+in total, is the first size meeting this target. The realised interval
+uses the observed $\sqrt{MS_W}$ and therefore has a random width.
+Choosing 35 does not guarantee that its half-width will be at most one in
+every study. @fig-ch06-planning shows why a power target and an
+interval-width target can select quite different sample sizes.
 
 ```{r}
 #| label: fig-ch06-planning
 #| echo: false
 #| fig-width: 6.4
-#| fig-height: 3.1
+#| fig-height: 2.7
 #| fig-cap: "Power and planned interval width impose different sample-size targets."
 #| fig-alt: "For the same two-comparison three-group procedure, power rises above .8 at 17 pupils per group. Planned simultaneous interval half-width falls below one point at 35 pupils per group."
 n_grid <- 4:50
 powers <- sapply(n_grid, contrast_power)
 half_width <- qt(1-.05/(2*2), 3*(n_grid-1)) *
   sqrt(2*(10/3)/n_grid)
-oldpar <- par(mfrow = c(1, 2), mar = c(4, 4, 1, .5))
-plot(n_grid, powers, type = "l", xlab = "Pupils per group",
-  ylab = "Power", ylim = c(0, 1))
-abline(h = .8, v = 17, lty = 2)
-plot(n_grid, half_width, type = "l", xlab = "Pupils per group",
-  ylab = "Planned half-width (points)")
-abline(h = 1, v = 35, lty = 2)
-par(oldpar)
+panel <- c("Power", "Planned half-width (points)")
+planning <- data.frame(n = rep(n_grid, 2),
+  value = c(powers, half_width),
+  target = factor(rep(panel, each = length(n_grid)), levels = panel))
+targets <- data.frame(target = factor(panel, levels = panel),
+  value = c(.8, 1), n = c(17, 35))
+ggplot(planning, aes(n, value)) + geom_line() +
+  geom_hline(aes(yintercept = value), data = targets, linetype = 2) +
+  geom_vline(aes(xintercept = n), data = targets, linetype = 2) +
+  facet_wrap(~ target, scales = "free_y") +
+  labs(x = "Pupils per group", y = NULL) +
+  theme_minimal(base_size = 11)
 ```
 
 Finally, distinguish the desired number of available outcomes from the
 number recruited. If outcomes are expected to be available for 90% of
-recruits, the 17-per-group power target gives:
+recruits, the 17-per-group power target needs
+$\lceil17/.9\rceil=19$ recruits per group, 57 in total, with an expected
+17.1 available outcomes per group under that retention assumption. It is
+an average allowance, not a guarantee of 17 outcomes in every group or a
+correction for bias from systematically missing outcomes.
 
-```{r}
-#| label: ch06-recruitment-allowance
-#| echo: true
-ceiling(17 / .9)
-```
-
-Recruiting 19 per group gives 57 recruits and an expected 17.1 available
-outcomes per group under that retention assumption. It is an average
-allowance, not a guarantee of 17 outcomes in every group or a correction
-for bias from systematically missing outcomes.
-
-The Computer Lab reference extension supplies the full sample-size grid
-and changes the target difference, comparison family and retention rate.
-Its two-group `power.t.test()` example declares a separate two-group study:
-that procedure has different error degrees of freedom and cannot silently
-replace this three-group calculation. Choose a planning difference from
-the substantive question and relevant prior evidence. As Chapter 3's
-significance-filter example showed, selecting statistically significant
-results can favour exaggerated estimates; an observed difference from
-such a selection is not automatically a suitable planning alternative.
+The Computer Lab searches the full grid of sample sizes and changes the
+target difference and the retention rate. A two-group power calculation
+declares a different study, with different error degrees of freedom, and
+cannot silently replace this three-group calculation. Choose a planning
+difference from the substantive question and relevant prior evidence. As
+Chapter 3's significance-filter example showed, selecting statistically
+significant results can favour exaggerated estimates; an observed
+difference from such a selection is not automatically a suitable planning
+alternative.
 
 ## Reading Bridge {#ch06-reading-bridge}
 
 The chapter compared group means, separated omnibus questions from
 calibrated contrasts, and read a comparison that changes across another
-factor. A separate baseline example showed what an adjusted comparison
-holds fixed. Counts required a different response model; likelihood and an
-objective function made the fitting criterion explicit. Repetition examined
-procedures under a declared generating model, while power and precision
-described different planning aims.
+factor, testing that change by comparing two named models on the same
+records. Counts required a different response model and their own effect
+scales; likelihood and an objective function made the fitting criterion
+explicit. Repetition examined procedures under a declared generating
+model, while power and precision described different planning aims.
 
 When reading a study, identify the question, analysed records, model,
 estimate and uncertainty procedure before evaluating their adequacy.
-For a group comparison, locate its subtraction direction and any covariates
-held fixed. For a test or interval, identify the null, reference distribution
-and comparison family. For a simulation or planning result, locate the
-generating assumptions and the particular procedure being evaluated.
-These details connect the reported numbers to the claims they can support.
+For a group comparison, locate its subtraction direction and the records
+it uses. For a test or interval, identify the null, reference distribution
+and comparison family. For an effect in a table, identify the event and
+the scale. For a simulation or planning result, locate the generating
+assumptions and the particular procedure being evaluated. These details
+connect the reported numbers to the claims they can support.
 
-Chapter 7 develops how a continuous-predictor line is fitted and read.
-Chapter 8 extends adjustment and distinguishes its conditional,
-standardized and predictive questions. Chapter 11 returns to likelihood for
-binary regression. Appendix B describes these connections more
-specifically.
+[]{#ch06-appendix-b}Later chapters build on each of these steps. Chapter 7
+extends squared loss from a fitted center to a line: it derives the
+line's normal equations, relates fitted values and residuals through
+projection, and develops uncertainty for the slope and the fitted mean.
+Chapter 8 conditions on several controls and distinguishes a coefficient
+conditional on specified predictors from a fitted mean at a profile, a
+prediction for a new case and an average of fitted values over a named
+population. Chapter 9, Section 2, develops the analysis of covariance as
+regression and checks its parallel slopes with the nested-model
+comparison of Section 3.2. Chapter 11 develops likelihood for binary
+regression, including exact boundary estimates, a likelihood with more
+than one parameter, and the starting values and convergence checks that
+numerical fitting then requires.
 
-\Needspace{28\baselineskip}
+\Needspace{10\baselineskip}
 
 ### Key terms and notation {.unnumbered}
 
-ANOVA, contrasts, interactions and comparison families retain the meanings
-introduced in Chapter 4. The following concepts were introduced or developed
-through their R applications here.
+ANOVA, contrasts, interactions and comparison families keep their main
+explanations in Chapter 4, and the Part One Concept Reference gives the
+broader reference and the principal home of each concept. The following
+concepts were introduced or developed through their R applications here.
 
-| Term | Definition |
+| Term and common alternatives | Meaning |
 |:--|:--|
-| ANCOVA (analysis of covariance) | A linear model comparing groups while including quantitative covariates; its adjusted comparison is defined at stated covariate values or over a stated covariate distribution. |
 | Model formula (R formula) | Notation such as `score ~ group` naming an outcome and the variables that explain it for a fitting function. It does not state whether observations are independent or paired; that comes from the design. |
+| Categorical effect scales (difference in proportions; risk ratio; odds ratio; Cramér's V) | Four ways to state the size of an association in a table, each answering its own question: the difference in proportions gives an absolute gap, the risk ratio a relative gap, the odds ratio a ratio of odds that stays the same when rows and columns exchange roles, and Cramér's V a unit-free strength, from 0 to 1, for a table of any size. |
 | Objective function | A numerical criterion evaluated at candidate parameter values for fixed data; fitting seeks a stated minimum or maximum. |
 | Likelihood and log-likelihood | The probability or density of the observed data under a declared model, viewed as a function of its parameters; the log-likelihood is its logarithm. |
 | Maximum likelihood estimation (MLE) | Choosing parameter values that maximize the likelihood, equivalently the log-likelihood, over the stated parameter space. |
@@ -1591,40 +1532,55 @@ through their R applications here.
 The notation follows the local question. $C=\sum_jc_j\mu_j$ is a contrast,
 whereas $L(\theta)$ is a likelihood function of a parameter. Similarly, Type II error probability
 $\beta$ differs from a model coefficient such as $\beta_x$.
-Observed Pearson $X^2$ differs from the reference distribution $\chi^2$.
+Observed Pearson $X^2$ differs from the reference distribution $\chi^2$,
+and $\Delta p=p_1-p_0$ is a difference in proportions.
 In simulations, $n$ counts observations per stated study or group and $B$
 counts repeated studies. An SE describes an estimator's sampling variation;
 an MCSE describes finite-simulation uncertainty in a computed summary.
 
 ### Further reading {.unnumbered}
 
-For the linear-model basis of ANOVA, contrasts and covariance adjustment,
-see @kutner2005. @tukey1953 develops simultaneous comparison ideas, and
-@wilson1927 provides the score-interval construction for a proportion.
+For the linear-model basis of ANOVA, contrasts and nested-model
+comparisons, see @kutner2005. @tukey1953 develops simultaneous comparison
+ideas, and @wilson1927 provides the score-interval construction for a
+proportion. @agresti2018 develops the effect scales for two-way tables.
 @cohen1988 discusses power and the dependence of a planning result on its
 chosen effect and procedure, and @cetinkaya2024 develops the
-simulation-based treatment of operating characteristics used in Section 7.
+simulation-based treatment of operating characteristics used in Section 6.
 R's documentation gives the arguments and returned components for `aov`,
 `lm`, `TukeyHSD`, `oneway.test`, `prop.test`, `chisq.test` and `optimize`
-[@rcore2025]. The plotting chapters of
-@wickham2023 develop the data, mapping and layer vocabulary used in the
-small `ggplot2` examples here.
+[@rcore2025]. The plotting chapters of @wickham2023 develop the data,
+mapping and layer vocabulary behind the chapter's figures, which the
+Computer Lab builds.
 
 ## Exercises {.unnumbered}
 
-Use the chapter's printed data. Where a prompt supplies rounded
-summaries, answers within 0.02 in the stated units are sufficient unless
-that prompt requests a different precision. Keep each interpretation
-beside its target, denominator and working conditions.
+The chapter's printed output, tables and figures supply the values each
+exercise reads, with a calculator for the few calculations that the
+reasoning needs. State the records, working conditions and comparison
+direction in each interpretation.
 
 <!-- prompt-id: CH06-E01 -->
 
-### Exercise 1: Read and reconstruct the one-way fit {.unnumbered #ex-ch06-01}
+### Exercise 1: Read the one-way fit from its output {.unnumbered #ex-ch06-01}
 
-Use the twelve Massed scores. Find the three means and grand mean. Reconstruct
-the between-group and within-group sums of squares, their degrees of freedom
-and the F statistic. State the equal-means null, explain what its p-value
-addresses under the working model, and calculate eta-squared.
+For the thirty background-sound scores, `anova(one_fit)` reports sums of
+squares 80 and 178 on 2 and 27 df, $F=6.0674$ and $p=.0067$, and
+`coef(indicator_fit)` returns 12, $-2$ and $-4$ with Silence as the
+reference level.
+
+1. Say what each sum of squares measures in these scores, and why
+   Instrumental music, whose mean equals the grand mean of 10, adds
+   nothing to the between-group sum of squares although its ten scores
+   vary.
+2. Explain what the within-group df, 27, count, and why $F$ divides by
+   the residual mean square, 6.5926, rather than by the variance of all
+   thirty scores, $258/29=8.8966$.
+3. State the equal-means null, and interpret $p=.0067$ under the working
+   model, including what the result leaves unanswered about particular
+   pairs of conditions.
+4. Predict the three coefficients if Instrumental music were made the
+   reference level, and say which parts of the ANOVA output would change.
 
 <!-- END EX06-01 PROMPT -->
 
@@ -1632,10 +1588,23 @@ addresses under the working model, and calculate eta-squared.
 
 ### Exercise 2: Keep the comparison and its family together {.unnumbered #ex-ch06-02}
 
-For the same scores, compare Answer feedback and Explanatory feedback separately
-with Rereading. Write both coefficient vectors, estimates and SEs. Construct
-the 95% Bonferroni intervals for these two comparisons and compare them with
-the corresponding all-pairs Tukey intervals. Explain why their limits differ.
+Instrumental music minus Silence is $-2$ points with SE 1.1483 on 27 df.
+Its 95% interval is $[-4.3561, 0.3561]$ when the comparison stands alone,
+$[-4.7253, 0.7253]$ inside the declared family of the two comparisons
+with Silence (Bonferroni) and $[-4.8470, 0.8470]$ inside the family of
+all three pairs (Tukey).
+
+1. The estimate and SE are the same in all three intervals. Explain why
+   the limits differ, naming the family that each interval protects.
+2. Explain why the SE uses 27 residual df, although the comparison
+   involves only the twenty students in two conditions.
+3. An analyst reports Music with lyrics minus Silence, $-4$ points,
+   because it is the largest of the three observed differences. Say which
+   family its interval should come from, and why.
+4. The omnibus F rejected equal means, yet all three intervals above
+   include zero. Explain why these results are compatible, and why an
+   interval that includes zero does not show that the two means are
+   equal.
 
 <!-- END EX06-02 PROMPT -->
 
@@ -1643,25 +1612,48 @@ the corresponding all-pairs Tukey intervals. Explain why their limits differ.
 
 ### Exercise 3: Read interaction as a change in comparison {.unnumbered #ex-ch06-03}
 
-Use all 24 feedback/practice scores. Produce the six cell means and the
-interaction plot. Calculate each feedback group's Spaced-minus-Massed change.
-Fit the full two-way model and report the interaction F test. For Answer's
-change minus Rereading's change, calculate the estimate, SE and 95% Scheffe
-interval over the two-dimensional interaction family. Explain how that
-interval can include zero when the omnibus interaction is significant.
+In the 24-pupil feedback-by-practice study, the Massed and Spaced cell
+means are 6 and 6 for Rereading, 8 and 12 for Answer feedback and 10 and
+18 for Explanatory feedback, and the full two-way model gives the
+interaction test $F(2,18)=9.6$, $p=.0015$.
+
+1. Give the three Spaced-minus-Massed changes, and say what the
+   nonparallel lines of the interaction plot show and what they cannot
+   show without a model.
+2. The practice margins are 8 and 12. Explain why the 4-point practice
+   main effect needs the interaction beside it when a reader asks how
+   spaced practice works.
+3. The selected difference of differences, Answer feedback's change
+   minus Rereading's change, is 4 points with SE 1.8257. Its pointwise
+   interval is $[0.1643, 7.8357]$, and its Scheffé interval over the
+   two-dimensional interaction family is $[-0.8680, 8.8680]$. Explain how
+   the Scheffé interval can include zero while the interaction F test
+   rejects, and say which interval is warranted when this direction was
+   chosen after the plot was inspected.
+4. Answer feedback's simple practice effect is also 4 points, with SE
+   1.291. Explain why its SE is smaller and why the interaction family's
+   guarantee does not cover it.
 
 <!-- END EX06-03 PROMPT -->
 
 <!-- prompt-id: CH06-E04 -->
 
-### Exercise 4: State what adjustment holds fixed {.unnumbered #ex-ch06-04}
+### Exercise 4: Name the two models behind an interaction test {.unnumbered #ex-ch06-04}
 
-Use the separately printed twelve-pupil pretest/posttest data. Compare the
-raw group means with the fitted means at pretest 8 under the common-slope
-model. Reproduce the Answer-minus-Rereading estimate and its pointwise
-interval. Compare the baseline-only and full models on identical records.
-Explain the conditioning target, the common-slope assumption and why these
-authored results are not empirical evidence about feedback.
+The interaction test for the 24 feedback/practice scores compares two
+models fitted to the same pupils: the additive model, with residual sum
+of squares 124 on 20 df, and the full factorial model, with 60 on 18 df.
+
+1. Name the two models and say what the larger one adds.
+2. The comparison gives $F=9.6$ on 2 and 18 df. Explain why its
+   denominator comes from the full model rather than the additive model.
+3. After the two Explanatory-Spaced pupils scoring 19 and 20 are
+   removed, the sequential sums of squares for feedback and practice
+   change with the order of the formula, yet the comparison of the
+   additive and full models gives $F(2,16)=5.7426$ in either order.
+   Explain why.
+4. Say what a nonsignificant result of this comparison would and would
+   not show about additivity.
 
 <!-- END EX06-04 PROMPT -->
 
@@ -1670,11 +1662,22 @@ authored results are not empirical evidence about feedback.
 ### Exercise 5: Preserve the event, denominator and expected counts {.unnumbered #ex-ch06-05}
 
 In the invented table, Online has 32 completions and 18 non-completions;
-In person has 18 completions and 32 non-completions. For Online, test p=.5 with the uncorrected score
-procedure and report its 95% score interval. For the complete table, compute
-all expected counts and Pearson's X-squared statistic. Explain why the two
-tests answer different questions and what design information an effect claim
-would additionally need.
+In person has 18 completions and 32 non-completions. For Online, the
+uncorrected score test of $p=.5$ gives $X^2=3.92$ and $p=.0477$, with the
+95% Wilson interval $[.5014, .7586]$. For the complete table, Pearson's
+test gives $X^2=7.84$ on 1 df and $p=.0051$.
+
+1. State the null and the denominator of each test, and explain why the
+   two p-values answer different questions.
+2. Calculate the expected count of Online completions under
+   independence, and explain why the chi-squared approximation is checked
+   against expected rather than observed counts.
+3. The difference in proportions is .28, the risk ratio 1.7778 and the
+   odds ratio 3.1605. Explain why the odds ratio lies farther from 1 than
+   the risk ratio here, and why Cramér's V, .28, equals the difference in
+   proportions only in a table like this one.
+4. Say what design information a claim that the online format causes
+   completion would additionally need.
 
 <!-- END EX06-05 PROMPT -->
 
@@ -1682,12 +1685,25 @@ would additionally need.
 
 ### Exercise 6: Distinguish study size, repetitions and planning targets {.unnumbered #ex-ch06-06}
 
-Use the chapter's ANOVA simulation table. Explain the changes from n=4 to
-n=12 under the null and alternative models. Calculate MCSE for the .6545
-power estimate with B=2000. Explain what increasing B changes. Then compare
-the n=17 power target with the n=35 planned-width target for the two-comparison
-family; say what each target controls and why a realised interval can have a
-different width from its planning value.
+In the chapter's simulation, each condition repeats 2,000 generated
+studies of three Normal groups with common SD $\sqrt{10/3}$ and applies
+the .05 omnibus ANOVA. With equal means $(8,8,8)$ the rejection rates are
+.056 at four pupils per group and .050 at twelve; with means 6, 8 and
+10 the estimated power is .6545 at four and .9990 at twelve.
+
+1. Say what the rejection rates under equal means estimate, and explain
+   why the power rises from four to twelve pupils per group while those
+   rates stay near .05.
+2. The Monte Carlo standard error (MCSE) of the power estimate .6545
+   with $B=2000$ is 0.0106. Say what it measures, and why it differs
+   from the SE of a contrast within one simulated study.
+3. Predict what quadrupling $B$ to 8,000 would do to this MCSE and to the
+   power that the simulation estimates.
+4. For the declared two-comparison family, 17 pupils per group first
+   reach power .8 for a 2-point comparison, and 35 per group first reach
+   a planned simultaneous half-width of at most one point. Say what each
+   target controls, and why a realised interval can have a different
+   width from its planning value.
 
 <!-- END EX06-06 PROMPT -->
 
@@ -1695,11 +1711,23 @@ different width from its planning value.
 
 ### Exercise 7: Distinguish an estimate from its fitting criterion {.unnumbered #ex-ch06-07}
 
-Keep 32 successes in 50 trials fixed. Write the binomial likelihood as a
-function of p, find its analytic maximizer, and reproduce it using the
-negative-log-likelihood and `optimize()`. State the returned probability and
-objective value, compare the criterion at p=.5, and explain why a likelihood
-curve is not a probability distribution over p.
+Keep 32 successes in 50 trials fixed. Minimizing the negative binomial
+log-likelihood with `optimize()` over $[0,1]$ returns `minimum` .64 and
+`objective` 2.1465; at $p=.5$ the negative log-likelihood is 4.1330.
+
+1. Say which returned value is the parameter estimate and which is the
+   criterion value, and why 2.1465 is neither a probability that $p=.64$
+   nor an SE.
+2. The derivative of the log-likelihood is
+   $\ell'(p)=(32-50p)/\{p(1-p)\}$. Use its sign to explain why the
+   maximum lies at $32/50$.
+3. Before calculating, predict how the fitted probability and the fall in
+   log-likelihood from $p=.64$ to $p=.5$ would change with 64 successes in
+   100 trials. Then compare your prediction with the supplied falls,
+   1.9864 for 32 of 50 and 3.9729 for 64 of 100.
+4. Explain why the likelihood curve is not a probability distribution
+   over $p$, and what an interior numerical search would return if all
+   50 trials had been successes.
 
 <!-- END EX06-07 PROMPT -->
 
@@ -1707,180 +1735,12 @@ curve is not a probability distribution over p.
 
 ### Exercise 8: Write a qualified result paragraph {.unnumbered #ex-ch06-08}
 
-Choose the one-way comparisons, selected interaction contrast or adjusted
-group comparison from this chapter. Write a short paragraph giving the
+Choose the one-way comparisons, the selected interaction contrast or the
+two-group count comparison from this chapter. Write a short paragraph giving the
 question, data and denominator, estimate, interval and its family or
 pointwise status, working conditions and scope. Identify one tempting claim
 that the numerical result does not establish, and explain the missing support.
 
 <!-- END EX06-08 PROMPT -->
-
-\clearpage
-
-## Appendix A: Alternative calculations on the same data {.unnumbered #ch06-appendix-a}
-
-These short calculations expose relationships behind the main procedures.
-They use the objects created in the chapter. The Computer Lab references
-provide the corresponding variations and complete starting setups.
-
-### Direct sums of squares and omega-squared {.unnumbered}
-
-The fitted object's residual sum of squares can be checked directly from
-the scores and group means. The following calculation reconstructs all
-three sums of squares and the observed eta-squared summary.
-
-```{r}
-#| label: ch06-app-direct-ss
-grand <- mean(massed$score)
-ss_between <- sum(4 * (means-grand)^2)
-ss_within <- sum(resid(one_fit)^2)
-ss_total <- sum((massed$score-grand)^2)
-c(SS_B = ss_between, SS_W = ss_within,
-  SS_T = ss_total, eta2 = ss_between/ss_total)
-```
-
-The values 32, 30 and 62 reproduce the main table, with
-$32+30=62$ and $\eta^2=.5161$. For this one-way model, a conventional
-bias-adjusted variance-share estimator is
-
-$$
-\widehat\omega^2=
-\frac{SS_B-(J-1)MS_W}{SS_T+MS_W}
-=\frac{32-2(30/9)}{62+30/9}=.3878.
-$$
-
-```{r}
-#| label: ch06-app-omega
-(ss_between - 2*mse) / (ss_total + mse)
-```
-
-Subtracting the error contribution from the numerator makes the estimate
-smaller here. In a sample with little between-group variation, that numerator
-can be negative. A negative estimate is a consequence of the bias adjustment,
-not a negative population variance share. Report the convention used if a
-display truncates it to zero. As with eta-squared, omega-squared does not
-replace the outcome-scale differences, their intervals or the design
-conditions for interpreting them.
-
-### Match the two-group t and F calculations {.unnumbered}
-
-Restrict the Massed records to Rereading and Answer feedback. A pooled
-equal-variance t test and a two-group ANOVA then use the same eight pupils,
-two fitted means and six residual degrees of freedom.
-
-\Needspace{20\baselineskip}
-
-```{r}
-#| label: ch06-app-t-squared
-two_groups <- droplevels(subset(massed,
-  feedback %in% c("Rereading", "Answer feedback")))
-pooled <- t.test(score ~ feedback, data = two_groups,
-  var.equal = TRUE)
-two_group_fit <- aov(score ~ feedback, data = two_groups)
-c(t = unname(pooled$statistic),
-  t_squared = unname(pooled$statistic)^2,
-  p = pooled$p.value)
-anova(two_group_fit)
-```
-
-The t statistic is $-1.5492$ because this formula call subtracts Answer's
-mean from Rereading's. Its square is $F=2.4000$, and both tests
-give p .1723. Squaring loses the sign but preserves the evidence against
-equal means for this matched procedure. Welch is a different calibration
-and does not generally share this identity; the equal group sizes and
-equal observed variances here happen to give the same numerical result.
-Using different records or the three-group residual denominator changes
-the calculation being compared.
-
-### Change the interval calibration for the selected DD {.unnumbered}
-
-The selected Answer-minus-Rereading practice DD stays 4 with SE 1.8257.
-Only the multiplier changes between its pointwise t interval and the
-simultaneous Scheffe interval for the two-dimensional interaction family.
-
-```{r}
-#| label: ch06-app-dd-intervals
-dd + c(-1, 1) * qt(.975, 18) * se_dd
-dd + c(-1, 1) * scheffe * se_dd
-```
-
-The pointwise interval [0.1643, 7.8357] excludes zero; the simultaneous
-interval [$-0.8680$, 8.8680] includes it. Selecting the narrower interval after
-seeing which conclusion it yields does not preserve the broader family's
-guarantee. Choose and describe the inferential question and calibration.
-
-For comparison, Answer's simple practice effect uses only two means:
-
-\Needspace{10\baselineskip}
-
-```{r}
-#| label: ch06-app-simple-effect
-simple_answer <- cell_mean["Answer feedback", "Spaced"] -
-  cell_mean["Answer feedback", "Massed"]
-se_simple <- sqrt(mse_two * (1/4 + 1/4))
-c(estimate = simple_answer, SE = se_simple)
-simple_answer + c(-1, 1) * qt(.975, 18) * se_simple
-```
-
-Its pointwise interval is [1.2877, 6.7123]. The smaller SE reflects a
-different contrast. It does not acquire a simultaneous guarantee over
-simple effects from the interaction-only Scheffe calculation.
-
-### Compute the Wilson endpoints directly {.unnumbered}
-
-For one proportion, write $z=z_{.975}$, $n=50$ and $\widehat p=32/50$.
-Inverting the score inequality gives a center and half-width
-
-$$
-\begin{aligned}
-\text{center}&=\frac{\widehat p+z^2/(2n)}{1+z^2/n},\\
-\text{half-width}&=
-\frac{z\sqrt{\widehat p(1-\widehat p)/n+z^2/(4n^2)}}{1+z^2/n}.
-\end{aligned}
-$$
-
-```{r}
-#| label: ch06-app-wilson
-phat <- 32/50
-z <- qnorm(.975)
-center <- (phat + z^2/(2*50)) / (1 + z^2/50)
-half <- z * sqrt(phat*(1-phat)/50 + z^2/(4*50^2)) /
-  (1 + z^2/50)
-center + c(-1, 1)*half
-```
-
-The endpoints [.5014, .7586] reproduce the uncorrected one-proportion
-`prop.test()` interval. The altered center and half-width are consequences
-of score-test inversion. The denominator and Bernoulli working model remain
-those of the original 50 Online records.
-
-\Needspace{26\baselineskip}
-
-## Appendix B: What later chapters develop {.unnumbered #ch06-appendix-b}
-
-Chapter 7 extends squared loss from a fitted center to a line. Its appendix
-recalls the mean-loss identity, derives the line's normal equations and
-relates fitted values and residuals through projection. It also develops
-uncertainty for the slope and fitted mean. The scalar numerical search here
-supplies a first fitting example; those later derivations explain the linear
-model's structure.
-
-Chapter 8 extends adjustment to several controls. It distinguishes a
-coefficient conditional on specified predictors from a fitted mean at a
-profile, a prediction for a new case, and an average of fitted values over
-a named population. Coefficient covariances help calculate uncertainty for
-these quantities. The chapter also develops common support and the difference
-between observational and randomized-design interpretations. Chapter 9's
-separate Baumann ANCOVA reference retains the original study's outcome
-definitions, observed denominators and missing-data qualifications; it is
-distinct from the twelve authored pupils analysed here.
-
-Chapter 11 develops likelihood for binary regression. Its reference material
-works through exact boundary estimates and their logit limits, and a
-Normal likelihood with more than one parameter. Numerical fitting then
-requires attention to parameter constraints, starting values and convergence
-checks. The scalar 32-of-50 calculation here introduces the objective and
-its maximizer while keeping those more extensive issues with their later
-applications.
 
 ## References {.unnumbered}

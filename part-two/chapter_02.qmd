@@ -66,6 +66,7 @@ format:
           \usepackage{array}
           \usepackage{caption}
           \captionsetup[table]{position=above,format=plain,justification=raggedright,singlelinecheck=false,labelsep=newline,labelfont=bf,textfont=it}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     toc: true
     toc-depth: 2
@@ -376,13 +377,30 @@ verify_efa_results <- function(z) {
 
 # ---- render helpers --------------------------------------------------------
 
+# Round once, drop trailing zeros, and give a set one number of decimals
+# (companion plan, Section 7): a nonzero value that rounds to zero becomes a
+# bound, and a value that rounds to 1 without equalling 1 keeps its decimals.
+pt2_fmt <- function(x, digits=3) {
+  r <- round(x,digits); ok <- !is.na(x)
+  out <- format(r,digits=15,scientific=FALSE,trim=TRUE)
+  if(any(ok & abs(r)==1 & abs(x)!=1)) {
+    dec <- nchar(sub("^[^.]*\\.?","",out))
+    out[ok] <- paste0(out[ok],ifelse(grepl(".",out[ok],fixed=TRUE),"","."),
+      strrep("0",digits-dec[ok]))
+  }
+  tiny <- ok & r==0 & x!=0
+  bound <- format(10^-digits,scientific=FALSE)
+  out[tiny] <- ifelse(x[tiny]>0,paste0("< ",bound),paste0("> -",bound))
+  out
+}
+
 pt2_table <- function(x, digits=3, caption=NULL, row.names=FALSE) {
   x <- as.data.frame(x,check.names=FALSE)
   integer_columns <- c("df","Df","Factors","Moments","Free","npar","Dimension",
     "Effective_parameters","Candidate_df","Delta_df","Missing")
   for(nm in names(x)) if(is.numeric(x[[nm]])) {
     d <- if(nm %in% integer_columns) 0 else digits
-    x[[nm]] <- formatC(x[[nm]],digits=d,format="f")
+    x[[nm]] <- gsub("-","\u2212",pt2_fmt(x[[nm]],d),fixed=TRUE)
   }
   names(x) <- gsub("_"," ",names(x),fixed=TRUE)
   out <- knitr::kable(x,caption=caption,row.names=row.names,booktabs=TRUE,longtable=FALSE)
@@ -404,14 +422,14 @@ pt2_sle_appendix_table <- function(x,widths) {
   knitr::asis_output(paste0("\\begingroup\\small\n",out,"\n\\endgroup\n"))
 }
 
-pt2_num <- function(x,digits=3) formatC(x,digits=digits,format="f")
+pt2_num <- function(x,digits=3) pt2_fmt(x,digits)
 pt2_p <- function(x) ifelse(x<.001,"< .001",paste0("= ",pt2_num(x)))
 
 pt2_heatmap <- function(M,title="",limit=max(abs(M)),digits=NULL,cex=.7) {
   nr <- nrow(M); nc <- ncol(M)
   par(mar=c(4,4,.9,1))
   palette <- grDevices::colorRampPalette(c("#8c510a","#f7f7f7","#2166ac"))(101)
-  image(1:nc,1:nr,t(M[nr:1,,drop=FALSE]),zlim=c(-limit,limit),
+  image(1:nc,1:nr,t(pmin(pmax(M[nr:1,,drop=FALSE],-limit),limit)),zlim=c(-limit,limit),
         col=palette,axes=FALSE,xlab="",ylab="",main=title)
   axis(1,at=1:nc,labels=colnames(M),las=2,cex.axis=cex)
   axis(2,at=1:nr,labels=rev(rownames(M)),las=2,cex.axis=cex)
@@ -440,7 +458,7 @@ pt2_neighbor_plot <- function(z) {
   for (m in 2:4) {
     P <- z$rotations[[m]]$P
     colnames(P) <- paste0("F",1:m)
-    pt2_heatmap(P,paste(m,"ML factors"),limit=1,digits=2,cex=.8)
+    pt2_heatmap(P,paste(m,"ML factors"),limit=1,digits=2,cex=1)
   }
 }
 
@@ -449,13 +467,18 @@ pt2_rotation_plot <- function() {
   Q <- matrix(c(1,1,-1,1),2,2)/sqrt(2)
   T <- matrix(c(1,0,.5,1),2,2)
   sets <- list(A,A%*%Q,A%*%solve(T))
-  par(mfrow=c(1,3),mar=c(4,3,2,1))
+  # Set cex after mfrow, which shrinks it; labels then print near 7.4 pt.
+  par(mfrow=c(1,3))
+  par(mar=c(4,4,2,1),cex=.72)
   for (k in 1:3) {
     plot(sets[[k]],xlim=c(-.3,1.1),ylim=c(-.8,1),pch=16,
       xlab="Loading coordinate 1",ylab="Loading coordinate 2",
-      main=c("Original","Orthogonal Q","Inverse-paired T")[k],cex.main=.9)
+      main=c("Original","Orthogonal Q","Inverse-paired T")[k],cex.main=1,
+      xaxt="n")
+    axis(1,at=c(0,.5,1))
     abline(h=0,v=0,col="gray70")
-    text(sets[[k]],labels=paste0("Y",1:4),pos=3,cex=.7)
+    # Y1 below, Y2 above, Y3 left, Y4 right keep close pairs apart.
+    text(sets[[k]],labels=paste0("Y",1:4),pos=c(1,3,2,4),cex=1)
   }
 }
 
@@ -990,7 +1013,7 @@ loading matrix until it looks recognizable.
 ```{r}
 #| label: tbl-efa-audit
 #| tbl-cap: "Sample A audit, in raw process-index points; skewness is the third standardized central moment."
-pt2_table(z$audit,digits=2)
+pt2_table(z$audit)
 ```
 
 There are `r z$n` distinct rows, no missing values, and positive
@@ -1107,7 +1130,7 @@ that distinction.
 
 The first three Sample A component eigenvalues sum to
 `r pt2_num(sum(z$pa$observed[1:3,1]))`, or
-`r pt2_num(100*sum(z$pa$observed[1:3,1])/12,1)`% of the twelve units
+`r pt2_num(100*sum(z$pa$observed[1:3,1])/12)`% of the twelve units
 of standardized observed variance. This is a PCA summary. It is not
 the common variance attributed to three latent factors by the ML model.
 The two summaries can differ because their objectives differ, even
@@ -1680,7 +1703,7 @@ the discrepancy further, but its smallest uniqueness is approximately
 same. A bound prevents an optimizer from reporting a negative uniqueness;
 it does not make that boundary estimate substantively credible.
 
-An interior uniqueness of .20 and a bound-constrained uniqueness of .005
+An interior uniqueness of .200 and a bound-constrained uniqueness of .005
 are qualitatively different evidence. The latter can signal too many
 factors, a highly redundant pair, sampling fluctuation, or a misspecified
 common-factor model. Inspect its indicator and neighboring pattern before
@@ -1890,7 +1913,7 @@ do not.
 
 ```{r}
 #| label: tbl-efa-pattern
-#| tbl-cap: "All pattern coefficients. Small entries remain visible; none were suppressed at .30."
+#| tbl-cap: "All pattern coefficients. Small entries remain visible; none were suppressed at .3."
 pt2_table(data.frame(Item=rownames(P),P,check.names=FALSE))
 ```
 
@@ -1916,7 +1939,7 @@ with the Planning--Strategy association. Reading the structure matrix as
 if every entry were a separate direct loading would therefore exaggerate
 cross-loading complexity.
 
-Conversely, dismissing every secondary pattern coefficient below .30
+Conversely, dismissing every secondary pattern coefficient below .3
 would conceal the two content-relevant relations under consideration.
 P4 concerns revising a plan when a method fails; S4 concerns using others
 to improve a learning strategy. Their secondary coefficients,
@@ -1983,8 +2006,8 @@ $$
 $$ {#eq-efa-reproduced-pair}
 
 All primary and secondary coefficients participate. For P4 and S4,
-the observed correlation is `r pt2_num(z$R["P4","S4"])` and the
-reproduced correlation is `r pt2_num(z$reproduced["P4","S4"])`.
+the observed correlation is `r pt2_num(c(z$R["P4","S4"],z$reproduced["P4","S4"]))[1]` and the
+reproduced correlation is `r pt2_num(c(z$R["P4","S4"],z$reproduced["P4","S4"]))[2]`.
 The residual, defined as observed minus reproduced, is
 `r pt2_num(z$residual["P4","S4"])`. Its sign is interpretable only
 after the subtraction convention is stated.
@@ -2093,7 +2116,7 @@ T_B=-\left[n-1-\frac{2p+5}{6}\right]\log|\mathbf R|,
 \qquad df_B=\frac{p(p-1)}2.
 $$
 
-Here $T_B=$ `r pt2_num(z$bartlett,1)` on 66 df. Rejecting an identity
+Here $T_B=$ `r pt2_num(z$bartlett)` on 66 df. Rejecting an identity
 correlation matrix says that the indicators are not mutually uncorrelated
 in the population under the test assumptions. It does not show that a
 particular low-dimensional factor model fits. A matrix with complicated
@@ -2312,6 +2335,10 @@ indicators. The three samples are combined for distribution only, and no
 observations have been pooled, rounded, standardized, reassigned or
 regenerated for analysis.
 
+```{=latex}
+\Needspace{14\baselineskip}
+```
+
 ## Fields and common coding {.unnumbered}
 
 ```{r}
@@ -2398,9 +2425,9 @@ pt2_sle_appendix_table(data.frame(
 ```
 
 Factor correlations are
-$\phi_{12}=`r pt2_num(pop$Phi[1,2],2)`$,
-$\phi_{13}=`r pt2_num(pop$Phi[1,3],2)`$ and
-$\phi_{23}=`r pt2_num(pop$Phi[2,3],2)`$, with all three factor variances
+$\phi_{12}=`r pt2_num(pop$Phi[cbind(c(1,1,2),c(2,3,3))],2)[1]`$,
+$\phi_{13}=`r pt2_num(pop$Phi[cbind(c(1,1,2),c(2,3,3))],2)[2]`$ and
+$\phi_{23}=`r pt2_num(pop$Phi[cbind(c(1,1,2),c(2,3,3))],2)[3]`$, with all three factor variances
 fixed at one. One residual covariance is nonzero,
 $\theta_{\mathrm{B1,B2}}=`r pt2_num(pop$Theta_z[9,10],2)`$ on the
 standardized scale, representing shared peer context that the three broad
