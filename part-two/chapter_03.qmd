@@ -818,6 +818,8 @@ is a sentence, not yet a model.
 > structure becomes a model that can be estimated on new records, and how far
 > does an admissible estimate take the argument?
 
+\Needspace{4\baselineskip}
+
 Answering that takes four separable tasks -- declaring the restrictions,
 asking whether the parameters can be recovered, estimating them, and reading
 the result -- and stops before the fifth, evaluating the fit, which the next
@@ -1185,6 +1187,13 @@ and intended score use also change when items are removed.
 
 # Give latent variables a metric
 
+A change of factor units, a change of indicator units, and a new substantive
+restriction do different work. Factor rescaling preserves the implied
+covariance in the original observed units. Indicator rescaling expresses the
+same information in new observed units, with every affected model quantity
+transformed. A substantive restriction instead excludes covariance patterns
+that were previously allowed. The examples below keep those changes apart.
+
 ## Marker scaling and fixed-factor scaling
 
 Latent variables have no observed unit until we assign one. Under marker
@@ -1225,7 +1234,9 @@ $$
 \boldsymbol\Phi^*=\mathbf D\boldsymbol\Phi\mathbf D^{\mathsf T}.
 $$
 
-Then
+\Needspace{5\baselineskip}
+
+The implied covariance is unchanged:
 
 $$
 \boldsymbol\Lambda^*\boldsymbol\Phi^*
@@ -1354,6 +1365,16 @@ multivariate context; admissibility concerns the full covariance
 decomposition. For a single-loading item with uncorrelated residuals,
 the squared fully standardized loading is its communality. For a
 cross-loading item, use the full quadratic form, not a single square.
+
+The canonical analysis fits raw observations and then reports standardized
+coefficients. A correlation matrix removes the original indicator units;
+covariance-model standard errors computed from that input are not
+automatically standard errors of fully standardized parameters, whose
+transformation uses estimated variances. For a CFA whose restrictions are
+invariant to rescaling, the fit statistic can nevertheless stay the same.
+Unit-dependent equality restrictions, the covariance divisor, and the
+likelihood convention need their own checks. Section 6.2 distinguishes the
+information counts, and Section 7.3 states the divisor convention.
 
 # Trace restrictions into implied moments
 
@@ -1593,6 +1614,19 @@ This subtraction counts distinct covariance-model axes at regular,
 full-rank parameter points. It does not declare any substantively preferred
 loading to be known, and it does not replace an identification analysis.
 
+For the twelve-indicator SLE family, $78/(27+k)/(51-k)$ summarizes moments,
+free parameters and degrees of freedom when $k$ secondary loadings are free.
+It applies to twelve active indicators, three correlated unit-variance
+factors, diagonal residual covariance and no equality restriction. Removing
+an indicator changes the available moments; freeing a residual covariance
+changes another parameter block; an equality removes a free coordinate.
+Each needs its own ledger rather than an adjustment to $k$.
+
+The task here is to trace a specification into its count and read what an
+identification diagnostic adds. It does not require deriving an information
+matrix, proving global identification with a Jacobian, or implementing an
+optimizer.
+
 ## A recoverable block and a counterexample {#sec-recoverable}
 
 For a single marker-scaled factor with three indicators and diagonal
@@ -1652,7 +1686,8 @@ The diagram pair makes the missing information visible. In the isolated
 model, all four cross-block covariances are fixed to zero, so the positive
 whole-model df do not help identify either two-indicator block. Allowing a
 nonzero factor covariance connects the blocks: cross-block moments then
-contain products of loadings from both factors. The connected model is
+contain products of loadings from both factors. The connected model has nine free parameters and nominal $df=1$, compared
+with eight and nominal $df=2$ for the isolated model. It is
 generically identified under regular nonzero loadings and
 $\phi_{12}\ne0$; the argument degenerates when that connection is zero.
 
@@ -1664,7 +1699,7 @@ $\phi_{12}\ne0$; the argument degenerates when that connection is zero.
 #| fig-subcap:
 #|   - "Isolated orthogonal blocks"
 #|   - "Connected correlated blocks"
-#| fig-cap: "Two-indicator blocks can have the same whole-model count but different recoverability because the covariance edge changes which moments carry loading information."
+#| fig-cap: "Both two-indicator models have positive nominal degrees of freedom, yet different recoverability. Adding the covariance edge increases the free-parameter count from eight to nine and supplies informative cross-block moments."
 #| fig-alt: "The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors."
 pt2_groups_diagram(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),correlated=FALSE)
 pt2_groups_diagram(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),correlated=TRUE,
@@ -1782,8 +1817,9 @@ first-order disturbance variances to $\phi_{11}-\phi_{12}$ and
 $\phi_{22}-\phi_{12}$. When these variances are nonnegative, the second-order
 parameterization reproduces exactly the same $2\times2$ factor covariance
 matrix. Without the two extra scale/equality restrictions, two first-order
-factors do not by themselves identify a second-order factor. The
-substantively more useful cases have three or more first-order factors.
+factors do not by themselves identify a second-order factor. Chapter 4 develops the case with three first-order factors and then a
+distinct bifactor structure. Those models express alternative measurement
+structures; they are not generic remedies for a weak initial model.
 
 ```{r}
 #| label: fig-cfa-equivalent-pair
@@ -2257,42 +2293,43 @@ evidence.
 
 # Exercises {.unnumbered}
 
-1. **Represent a model.** Write the six-indicator base
-   model in equations, matrices, and syntax. Identify its four free
-   non-marker loadings, two marker constraints, six target zeros, and
-   residual assumptions. Explain why no drawn arrow is causal proof.
-2. **Trace a changed relation.** Using the controlled
+1. <!-- prompt-id: PT2-CH03-E01 --> **Represent a model.** Write the six-indicator base
+   model in equations, matrices, and a path diagram. Use a free/fixed
+   parameter ledger to identify its four free non-marker loadings, two
+   marker constraints, six target zeros, and residual assumptions. Explain
+   why no drawn arrow is causal proof.
+2. <!-- prompt-id: PT2-CH03-E02 --> **Trace a changed relation.** Using the controlled
    parameter values in Section 4, compute $\sigma_{16}$ and
    $\sigma_{36}$. Add $\lambda_{32}=.25$ and recompute the affected
    moments. Contrast adding $\theta_{23}=.5$ instead.
-3. **Transform the metric.** For marker-scale factor
+3. <!-- prompt-id: PT2-CH03-E03 --> **Transform the metric.** For marker-scale factor
    variances 9 and 4, covariance 1.8, and target loadings
    $(1,.7,1.1)$ and $(1,.8,1.2)$, obtain the fixed-factor loading matrix
    and factor correlation. Verify a within-factor and a between-factor
    covariance before and after transformation.
-4. **Count carefully.** Evaluate the six-indicator base,
+4. <!-- prompt-id: PT2-CH03-E04 --> **Count carefully.** Evaluate the six-indicator base,
    its one-cross-loading extension, and its loading-equality restriction.
    Reconstruct the four-factor, sixteen-indicator count
    $136-(16+16+6)=98$. Then derive $78/(27+k)/(51-k)$ for twelve
    indicators and $k$ extra free cross-loadings under the stated
    simple-structure assumptions.
-5. **Count is not identification.** Construct two
+5. <!-- prompt-id: PT2-CH03-E05 --> **Count is not identification.** Construct two
    distinct admissible loading/residual-variance parameter vectors for
    a two-indicator unit-variance factor with
    $\sigma_{11}=\sigma_{22}=1$ and $\sigma_{12}=.4$. Explain how
    an isolated copy of this block can remain unidentified inside a
    positive-df whole model.
-6. **Read uncertainty.** From the Sample B loading
+6. <!-- prompt-id: PT2-CH03-E06 --> **Read uncertainty.** From the Sample B loading
    table, interpret P3's raw coefficient, SE, interval, and fully
    standardized coefficient. Explain why its raw coefficient above
    one is not an improper solution and why the printed raw SE is not
    the fully standardized SE.
-7. **Examine the contract.** An analyst feeds R's `cov()`
+7. <!-- prompt-id: PT2-CH03-E07 --> **Examine the contract.** An analyst feeds R's `cov()`
    matrix into another program, leaves its divisor unspecified, fixes
    marker loadings to one, and compares its test directly with this
    chapter's raw-data fit. List the settings and invariances that must
    be checked before interpreting a numerical difference.
-8. **Test a restriction.** Explain the P1/P2 raw-loading
+8. <!-- prompt-id: PT2-CH03-E08 --> **Test a restriction.** Explain the P1/P2 raw-loading
    equality, write its $\mathbf R$ row, and identify the covariance
    term required for the variance of the estimated difference. Why
    does this test not decide global fit or full parallel measurement?

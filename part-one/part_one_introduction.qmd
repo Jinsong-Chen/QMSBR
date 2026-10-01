@@ -125,10 +125,10 @@ draw_part_one_route <- function() {
   plot.window(xlim = c(0, 4), ylim = c(0, 1))
 
   labels <- c(
-    "Chapters 1–2\nQuestions, evidence,\nrecords, and variation",
-    "Chapters 3–4\nEstimation, uncertainty,\nand group comparisons",
-    "Chapters 5–6\nThe same methods\ncarried out in R",
-    "Chapters 7–9\nRegression, from one\npredictor to the toolbox"
+    "Chapters 1-2\nQuestions, evidence,\nrecords, and variation",
+    "Chapters 3-4\nEstimation, uncertainty,\nand group comparisons",
+    "Chapters 5-6\nThe same methods\ncarried out in R",
+    "Chapters 7-9\nRegression, from one\npredictor to the toolbox"
   )
   fills <- c("#F3F5F6", "#E8EEF1", "#DCE7EB", "#D0E0E5")
 
@@ -209,12 +209,12 @@ it builds on.
 | **1. The Quantitative Research Journey** | Turning a concern into a question with a stated target quantity; how a study produces its evidence; how comparison, timing, sampling, and assignment support descriptive, associational, predictive, and causal answers; reading a reported result as a bounded claim | The starting point of the part |
 | **2. Data, Distributions, and Variation** | Reading records, identifiers, codes, and denominators; sampling schemes; distributions, their skew and tail weight, centre, spread, and groups; relationships between two variables; how a summary varies across repeated samples | Reads the dataset behind Chapter 1's account of evidence and applies its design reasoning to an interpretation |
 | **3. Estimates, Uncertainty, and Statistical Tests** | The target quantity, the rule that estimates it, and the value obtained; standard errors for a mean and a difference, including the pooled standard error, and the conditions behind them; confidence intervals and confidence level; hypothesis tests, p-values, and significance; the one-sample, paired, equal-variance, and Welch t tests; the chi-square test of association and tables of three or more categorical variables; magnitude, error rates, power, and choices made after seeing the results | Turns Chapter 2's sampling distributions and standard error into inference from one observed sample |
-| **4. Group Comparisons with Analysis of Variance** | One-way and two-way analysis of variance; sums of squares, degrees of freedom, mean squares, and the F test; contrasts and comparison families; interaction and simple effects, read conceptually in three- and four-way designs | Applies Chapter 2's description of group variation and Chapter 3's inference to comparisons among several groups |
-| **5. Description and Basic Inference with R** | Preparing records in base R with explicit missing values; description and graphics; probability calculations; simulated sampling variation, bias, and standard error; mean intervals and z and t tests; covariance and correlation matrices and selected correlation inference; a short reproducible report | The computational route through Chapter 2 and the mean inference of Chapter 3 |
-| **6. Group Comparisons and Statistical Modelling with R** | The one-way and factorial analyses in R, with contrasts, comparison families, and the comparison of nested models by the F test; proportions and counts, with the effect scales that describe them; simulation, precision and power, and one scalar likelihood | Extends Chapter 4 and Chapter 3's categorical and planning lessons on Chapter 5's computational foundation |
-| **7. Simple Linear Regression** | A line fitted by least squares; slope, intercept, fitted values, and residuals; the matched correlation, slope, and F tests; an interval for a mean response and an interval for a new case; form, spread, influence, and supported predictor range; regression toward the mean, with Galton's heights of fathers and sons | Uses the covariance, correlation, and interval reasoning of Chapters 2, 3, and 5 |
-| **8. Multiple Regression I: Conditioning, Checks, and Coordinated Questions** | Several predictors and what conditioning changes; coefficient covariance and the quantities built from it; a fixed profile, standardization, and held-out prediction as different questions; several separately owed answers in one study | Extends Chapter 7's line with Chapter 5's partial correlation and Chapter 6's comparison of nested models |
-| **9. Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty** | Factors, indicator coding, and declared contrasts; the analysis of covariance as a regression; nested model comparison and information criteria; polynomial terms and a changed outcome scale; heteroskedasticity-robust, cluster-robust, and bootstrap uncertainty; a randomized design whose pupils sit in schools | Collects the regression toolbox on Chapters 7--8 and supplies what the later chapters need |
+| **4. Group Comparisons with Analysis of Variance** | Group-mean models and their comparison by the F test; one-way and two-way analysis of variance; sums of squares, degrees of freedom, and mean squares; contrasts and comparison families; interaction and simple effects, extended to a worked three-way table and the structure of four-way designs | Applies Chapter 2's description of group variation and Chapter 3's inference to comparisons among several groups |
+| **5. Description and Basic Inference with R** | Preparing records in base R with explicit missing values; distributions, graphics and probability calculations; relationships, covariance and correlation matrices, and one-control partial correlation; simulated sampling variation, bias and standard error; mean intervals and their repeated-study coverage, z and t tests, and selected correlation inference; a short reproducible report | The computational route through Chapter 2's order of distributions, relationships and sampling, followed by Chapter 3's mean inference |
+| **6. Group Comparisons and Statistical Modelling with R** | Group-mean and factorial models in R, with the F test comparing named models; graphical comparisons with ggplot2; contrasts and comparison families, including a declared contrast and the protection needed if it had been selected after inspection; proportions and counts, with their effect scales; numerical optimization through squared loss and a scalar likelihood; simulation, precision and power | Implements Chapter 4's model comparisons and extends Chapter 3's categorical and planning lessons on Chapter 5's computational foundation |
+| **7. Simple Linear Regression** | The model for a conditional mean and its error variation, first through a known process and then occupation records; least-squares estimates and slope inference; repeated-study uncertainty; mean-response and new-case intervals; diagnostics; regression toward the mean, its paradox and its causal misreading, with Galton's heights and repeated exams | Extends Chapter 4's group-mean model to a line, using Chapters 5--6's covariance, inference, simulation and objective-function work |
+| **8. Multiple Regression I: Conditioning, Checks, and Coordinated Questions** | The multiple-regression model and partial slopes through a known process; estimation and inference on the same occupation records, with the overall F test; checks, coefficient covariance, fitted profiles and standardization; a separate held-out prediction question; three coordinated answers in one study | Extends Chapter 7's model and line with Chapter 5's partial correlation and Chapter 4's model comparisons, implemented in R in Chapter 6 |
+| **9. Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty** | Changes to the mean part: indicators and contrasts, covariance adjustment, nested and non-nested model comparisons, and changed forms and scales; changes to uncertainty: HC3, resampling, and a randomized study with school clusters | Extends Chapter 8's model, connecting each method to the part it changes and the conditions it needs |
 
 : What each available chapter is responsible for. {#tbl-part-one-sequence tbl-colwidths="[24,46,30]"}
 
@@ -224,7 +224,8 @@ Chapter 2 develops sampling distributions and the standard error through
 repeated samples; Chapter 3 develops their inferential use and states the
 conditions they require. Chapter 2 explains the descriptive ingredients of
 group variation; Chapter 4 develops the full analysis-of-variance
-decomposition and its inferential use. Where a later chapter needs an
+decomposition and its inferential use, comparing one common mean with
+group means and an additive model with a model that includes interaction. Where a later chapter needs an
 earlier idea, it recalls it briefly and then puts it to work in the new
 setting.
 
@@ -277,12 +278,17 @@ regression-based claim: reversals and Simpson's paradox, regression to the
 mean, selection, measurement, dependence, and what a study's design
 supplies that adjustment cannot.
 
-Two supplementary units extend Chapter 1's argument-based reading: *How to
-Read a Quantitative Study as an Argument* and *Extending the
-Argument-Based Approach to Quantitative Studies*. Both are optional, and
-no numbered chapter depends on either.
+Three argument chapters extend the argument-based approach. Argument
+Chapter A, *How to Read a Quantitative Study as an Argument*, develops
+the reading, evaluation, and construction of one question-level argument.
+Argument Chapter B, *Extending the Argument-Based Approach to Quantitative
+Studies*, develops arguments with several statistical strands and studies
+with coordinated questions. Argument Chapter C concerns arguments involving
+latent variables or an additional measurement layer, drawing on Part Two.
+The argument chapters are optional, and no numbered chapter depends on
+them.
 
-Chapters 10--14 and the two supplementary units are not yet available.
+Chapters 10--14 and Argument Chapters A, B, and C are not yet available.
 
 Part Two of the book turns to latent-variable modeling, where the variable
 of primary interest is one that no column of the data set holds.

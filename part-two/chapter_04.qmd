@@ -196,10 +196,11 @@ pt2_table <- function(x, digits=3, caption=NULL, row.names=FALSE) {
     "Effective_parameters","Candidate_df","Delta_df","Missing")
   for(nm in names(x)) if(is.numeric(x[[nm]])) {
     d <- if(nm %in% integer_columns) 0 else digits
-    x[[nm]] <- gsub("-","\u2212",pt2_fmt(x[[nm]],d),fixed=TRUE)
+    values <- pt2_fmt(x[[nm]],d)
+    x[[nm]] <- ifelse(grepl("^-",values),paste0("$",values,"$"),values)
   }
   names(x) <- gsub("_"," ",names(x),fixed=TRUE)
-  out <- knitr::kable(x,caption=caption,row.names=row.names,booktabs=TRUE,longtable=FALSE)
+  out <- knitr::kable(x,format="pipe",caption=caption,row.names=row.names)
   if(knitr::is_latex_output()) knitr::asis_output(paste0(
     "\\Needspace{",min(nrow(x)+7,25),"\\baselineskip}\n\n",
     paste(out,collapse="\n"),"\n\n")) else out
@@ -1817,7 +1818,7 @@ source of covariance. Cross-sectional covariance data do not establish that
 causal direction. Nor does a favorable fit show that $G$ has the intended
 substantive meaning.
 
-## Three correlations exactly determine three higher-order loadings
+## Three correlations determine the candidate higher-order loadings
 
 With three standardized first-order factors and positive nonzero
 correlations,
@@ -1867,48 +1868,74 @@ are the axes that reproduce the fitted factor-correlation matrix
 above. Mixing the raw and standardized columns would break the
 closed-form check.
 
-## With three first-order factors, fit cannot choose between the forms
+## Three factors add no equality degrees of freedom, but admissibility still matters
 
 The correlated model estimates $m(m-1)/2$ first-order factor correlations.
-The one-factor higher-order form estimates $m$ higher-order loadings. Their
-difference is
+For $m\ge3$, the regular identified one-factor higher-order form estimates
+$m$ higher-order loadings. Its generic covariance-equality restriction count is
 
 $$
 \frac{m(m-1)}2-m=\frac{m(m-3)}2.
 $$ {#eq-cfa-higher-count}
 
-For $m=3$, the difference is zero, but a matching count alone does not
-make two models equivalent. The inversion in @eq-cfa-higher-inversion
-does: whenever its conditions hold, the three correlations and three
-higher-order loadings are alternative axes for the same information, so
-each form can reproduce every covariance matrix the other can. On any
-such data the two forms give the same fitted covariance matrix,
-statistic, df, and fit indices. The fitted records below show that
-consequence; they do not test the equivalence.
+For $m=3$, this count is zero. Where the inversion in
+@eq-cfa-higher-inversion gives a regular interior solution with positive
+disturbance variances, the three correlations and three higher-order loadings
+are alternative coordinates locally. The higher-order form adds no equality
+degrees of freedom there. Its disturbance variances must still be nonnegative,
+however: these inequality restrictions exclude some otherwise valid
+factor-correlation matrices.
+
+Before calculating, predict whether every positive-definite three-factor
+correlation matrix must therefore admit this higher-order representation.
+Consider
+
+$$
+\boldsymbol\Phi_l=
+\begin{bmatrix}1&.7&.7\\.7&1&.2\\.7&.2&1\end{bmatrix}.
+$$
+
+Its eigenvalues are $2.095$, $.800$, and $.105$, so it is positive definite.
+Yet the first inversion gives $\gamma_1^2=.7(.7)/.2=2.45$, requiring a
+first-order disturbance variance $1-2.45=-1.45$. The other squared loadings
+are $.2$, with disturbances $.8$. This is a valid correlated-factor matrix
+without an admissible one-factor higher-order decomposition. Equal parameter
+counts have not removed the admissibility restriction.
+
+```{r}
+#| label: higher-order-admissibility-check
+#| include: false
+Phi_counter <- matrix(c(1,.7,.7,.7,1,.2,.7,.2,1), 3, 3)
+gamma2_counter <- c(.7*.7/.2, .7*.2/.7, .7*.2/.7)
+stopifnot(all(eigen(Phi_counter, symmetric=TRUE)$values > 0),
+          max(abs(gamma2_counter - c(2.45,.2,.2))) < 1e-12,
+          max(abs(1-gamma2_counter - c(-1.45,.8,.8))) < 1e-12)
+```
+
+The fitted Sample B correlations do lie in the admissible region. Their
+higher-order coordinates therefore reproduce M1-cross's optimum:
 
 ```{r}
 #| label: tbl-cfa-extension-fit
 #| tbl-colwidths: [22,11,4,8,12,18,8,8,9]
-#| tbl-cap: "Sample B fit profiles for M1-cross, its equivalent higher-order representation, and the nonnested orthogonal bifactor rival. The extension fits are didactic post-confirmation analyses, not Sample-A-frozen rivals."
+#| tbl-cap: "Sample B fit profiles for M1-cross, its admissible higher-order representation, and the nonnested orthogonal bifactor rival. The extension fits are didactic post-confirmation analyses, not Sample-A-frozen rivals."
 pt2_table(pt4_fit_table(list(M1_cross=primary,
   Higher_order=extensions$profiles$HO_SLE,
   Bifactor=extensions$profiles$BIF_SLE)))
 ```
 
-M1-cross and the higher-order form have 29 free covariance parameters,
-49 df, the same fitted covariance matrix to numerical tolerance, and the
-same likelihood, AIC, and BIC, as their equivalence requires. Therefore
-neither these data nor any other covariance data meeting the inversion
-conditions can decide which story is preferable. Interpretation must come
-from the intended construct representation and from evidence beyond the
-reproduced covariance.
+Both forms have 29 free covariance parameters, 49 df, the same fitted
+covariance matrix to numerical tolerance, and the same likelihood, AIC, and
+BIC. Fit cannot choose between their substantive interpretations at this
+solution. Evidence beyond reproduced covariance must support the intended
+construct representation. The matching fit does not establish global
+equivalence of the two admissible model families or a general-factor cause.
 
 For $m=4$, six factor correlations are replaced by four higher-order
-loadings, so the higher-order model imposes two restrictions. The
-four-factor model introduced in Chapter 3 therefore supplies a testable
-case; three first-order factors do not. More first-order factors do not make
-the model automatically correct---they merely create restrictions that can
-be evaluated.
+loadings, introducing two generic covariance-equality restrictions in addition
+to the admissibility conditions. Chapter 3's four-factor model supplies that
+next case. More first-order factors create additional restrictions to evaluate,
+not an assurance that the model is correct.
 
 ## A bifactor model allocates item covariance directly {#sec-bifactor}
 
@@ -1989,17 +2016,15 @@ with $p=$ `r pt2_num(subset(bl,Factor=="Strategy_s" & Item=="S4")$p)`.
 That weak negative coefficient is not a numerical failure, but it strains a
 simple claim that every item carries a clear positive domain-specific signal.
 The bifactor also has higher AIC and BIC than M1-cross. Greater flexibility
-and a familiar name do not guarantee a more useful representation. As with
-the higher-order form, three domains leave no higher-order restriction to
-test here, and the four-factor model introduced in Chapter 3 is where such
-a restriction is met.
+and a familiar name do not guarantee a more useful representation. The three-domain higher-order form adds no equality degrees of freedom
+at the admissible solution considered here; Chapter 3 introduces the
+four-factor case with additional covariance-equality restrictions.
 
 ## The Schmid-Leiman transformation connects the two forms
 
-The higher-order and bifactor models have been presented as rivals, but they
-are not unrelated. One is a restricted case of the other, and the algebra that
-connects them is worth doing, because it says exactly what the bifactor model
-adds.
+The higher-order and bifactor models are related through an algebraic
+transformation. Following it shows which general-and-specific loading model
+contains the higher-order form and which restrictions connect them.
 
 Write the higher-order model with first-order loadings
 $\boldsymbol\Lambda_l$, second-order loadings $\boldsymbol\gamma$,
@@ -2082,26 +2107,26 @@ pt2_table(data.frame(
 The two rows without a constant ratio are the informative ones. They show that
 the Schmid-Leiman image of a higher-order model inherits the *whole*
 first-order loading pattern, cross-loadings included. A higher-order model is
-therefore nested within the bifactor model that shares that pattern -- the one
-in which P4 and S4 each keep two specific loadings -- and the difference in fit
-between those two tests proportionality rather than the existence of a general
-factor.
+equivalent to its constrained Schmid-Leiman image: they describe the same
+covariances. That image is nested within the unrestricted orthogonal
+general-and-specific loading model that retains the transformed pattern,
+including P4's and S4's two specific loadings. Releasing the proportionality
+relations enlarges that family. An ordinary likelihood-ratio reference also
+requires local identification and regularity; set inclusion alone does not
+supply it.
 
-That is not the bifactor model fitted in @sec-bifactor. There, each item was
-assigned to exactly one specific factor, which is a different set of
-restrictions in a different place; as noted, it is a nonnested rival to
-M1-cross, and it remains one. Nesting holds between a higher-order model and
-its own Schmid-Leiman image, not between a higher-order model and any bifactor
-model that happens to have the same number of factors. Comparing the wrong
-pair and reading the difference as a test of proportionality is an easy and
-consequential mistake.
+The simple bifactor model fitted in @sec-bifactor assigns each item to exactly
+one specific factor. It is a different restriction pattern, so it is not the
+unrestricted matching-pattern model just described. Comparing that rival with
+M1-cross by ordinary chi-square subtraction would not test proportionality.
 
-This reframes the choice. A general factor is not established by fitting a
-bifactor model and finding it fits; it is distinguishable only when the data
-depart from proportionality in a stable, interpretable way [@chen2026general].
-A bifactor solution that satisfies @eq-proportionality closely is telling you
-that a higher-order account would serve, with fewer parameters and a clearer
-substantive story.
+Favorable bifactor fit alone does not establish a general-factor interpretation.
+Within a matching loading pattern, stable, interpretable departures from the
+Schmid-Leiman restrictions can distinguish a freely estimated general-and-specific
+account from the higher-order representation [@chen2026general]. A solution
+satisfying the full transformation restrictions is compatible with the
+higher-order account. The simple-item ratio alone is insufficient when inherited
+cross-loadings are present.
 
 ## Where specific factors come from
 
@@ -2267,8 +2292,10 @@ from the analytic history.
 
 ## What validation does and does not fix
 
-A held-out sample protects a specified retest from using the same
-sampling fluctuations that suggested the change. It does not repair
+Part One, Chapter 8, Section 6 introduced the difference between apparent
+fit and held-out evidence; Chapter 13 develops validation more fully. Here
+the essential distinction is local: a held-out sample protects a specified
+retest from using the same sampling fluctuations that suggested the change. It does not repair
 poor content coverage, turn simulation into external validity, or
 justify unlimited searches in the held-out record. Once C is used to
 choose further modifications, it becomes development evidence for
@@ -2482,6 +2509,12 @@ reported estimates also have sampling uncertainty. A bootstrap interval
 would require a declared resampling design, model-refitting checks,
 and an explicit treatment of failed or improper solutions; it would
 not account automatically for every earlier model-selection decision.
+
+Changing a mean to the sum of the same items multiplies every weight by the
+same constant. Both quadratic variance terms then multiply by that constant
+squared, leaving their ratio unchanged. Changing relative item weights, as
+when unequal-variance items are standardized separately, defines a different
+score and need not preserve the ratio.
 
 ## A small calculation exposes the assumptions
 
@@ -2717,9 +2750,9 @@ there.
 | Information criteria for covariance structures (AIC; BIC) eligibility | $-2\ell+2q$ and $-2\ell+q\log N$ with $q$ the effective free-parameter count. They rank eligible candidates fitted to the same observations and outcomes under one likelihood convention, including nonnested ones; neither is a test or an adequacy index. |
 | Score, Wald, and likelihood-ratio views of one restriction | Three statistics for one null: slope and information at the restricted fit; distance of the unrestricted estimate from the restriction relative to its uncertainty; difference of optimized likelihoods. Asymptotic equivalence is not finite-sample equality. |
 | Equivalent models (covariance-equivalent representation) | Distinct specifications with the same set of admissible implied covariance matrices, so that each is nested in the other: every covariance matrix one can reproduce, the other can also reproduce, as an exact parameter mapping shows. On any data they therefore give the same fitted covariance matrix, statistic, df, and fit indices. Identical fit in one sample is a consequence, not a test, and no covariance data can choose between them; only theory and evidence beyond reproduced covariance can. |
-| Higher-order factor model (second-order factor; first-order disturbance) | A model in which one further latent variable accounts for the covariances among first-order factors, $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$. The first-order disturbances are not indicator residuals, and the form imposes $m(m-3)/2$ restrictions, hence none when $m=3$. |
+| Higher-order factor model (second-order factor; first-order disturbance) | A model in which one further latent variable accounts for the covariances among first-order factors, $\boldsymbol\Phi_l=\boldsymbol\gamma\boldsymbol\gamma^{\mathsf T}+\boldsymbol\Psi_h$. The first-order disturbances are distinct from indicator residuals. With diagonal first-order disturbances, the generic covariance-equality restriction count is $m(m-3)/2$ for $m\ge3$: three factors add no equality degrees of freedom, but nonnegative disturbance variances still restrict the admissible correlations. |
 | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. |
-| Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain splits its common variance in the ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. |
+| Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain has the same general-to-specific loading ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. |
 | Method effect; testlet effect | Common variance among items sharing a format (reverse keying, response scale, informant) or a stimulus (passage, vignette, apparatus). Both are design-known groupings and the least controversial motivation for a specific factor, which generalizes a freed residual covariance to several items. |
 | Model-based omega for a declared score, $\omega(\mathbf w)$ (composite reliability) | The proportion of a declared weighted composite's model-implied variance attributable to all modeled common factors. It retains cross-loadings, factor correlations, and modeled residual covariances, and is conditional on model, weights, and sample. |
 | Omega-hierarchical, $\omega_h(\mathbf w)$ | The share of a declared score's variance attributable specifically to a bifactor general factor. Its complement within total omega is modeled reliable specific-factor variance, not error, and a substantial value does not establish essential unidimensionality. |

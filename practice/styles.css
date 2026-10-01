@@ -5,22 +5,29 @@ h1 { font-weight: 650; }
 h2 { margin-top: 1.8rem; }
 a { color: #146477; }
 .navbar { border-bottom: 3px solid var(--practice-accent); }
-/* A navigation entry for a unit that is not out yet — Part Three on the top
-   row, the two supplementary chapters in the Argument Approach sidebar of the
-   book site — is an ordinary link whose href ends in #part-three,
-   #supplement-a or #supplement-b. This rule mutes those links and takes them
-   out of the pointer flow; the script in include-after-body marks the same
-   links disabled, so keyboard and screen-reader users meet the state the
-   colour shows. Hover and focus keep the muted colour: brightening on hover
-   would read as a live button. #d9e5e6 on the #0f6d72 navbar is 4.7:1 and
-   #64717a on the paper sidebar is 4.8:1, both past the AA floor. The selectors
-   stay inside the top row and the navigation sidebar, so a table of contents on
-   the page itself still links to its own sections. This is the plain-CSS twin
-   of the same rule in the book site's styles.scss. */
+/* Unavailable navigation entries use #part-three or #argument-a, #argument-b
+   and #argument-c. The #supplement-a and #supplement-b aliases stay muted.
+   These rules disable pointer interaction; the matching include-after-body
+   script supplies aria-disabled and removes the links from the tab order.
+   Hover and focus retain the same colour. The navbar and sidebar colours
+   retain AA contrast. Only navigation is affected, not an in-page contents
+   list. This is the plain-CSS twin of the book site's styles.scss rule. */
 .navbar .navbar-nav .nav-link[href$="#part-three"],
 .navbar .navbar-nav .nav-link[href$="#part-three"]:hover,
 .navbar .navbar-nav .nav-link[href$="#part-three"]:focus,
 .navbar .navbar-nav .nav-link[href$="#part-three"].active,
+.navbar .navbar-nav .nav-link[href$="#argument-a"],
+.navbar .navbar-nav .nav-link[href$="#argument-a"]:hover,
+.navbar .navbar-nav .nav-link[href$="#argument-a"]:focus,
+.navbar .navbar-nav .nav-link[href$="#argument-a"].active,
+.navbar .navbar-nav .nav-link[href$="#argument-b"],
+.navbar .navbar-nav .nav-link[href$="#argument-b"]:hover,
+.navbar .navbar-nav .nav-link[href$="#argument-b"]:focus,
+.navbar .navbar-nav .nav-link[href$="#argument-b"].active,
+.navbar .navbar-nav .nav-link[href$="#argument-c"],
+.navbar .navbar-nav .nav-link[href$="#argument-c"]:hover,
+.navbar .navbar-nav .nav-link[href$="#argument-c"]:focus,
+.navbar .navbar-nav .nav-link[href$="#argument-c"].active,
 .navbar .navbar-nav .nav-link[href$="#supplement-a"],
 .navbar .navbar-nav .nav-link[href$="#supplement-a"]:hover,
 .navbar .navbar-nav .nav-link[href$="#supplement-a"]:focus,
@@ -36,6 +43,15 @@ a { color: #146477; }
 .sidebar-navigation a[href$="#part-three"],
 .sidebar-navigation a[href$="#part-three"]:hover,
 .sidebar-navigation a[href$="#part-three"]:focus,
+.sidebar-navigation a[href$="#argument-a"],
+.sidebar-navigation a[href$="#argument-a"]:hover,
+.sidebar-navigation a[href$="#argument-a"]:focus,
+.sidebar-navigation a[href$="#argument-b"],
+.sidebar-navigation a[href$="#argument-b"]:hover,
+.sidebar-navigation a[href$="#argument-b"]:focus,
+.sidebar-navigation a[href$="#argument-c"],
+.sidebar-navigation a[href$="#argument-c"]:hover,
+.sidebar-navigation a[href$="#argument-c"]:focus,
 .sidebar-navigation a[href$="#supplement-a"],
 .sidebar-navigation a[href$="#supplement-a"]:hover,
 .sidebar-navigation a[href$="#supplement-a"]:focus,

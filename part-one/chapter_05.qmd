@@ -124,24 +124,150 @@ options(digits = 10, width = 65)
 ```
 
 
+```{r}
+#| label: ch05-anchor-check
+#| include: false
+local({
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) saved_seed <- get(".Random.seed", envir = .GlobalEnv)
+  on.exit(if (had_seed) assign(".Random.seed", saved_seed, envir = .GlobalEnv)
+    else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+      rm(".Random.seed", envir = .GlobalEnv))
+  check <- function(actual, expected, label) {
+    if (!isTRUE(all.equal(round(unname(actual), 4), expected,
+                          check.attributes = FALSE))) stop(label)
+  }
+  air <- airquality
+  ozone <- air$Ozone[!is.na(air$Ozone)]
+  july <- subset(air, Month == 7 & !is.na(Ozone))
+  check(c(nrow(july), mean(july$Ozone), mean((air$Temp - 32)*5/9)),
+        c(26, 59.1154, 25.4902), "operations")
+  check(c(mean(ozone), median(ozone), sd(ozone), IQR(ozone)),
+        c(42.1293, 31.5, 32.9879, 45.25), "ozone summaries")
+  scores <- rbind(c(50,60,70), c(50,60,100), c(58,60,62), c(40,60,80))
+  check(apply(scores, 1, mean), c(60,70,60,60), "score means")
+  check(apply(scores, 1, median), rep(60,4), "score medians")
+  check(apply(scores, 1, sd), c(10,26.4575,2,20), "score SDs")
+  check(quantile(c(1,3,3,5), c(.25,.75)), c(2.5,3.5), "type-7 quartiles")
+  by_month <- split(ozone, air$Month[!is.na(air$Ozone)])
+  check(lengths(by_month), c(26,9,26,26,29), "monthly counts")
+  check(sapply(by_month, mean), c(23.6154,29.4444,59.1154,59.9615,31.4483), "monthly means")
+  check(sapply(by_month, sd), c(22.2244,18.2079,31.6358,39.6812,24.1418), "monthly SDs")
+  check(c(weighted.mean(sapply(by_month,mean)[2:3], lengths(by_month)[2:3]),
+          mean(sapply(by_month,mean)[2:3])), c(51.4857,44.2799), "monthly weights")
+  tab <- table(mtcars$am, mtcars$mpg >= 20)
+  check(c(100*prop.table(tab,1)[,2], 100*prop.table(tab,2)[2,2]),
+        c(21.0526,76.9231,71.4286), "conditional denominators")
+  check(c(pnorm(100,mean(ozone),sd(ozone),lower.tail=FALSE),
+          mean(ozone >= 100), pnorm(1)-pnorm(-1),
+          mean(abs(ozone-mean(ozone)) <= sd(ozone))),
+        c(.0397,.0603,.6827,.7241), "Normal check")
+  check(c(pnorm(120,100,15)-pnorm(100,100,15),qnorm(c(.025,.975),100,15)),
+        c(.4088,70.6005,129.3995), "Normal score model")
+  check(c(dbinom(4,20,.3),pbinom(4,20,.3),qbinom(.95,20,.3)),
+        c(.1304,.2375,9), "binomial functions")
+  set.seed(20517)
+  check(rbinom(6,20,.3),c(6,8,6,3,5,6),"binomial draws")
+  X <- mtcars[c("mpg","hp","wt")]
+  check(as.vector(cov(X)), c(36.3241,-320.7321,-5.1167,-320.7321,
+        4700.8669,44.1927,-5.1167,44.1927,.9574), "covariance matrix")
+  check(as.vector(cor(X)), c(1,-.7762,-.8677,-.7762,1,.6587,-.8677,.6587,1),
+        "correlation matrix")
+  check(c(cor(X$mpg,X$hp),cor(X$mpg,X$hp,method="spearman"),
+          cor(X$mpg,X$hp,method="kendall"),cor(mtcars$am,mtcars$mpg)),
+        c(-.7762,-.8947,-.7428,.5998), "coefficient choices")
+  rp <- cor(residuals(lm(mpg~wt,X)),residuals(lm(hp~wt,X)))
+  tp <- rp*sqrt(29/(1-rp^2))
+  check(c(rp,tp,2*pt(abs(tp),29,lower.tail=FALSE)),
+        c(-.547,-3.5187,.0015), "partial coefficient and test")
+  binary <- cor.test(mtcars$am,mtcars$mpg)
+  check(c(binary$statistic,binary$p.value), c(4.1061,.0003), "point-biserial test")
+  set.seed(60506)
+  x <- rnorm(30,50,10)
+  check(c(mean(x),sd(x)),c(49.5691,7.0051),"parameter and statistic")
+  set.seed(60203)
+  m5 <- replicate(5000,mean(rexp(5,.1)))
+  m30 <- replicate(5000,mean(rexp(30,.1)))
+  check(c(mean(m5),sd(m5),mean(m30[1:200]),sd(m30[1:200]),mean(m30),sd(m30)),
+        c(10.0141,4.5395,9.6698,1.7484,9.9626,1.7878), "repetitions")
+  set.seed(60203)
+  m5 <- replicate(5000,mean(rexp(5,.1)))
+  m120 <- replicate(5000,mean(rexp(120,.1)))
+  check(c(mean(m120),sd(m120)),c(9.9922,.9214),"larger study")
+  set.seed(60204)
+  w <- rexp(400,.1)
+  check((cumsum(w)/seq_along(w))[c(10,50,100,400)],
+        c(9.083,7.9852,8.8373,9.7207), "running means")
+  set.seed(60501)
+  v <- replicate(5000,var(rexp(5,.1)))
+  check(c(mean(v),mean(v*.8)),c(101.2241,80.9793),"variance bias")
+  pairs <- reshape(sleep,idvar="ID",timevar="group",direction="wide")
+  d <- pairs$extra.2-pairs$extra.1
+  check(c(mean(d),sd(d),var(d),sd(d)/sqrt(10),
+          sqrt((var(pairs$extra.1)+var(pairs$extra.2))/10)),
+        c(1.58,1.23,1.5129,.389,.8491), "paired SE")
+  check(sqrt(6^2/60+6.4^2/60),1.1325,"assignment SE")
+  one <- t.test(mtcars$mpg,mu=20)
+  check(c(one$stderr,one$statistic,one$p.value,one$conf.int),
+        c(1.0654,.0851,.9328,17.9177,22.2636), "one-mean t")
+  se <- 5/sqrt(32); z <- (mean(mtcars$mpg)-20)/se
+  check(c(se,z,2*pnorm(abs(z),lower.tail=FALSE),
+          mean(mtcars$mpg)+c(-1,1)*qnorm(.975)*se),
+        c(.8839,.1025,.9183,18.3582,21.823), "known-SD z")
+  check(c(2*pt(2,24,lower.tail=FALSE),pt(2,24,lower.tail=FALSE),pt(2,24)),
+        c(.0569,.0285,.9715), "planned direction")
+  check(t.test(d)$conf.int,c(.7001,2.4599),"paired interval")
+  check(t.test(d,conf.level=.99)$conf.int,c(.3159,2.8441),"paired 99% interval")
+  auto <- mtcars$mpg[mtcars$am==0]; manual <- mtcars$mpg[mtcars$am==1]
+  welch <- t.test(auto,manual); pooled <- t.test(auto,manual,var.equal=TRUE)
+  check(c(welch$stderr,welch$parameter,welch$p.value,welch$conf.int),
+        c(1.9232,18.3323,.0014,-11.2802,-3.2097),"Welch")
+  check(c(pooled$stderr,pooled$parameter,pooled$p.value,pooled$conf.int),
+        c(1.7644,30,.0003,-10.8484,-3.6415),"pooled")
+  for (n in c(10,20,40)) {
+    set.seed(60610)
+    a <- replicate(2000, {
+      y <- rnorm(n,1.5,1.2)
+      c(mean(y),abs(mean(y)-1.5)<=qt(.975,n-1)*sd(y)/sqrt(n))
+    })
+    expected <- switch(as.character(n), "10"=c(1.5015,.3766,.3795,.9515),
+      "20"=c(1.5006,.2591,.2683,.951), "40"=c(1.5014,.1886,.1897,.946))
+    check(c(mean(a[1,]),sd(a[1,]),1.2/sqrt(n),mean(a[2,])),expected,"coverage")
+  }
+  for (n in c(10,40)) {
+    set.seed(60610)
+    a <- replicate(40, {
+      y <- rnorm(n,1.5,1.2)
+      m <- mean(y); h <- qt(.975,n-1)*sd(y)/sqrt(n)
+      c(m,m-h,m+h)
+    })
+    expected <- if (n==10) c(1.0213,2.2119,39) else c(1.2846,1.9649,39)
+    check(c(a[2:3,1],sum(a[2,]<=1.5 & 1.5<=a[3,])),expected,"coverage figure")
+  }
+  check(cor.test(mtcars$wt,mtcars$mpg)$conf.int,c(-.9338,-.7441),"Fisher interval")
+  set.seed(12345)
+  rho <- -.8677
+  rs <- replicate(5000, {
+    x <- rnorm(32); y <- rho*x+sqrt(1-rho^2)*rnorm(32); cor(x,y)
+  })
+  check(sd(atanh(rs)),.1831,"Fisher SD")
+})
+```
+
+{{< pagebreak >}}
+
 ::: {.callout-note title="Chapter overview"}
-This chapter introduces R and uses it to make the descriptions of
-Chapter 2 and the mean inference of Chapter 3 executable. We read and
-select observations, describe distributions and groups, and let R
-generate repeated samples so that the variation of an estimator becomes
-visible. We then see what an interval and a test compute: an estimate,
-its standard error, a reference distribution and a critical value.
-Relationships receive the same treatment, from a scatterplot and a
-covariance to correlation matrices, a selected correlation test and
-one-control linear adjustment. Each procedure appears with the one R
-call that produces it and a figure or table that shows how to read the
-result; the Computer Lab carries the fuller practice. A short Quarto
-report connects the final answer to the code that produced it.
+This chapter uses R to connect observations, statistical summaries and
+uncertainty. We describe distributions and groups, then relationships,
+and use repeated samples to see how an estimator varies. Intervals and
+tests connect an estimate with its standard error and a reference
+distribution. Short R examples sit beside the equations, figures and
+tables whose meaning they illustrate. The central question remains what
+the records represent and what supports the interpretation of the result.
 :::
 
 Three students scored 50, 60 and 70 points. Their mean is
-$(50+60+70)/3=60$ points. R gives the same result by applying a
-function to a vector:
+$(50+60+70)/3=60$ points. R gives the same result:
 
 ```{r}
 #| label: ch05-scores
@@ -149,62 +275,31 @@ scores <- c(50, 60, 70)
 mean(scores)
 ```
 
-`c()` collects the numbers into a **vector**, an ordered collection of
-values. The assignment symbol `<-` gives the vector the name `scores`,
-making it an **object** that later commands can use without retyping
-the values. `mean(scores)` supplies the vector to the **function**
-`mean()`, which returns 60; the `[1]` before the answer only numbers
-the first printed position. This answer describes the three recorded
-scores directly. Using it to estimate another group's mean would add a
-target and an account of how these observations inform that target.
-
-The chapter assumes no previous R course. Familiar browser examples from
-Chapters 3--4 provide a starting point; a saved script now lets us run a
-connected analysis again. The Computer Lab gives short setup checks and
-practice with the same calculations.
+The result describes the three recorded scores. Using it to estimate
+another group's mean would add a target and an account of how these
+observations inform that target. The calculation is simple; deciding
+what it answers still depends on the study.
 
 ## Read and Prepare Observations {#sec-ch5-inspect}
 
 []{#sec-ch5-start}
 []{#ch05-data}
 
-Programming examples use short, meaningful names such as `group`,
-`score` and `id`; when records are changed, `d0` holds the starting data
-and `dat` the working copy.
+### A calculation that can be checked
 
-### R, RStudio, a script, and Quarto
-
-**R** performs statistical calculations and draws graphs [@rcore2025].
-**RStudio** provides an editor for writing commands and a Console for
-running them. Commands saved in a `.R` **script** record how an answer
-was obtained: running the script in order recreates every object in a
-fresh session, which a screenshot or a remembered sequence of clicks
-cannot do. **Quarto** combines prose, mathematics, executable code,
-tables, figures and references in a `.qmd` source and renders a report
-[@quarto2026]; Section 6 shows what that connection accomplishes.
-
-Four ideas carry the rest of the chapter. An object is a named value,
-vector, table or result held in the session. A vector holds values of
-one basic type: numbers, text or the logical values `TRUE` and `FALSE`.
-A function performs an operation on the inputs it receives, and an
-**argument** names one of those inputs or options, as in
-`mean(x = scores)`; this computing sense of argument is distinct from
-a study's argument in Chapter 1's approach. A **package** collects
-functions and data. All statistical calculations and plots here use
-**base R**, the stats, graphics, utils and datasets packages supplied
-with R. Additional report support, such as knitr and rmarkdown, lets
-Quarto execute R and belongs with the reporting example; Chapter 6
-adds a small plotting vocabulary after this base-R route. The Computer
-Lab's setup check covers launching RStudio, saving a script and
-finding Help, with installation in its last reference, and its first
-task practises selecting values by position and by condition.
+R performs statistical calculations and draws graphs [@rcore2025]. A
+saved script records the commands behind an answer so that the
+calculation can be checked and rerun. Quarto combines those commands
+with prose, equations and their results in one report [@quarto2026].
+Together they make the connection between observations and a reported
+number visible. A reproducible computation can still answer the wrong
+question, so the records and their meaning come first.
 
 ### A data frame is a table of cases and variables
 
 A **data frame** is a table whose columns can hold different types of
-values. In Chapter 2's data-matrix notation, $x_{ij}$ is case $i$'s
-value on variable $j$; a data frame keeps that arrangement while
-allowing text and category columns beside numbers. Its layout should
+values. The entry $x_{ij}$ is case $i$'s value on variable $j$;
+text and category columns can sit beside numbers. Its layout should
 make the observational unit clear. In the next table a row represents
 one student; the columns give an identifier, a baseline score and a
 follow-up score, and student B's follow-up score is unavailable. A row
@@ -213,131 +308,87 @@ so count the represented units as well as the rows.
 
 ```{r}
 #| label: ch05-small-records
+#| results: hide
 small <- data.frame(student = c("A", "B", "C"),
   baseline = c(50, 60, 70), followup = c(55, NA, 78))
-small
+```
+
+| Student | Baseline | Follow-up |
+|:--|--:|--:|
+| A | 50 | 55 |
+| B | 60 | NA |
+| C | 70 | 78 |
+
+: Three students, with one follow-up unavailable. {#tbl-ch05-records}
+
+`NA` marks an unavailable value, not an observed zero. The available
+follow-up mean is $(55+78)/2=66.5$ points, a description of two
+recorded scores:
+
+```{r}
+#| label: ch05-available-mean
 mean(small$followup, na.rm = TRUE)
+```
+
+Treating B's missing score as zero would answer a different question
+with an invented measurement. A change needs both measurements of the
+same student, so only A and C contribute:
+
+```{r}
+#| label: ch05-pair-mean
 both <- complete.cases(small)
 mean(small$followup[both] - small$baseline[both])
 ```
 
-The `$` operator selects a named column. `NA` marks an unavailable
-value; it is not a zero. An ordinary `mean()` of the follow-up column
-would return `NA`, signalling that a value it needs is missing, and the
-argument `na.rm = TRUE` asks R to set the missing value aside. The
-available follow-up mean is therefore $(55+78)/2=66.5$ points, a
-description of two recorded scores. Treating B's missing score as zero
-would answer a different question with an invented measurement.
+Their changes, 5 and 8 points, average 6.5 points. Subtracting the two
+separately available means happens to give $66.5-60=6.5$ as well,
+but the baseline mean uses three students and the follow-up mean two.
+The agreement is a coincidence of these numbers; Exercise 3 changes
+one score and the two calculations part. The measurement definition
+and codebook must also support any decision to treat a recorded zero
+as an unavailable value.
 
-A change needs both measurements of the same student. `complete.cases()`
-marks the rows with no missing value, A and C, and the last line
-averages their changes, 5 and 8 points, giving a complete-pair mean
-change of 6.5 points. Subtracting the two separately available means
-happens to give $66.5-60=6.5$ as well, but the baseline mean uses three
-students and the follow-up mean two. Their agreement here is a
-coincidence of these numbers, not evidence that the two calculations
-used the same students; Exercise 3 changes one score and the two
-calculations part. Chapter 2's zero-grade example shows why a
-measurement definition and codebook must support any decision to
-convert zeros to missing values.
-
-### Inspect, select, and derive a variable
+### The records behind a summary
 
 The [airquality documentation](https://stat.ethz.ch/R-manual/R-patched/library/datasets/html/airquality.html)
 describes daily New York measurements from May to September 1973.
 A row is a day. `Ozone` is ozone in parts per billion (ppb), `Wind`
 wind speed in miles per hour, `Temp` maximum temperature in degrees
 Fahrenheit, and `Solar.R` solar radiation in Langleys. `Month` and
-`Day` identify dates within that period. Inspect the table before
-choosing a calculation:
+`Day` identify dates within that period. There are 153 days and six
+variables, but ozone is recorded on only 116 days and missing on 37.
+The available ozone values are:
 
 ```{r}
-#| label: ch05-air-inspection
+#| label: ch05-air-records
 air <- airquality
-dim(air)
-ozone <- air$Ozone[!is.na(air$Ozone)]
-length(ozone)
+ozone <- na.omit(air$Ozone)
 ```
 
-`dim()` reports 153 rows and six columns. `is.na()` asks whether each
-ozone entry is missing, `!` reverses the answers, and the square
-brackets keep only the recorded values: 116 of the 153 days, with 37
-missing. The mean of `ozone` will therefore describe 116 days, whereas
-the percentage of days with a measurement uses all 153 as its
-denominator, $100(116/153)=75.817\%$. Every summary has a denominator,
-and naming it is part of the result.
+Their mean describes 116 days. The percentage of days with an ozone
+measurement instead uses all 153 as its denominator:
 
 ```{r}
-#| label: ch05-operations
-#| include: false
-july <- air[air$Month == 7 & !is.na(air$Ozone), ]
-air$temp_C <- (air$Temp - 32) * 5 / 9
-c(nrow(july), mean(july$Ozone), mean(air$temp_C))
+#| label: ch05-recorded-share
+100 * length(ozone) / nrow(air)
 ```
 
-Three operations change a dataset in different ways, and a report
-should say which one it performed. @tbl-ch05-operations sets them side
-by side on the ozone records.
+Thus $100(116/153)=75.817\%$ of the days have an ozone measurement.
+Every summary has a denominator, and naming it is part of the result.
+Restricting the records to July changes the cases: 26 recorded days
+have mean ozone 59.1154 ppb. Converting Fahrenheit to Celsius instead
+keeps the same 153 days and changes their units; the mean becomes
+25.4902 degrees Celsius. Naming month codes as categories changes
+how their labels are read, without changing the observations. A
+relationship needs both measurements: ozone and solar radiation
+are jointly recorded on 111 days, so their relationship describes
+those 111 days.
 
-| Operation | Example on the ozone records | What changes | Result |
-|:--|:--|:--|:--|
-| Select rows | July days with recorded ozone: `air[air$Month == 7 & !is.na(air$Ozone), ]` | The cases summarized | 26 days, mean 59.1154 ppb |
-| Transform a variable | Celsius temperature: `(air$Temp - 32) * 5 / 9` | The units; all 153 days stay | Mean 25.4902 degrees Celsius |
-| Recode a variable | Month codes 5 to 9 as a factor with month names | What a value means | Five named groups in calendar order |
-
-: Three operations on the same records. {#tbl-ch05-operations tbl-colwidths="[16,40,26,18]"}
-
-Selecting July answers a question about a different set of days; its
-mean, 59.1154 ppb, describes those 26 days only. Converting temperature
-keeps every day and changes the units. Recoding changes meaning: the
-month codes 5 to 9 are labels, and an average code would not be an
-average month. A relationship adds a further rule, because it needs
-jointly recorded measurements. Ozone and solar radiation are both
-recorded on 111 days, so any calculation using the pair describes those
-111. Complete records define a calculation's cases; they do not
-establish random sampling.
-
-### Recorded cases and a proposed population
-
-The 153 days form a fixed historical record for a particular city and
-period. An observed mean can describe its recorded measurements fully.
-A question about the mean ozone of all New York summer days, the 37
-days without a measurement, or other years treats these observations
-as evidence about a wider population. The arithmetic might begin with
-the same mean, but the second use adds assumptions about selection,
-time and measurement. Section 3 makes those assumptions visible when
-moving from an observed SD to the modelled uncertainty of a mean.
-
-Chapter 2 distinguished the schemes by which units enter a study.
-Filtering recorded values in R describes which observations enter a
-particular calculation; it supplies no random sampling mechanism. The
-invented school system of Chapter 2, 20,000 students in schools of
-different types, gives a compact reminder:
-
-\Needspace{14\baselineskip}
-
-| Scheme | Selection from the school system |
-|:--|:--|
-| Simple random sampling | Every set of 100 students from the register has the same chance. |
-| Systematic sampling | Choose a random start, then every 200th student; the ordering of the list matters. |
-| Stratified random sampling | Select a probability sample within every school-type stratum. |
-| Cluster sampling | Randomly select schools and include their eligible students. |
-| Multistage sampling | Randomly select schools, then students within those schools. |
-
-: Recognize the sampling procedure before calculating. {#tbl-ch05-sampling-schemes tbl-colwidths="[30,70]"}
-
-Probability sampling gives eligible units known nonzero inclusion
-probabilities, which need not be equal. An open invitation, convenience
-recruitment or quotas alone do not supply those probabilities, and
-frame coverage and nonresponse still matter after probability
-selection. A simple random sample of 100 from the register gives each
-student inclusion probability $100/20{,}000=.005$; the Computer Lab
-draws such a sample with R. Sampling strata concern selection, whereas
-Chapter 3's school blocks concern the allocation of conditions; cluster
-sampling and the assignment of whole clusters are different design
-decisions, even when both produce records grouped within schools.
-General unequal-probability estimation and the SEs for all survey
-designs extend beyond the methods developed here.
+The 153 days are a historical record for one city and period. Complete
+records define the cases of a calculation; they do not establish
+random sampling. Treating these records as evidence about other years,
+unrecorded days or all New York summer days adds assumptions about
+selection, time and measurement, which Section 4 makes explicit.
 
 ## Describe Distributions and Groups {#sec-ch5-summaries}
 
@@ -363,16 +414,15 @@ boxplot(ozone, horizontal = TRUE, xlab = "Ozone (ppb)")
 par(oldpar)
 ```
 
-The `breaks` argument sets the histogram's interval boundaries, and
-`main = ""` leaves out the default title. Other boundaries can reveal
-or conceal detail while the observations stay the same. Most days have lower values, with a long right tail reaching 168
+The histogram uses 20-ppb intervals. Changing their boundaries can
+reveal or conceal detail while the observations stay the same. Most days have lower values, with a long right tail reaching 168
 ppb. The boxplot marks the median and a box between its hinges; each
 whisker reaches the most distant value within 1.5 box lengths of its
 hinge. Points beyond the whiskers invite examination, and the display
 alone does not justify removing them.
 
-Chapter 2 used the mean and median to describe location, and the
-variance, SD and IQR to describe spread. For observations
+The mean and median describe location; the variance, SD and IQR
+describe spread. For observations
 $x_1,\ldots,x_n$,
 
 $$
@@ -390,7 +440,7 @@ $s=10$ points. The divisor $n-1$ reflects that deviations around a
 sample mean sum to zero, so once $n-1$ of them are known the last is
 determined; under independent sampling from a common distribution it
 also makes $s^2$ unbiased for the process variance, a property that
-Section 3.3 shows by repetition. For ozone, one call returns the
+Section 4.4 shows by repetition. For ozone, one call returns the
 summaries:
 
 ```{r}
@@ -415,8 +465,16 @@ shows with four invented sets of three scores.
 
 : What the mean, the median and the SD each keep. {#tbl-ch05-score-sets tbl-colwidths="[34,22,22,22]"}
 
+
+```{r}
+#| label: ch05-score-change
+#| eval: false
+score <- c(50, 60, 100)
+c(mean(score), median(score), sd(score))
+```
+
 Read the rows in pairs. Replacing 70 by 100 moves the mean from 60 to
-70 and raises the SD from 10.0000 to 26.4575, while the median stays at 60,
+70 and raises the SD from 10 to 26.4575, while the median stays at 60,
 still the middle ordered value: the median resists one extreme value,
 which does not make either centre universally preferable. The last two
 sets balance at the same centre and differ tenfold in spread, so a
@@ -425,20 +483,27 @@ why a group comparison keeps counts, centres and spreads together.
 
 Quartiles also depend on a stated rule. R's default, `type = 7`, places
 the quartile at position $h=1+(n-1)p$ among the ordered values and
-interpolates between neighbours; Chapter 2 took the medians of the two
-halves. @tbl-ch05-quartile-rules applies both rules to the values 1, 3,
+interpolates between neighbours. Another familiar rule takes the
+medians of the two halves. @tbl-ch05-quartile-rules applies both rules to the values 1, 3,
 3 and 5.
 
 | Rule | $Q_1$ | $Q_3$ | IQR |
 |:--|--:|--:|--:|
-| Chapter 2: medians of the two halves | 2.0 | 4.0 | 2 |
+| Medians of the two halves | 2.0 | 4.0 | 2 |
 | R's default, `type = 7` | 2.5 | 3.5 | 1 |
 
 : Two quartile rules applied to the same four values. {#tbl-ch05-quartile-rules tbl-colwidths="[52,16,16,16]"}
 
+
+```{r}
+#| label: ch05-quartiles
+#| eval: false
+quantile(c(1, 3, 3, 5), c(.25, .75))
+```
+
 The observations are the same; the rules differ. Type 7 uses positions
 1.75 and 3.25, so each quartile moves part of the way between
-neighbouring values, and its IQR is half the Chapter 2 value. A
+neighbouring values, and its IQR is half the other value. A
 reproducible report names the rule when it affects the answer, and a
 boxplot's hinges need not equal either rule's quartiles.
 
@@ -450,15 +515,15 @@ and `tapply()` applies a function within each level:
 
 ```{r}
 #| label: ch05-monthly
-air_observed <- air[!is.na(air$Ozone), ]
-air_observed$month <- factor(air_observed$Month, levels = 5:9,
-  labels = c("May", "June", "July", "August", "September"))
+air_observed <- na.omit(air[c("Ozone", "Month")])
+air_observed$month <- factor(air_observed$Month, labels = month.name[5:9])
 tapply(air_observed$Ozone, air_observed$month, mean)
 ```
 
-`5:9` generates the integers 5 to 9; `levels` states their order and
-`labels` their names. A group mean needs its count and spread beside
+A group mean needs its count and spread beside
 it, which @tbl-ch05-monthly supplies.
+
+\Needspace{12\baselineskip}
 
 | Month | Recorded days | Mean ozone | SD ozone |
 |:--|--:|--:|--:|
@@ -484,6 +549,13 @@ boxplot(Ozone ~ month, data = air_observed,
         xlab = "Month", ylab = "Ozone (ppb)", col = "grey90")
 ```
 
+
+```{r}
+#| label: ch05-month-plot
+#| eval: false
+boxplot(Ozone ~ month, data = air_observed)
+```
+
 The boxes show the higher centres in July and August together with the
 spread within each month, which the monthly means alone cannot show.
 These differences summarize the record; they do not by themselves
@@ -496,16 +568,19 @@ $$
 \bar x=\frac{\sum_g n_g\bar x_g}{\sum_g n_g}.
 $$
 
-Chapter 2's two invented training groups make the weighting visible.
-Group A's completion times are 1 and 3 minutes and Group B's 3, 3, 5
-and 9, with means 2 and 5 minutes. The six learners' mean is 4 minutes,
-because Group B supplies four of the six values; the unweighted mean of
-the two group means, 3.5 minutes, describes an average group instead.
-The same rule applied to the five monthly ozone means returns 42.1293
-ppb, the mean of all 116 recorded days. For June and July alone, with 9
-and 26 recorded days, the recorded-day mean is 51.4857 ppb and the
-equal-month mean 44.2799 ppb. Neither is the correct one in general:
-the question decides whether days or months receive equal weight.
+
+```{r}
+#| label: ch05-weights
+#| eval: false
+weighted.mean(c(29.4444, 59.1154), c(9, 26))
+```
+
+The rule applied to the five monthly ozone
+means returns 42.1293 ppb, the mean of all 116 recorded days. For June
+and July alone, with 9 and 26 recorded days, the recorded-day mean is
+51.4857 ppb and the equal-month mean 44.2799 ppb. Neither is the
+correct one in general: the question decides whether days or months
+receive equal weight.
 
 ### Counts, proportions, and a binary indicator
 
@@ -551,13 +626,13 @@ threshold among manual models" and "manual among threshold-meeting
 models" answer different questions, and naming the denominator keeps
 them apart. The percentages describe an association among the 32
 recorded models, whose transmission groups also differ in weight and
-engine; Chapter 6 applies inference to counts, and neither direction
-of conditioning identifies what changing a transmission would do.
+engine. Neither direction of conditioning identifies what changing a transmission would do.
 
 A binary indicator has one further property: its mean is the proportion
 coded 1. Of the 32 models, 14 meet the threshold, so the indicator
 `cars$mpg >= 20` has mean $14/32=.4375$. The 0/1 `am` variable is such
-an indicator, and Section 5.3 uses it in a point-biserial correlation.
+an indicator, and Section 3.3 uses it in a point-biserial correlation; Section 5.5
+uses a 0/1 indicator to describe interval coverage.
 
 ### Transformations and the Normal model
 
@@ -568,6 +643,14 @@ the mean temperature of 77.8824 and SD of 9.4653 degrees Fahrenheit
 become 25.4902 and 5.2585 degrees Celsius: subtracting the constant
 moves the mean only, and the factor $5/9$ rescales both.
 
+
+```{r}
+#| label: ch05-units
+#| eval: false
+temp <- (air$Temp - 32) * 5 / 9
+c(mean(temp), sd(temp))
+```
+
 A standardized value measures distance from the mean in SD units. For
 an ozone reading of 100 ppb,
 
@@ -576,12 +659,21 @@ z_i=\frac{x_i-\bar x}{s},\qquad
 z_{100\text{ ppb}}=\frac{100-42.1293}{32.9879}=1.7543.
 $$
 
+
+```{r}
+#| label: ch05-standardized
+#| eval: false
+(100 - mean(ozone)) / sd(ozone)
+```
+
 Standardizing changes location and scale while preserving shape:
 right-skewed ozone stays right-skewed. This individual $z$ divides by
-the observations' SD; Section 4's statistic for a mean divides by an
-SE instead. R's Normal functions give model probabilities: `pnorm()`
-returns a cumulative probability, and `lower.tail = FALSE` asks for the
-probability above the value.
+the observations' SD; Section 5's statistic for a mean divides by an
+SE instead. R names distribution functions by four prefixes:
+`d` gives a density height or a probability mass, `p` a cumulative
+probability, `q` a quantile and `r` generated observations. Thus
+`pnorm()` is the Normal family's cumulative-probability function, and
+`lower.tail = FALSE` asks for the probability above the value.
 
 ```{r}
 #| label: ch05-normal-model
@@ -609,8 +701,8 @@ certify that the model describes the data, and the familiar
 68--95--99.7 rule belongs to the Normal model, not to every
 standardized dataset.
 
-For a separate, stipulated score model $X\sim N(100,15^2)$, a
-probability for a range is a difference of cumulative probabilities,
+For a separate, stipulated score model $X\sim N(100,15^2)$, on the
+scale used by intelligence scores such as the WISC, a probability for a range is a difference of cumulative probabilities,
 and `qnorm()` reverses the question by returning the value at a stated
 cumulative probability:
 
@@ -640,37 +732,24 @@ polygon(c(100, shade_x, 120),
         c(0, dnorm(shade_x, 100, 15), 0), col = "grey80")
 ```
 
+
+```{r}
+#| label: ch05-normal-curve
+#| eval: false
+curve(dnorm(x, mean = 100, sd = 15), 40, 160)
+```
+
 The curve's height is a density. Probability belongs to an area, such
 as the shaded region in @fig-ch05-normal-area, rather than to the height
 at one exact score.
 
 ### A compact distribution catalogue in R {#ch05-distributions}
 
-Chapter 2 connected variable forms to probability models and drew them
-(Chapter 2, Section 2.5). R names the functions for each family by one
-pattern: a `d` function gives a mass at a discrete value or a density
-height, `p` the cumulative probability $P(X\le x)$, `q` a cumulative
-quantile, and `r` observations generated from the model. The
-parameters identify which member of a family is meant.
+The binomial model shows how the four prefixes ask different questions
+of one process. $X\sim\operatorname{Binomial}(20,.3)$ counts successes
+in 20 independent trials with success probability .3:
 
-\Needspace{22\baselineskip}
-
-| Model | Object and parameters | Base-R family |
-|:--|:--|:--|
-| Bernoulli | One 0/1 response, probability $p$ of 1 | `binom`, with `size=1` |
-| Binomial | Success count in $m$ independent trials with common $p$ | `dbinom`, `pbinom`, `qbinom`, `rbinom` |
-| Categorical | One label among categories with stated probabilities | `sample()` with `prob`; a table of masses |
-| Poisson | Nonnegative count with model mean $\lambda$ | `dpois`, `ppois`, `qpois`, `rpois` |
-| Normal | Continuous value with mean $\mu$ and SD $\sigma$ | `dnorm`, `pnorm`, `qnorm`, `rnorm` |
-| Lognormal | Positive value whose log is Normal; parameters on the log scale | `dlnorm`, `plnorm`, `qlnorm`, `rlnorm` |
-| Logistic | Continuous symmetric value with location $\mu_L$ and positive scale $s_L$ | `dlogis`, `plogis`, `qlogis`, `rlogis` |
-| Student t | Symmetric reference distribution with specified df | `dt`, `pt`, `qt`, `rt` |
-
-: Distribution functions respect the model's support and parameters. {#tbl-ch05-models tbl-colwidths="[16,49,35]"}
-
-For example, $X\sim\operatorname{Binomial}(20,.3)$ counts successes in
-20 independent trials with success probability .3. The four prefixes
-ask four questions of this one model:
+\Needspace{12\baselineskip}
 
 ```{r}
 #| label: ch05-binomial-functions
@@ -726,682 +805,45 @@ generated, whereas `size = 20` is the number of trials in each. The
 seed makes the draws reproducible; another seed changes the draws and
 leaves the model probabilities unchanged.
 
-The same vocabulary works across the other families, with care over
-what their parameters mean. Lognormal `meanlog` and `sdlog` describe the
-logarithm, not the mean and SD of the positive values. The logistic
-distribution is continuous and differs from both lognormal and binary
-outcomes; its cumulative function supplies a probability curve in
-Chapter 11. Categorical probabilities refer to labels, and a cumulative
-probability requires an explicit ordering of those labels. The Computer
-Lab runs these families and draws the catalogue.
-
-## Sampling Variation and Standard Errors {#sec-ch5-sampling}
-
-[]{#ch05-sampling}
-
-### A target, an estimator, and a realized estimate
-
-Chapter 2's invented school system contained 20,000 students, and
-repeated simple random samples of 100 gave different means while the
-population mean stayed fixed. We now change the generating process:
-instead of selecting from a fixed population, R generates independent
-observations from a probability distribution whose parameters we
-choose. Let the model be Normal with mean 50 and SD 10, and generate
-30 draws:
-
-```{r}
-#| label: ch05-one-sample
-set.seed(60506)
-one_sample <- rnorm(30, mean = 50, sd = 10)
-c(mean = mean(one_sample), SD = sd(one_sample))
-```
-
-`rnorm()` takes the number of observations, the model mean and the
-model SD; the result is one sample from that model.
-
-\Needspace{8\baselineskip}
-
-| Quantity | Model value (parameter) | This sample (statistic) |
-|:--|--:|--:|
-| Mean | $\mu=50$ | $\bar x=49.5691$ |
-| SD | $\sigma=10$ | $s=7.0051$ |
-
-: One sample of 30 draws from a declared Normal model (seed 60506). {#tbl-ch05-parameter-statistic tbl-colwidths="[24,38,38]"}
-
-The **parameters** are fixed features of the model; the **statistics**
-are calculated from the generated observations and vary with the
-draws. Running `rnorm()` again without resetting the seed gives another
-sample and generally different statistics, while resetting the seed
-recreates the same draws. A seed controls the repeatability of the
-numerical experiment; it supplies no evidence that the Normal model
-describes a real study. Nor does knowing the generating SD in a
-simulation make a sample SD a known population SD in an actual study.
-
-A simulation gives us a known target, but a study usually has a target
-we cannot observe directly. Recall Chapter 3's invented
-special-practice study. It assigned 120 participants, 60 to Special
-Practice and 60 to Usual Practice, and measured delayed-assessment
-scores; the group means were 27.1 and 24.0 points, with SDs 6.0 and
-6.4. The **estimand** is the mean effect of assignment to Special
-rather than Usual Practice among these 120 participants. Write $Y_{i1}$
-for participant $i$'s potential score under Special assignment and
-$Y_{i0}$ for the score under Usual assignment. The target is
-
-$$
-\Delta\mu=\frac{1}{n}\sum_{i=1}^{n}\{Y_{i1}-Y_{i0}\},
-$$
-
-where the braces hold one participant's effect and division by $n=120$
-takes the mean over the 120 assigned participants. Each participant
-reveals only the outcome under the assigned condition, so no individual
-effect is ever recorded and the effects cannot simply be averaged. The
-**estimator**, the difference in assigned-group means
-$\widehat{\Delta\mu}=\bar y_1-\bar y_0$, uses the observed outcomes;
-**estimation** applies that rule and checks its inputs; the
-**estimate** is the resulting $27.1-24.0=3.1$ points. The repetition
-behind its uncertainty reassigns the same 120 participants, exactly 60
-to each condition: the participants and their potential outcomes stay
-fixed while the assigned groups and observed outcomes vary. That
-differs from repeatedly sampling new people.
-
-| Object | Working definition | In the special-practice study | In R |
-|:--|:--|:--|:--|
-| Estimand | The precisely specified quantity the question seeks | Mean delayed-score difference caused by Special rather than Usual assignment among the 120 participants | Not an object; stated in words before any code |
-| Estimator | The rule applied in each admissible repetition | Special-group mean minus Usual-group mean | An expression such as `mean_special - mean_usual` |
-| Estimate | The number the estimator produced | $27.1-24.0=3.1$ points | The value that expression returns |
-| Statistic | A numerical function of observed data | A group mean, the 3.1-point estimate | Any computed summary |
-| Parameter | A fixed feature named by the estimand under the chosen interpretation | The participant-specific mean assignment contrast | Unknown here; Section 3.3 changes the target to a known waiting-time variance |
-| Standard error | The modelled spread of the estimator across the declared repetitions | 1.1325 points (Section 3.4) | Computed from the group SDs and counts |
-
-: Inferential objects with their R counterparts. {#tbl-ch05-inferential-objects tbl-colwidths="[13,27,34,26]"}
-
-@tbl-ch05-inferential-objects separates the scientific target from its
-computational representation. Storing a result in an object named
-`estimate` does not define its estimand; that definition comes from the
-question, the participants, the comparison and the outcome.
-
-### The first repeated-sample calculation
-
-Return to Chapter 2's waiting-time model: independent exponential waits
-with mean and SD both 10 minutes, many short and a few long. R's
-`rexp()` uses the **rate**, the reciprocal of the mean, so
-`rate = 1 / 10` gives a ten-minute mean. One call repeats the whole
-sampling operation, drawing five waits and averaging them, 5,000 times:
-
-```{r}
-#| label: ch05-replicate
-set.seed(60203)
-means_5 <- replicate(5000, mean(rexp(5, rate = 1 / 10)))
-c(mean = mean(means_5), SE = sd(means_5))
-```
-
-`replicate()` evaluates its second argument repeatedly and collects the
-results, so `means_5` holds 5,000 sample means, not 5,000 individual
-waits. Their mean, 10.0141 minutes, lies close to the model mean, and
-their SD, 4.5395 minutes, describes how much a mean of five waits
-varies. These are the values of Chapter 2's five-wait row, and Chapter
-2's sampling-means figure (Chapter 2, Section 4.2) shows how the
-distribution narrows at larger sample sizes; the Computer Lab
-reproduces that figure. A statistic's **standard error** is its SD
-across the stated repetitions. For independent observations from a
-common distribution with SD $\sigma$, the mean's model SE is
-
-$$
-SE(\bar Y)=\frac{\sigma}{\sqrt n},
-$$
-
-and the SD of simulated means estimates it; we call that SD the
-*empirical SE*. A simulation has two sizes, and they do different
-jobs: the study size $n$, the number of waits in each sample, and the
-number of repetitions $B$, the number of simulated samples.
-@fig-ch05-repetitions changes one at a time.
-
-```{r}
-#| label: ch05-repetitions
-#| include: false
-means_30 <- replicate(5000, mean(rexp(30, rate = 1 / 10)))
-set.seed(60203)
-means_5_again <- replicate(5000, mean(rexp(5, rate = 1 / 10)))
-means_120 <- replicate(5000, mean(rexp(120, rate = 1 / 10)))
-```
-
-```{r}
-#| label: fig-ch05-repetitions
-#| echo: false
-#| fig-cap: "More repetitions or larger studies. Each histogram collects simulated sample means from the waiting-time model; the dashed line marks the model mean, 10 minutes. (a) The first 200 of the 5,000 means of 30 waits; (b) all 5,000; (c) 5,000 means of 120 waits."
-#| fig-alt: "Three histograms on common axes from 4 to 18 minutes. The first, from 200 means, is ragged; the second, from 5,000 means of the same study size, is smooth with the same spread; the third, from 5,000 means of 120 waits, is about half as wide."
-#| fig-width: 6.5
-#| fig-height: 2.9
-panels <- list(means_30[1:200], means_30, means_120)
-titles <- c("(a) n = 30, B = 200", "(b) n = 30, B = 5,000",
-            "(c) n = 120, B = 5,000")
-oldpar <- par(mfrow = c(1, 3), mar = c(4, 3.6, 2, .4), mgp = c(2.2, .7, 0))
-for (j in 1:3) {
-  hist(panels[[j]], breaks = seq(4, 18, by = .5), probability = TRUE,
-       ylim = c(0, .5), col = "grey85", main = titles[j],
-       xlab = "Sample mean (minutes)", ylab = "Density")
-  abline(v = 10, lty = 2)
-}
-par(oldpar)
-```
-
-\Needspace{9\baselineskip}
-
-| Panel | Study size $n$ | Repetitions $B$ | Mean of sample means | Empirical SE | Model SE |
-|:--|--:|--:|--:|--:|--:|
-| (a) | 30 | 200 | 9.6698 | 1.7484 | 1.8257 |
-| (b) | 30 | 5,000 | 9.9626 | 1.7878 | 1.8257 |
-| (c) | 120 | 5,000 | 9.9922 | 0.9214 | 0.9129 |
-
-: Repetitions and study size change different things (seed 60203). {#tbl-ch05-repetitions tbl-colwidths="[10,16,16,20,19,19]"}
-
-From panel (a) to panel (b) only the number of repetitions changes. The
-histogram becomes smoother and its empirical SE settles near the model
-SE $10/\sqrt{30}=1.8257$ minutes, which has not changed: more
-repetitions show the same sampling distribution more steadily. From
-panel (b) to panel (c) the study size quadruples, so the model SE halves
-to $10/\sqrt{120}=0.9129$ minutes and the histogram narrows. The
-density scale makes each bar's area the fraction of generated means in
-its interval, so the three panels are directly comparable. With
-finitely many repetitions, an empirical SE need not equal its model
-value exactly.
-
-Keep three quantities distinct. The 10-minute SD describes individual
-waits. The SE describes how sample means vary at a stated study size.
-A particular sample's **error**, such as $11.3-10=1.3$ minutes for an
-illustrative mean of 11.3, is one realized departure from the target;
-an SE summarizes the distribution of possible estimates and does not
-reveal the error of a particular one. Halving an SE under this model
-takes four times as many observations.
-
-### Bias and precision
-
-An estimator's **expectation** is its probability-weighted average
-across the declared repetitions, and its **bias** is that expectation
-minus the target. Chapter 3 illustrated bias with an estimator
-averaging 3.4 when the target was 3, a bias of 0.4. **Precision**
-concerns how tightly the possible values cluster: an estimator can be
-centred correctly and still vary widely from one sample to the next.
-
-To compare the two variance divisors, change the target to the variance
-of the waiting-time process, 100 squared minutes. For each of 5,000
-independent samples of five waits, compute one variance with divisor
-$n-1$ and one with divisor $n$; the Computer Lab carries the
-simulation, and @tbl-ch05-bias-evidence reports its averages.
-
-\Needspace{8\baselineskip}
-
-| Variance rule | Mean over 5,000 samples | Expectation under the model |
-|:--|--:|--:|
-| Divide by $n-1$ | 101.2241 | 100 |
-| Divide by $n$ | 80.9793 | 80 |
-
-: Variance estimates from independent exponential samples of five waits (seed 60501). {#tbl-ch05-bias-evidence tbl-colwidths="[34,33,33]"}
-
-The expectations in the last column follow from
-
-$$
-\operatorname{Bias}(\widehat\theta)=E(\widehat\theta)-\theta,\qquad
-E(s^2)=\sigma^2,\qquad
-E\left\{\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2\right\}=\frac{n-1}{n}\sigma^2.
-$$
-
-The $n-1$ rule is unbiased under the independent common-distribution
-model; the $n$ rule has downward bias $\sigma^2/n=20$ squared minutes
-here. The simulation average 101.2241 can differ from 100 even for the
-unbiased rule, because 5,000 samples approximate the expectation rather
-than enumerating every possible sample. Both rules can be far from 100
-in a single sample. The $n$ estimate is always four-fifths of the
-$n-1$ estimate here, so it varies less across repetitions while being
-centred on the wrong value: an apparently stable estimate can
-systematically miss its target, which is why precision and bias are
-reported separately.
-
-### SE follows the unit and the comparison {#sec-ch5-reshape}
-
-An SE follows the observational units that can vary independently. The
-[sleep documentation](https://stat.ethz.ch/R-manual/R-patched/library/datasets/html/sleep.html)
-describes extra hours of sleep, relative to a control period, under two
-drugs for ten people. `ID` identifies a person, `group` a drug and
-`extra` the extra hours; negative values mean less sleep than under
-control. Twenty measurement rows therefore represent ten people, and
-alignment by person comes before subtraction:
-
-```{r}
-#| label: ch05-sleep-differences
-sleep_wide <- reshape(sleep, idvar = "ID", timevar = "group",
-  direction = "wide")
-sleep_d <- sleep_wide$extra.2 - sleep_wide$extra.1
-c(mean = mean(sleep_d), SD = sd(sleep_d),
-  SE = sd(sleep_d) / sqrt(length(sleep_d)))
-```
-
-`reshape()` uses the ID to place each person's two measurements on one
-row, as `extra.1` and `extra.2`; before reshaping an unfamiliar file,
-check that each person--condition key occurs once, the Computer Lab's
-first step in Round 2. The subtraction is **drug 2 minus drug 1**. The
-ten differences have mean 1.58 hours and SD 1.23 hours, and because the
-same people enter both conditions, the mean difference equals the
-difference of the condition means, $2.33-0.75=1.58$. Their variance
-keeps the pairing:
-
-$$
-s_d^2=s_2^2+s_1^2-2s_{12},
-$$
-
-where $s_{12}$ is the covariance of the two measurements.
-@tbl-ch05-paired-se sets the two possible SE calculations for the same
-ten people side by side.
-
-\Needspace{8\baselineskip}
-
-| Calculation for the ten people | Variance used | SE of the mean difference (hours) |
-|:--|:--|--:|
-| Paired: the ten within-person differences | $s_d^2=1.5129$ | 0.3890 |
-| As if the two conditions were independent groups | $s_1^2+s_2^2=3.2006+4.0090$ | 0.8491 |
-
-: Two SE calculations for the same ten people. {#tbl-ch05-paired-se tbl-colwidths="[44,32,24]"}
-
-The covariance of the two measurements is positive, 2.8483: people who
-gain more sleep under one drug tend to gain more under the other. The
-paired calculation removes that shared variation; the independent-groups
-calculation leaves it in and more than doubles the SE. The number of
-people is ten in both rows, so the variance calculation, not the count,
-is what changed.
-
-For a single mean of independent observations from a common process,
-the sample SD estimates the process SD and the estimated SE is
-$\widehat{SE}(\bar Y)=s/\sqrt n$. For the 116 ozone values it is
-$32.9879/\sqrt{116}=3.0628$ ppb, **under a working assumption of
-independent observations from a common process**. The historical daily
-record does not establish that assumption: nearby days could be
-related and the process could change over the summer. The formula
-returns a number; its inferential use needs a justification for the
-model and the target.
-
-For two independent groups, each mean contributes its own variance
-term. The special-practice summaries give
-
-$$
-\widehat{SE}(\bar y_1-\bar y_0)=\sqrt{\frac{6.0^2}{60}+\frac{6.4^2}{60}}
-=1.1325\text{ points},
-$$
-
-which, with 60 participants in each group, equals the pooled SE that
-Chapter 3 uses (Chapter 3, Section 2.2). Its interpretation in this
-fixed-participant assignment study differs from independent sampling.
-Exactly 60 of the 120 participants are assigned to each group, so the
-two assigned-group means are dependent, and the exact assignment
-variance subtracts a term for variation in individual assignment
-effects, which the observed outcomes cannot recover. The squared SE
-above omits that term and estimates an upper bound on the assignment
-variance *on average*; it need not exceed the true variance in every
-realized study. Chapter 3 develops this distinction and the approximate
-t calibrations that Section 4 reproduces.
-
-Clustered assignment needs the same attention to independent units.
-Chapter 3, Section 2.3,
-develops the school-blocked feedback example: 480 students in 24
-classes within 12 schools, with one class per format in each school.
-Each of its twelve explanatory-minus-usual class-mean contrasts,
-$-2$, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5 and 7, is one independent unit; they
-have mean 2.5 points, SD 2.3932 points and SE 0.6908 points. Counting
-480 student identifiers would not establish 480 independent
-assignments.
-
-Sampling without replacement also changes uncertainty. If $n$ members
-are selected by simple random sampling from a finite population of
-size $N$, whose variance $\sigma^2$ uses denominator $N$, then
-
-$$
-SE_{\text{finite}}=\frac{\sigma}{\sqrt n}\sqrt{\frac{N-n}{N-1}},
-$$
-
-estimated by $(s/\sqrt n)\sqrt{1-n/N}$. Observing a larger fraction of
-a fixed population leaves less uncertainty about its mean, and
-observing everyone leaves none. Chapter 3, Section 2.3, introduces the
-correction, which belongs to simple random sampling without replacement
-rather than to every way of selecting from a finite population. Across
-these settings, the estimand, dependence, weighting and design decide
-the uncertainty calculation; row counts alone cannot.
-
-### Concentration and sampling shape
-
-Two results explain the changing distributions of sample means. The
-**law of large numbers** concerns concentration: under its conditions,
-larger samples make the mean more likely to lie close to the population
-mean. The **central limit theorem** concerns shape: under conditions
-such as independent, identically distributed observations with finite
-variance, the centred and scaled sample mean approaches a Normal
-distribution. A running mean shows the first idea along one sequence
-of draws: after draw $k$, average the first $k$ waits.
-
-```{r}
-#| label: fig-ch05-running-mean
-#| echo: false
-#| fig-cap: "One running mean from independent exponential waits with model mean ten minutes."
-#| fig-alt: "The running mean fluctuates irregularly around ten; it is 9.7207 after 400 observations. Adding a draw can move it closer to or farther from the target."
-#| fig-width: 6.2
-#| fig-height: 3.3
-set.seed(60204)
-running_waits <- rexp(400, rate = 1 / 10)
-running_mean <- cumsum(running_waits) / seq_along(running_waits)
-plot(running_mean, type = "l", xlab = "Number of observations",
-     ylab = "Running mean (minutes)", ylim = range(c(running_mean, 10)))
-abline(h = 10, lty = 2)
-```
-
-The running means are 9.0830 minutes after 10 draws, 7.9852 after 50,
-8.8373 after 100 and 9.7207 after 400. The path is irregular: adding
-observations can move the mean farther from 10 for a while.
-Concentration is a probabilistic statement as the sample grows, not a
-promise of steady improvement along one sequence or a guarantee at a
-particular size.
-
-The histograms of @fig-ch05-repetitions and of Chapter 2's
-sampling-means figure change shape as well as width: means of larger
-samples become more nearly symmetric, although individual waits keep
-their exponential distribution. Concentration describes closeness to
-the target; the central limit theorem describes the sampling shape
-after centring and scaling. Neither makes individual observations
-Normal. Strong dependence, extreme tails or a dominating observation
-can make a familiar approximation poor, and there is no universal
-sample-size cutoff. Chapter 3, Section 2.4, states both results with
-their conditions; the Computer Lab applies the reasoning to a second
-skewed process.
-
-## Intervals and Tests for Means {#ch05-mean-inference}
-
-### Estimate, SE, critical value, and interval {#ch05-z-t}
-
-An estimate answers a numerical question; an interval describes
-uncertainty about its target under a stated procedure. Before asking R
-for either, name the outcome and its units, the included observations,
-the parameter and the repetition that makes an SE meaningful: the model
-and design determine the calculation, and a function's default cannot
-supply them. The common construction from Chapter 3 is
-
-$$
-\text{interval}=\widehat\theta\pm c^*
-\widehat{\operatorname{SE}}(\widehat\theta),\qquad
-T=\frac{\widehat\theta-\theta_0}
-{\widehat{\operatorname{SE}}(\widehat\theta)}.
-$$
-
-The estimate and SE have outcome units. Multiplying the SE by the
-**critical value** $c^*$ gives a margin in those units, and the test
-statistic expresses the departure from a null value $\theta_0$ in SE
-units. The confidence level, the tail convention and the reference
-distribution determine the critical value and the p-value.
-
-For a mean of independent Normal observations whose SD $\sigma$ is
-stipulated independently, the SE is $\sigma/\sqrt n$ and the statistic
-has a standard Normal reference. When the SD is estimated from the
-same observations, the SE is $s/\sqrt n$ and the reference is t with
-$n-1$ df, whose heavier tails reflect the uncertainty of the estimated
-scale [@student1908]; Chapter 3, Section 3.1, draws the two references.
-The critical values that leave .025 in the upper tail show the
-difference:
-
-```{r}
-#| label: ch05-critical-values
-c(z = qnorm(.975), t5 = qt(.975, 5), t9 = qt(.975, 9),
-  t30 = qt(.975, 30))
-```
-
-The multipliers are 1.96 for the Normal reference and 2.5706, 2.2622
-and 2.0423 for t with 5, 9 and 30 df. A large sample makes the two
-references similar; it does not make an estimated SD a known one.
-
-The 32 recorded car models have mean fuel economy 20.0906 mpg. Take the
-null process mean to be 20 mpg and let R run the one-sample t
-procedure:
-
-```{r}
-#| label: ch05-one-t
-t.test(mtcars$mpg, mu = 20)
-```
-
-The printout names the method, gives the statistic with its df and the
-p-value, states the two-sided alternative, and reports the 95% interval
-and the estimated mean. The returned object also stores these parts
-(`$estimate`, `$stderr`, `$statistic`, `$parameter` for the df,
-`$p.value` and `$conf.int`), which the Computer Lab extracts. Suppose,
-as a second and explicitly different working assumption, that the
-process SD were **known independently to be 5 mpg**; this teaching
-value is not an estimate from `mtcars`. @tbl-ch05-one-mean sets the
-two procedures side by side.
-
-| Procedure | SE | Statistic | df | Two-sided p | 95% interval |
-|:--|--:|--:|--:|--:|:--|
-| Known-SD z, $\sigma=5$ | 0.8839 | 0.1025 | -- | .9183 | [18.3582, 21.8230] |
-| Estimated-SD t | 1.0654 | 0.0851 | 31 | .9328 | [17.9177, 22.2636] |
-
-: One mean, two explicitly different uncertainty assumptions. {#tbl-ch05-one-mean tbl-colwidths="[27,10,12,5,16,30]"}
-
-The t row uses the observed SD, 6.0269, and the critical value 2.0395.
-Both its SE and its multiplier exceed those of the known-SD row, so its
-interval is wider. Both intervals contain 20 mpg, matching their
-tests' failure to reject that null at .05; this matching holds when
-interval and test share a method, assumptions and calibration. A
-p-value is a tail probability under the null and those conditions, not
-the probability that the null is true, and including 20 establishes
-neither exact equality nor practical equivalence. An interval for a
-process mean also differs from a range containing 95% of individual
-cars. These calculations illustrate working process models: the
-historical collection of car models does not become a probability
-sample when `t.test()` runs, and a broader inference needs a supported
-target process with appropriate dependence and distribution conditions.
-
-### Supplied summaries and a planned direction
-
-Chapter 3's one-mean district illustration, on which it first builds
-intervals and tests, supplies only summaries: $n=25$, mean 52 and
-sample SD 5 under independent Normal sampling. They are enough, so we
-use them directly rather than inventing observations to pass into
-`t.test()`. For the null mean 50, the estimated SE is $5/\sqrt{25}=1$
-and the statistic is $t=(52-50)/1=2$ on 24 df. `pt()` turns the
-statistic into tail areas:
-
-```{r}
-#| label: ch05-summary-p
-c(two_sided = 2 * pt(2, df = 24, lower.tail = FALSE),
-  upper = pt(2, df = 24, lower.tail = FALSE))
-```
-
-The two-sided p-value is .0569; the upper-tail p-value for the
-alternative $\mu>50$ is .0285. They differ because they answer
-different questions, and a directional alternative must come from the
-question before the result is seen. For a negative statistic the
-upper-tail probability would exceed .5, so halving a two-sided p-value
-blindly would give the wrong tail. The two-sided 95% interval is
-[49.9361, 54.0639], using R's critical value 2.0639, and it contains
-50, consistent with the two-sided test; the upper-tail test does not
-correspond to that interval. Chapter 3 used the t-table value 2.064,
-which gives [49.936, 54.064]; a task that stipulates that rounded
-critical value keeps those endpoints. The difference is rounding, not
-a changed conclusion.
-
-### Paired observations and complete pairs {#ch05-paired}
-
-The sleep measurements return us to a comparison whose unit is a
-person: ten complete pairs, not twenty independent people. Their
-condition means are 0.75 and 2.33 hours, and the mean of their aligned
-differences is 1.58 hours. Nine differences are positive and one is
-zero, ranging from 0 to 4.6 hours.
-
-```{r}
-#| label: fig-ch05-pairs
-#| echo: false
-#| fig-cap: "Two measurements for each of ten people."
-#| fig-alt: "Lines connect drug 1 and drug 2 for each person; nine rise and one is flat."
-#| fig-width: 6.2
-#| fig-height: 3.4
-matplot(1:2, t(as.matrix(sleep_wide[c("extra.1", "extra.2")])),
-  type = "b", lty = 1, pch = 16, col = "grey40",
-  xaxt = "n", xlab = "Drug", ylab = "Extra sleep (hours)")
-axis(1, at = 1:2, labels = c("1", "2"))
-```
-
-The inferential target is a process mean difference $\mu_D$. Under a
-working model of independent Normal differences between people,
-$s_d/\sqrt n$ estimates the SE of their mean and the t reference has
-$n-1$ df. Normality concerns the differences, and the dependence
-between one person's two measurements is kept in the difference, as
-@fig-ch05-pairs shows line by line. The argument `paired = TRUE` tells
-R to subtract measurements at corresponding positions, which the
-ID-based reshaping of Section 3.4 made correct:
+The lookup in @tbl-ch05-models gives the same vocabulary for other
+families. Its support states the possible values, and the parameters
+specify a member of each family.
 
 \Needspace{16\baselineskip}
 
-```{r}
-#| label: ch05-paired-test
-t.test(sleep_wide$extra.2, sleep_wide$extra.1, paired = TRUE)
-```
+| Model | Object and parameters | Base-R family |
+|:--|:--|:--|
+| Bernoulli | One 0/1 response, probability $p$ of 1 | `binom`, with `size=1` |
+| Binomial | Success count in $m$ independent trials with common $p$ | `dbinom`, `pbinom`, `qbinom`, `rbinom` |
+| Categorical | One label among categories with stated probabilities | `sample()` with `prob`; a table of masses |
+| Poisson | Nonnegative count with model mean $\lambda$ | `dpois`, `ppois`, `qpois`, `rpois` |
+| Normal | Continuous value with mean $\mu$ and SD $\sigma$ | `dnorm`, `pnorm`, `qnorm`, `rnorm` |
+| Lognormal | Positive value whose log is Normal; parameters on the log scale | `dlnorm`, `plnorm`, `qlnorm`, `rlnorm` |
+| Logistic | Continuous symmetric value with location $\mu_L$ and positive scale $s_L$ | `dlogis`, `plogis`, `qlogis`, `rlogis` |
+| Student t | Symmetric reference distribution with specified df | `dt`, `pt`, `qt`, `rt` |
 
-The output gives $t(9)=4.0621$, $p=.0028$ and the 95% interval [0.7001,
-2.4599] hours around the mean difference 1.58. A paired t calculation
-is a one-sample t calculation on the within-person differences, so the
-same result follows from `t.test(sleep_d)`. Raising the confidence to
-99% widens the interval to [0.3159, 2.8441] while the observations and
-the estimate stay the same.
+: Distribution functions respect the model's support and parameters. {#tbl-ch05-models tbl-colwidths="[16,49,35]"}
 
-With missing measurements, keep the rows that have both values before
-forming differences; removing missing entries separately from each
-column could align different people. Complete-pair analysis also
-changes who contributes and may need a missingness justification: a
-software exclusion is not that justification. The interval concerns a
-process mean, not a guarantee of benefit for every person, and ten
-differences give limited protection against non-Normal tails or
-influential cases. Neither the paired call nor the dataset establishes
-random sampling, treatment order, absence of carryover or the other
-conditions needed for a causal interpretation. Chapter 3's
-eight-student illustration (Chapter 3, Section 5.2) and its school
-contrasts apply the same form; the Computer Lab runs both.
+Lognormal `meanlog` and `sdlog` describe the logarithm, not the mean
+and SD of the positive values. Its density is right-skewed, whereas a
+t density is symmetric with tails heavier than the Normal density.
+These contrasts reflect different kinds of outcome and variation.
 
-### Two independent groups and Welch's method {#ch05-welch}
-
-Now compare separate automatic and manual car models. Let
-$\Delta\mu=\mu_A-\mu_M$ be the automatic-minus-manual process mean mpg
-difference. Under an independent-groups working model the two means
-contribute separate variance terms. Welch's method estimates both and
-allows the group variances to differ [@welch1947]; it is the last of
-Chapter 3's t procedures (Chapter 3, Section 5.4), following the
-equal-variance test. With $a=s_A^2/n_A$ and $b=s_M^2/n_M$,
-
-$$
-\widehat{\Delta\mu}=\bar y_A-\bar y_M,\qquad
-\widehat{\operatorname{SE}}=\sqrt{a+b},\qquad
-\nu=\frac{(a+b)^2}{a^2/(n_A-1)+b^2/(n_M-1)}.
-$$
-
-The Welch--Satterthwaite df $\nu$ account approximately for the two
-estimated variance terms and need not be an integer. Extracting the two
-groups in a stated order makes the subtraction unambiguous:
-
-\Needspace{18\baselineskip}
 
 ```{r}
-#| label: ch05-welch-test
-auto <- mtcars$mpg[mtcars$am == 0]
-manual <- mtcars$mpg[mtcars$am == 1]
-t.test(auto, manual)
+#| label: ch05-other-families
+#| eval: false
+curve(dlnorm(x, meanlog = 0, sdlog = .8), .01, 6)
+curve(dt(x, df = 5), -4, 4)
 ```
 
-The 19 automatic and 13 manual models have means 17.1474 and 24.3923
-mpg, a difference of $-7.2449$ mpg. The output reports $t=-3.7671$ on
-$\nu=18.3323$ df, $p=.0014$ and the 95% interval [$-11.2802$,
-$-3.2097$]. The negative sign describes the declared order; reversing
-it would negate the estimate and exchange the negated endpoints, with
-the same two-sided p-value. R's two-sample `t.test()` uses Welch's test
-by default, and the argument `var.equal = TRUE` gives Chapter 3's
-equal-variance (pooled) test, which adds a common-variance assumption.
-@tbl-ch05-welch-pooled compares the two on the same records.
-
-\Needspace{8\baselineskip}
-
-| Procedure | SE | df | Two-sided p | 95% interval |
-|:--|--:|--:|--:|:--|
-| Welch's unequal-variance t | 1.9232 | 18.3323 | .0014 | [$-11.2802$, $-3.2097$] |
-| Equal-variance (pooled) t | 1.7644 | 30 | .0003 | [$-10.8484$, $-3.6415$] |
-
-: The same automatic-minus-manual estimate, $-7.2449$ mpg, under two variance assumptions. {#tbl-ch05-welch-pooled tbl-colwidths="[34,12,14,14,26]"}
-
-The estimate and the observations are unchanged; the variance
-assumption and the calibration differ. The equal-variance t reference
-is exact for independent Normal groups with a common variance, whereas
-Welch's reference remains approximate even for independent Normal
-groups with unequal variances. As Chapter 3 explains, the choice comes
-from the design and subject knowledge before the analysis: a smaller
-p-value, or a preliminary variance test, is not a reason to adopt the
-common-variance assumption. Neither method resolves the differences in
-weight, engine and other features that accompany transmission, so
-these observational comparisons do not isolate a transmission effect.
-
-Chapter 3's special-practice comparison has the same structure. Its
-main result used the equal-variance test, $t(118)=2.7372$ with 95%
-interval [0.8572, 5.3428] points, and its Section 5.4 set it beside
-Welch's test, which has the same SE and statistic, $\nu=117.5119$ and
-$p=.0072$. With 60 participants in each group only the df differ, and
-the two intervals differ in the fourth decimal. The estimand and
-repetition remain those of Section 3.1, and Section 3.4's reading of
-the squared SE as an upper bound still holds; the Computer Lab
-reproduces the Welch calculation from the supplied summaries. Either
-interval includes effects below a stated two-point importance benchmark
-as well as above it, so evidence against a zero effect supports less
-than a claim that the mean improvement exceeds two points. The
-supplied rounded summaries are also distinct from the distributed
-CSV's slightly different SDs, and the two should not be silently
-substituted for one another.
-
-### Coverage belongs to the procedure {#ch05-coverage}
-
-What makes an interval procedure a 95% procedure? A known process lets
-us see. Let independent differences be Normal with mean 1.5 hours and
-SD 1.2 hours; these are teaching constants, not a reconstruction of the
-sleep study. Each repeated study draws fresh differences, estimates
-their mean and SE, and forms a 95% t interval; recalculating one
-interval on the same observations would reproduce that interval, not
-test the procedure. The Computer Lab carries the loop over 2,000
-studies at each of three sample sizes, and @tbl-ch05-coverage reports
-its results.
-
-\Needspace{11\baselineskip}
-
-| n | Mean of estimates | Empirical SE | Model SE | Coverage |
-|--:|--:|--:|--:|--:|
-| 10 | 1.5015 | 0.3766 | 0.3795 | .9515 |
-| 20 | 1.5006 | 0.2591 | 0.2683 | .9510 |
-| 40 | 1.5014 | 0.1886 | 0.1897 | .9460 |
-
-: Coverage of 95% t intervals from the Normal process, using 2,000 repetitions at each sample size and resetting seed 60610 for each row. {#tbl-ch05-coverage tbl-colwidths="[10,25,25,20,20]"}
-
-The empirical SE is the SD of the generated means and the model SE is
-$1.2/\sqrt n$; coverage is the fraction of generated intervals that
-contain 1.5. Under the declared Normal model the t procedure has exact
-95% coverage, so the simulated fractions differ from .95 only through
-the finite number of studies. That numerical uncertainty has its own
-**Monte Carlo SE**: each study's coverage indicator is a Bernoulli
-outcome, and at coverage .95 with $B=2000$,
-
-$$
-\operatorname{MCSE}(\widehat p_{\mathrm{cover}})
-=\sqrt{\frac{.95(.05)}{2000}}=0.0049.
-$$
-
-All three fractions lie within one MCSE of .95. Increasing $B$ reduces
-the simulation noise, quadrupling it halves the MCSE. Increasing $n$
-supplies more information in each study and narrows the intervals,
-from 10 to 40 halving the model SE, without raising the nominal 95%
-coverage above 95%. The individual-difference SD, the mean's SE and the
-simulation's MCSE describe different sources of variation. Chapter 3's
-coverage display shows the same fixed-parameter reasoning: for one
-observed interval the parameter is inside or outside, and the 95%
-describes repeated use of the procedure.
-
-## Correlations and Their Inference {#sec-ch5-relationships}
+## Describe Relationships {#sec-ch5-relationships}
 
 []{#ch05-correlations}
+
+The same 32 complete car-model records support this section's plots,
+coefficients and matrices. These describe the recorded relationships;
+Section 5.6 adds inference about a process correlation.
 
 ### Begin with the plotted observations
 
@@ -1472,11 +914,17 @@ plot(x_curve, x_curve^2, type = "b", pch = 16,
      xlab = "x", ylab = expression(y == x^2))
 ```
 
+
+```{r}
+#| label: ch05-curve-demo
+#| eval: false
+x <- -2:2
+plot(x, x^2, type = "b")
+```
+
 The cross-products at $x$ and $-x$ cancel by symmetry, although knowing
 $x$ determines $y$. Pearson correlation describes linear association,
-so "the variables are unrelated" would overstate this result. Chapter
-2's correlation gallery (Chapter 2, Section 3.3) shows realized samples
-with different directions and strengths; the Computer Lab builds it.
+so "the variables are unrelated" would overstate this result.
 
 ### Covariance and correlation matrices {#ch05-matrices}
 
@@ -1518,6 +966,24 @@ both in the same row and column order.
 
 : Corresponding Pearson correlation matrix. {#tbl-ch05-correlation}
 
+```{r}
+#| label: fig-ch05-matrix-pairs
+#| echo: !expr 1
+#| fig-cap: "Every off-diagonal matrix entry summarizes a pair of measurements on the same 32 car models. Read a panel using the column variable horizontally and the row variable vertically; opposite panels exchange the axes."
+#| fig-alt: "A three-by-three scatterplot matrix for mpg, horsepower and weight. Diagonal cells name variables. Mpg declines with horsepower and weight; horsepower generally rises with weight, with substantial scatter."
+#| fig-width: 6
+#| fig-height: 4.2
+pairs(X)
+```
+
+The matrix numbers summarize these clouds (@fig-ch05-matrix-pairs).
+The negative mpg--weight entry describes the descending panels;
+the positive horsepower--weight entry describes an ascending one.
+The diagonal of the numerical covariance matrix records each
+variable's own spread. Curvature and unusual cases remain visible in
+the plotted pairs even though each matrix entry compresses its cloud
+to one number.
+
 The mpg variance has squared-mpg units, and its covariance with
 horsepower has mpg-times-horsepower units; the correlations remove
 those units. If $\mathbf D$ is the diagonal matrix of the positive
@@ -1528,9 +994,17 @@ $$
 \mathbf S=\mathbf D\mathbf R\mathbf D.
 $$
 
+
+```{r}
+#| label: ch05-matrix-rebuild
+#| eval: false
+d <- sqrt(diag(S))
+R * outer(d, d)
+```
+
 Correlations alone therefore cannot recover the covariance matrix: the
-SDs and their units are also needed, and the Computer Lab rebuilds
-$\mathbf S$ from $\mathbf R$ and the SDs. A constant column has zero SD
+SDs and their units are also needed. Multiplying each correlation by
+the corresponding pair of SDs reconstructs its covariance. A constant column has zero SD
 and an undefined correlation, so it must be detected before
 converting. Common rows matter when measurements are missing. Computing
 each entry from a different pairwise subset can produce a matrix that
@@ -1542,8 +1016,7 @@ contains 111 days.
 
 ### Pearson, rank, and point-biserial coefficients
 
-Pearson correlation uses the measured scales and describes linear
-association. **Spearman correlation** applies Pearson's formula to the
+Pearson correlation uses the measured scales and describes linear association. **Spearman correlation** applies Pearson's formula to the
 ranks and describes monotone association: values move consistently in
 one direction, even along a curve. **Kendall correlation** compares
 concordant and discordant orderings of pairs, with an adjustment for
@@ -1568,6 +1041,13 @@ plot(X$hp, X$mpg, pch = 16, xlab = "Gross horsepower",
 plot(rank(X$hp), rank(X$mpg), pch = 16, xlab = "Horsepower rank",
      ylab = "Mpg rank", main = "(b) Ranks")
 par(oldpar)
+```
+
+
+```{r}
+#| label: ch05-rank-plot
+#| eval: false
+plot(rank(X$hp), rank(X$mpg))
 ```
 
 Mileage falls steeply as horsepower rises and then levels off
@@ -1595,6 +1075,869 @@ to manual and automatic means of 24.3923 and 17.1474 mpg; reversing the
 than two categories, arbitrary numerical labels do not define a
 meaningful scale for correlation, so the coding must follow the
 variable's role.
+
+### One-control partial correlation {#ch05-partial}
+
+Changing the cases and adjusting a relationship on the same cases
+answer different questions. For variables $X$, $Y$ and $Z$, the
+**partial correlation** of $X$ and $Y$ controlling linearly for $Z$ is
+
+$$
+r_{XY\cdot Z}=\frac{r_{XY}-r_{XZ}r_{YZ}}
+{\sqrt{(1-r_{XZ}^2)(1-r_{YZ}^2)}}.
+$$
+
+For example, practice-time, score and baseline correlations of
+$r_{XY}=.6$, $r_{XZ}=.5$ and $r_{YZ}=.6$, give .433. For mpg and
+horsepower controlling for weight, the correlations of
+@tbl-ch05-correlation give $-.547$. A second route shows what the
+adjustment does: fit a straight line from weight to each variable, keep
+the **residuals**, the observed values minus their fitted values, and
+correlate what remains.
+
+```{r}
+#| label: ch05-partial-residuals
+resid_mpg <- residuals(lm(mpg ~ wt, data = X))
+resid_hp <- residuals(lm(hp ~ wt, data = X))
+cor(resid_mpg, resid_hp)
+```
+
+`lm()` fits the straight line its formula names, the outcome left of
+`~` and the predictor right of it, with an intercept; `residuals()`
+returns what remains after that fitted linear relationship, for the
+same 32 rows.
+
+```{r}
+#| label: fig-ch05-partial
+#| echo: false
+#| fig-cap: "Mileage and horsepower after separately fitting their linear relationships with weight."
+#| fig-alt: "The two residual vectors from the same 32 car models retain a negative association, with partial correlation minus .547."
+#| fig-width: 6.2
+#| fig-height: 3.5
+plot(resid_hp, resid_mpg, pch = 16,
+     xlab = "Horsepower residual after weight adjustment",
+     ylab = "Mpg residual after weight adjustment")
+```
+
+
+```{r}
+#| label: ch05-partial-plot
+#| eval: false
+plot(resid_hp, resid_mpg)
+```
+
+Both routes give $-.547$: the mpg--horsepower association weakens from
+$-.7762$ once each variable's linear relationship with weight is
+removed, and a negative association remains (@fig-ch05-partial). The
+adjustment uses the same 32 rows; it does not exclude heavy cars. It
+removes the specified linear relationships and nothing more: not all
+confounding, omitted nonlinear relationships or measurement problems,
+and it does not establish a causal effect of horsepower.
+
+Section 5.6 supplies the test when this partial coefficient is the
+preselected question. Linear adjustment keeps the same cases;
+restricting the analysis to lighter cars would instead change the
+records, and the two operations need not yield the same relationship.
+
+## Sampling Variation and Standard Errors {#sec-ch5-sampling}
+
+[]{#ch05-sampling}
+
+### A population, a sample, and a target
+
+Section 1 distinguished the recorded days from a wider population.
+A population inference now needs the process by which its observations
+were selected.
+Filtering recorded values in R describes which observations enter a
+particular calculation; it supplies no random sampling mechanism. The
+invented school system, with 20,000 students in schools of
+different types, gives a compact reminder:
+
+\Needspace{14\baselineskip}
+
+| Scheme | Selection from the school system |
+|:--|:--|
+| Simple random sampling | Every set of 100 students from the register has the same chance. |
+| Systematic sampling | Choose a random start, then every 200th student; the ordering of the list matters. |
+| Stratified random sampling | Select a probability sample within every school-type stratum. |
+| Cluster sampling | Randomly select schools and include their eligible students. |
+| Multistage sampling | Randomly select schools, then students within those schools. |
+
+: Recognize the sampling procedure before calculating. {#tbl-ch05-sampling-schemes tbl-colwidths="[30,70]"}
+
+Probability sampling gives eligible units known nonzero inclusion
+probabilities, which need not be equal. An open invitation, convenience
+recruitment or quotas alone do not supply those probabilities, and
+frame coverage and nonresponse still matter after probability
+selection. A simple random sample of 100 from the register gives each
+student inclusion probability $100/20{,}000=.005$. Sampling strata
+concern selection, whereas blocks concern allocation of conditions; cluster
+sampling and the assignment of whole clusters are different design
+decisions, even when both produce records grouped within schools.
+General unequal-probability estimation and the SEs for all survey
+designs extend beyond the methods developed here.
+
+
+```{r}
+#| label: ch05-register-sample
+#| eval: false
+sample(1:20000, size = 100)
+```
+
+An estimand names the quantity the question targets; an estimator is
+the rule applied to a possible sample, and an estimate its realized
+value. A sampling distribution requires a specified repetition, not
+simply a numerical result. We now change the generating process:
+instead of selecting from a fixed population, R generates independent
+observations from a probability distribution whose parameters we
+choose. Let the model be Normal with mean 50 and SD 10, and generate
+30 draws:
+
+```{r}
+#| label: ch05-one-sample
+set.seed(60506)
+one_sample <- rnorm(30, mean = 50, sd = 10)
+c(mean = mean(one_sample), SD = sd(one_sample))
+```
+
+`rnorm()` takes the number of observations, the model mean and the
+model SD; the result is one sample from that model.
+
+\Needspace{8\baselineskip}
+
+| Quantity | Model value (parameter) | This sample (statistic) |
+|:--|--:|--:|
+| Mean | $\mu=50$ | $\bar x=49.5691$ |
+| SD | $\sigma=10$ | $s=7.0051$ |
+
+: One sample of 30 draws from a declared Normal model (seed 60506). {#tbl-ch05-parameter-statistic tbl-colwidths="[24,38,38]"}
+
+The **parameters** are fixed features of the model; the **statistics**
+are calculated from the generated observations and vary with the
+draws. Running `rnorm()` again without resetting the seed gives another
+sample and generally different statistics, while resetting the seed
+recreates the same draws. A seed controls the repeatability of the
+numerical experiment; it supplies no evidence that the Normal model
+describes a real study. Nor does knowing the generating SD in a
+simulation make a sample SD a known population SD in an actual study.
+
+A simulation gives us a known target, but a study usually has a target
+we cannot observe directly. An invented special-practice study used complete random assignment
+of 120 participants, exactly 60 to Special Practice and 60 to Usual
+Practice, and measured delayed-assessment scores; the group means were 27.1 and 24.0 points, with SDs 6.0 and
+6.4. The **estimand** is the mean effect of assignment to Special
+rather than Usual Practice among these 120 participants. Write $Y_{i1}$
+for participant $i$'s potential score under Special assignment and
+$Y_{i0}$ for the score under Usual assignment. The target is
+
+$$
+\Delta\mu=\frac{1}{n}\sum_{i=1}^{n}\{Y_{i1}-Y_{i0}\},
+$$
+
+where the braces hold one participant's effect and division by $n=120$
+takes the mean over the 120 assigned participants. Each participant
+reveals only the outcome under the assigned condition, so no individual
+effect is ever recorded and the effects cannot simply be averaged. The
+**estimator**, the difference in assigned-group means
+$\widehat{\Delta\mu}=\bar y_1-\bar y_0$, uses the observed outcomes;
+**estimation** applies that rule and checks its inputs; the
+**estimate** is the resulting $27.1-24.0=3.1$ points. The repetition
+behind its uncertainty reassigns the same 120 participants, exactly 60
+to each condition: the participants and their potential outcomes stay
+fixed while the assigned groups and observed outcomes vary. That
+differs from repeatedly sampling new people.
+
+| Object | Working definition | In the special-practice study | In R |
+|:--|:--|:--|:--|
+| Estimand | The precisely specified quantity the question seeks | Mean delayed-score difference caused by Special rather than Usual assignment among the 120 participants | Not an object; stated in words before any code |
+| Estimator | The rule applied in each admissible repetition | Special-group mean minus Usual-group mean | An expression such as `mean_special - mean_usual` |
+| Estimate | The number the estimator produced | $27.1-24.0=3.1$ points | The value that expression returns |
+| Statistic | A numerical function of observed data | A group mean, the 3.1-point estimate | Any computed summary |
+| Parameter | A fixed feature named by the estimand under the chosen interpretation | The participant-specific mean assignment contrast | Unknown here; Section 4.4 changes the target to a known waiting-time variance |
+| Standard error | The modelled spread of the estimator across the declared repetitions | 1.1325 points (Section 4.5) | Computed from the group SDs and counts |
+
+: Inferential objects with their R counterparts. {#tbl-ch05-inferential-objects tbl-colwidths="[13,27,34,26]"}
+
+@tbl-ch05-inferential-objects separates the scientific target from its
+computational representation. Storing a result in an object named
+`estimate` does not define its estimand; that definition comes from the
+question, the participants, the comparison and the outcome.
+
+### The first repeated-sample calculation
+
+Consider independent exponential waits with mean and SD both 10 minutes, many short and a few long. R's
+`rexp()` uses the **rate**, the reciprocal of the mean, so
+`rate = 1 / 10` gives a ten-minute mean. One call repeats the whole
+sampling operation, drawing five waits and averaging them, 5,000 times:
+
+```{r}
+#| label: ch05-replicate
+set.seed(60203)
+means_5 <- replicate(5000, mean(rexp(5, rate = 1 / 10)))
+c(mean = mean(means_5), SE = sd(means_5))
+```
+
+`replicate()` evaluates its second argument repeatedly and collects the
+results, so `means_5` holds 5,000 sample means, not 5,000 individual
+waits. Their mean, 10.0141 minutes, lies close to the model mean, and
+their SD, 4.5395 minutes, describes how much a mean of five waits
+varies. A statistic's **standard error** is its SD
+across the stated repetitions. For independent observations from a
+common distribution with SD $\sigma$, the mean's model SE is
+
+$$
+SE(\bar Y)=\frac{\sigma}{\sqrt n},
+$$
+
+
+```{r}
+#| label: ch05-means-view
+#| eval: false
+hist(means_5)
+10 / sqrt(c(5, 30, 120))
+```
+
+The SD of simulated means estimates this model SE; we call that SD the
+*empirical SE*. A simulation has two sizes, and they do different
+jobs: the study size $n$, the number of waits in each sample, and the
+number of repetitions $B$, the number of simulated samples.
+@fig-ch05-repetitions changes one at a time.
+
+```{r}
+#| label: ch05-repetitions
+#| include: false
+means_30 <- replicate(5000, mean(rexp(30, rate = 1 / 10)))
+set.seed(60203)
+means_5_again <- replicate(5000, mean(rexp(5, rate = 1 / 10)))
+means_120 <- replicate(5000, mean(rexp(120, rate = 1 / 10)))
+```
+
+```{r}
+#| label: fig-ch05-repetitions
+#| echo: false
+#| fig-cap: "More repetitions or larger studies. Each histogram collects simulated sample means from the waiting-time model; the dashed line marks the model mean, 10 minutes. (a) The first 200 of the 5,000 means of 30 waits; (b) all 5,000; (c) 5,000 means of 120 waits."
+#| fig-alt: "Three histograms on common axes from 4 to 18 minutes. The first, from 200 means, is ragged; the second, from 5,000 means of the same study size, is smooth with the same spread; the third, from 5,000 means of 120 waits, is about half as wide."
+#| fig-width: 6.5
+#| fig-height: 2.9
+panels <- list(means_30[1:200], means_30, means_120)
+titles <- c("(a) n = 30, B = 200", "(b) n = 30, B = 5,000",
+            "(c) n = 120, B = 5,000")
+oldpar <- par(mfrow = c(1, 3), mar = c(4, 3.6, 2, .4), mgp = c(2.2, .7, 0))
+for (j in 1:3) {
+  hist(panels[[j]], breaks = seq(4, 18, by = .5), probability = TRUE,
+       ylim = c(0, .5), col = "grey85", main = titles[j],
+       xlab = "Sample mean (minutes)", ylab = "Density")
+  abline(v = 10, lty = 2)
+}
+par(oldpar)
+```
+
+\Needspace{9\baselineskip}
+
+| Panel | Study size $n$ | Repetitions $B$ | Mean of sample means | Empirical SE | Model SE |
+|:--|--:|--:|--:|--:|--:|
+| (a) | 30 | 200 | 9.6698 | 1.7484 | 1.8257 |
+| (b) | 30 | 5,000 | 9.9626 | 1.7878 | 1.8257 |
+| (c) | 120 | 5,000 | 9.9922 | 0.9214 | 0.9129 |
+
+: Repetitions and study size change different things (seed 60203). {#tbl-ch05-repetitions tbl-colwidths="[10,16,16,20,19,19]"}
+
+From panel (a) to panel (b) only the number of repetitions changes. The
+histogram becomes smoother and its empirical SE settles near the model
+SE $10/\sqrt{30}=1.8257$ minutes, which has not changed: more
+repetitions show the same sampling distribution more steadily. From
+panel (b) to panel (c) the study size quadruples, so the model SE halves
+to $10/\sqrt{120}=0.9129$ minutes and the histogram narrows. The
+density scale makes each bar's area the fraction of generated means in
+its interval, so the three panels are directly comparable. With
+finitely many repetitions, an empirical SE need not equal its model
+value exactly.
+
+Keep three quantities distinct. The 10-minute SD describes individual
+waits. The SE describes how sample means vary at a stated study size.
+A particular sample's **error**, such as $11.3-10=1.3$ minutes for an
+illustrative mean of 11.3, is one realized departure from the target;
+an SE summarizes the distribution of possible estimates and does not
+reveal the error of a particular one. Halving an SE under this model
+takes four times as many observations.
+
+### Concentration and sampling shape
+
+Two results explain the changing distributions of sample means. The
+**law of large numbers** concerns concentration: under its conditions,
+larger samples make the mean more likely to lie close to the population
+mean. The **central limit theorem** concerns shape: under conditions
+such as independent, identically distributed observations with finite
+variance, the centred and scaled sample mean approaches a Normal
+distribution. A running mean shows the first idea along one sequence
+of draws: after draw $k$, average the first $k$ waits.
+
+```{r}
+#| label: fig-ch05-running-mean
+#| echo: false
+#| fig-cap: "One running mean from independent exponential waits with model mean ten minutes."
+#| fig-alt: "The running mean fluctuates irregularly around ten; it is 9.7207 after 400 observations. Adding a draw can move it closer to or farther from the target."
+#| fig-width: 6.2
+#| fig-height: 3.3
+set.seed(60204)
+running_waits <- rexp(400, rate = 1 / 10)
+running_mean <- cumsum(running_waits) / seq_along(running_waits)
+plot(running_mean, type = "l", xlab = "Number of observations",
+     ylab = "Running mean (minutes)", ylim = range(c(running_mean, 10)))
+abline(h = 10, lty = 2)
+```
+
+
+```{r}
+#| label: ch05-running-demo
+#| eval: false
+set.seed(60204)
+wait <- rexp(400, rate = 1 / 10)
+plot(cumsum(wait) / seq_along(wait), type = "l")
+```
+
+The running means are 9.0830 minutes after 10 draws, 7.9852 after 50,
+8.8373 after 100 and 9.7207 after 400. The path is irregular: adding
+observations can move the mean farther from 10 for a while.
+Concentration is a probabilistic statement as the sample grows, not a
+promise of steady improvement along one sequence or a guarantee at a
+particular size.
+
+
+```{r}
+#| label: ch05-waiting-demo
+#| eval: false
+hist(means_5, probability = TRUE)
+curve(dexp(x, rate = 1 / 10), add = TRUE)
+```
+
+```{r}
+#| label: fig-ch05-waiting
+#| echo: false
+#| fig-cap: "Individual waits and averages answer different questions. The line in every panel is the same exponential density for a single wait, with mean and SD ten minutes. Histograms show 5,000 independent sample means at each sample size. The dashed line marks their common model mean."
+#| fig-alt: "Three panels on common axes compare means of 5, 30 and 100 waits. The density for one wait stays strongly right-skewed in every panel; the histograms of means become narrower and more symmetric around ten."
+#| fig-width: 6.5
+#| fig-height: 3
+local({
+  set.seed(60203)
+  means <- lapply(c(5, 30, 100), function(n)
+    replicate(5000, mean(rexp(n, rate = 1 / 10))))
+  breaks <- seq(0, ceiling(max(unlist(means))), by = .5)
+  op <- par(mfrow = c(1, 3), mar = c(3.6, 3.5, 2, .4),
+            mgp = c(2.2, .7, 0))
+  for (j in 1:3) {
+    hist(means[[j]], breaks = breaks, probability = TRUE,
+      ylim = c(0, .45), col = "grey85", xlab = "Minutes",
+      ylab = "Density", main = paste("n =", c(5, 30, 100)[j]))
+    curve(dexp(x, rate = 1 / 10), from = 0, to = max(breaks),
+      add = TRUE, lwd = 2)
+    abline(v = 10, lty = 2)
+  }
+  par(op)
+})
+```
+
+The histograms of @fig-ch05-waiting change shape as well as width:
+means of larger samples become more nearly symmetric, although
+individual waits keep their exponential distribution. Concentration describes closeness to
+the target; the central limit theorem describes the sampling shape
+after centring and scaling. Neither makes individual observations
+Normal. Strong dependence, extreme tails or a dominating observation
+can make a familiar approximation poor, and there is no universal
+sample-size cutoff.
+
+### Bias and precision
+
+An estimator's **expectation** is its probability-weighted average
+across the declared repetitions, and its **bias** is that expectation
+minus the target. An estimator averaging 3.4 when the target is 3 has
+bias 0.4. **Precision**
+concerns how tightly the possible values cluster: an estimator can be
+centred correctly and still vary widely from one sample to the next.
+
+To compare the two variance divisors, change the target to the variance
+of the waiting-time process, 100 squared minutes. For each of 5,000
+independent samples of five waits, compute one variance with divisor
+$n-1$ and one with divisor $n$. The second is always four-fifths of
+the first for samples of five; @tbl-ch05-bias-evidence reports their averages.
+
+\Needspace{8\baselineskip}
+
+| Variance rule | Mean over 5,000 samples | Expectation under the model |
+|:--|--:|--:|
+| Divide by $n-1$ | 101.2241 | 100 |
+| Divide by $n$ | 80.9793 | 80 |
+
+: Variance estimates from independent exponential samples of five waits (seed 60501). {#tbl-ch05-bias-evidence tbl-colwidths="[34,33,33]"}
+
+
+```{r}
+#| label: ch05-bias-demo
+#| eval: false
+set.seed(60501)
+v <- replicate(5000, var(rexp(5, rate = 1 / 10)))
+c(mean(v), mean(v * 4 / 5))
+```
+
+The expectations in the last column follow from
+
+$$
+\operatorname{Bias}(\widehat\theta)=E(\widehat\theta)-\theta,\qquad
+E(s^2)=\sigma^2,\qquad
+E\left\{\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2\right\}=\frac{n-1}{n}\sigma^2.
+$$
+
+The $n-1$ rule is unbiased under the independent common-distribution
+model; the $n$ rule has downward bias $\sigma^2/n=20$ squared minutes
+here. The simulation average 101.2241 can differ from 100 even for the
+unbiased rule, because 5,000 samples approximate the expectation rather
+than enumerating every possible sample. Both rules can be far from 100
+in a single sample. The $n$ estimate is always four-fifths of the
+$n-1$ estimate here, so it varies less across repetitions while being
+centred on the wrong value: an apparently stable estimate can
+systematically miss its target, which is why precision and bias are
+reported separately.
+
+### SE follows the unit and the comparison {#sec-ch5-reshape}
+
+An SE follows the observational units that can vary independently. The
+[sleep documentation](https://stat.ethz.ch/R-manual/R-patched/library/datasets/html/sleep.html)
+describes extra hours of sleep, relative to a control period, under two
+drugs for ten people. `ID` identifies a person, `group` a drug and
+`extra` the extra hours; negative values mean less sleep than under
+control. Twenty measurement rows therefore represent ten people, and
+alignment by person comes before subtraction:
+
+```{r}
+#| label: ch05-sleep-differences
+sleep_wide <- reshape(sleep, idvar = "ID", timevar = "group",
+  direction = "wide")
+sleep_d <- sleep_wide$extra.2 - sleep_wide$extra.1
+c(mean = mean(sleep_d), SD = sd(sleep_d),
+  SE = sd(sleep_d) / sqrt(length(sleep_d)))
+```
+
+Each person's two measurements occupy one row, as `extra.1` and
+`extra.2`. A valid pair matches the same person in both conditions. The subtraction is **drug 2 minus drug 1**. The
+ten differences have mean 1.58 hours and SD 1.23 hours, and because the
+same people enter both conditions, the mean difference equals the
+difference of the condition means, $2.33-0.75=1.58$. Their variance
+keeps the pairing:
+
+$$
+s_d^2=s_2^2+s_1^2-2s_{12},
+$$
+
+where $s_{12}$ is the covariance of the two measurements.
+@tbl-ch05-paired-se sets the two possible SE calculations for the same
+ten people side by side.
+
+\Needspace{8\baselineskip}
+
+| Calculation for the ten people | Variance used | SE of the mean difference (hours) |
+|:--|:--|--:|
+| Paired: the ten within-person differences | $s_d^2=1.5129$ | 0.3890 |
+| As if the two conditions were independent groups | $s_1^2+s_2^2=3.2006+4.0090$ | 0.8491 |
+
+: Two SE calculations for the same ten people. {#tbl-ch05-paired-se tbl-colwidths="[44,32,24]"}
+
+
+```{r}
+#| label: ch05-paired-se-demo
+#| eval: false
+sd(sleep_d) / sqrt(length(sleep_d))
+sqrt((var(sleep_wide$extra.1) + var(sleep_wide$extra.2)) / 10)
+```
+
+The covariance of the two measurements is positive, 2.8483: people who
+gain more sleep under one drug tend to gain more under the other. The
+paired calculation removes that shared variation; the independent-groups
+calculation leaves it in and more than doubles the SE. The number of
+people is ten in both rows, so the variance calculation, not the count,
+is what changed.
+
+For a single mean of independent observations from a common process,
+the sample SD estimates the process SD and the estimated SE is
+$\widehat{SE}(\bar Y)=s/\sqrt n$. For the 116 ozone values it is
+$32.9879/\sqrt{116}=3.0628$ ppb, **under a working assumption of
+independent observations from a common process**. The historical daily
+record does not establish that assumption: nearby days could be
+related and the process could change over the summer. The formula
+returns a number; its inferential use needs a justification for the
+model and the target.
+
+For two independent groups, each mean contributes its own variance
+term. The special-practice summaries give
+
+$$
+\widehat{SE}(\bar y_1-\bar y_0)=\sqrt{\frac{6.0^2}{60}+\frac{6.4^2}{60}}
+=1.1325\text{ points},
+$$
+
+
+```{r}
+#| label: ch05-assignment-se
+#| eval: false
+sqrt(6^2 / 60 + 6.4^2 / 60)
+```
+
+With 60 participants in each group, this also equals the pooled SE.
+Its interpretation in this
+fixed-participant assignment study differs from independent sampling.
+Exactly 60 of the 120 participants are assigned to each group, so the
+two assigned-group means are dependent, and the exact assignment
+variance subtracts a term for variation in individual assignment
+effects, which the observed outcomes cannot recover. The squared SE
+above omits that term and estimates an upper bound on the assignment
+variance *on average*; it need not exceed the true variance in every
+realized study. A t reference adds an approximate calibration to
+this variance estimate.
+
+Two other design consequences follow the same principle. If schools
+are independent blocks, uncertainty follows their contrasts rather
+than the student identifiers within them. Sampling without replacement
+from a finite register changes uncertainty through the sampling fraction. Across these settings, the estimand,
+dependence and design decide the uncertainty calculation; row counts
+alone cannot.
+
+## Intervals and Tests for Means and Correlations {#ch05-mean-inference}
+
+### Estimate, SE, critical value, and interval {#ch05-z-t}
+
+An estimate answers a numerical question; an interval describes
+uncertainty about its target under a stated procedure. Before asking R
+for either, name the outcome and its units, the included observations,
+the parameter and the repetition that makes an SE meaningful: the model
+and design determine the calculation, and a function's default cannot
+supply them. The common construction is
+
+$$
+\text{interval}=\widehat\theta\pm c^*
+\widehat{\operatorname{SE}}(\widehat\theta),\qquad
+T=\frac{\widehat\theta-\theta_0}
+{\widehat{\operatorname{SE}}(\widehat\theta)}.
+$$
+
+The estimate and SE have outcome units. Multiplying the SE by the
+**critical value** $c^*$ gives a margin in those units, and the test
+statistic expresses the departure from a null value $\theta_0$ in SE
+units. The confidence level, the tail convention and the reference
+distribution determine the critical value and the p-value.
+
+For a mean of independent Normal observations whose SD $\sigma$ is
+stipulated independently, the SE is $\sigma/\sqrt n$ and the statistic
+has a standard Normal reference. When the SD is estimated from the
+same observations, the SE is $s/\sqrt n$ and the reference is t with
+$n-1$ df, whose heavier tails reflect the uncertainty of the estimated
+scale [@student1908].
+The critical values that leave .025 in the upper tail show the
+difference:
+
+```{r}
+#| label: ch05-critical-values
+c(z = qnorm(.975), t5 = qt(.975, 5), t9 = qt(.975, 9),
+  t30 = qt(.975, 30))
+```
+
+The multipliers are 1.96 for the Normal reference and 2.5706, 2.2622
+and 2.0423 for t with 5, 9 and 30 df. A large sample makes the two
+references similar; it does not make an estimated SD a known one.
+
+The 32 recorded car models have mean fuel economy 20.0906 mpg. Take the
+null process mean to be 20 mpg and let R run the one-sample t
+procedure:
+
+```{r}
+#| label: ch05-one-t
+t.test(mtcars$mpg, mu = 20)
+```
+
+The printout names the method, gives the statistic with its df and the
+p-value, states the two-sided alternative, and reports the 95% interval
+and the estimated mean. Suppose,
+as a second and explicitly different working assumption, that the
+process SD were **known independently to be 5 mpg**; this teaching
+value is not an estimate from `mtcars`. @tbl-ch05-one-mean sets the
+two procedures side by side.
+
+| Procedure | SE | Statistic | df | Two-sided p | 95% interval |
+|:--|--:|--:|--:|--:|:--|
+| Known-SD z, $\sigma=5$ | 0.8839 | 0.1025 | -- | .9183 | [18.3582, 21.8230] |
+| Estimated-SD t | 1.0654 | 0.0851 | 31 | .9328 | [17.9177, 22.2636] |
+
+: One mean, two explicitly different uncertainty assumptions. {#tbl-ch05-one-mean tbl-colwidths="[27,10,12,5,16,30]"}
+
+
+```{r}
+#| label: ch05-z-interval
+#| eval: false
+mean(mtcars$mpg) + c(-1, 1) * qnorm(.975) * 5 / sqrt(32)
+```
+
+The t row uses the observed SD, 6.0269, and the critical value 2.0395.
+Both its SE and its multiplier exceed those of the known-SD row, so its
+interval is wider. Both intervals contain 20 mpg, matching their
+tests' failure to reject that null at .05; this matching holds when
+interval and test share a method, assumptions and calibration. A
+p-value is a tail probability under the null and those conditions, not
+the probability that the null is true, and including 20 establishes
+neither exact equality nor practical equivalence. An interval for a
+process mean also differs from a range containing 95% of individual
+cars. These calculations illustrate working process models: the
+historical collection of car models does not become a probability
+sample when `t.test()` runs, and a broader inference needs a supported
+target process with appropriate dependence and distribution conditions.
+
+### Supplied summaries and a planned direction
+
+An invented district study supplies only summaries: $n=25$, mean 52 and
+sample SD 5 under independent Normal sampling. They are enough, so we
+use them directly rather than inventing observations to pass into
+`t.test()`. For the null mean 50, the estimated SE is $5/\sqrt{25}=1$
+and the statistic is $t=(52-50)/1=2$ on 24 df. `pt()` turns the
+statistic into tail areas:
+
+```{r}
+#| label: ch05-summary-p
+c(two_sided = 2 * pt(2, df = 24, lower.tail = FALSE),
+  upper = pt(2, df = 24, lower.tail = FALSE))
+```
+
+The two-sided p-value is .0569; the upper-tail p-value for the
+alternative $\mu>50$ is .0285. They differ because they answer
+different questions, and a directional alternative must come from the
+question before the result is seen. Had the planned alternative been $\mu<50$, the same statistic would
+give lower-tail $p=.9715$, above .5; halving a two-sided p-value
+blindly can therefore report the wrong tail. The two-sided 95% interval is
+[49.9361, 54.0639], using R's critical value 2.0639, and it contains
+50, consistent with the two-sided test; the upper-tail test does not
+correspond to that interval. The rounded t-table value 2.064
+gives [49.936, 54.064]; a task that stipulates that rounded
+critical value keeps those endpoints. The difference is rounding, not
+a changed conclusion.
+
+### Paired observations and complete pairs {#ch05-paired}
+
+The sleep measurements return us to a comparison whose unit is a
+person: ten complete pairs, not twenty independent people. Their
+condition means are 0.75 and 2.33 hours, and the mean of their aligned
+differences is 1.58 hours. Nine differences are positive and one is
+zero, ranging from 0 to 4.6 hours.
+
+```{r}
+#| label: fig-ch05-pairs
+#| echo: false
+#| fig-cap: "Two measurements for each of ten people."
+#| fig-alt: "Lines connect drug 1 and drug 2 for each person; nine rise and one is flat."
+#| fig-width: 6.2
+#| fig-height: 3.4
+matplot(1:2, t(as.matrix(sleep_wide[c("extra.1", "extra.2")])),
+  type = "b", lty = 1, pch = 16, col = "grey40",
+  xaxt = "n", xlab = "Drug", ylab = "Extra sleep (hours)")
+axis(1, at = 1:2, labels = c("1", "2"))
+```
+
+The inferential target is a process mean difference $\mu_D$. Under a
+working model of independent Normal differences between people,
+$s_d/\sqrt n$ estimates the SE of their mean and the t reference has
+$n-1$ df. Normality concerns the differences, and the dependence
+between one person's two measurements is kept in the difference, as
+@fig-ch05-pairs shows line by line. The argument `paired = TRUE` tells
+R to subtract measurements at corresponding positions, which the
+ID-based reshaping of Section 4.5 made correct:
+
+\Needspace{16\baselineskip}
+
+```{r}
+#| label: ch05-paired-test
+t.test(sleep_wide$extra.2, sleep_wide$extra.1, paired = TRUE)
+```
+
+The output gives $t(9)=4.0621$, $p=.0028$ and the 95% interval [0.7001,
+2.4599] hours around the mean difference 1.58. A paired t calculation
+is a one-sample t calculation on the within-person differences, so the
+same result follows from `t.test(sleep_d)`. Raising the confidence to
+99% widens the interval to [0.3159, 2.8441] while the observations and
+the estimate stay the same.
+
+With missing measurements, keep the rows that have both values before
+forming differences; removing missing entries separately from each
+column could align different people. Complete-pair analysis also
+changes who contributes and may need a missingness justification: a
+software exclusion is not that justification. The interval concerns a
+process mean, not a guarantee of benefit for every person, and ten
+differences give limited protection against non-Normal tails or
+influential cases. Neither the paired call nor the dataset establishes
+random sampling, treatment order, absence of carryover or the other
+conditions needed for a causal interpretation.
+
+### Two independent groups and Welch's method {#ch05-welch}
+
+Now compare separate automatic and manual car models. Let
+$\Delta\mu=\mu_A-\mu_M$ be the automatic-minus-manual process mean mpg
+difference. Under an independent-groups working model the two means
+contribute separate variance terms. Welch's method estimates both and
+allows the group variances to differ [@welch1947]. With $a=s_A^2/n_A$ and $b=s_M^2/n_M$,
+
+$$
+\widehat{\Delta\mu}=\bar y_A-\bar y_M,\qquad
+\widehat{\operatorname{SE}}=\sqrt{a+b},\qquad
+\nu=\frac{(a+b)^2}{a^2/(n_A-1)+b^2/(n_M-1)}.
+$$
+
+The Welch--Satterthwaite df $\nu$ account approximately for the two
+estimated variance terms and need not be an integer. Extracting the two
+groups in a stated order makes the subtraction unambiguous:
+
+\Needspace{18\baselineskip}
+
+```{r}
+#| label: ch05-welch-test
+auto <- mtcars$mpg[mtcars$am == 0]
+manual <- mtcars$mpg[mtcars$am == 1]
+t.test(auto, manual)
+```
+
+The 19 automatic and 13 manual models have means 17.1474 and 24.3923
+mpg, a difference of $-7.2449$ mpg. The output reports $t=-3.7671$ on
+$\nu=18.3323$ df, $p=.0014$ and the 95% interval [$-11.2802$,
+$-3.2097$]. The negative sign describes the declared order; reversing
+it would negate the estimate and exchange the negated endpoints, with
+the same two-sided p-value. R's two-sample `t.test()` uses Welch's test
+by default, and `var.equal = TRUE` gives the equal-variance (pooled) test, which adds a common-variance assumption.
+@tbl-ch05-welch-pooled compares the two on the same records.
+
+\Needspace{8\baselineskip}
+
+| Procedure | SE | df | Two-sided p | 95% interval |
+|:--|--:|--:|--:|:--|
+| Welch's unequal-variance t | 1.9232 | 18.3323 | .0014 | [$-11.2802$, $-3.2097$] |
+| Equal-variance (pooled) t | 1.7644 | 30 | .0003 | [$-10.8484$, $-3.6415$] |
+
+: The same automatic-minus-manual estimate, $-7.2449$ mpg, under two variance assumptions. {#tbl-ch05-welch-pooled tbl-colwidths="[34,12,14,14,26]"}
+
+
+```{r}
+#| label: ch05-pooled-demo
+#| eval: false
+t.test(auto, manual, var.equal = TRUE)
+```
+
+The estimate and the observations are unchanged; the variance
+assumption and the calibration differ. The equal-variance t reference
+is exact for independent Normal groups with a common variance, whereas
+Welch's reference remains approximate even for independent Normal
+groups with unequal variances. The choice comes
+from the design and subject knowledge before the analysis: a smaller
+p-value, or a preliminary variance test, is not a reason to adopt the
+common-variance assumption. Neither method resolves the differences in
+weight, engine and other features that accompany transmission, so
+these observational comparisons do not isolate a transmission effect.
+
+### Coverage belongs to the procedure {#ch05-coverage}
+
+What makes an interval procedure a 95% procedure? A known process lets
+us see. Let independent differences be Normal with mean 1.5 hours and
+SD 1.2 hours; these are teaching constants, not a reconstruction of the
+sleep study. Each repeated study draws fresh differences, estimates
+their mean and SE, and forms a 95% t interval; recalculating one
+interval on the same observations would reproduce that interval, not
+test the procedure. Before looking at @fig-ch05-coverage, predict what
+will change when each study grows from 10 to 40 observations: the
+interval widths, the procedure's nominal coverage, or both?
+
+```{r}
+#| label: fig-ch05-coverage
+#| echo: false
+#| fig-pos: "ht"
+#| fig-width: 6.2
+#| fig-height: 4.0
+#| fig-cap: "Fresh data produce different 95% t intervals. Each dot is a sample mean, and its segment uses that study's estimated SE. The vertical line is the fixed true mean, 1.5 hours; dashed segments and open dots mark intervals that miss it. Each panel shows the first 40 of the corresponding table's 2,000 studies, with seed 60610 reset for each sample size. In each panel, 39 of 40 intervals cover."
+#| fig-alt: "Two panels share the same horizontal scale. Forty mean-and-interval rows from studies of size 10 vary in centre and width; the twenty-seventh misses 1.5. Forty rows from studies of size 40 are narrower; the twenty-fifth misses 1.5. The true mean stays fixed in both panels."
+local({
+  op <- par(mfrow = c(1, 2), mar = c(3.5, 3.4, 2.1, .6),
+            mgp = c(2.1, .6, 0))
+  for (n in c(10, 40)) {
+    set.seed(60610)
+    ci <- replicate(40, {
+      x <- rnorm(n, mean = 1.5, sd = 1.2)
+      m <- mean(x)
+      h <- qt(.975, n - 1) * sd(x) / sqrt(n)
+      c(mean = m, lower = m - h, upper = m + h)
+    })
+    hit <- ci[2, ] <= 1.5 & 1.5 <= ci[3, ]
+    plot(NA, xlim = c(-.35, 3.15), ylim = c(40.5, .5),
+         xlab = "Mean difference (hours)", ylab = "Repeated study",
+         yaxt = "n", xaxt = "n", main = paste("n =", n), cex.main = 1)
+    axis(1, at = c(0, 1.5, 3), labels = c("0", "1.5", "3"))
+    axis(2, at = c(1, 10, 20, 30, 40), las = 1)
+    abline(v = 1.5, col = "grey55", lwd = 1.3)
+    segments(ci[2, ], 1:40, ci[3, ], 1:40, lty = ifelse(hit, 1, 2),
+             col = ifelse(hit, "grey30", "black"), lwd = ifelse(hit, .8, 1.5))
+    points(ci[1, ], 1:40, pch = ifelse(hit, 16, 1), cex = .5)
+  }
+  par(op)
+})
+```
+
+
+```{r}
+#| label: ch05-one-interval
+#| eval: false
+set.seed(60610)
+y <- rnorm(10, mean = 1.5, sd = 1.2)
+t.test(y)$conf.int
+```
+
+Fresh data move the means, and each study's estimated SD also changes
+its interval width. With 40 observations the intervals are generally
+narrower, while the same 95% procedure is used. Under this Normal model
+its coverage is exactly .95 at either size. The 39 of 40 intervals that
+cover in each panel are this small simulation's outcome; a collection
+of 40 need not contain exactly 38 covering intervals. For any one
+observed interval, the fixed mean lies inside or outside its endpoints.
+
+Repeating the calculation for 2,000 studies at each of three sample
+sizes estimates coverage more stably (@tbl-ch05-coverage).
+
+\Needspace{11\baselineskip}
+
+| n | Mean of estimates | Empirical SE | Model SE | Coverage |
+|--:|--:|--:|--:|--:|
+| 10 | 1.5015 | 0.3766 | 0.3795 | .9515 |
+| 20 | 1.5006 | 0.2591 | 0.2683 | .9510 |
+| 40 | 1.5014 | 0.1886 | 0.1897 | .9460 |
+
+: Coverage of 95% t intervals from the Normal process, using 2,000 repetitions at each sample size and resetting seed 60610 for each row. {#tbl-ch05-coverage tbl-colwidths="[10,25,25,20,20]"}
+
+The empirical SE is the SD of the generated means and the model SE is
+$1.2/\sqrt n$; coverage is the fraction of generated intervals that
+contain 1.5. Under the declared Normal model the t procedure has exact
+95% coverage, so the simulated fractions differ from .95 only through
+the finite number of studies. That numerical uncertainty has its own
+**Monte Carlo SE**: each study's coverage indicator is a Bernoulli
+outcome, so its mean is a proportion as in Section 2.3, and at coverage .95 with $B=2000$,
+
+$$
+\operatorname{MCSE}(\widehat p_{\mathrm{cover}})
+=\sqrt{\frac{.95(.05)}{2000}}=0.0049.
+$$
+
+
+```{r}
+#| label: ch05-mcse
+#| eval: false
+sqrt(.95 * .05 / 2000)
+```
+
+All three fractions lie within one MCSE of .95. Increasing $B$ reduces
+the simulation noise, quadrupling it halves the MCSE. Increasing $n$
+supplies more information in each study and narrows the intervals,
+from 10 to 40 halving the model SE, without raising the nominal 95%
+coverage above 95%. The individual-difference SD, the mean's SE and the
+simulation's MCSE describe different sources of variation. For one
+observed interval the parameter is inside or outside; the 95% describes
+repeated use of the procedure.
 
 ### A selected correlation test {#ch05-correlation-tests}
 
@@ -1634,6 +1977,14 @@ $$
 CI_\rho=\tanh\left\{\operatorname{atanh}(r)
 \pm\frac{z_{.975}}{\sqrt{n-3}}\right\}.
 $$
+
+
+```{r}
+#| label: ch05-fisher-interval
+#| eval: false
+r <- cor(mtcars$wt, mtcars$mpg)
+tanh(atanh(r) + c(-1, 1) * qnorm(.975) / sqrt(32 - 3))
+```
 
 Why transform? @fig-ch05-fisher simulates 5,000 studies of 32 pairs
 whose process correlation is $-.8677$.
@@ -1676,89 +2027,6 @@ bivariate Normality, and substantial nonlinearity can make linear
 correlation a poor answer to the substantive question whatever the
 interval's width.
 
-Other questions have tests of their own, each reported with its native
-statistic (@tbl-ch05-association-tests).
-
-\Needspace{11\baselineskip}
-
-| Question and test | Native statistic | Two-sided p |
-|:--|:--|:--|
-| Pearson, weight and mpg | $t(30)=-9.559$ | $<.0001$ |
-| Spearman, mpg and horsepower (approximate) | $S=10337.2903$ | $<.0001$ |
-| Kendall, mpg and horsepower (approximate) | $z=-5.871$ | $<.0001$ |
-| Point-biserial, `am` and mpg | $t(30)=4.1061$ | .0003 |
-
-: Four tests of association and the statistics R reports for them. {#tbl-ch05-association-tests tbl-colwidths="[46,30,24]"}
-
-Spearman's S and Kendall's z are not Pearson t statistics, and a report
-names the statistic it quotes. The horsepower values contain ties, so
-the approximate rank calibrations are requested explicitly with
-`exact = FALSE`; the rank tests supply no Fisher interval. A selected
-question justifies one test. Choosing whichever method gives the
-smallest p-value changes the testing procedure, and a matrix of
-unplanned tests creates a comparison family, whose calibration Chapter
-4, Section 3.3, develops and Chapter 6 carries out in R.
-
-The point-biserial statistic equals the statistic of Chapter 3's
-equal-variance (pooled) two-sample t test, with manual first to match
-the positive coding. Its supporting model is independent, conditionally
-Normal outcomes with a common variance in the two groups; a binary
-variable cannot itself be bivariate Normal with the outcome. The
-equivalence is to the equal-variance procedure and generally does not
-hold for Welch's test; Chapter 7 connects it to a regression slope.
-
-### One-control partial correlation {#ch05-partial}
-
-Chapter 2 distinguished changing the cases from adjusting a
-relationship on the same cases. For variables $X$, $Y$ and $Z$, the
-**partial correlation** of $X$ and $Y$ controlling linearly for $Z$ is
-
-$$
-r_{XY\cdot Z}=\frac{r_{XY}-r_{XZ}r_{YZ}}
-{\sqrt{(1-r_{XZ}^2)(1-r_{YZ}^2)}}.
-$$
-
-Chapter 2's supplied practice-time, score and baseline correlations,
-$r_{XY}=.6$, $r_{XZ}=.5$ and $r_{YZ}=.6$, give .433. For mpg and
-horsepower controlling for weight, the correlations of
-@tbl-ch05-correlation give $-.547$. A second route shows what the
-adjustment does: fit a straight line from weight to each variable, keep
-the **residuals**, the observed values minus their fitted values, and
-correlate what remains.
-
-```{r}
-#| label: ch05-partial-residuals
-resid_mpg <- residuals(lm(mpg ~ wt, data = X))
-resid_hp <- residuals(lm(hp ~ wt, data = X))
-cor(resid_mpg, resid_hp)
-```
-
-`lm()` fits the straight line its formula names, the outcome left of
-`~` and the predictor right of it, with an intercept; `residuals()`
-returns what remains after that fitted linear relationship, for the
-same 32 rows.
-
-```{r}
-#| label: fig-ch05-partial
-#| echo: false
-#| fig-cap: "Mileage and horsepower after separately fitting their linear relationships with weight."
-#| fig-alt: "The two residual vectors from the same 32 car models retain a negative association, with partial correlation minus .547."
-#| fig-width: 6.2
-#| fig-height: 3.5
-plot(resid_hp, resid_mpg, pch = 16,
-     xlab = "Horsepower residual after weight adjustment",
-     ylab = "Mpg residual after weight adjustment")
-```
-
-Both routes give $-.547$: the mpg--horsepower association weakens from
-$-.7762$ once each variable's linear relationship with weight is
-removed, and a negative association remains (@fig-ch05-partial). The
-adjustment uses the same 32 rows; it does not exclude heavy cars. It
-removes the specified linear relationships and nothing more: not all
-confounding, omitted nonlinear relationships or measurement problems,
-and it does not establish a causal effect of horsepower. Chapter 8
-develops adjustment for several controls.
-
 If the partial coefficient is the preselected inferential question, the
 reference must account for fitting the control. With $k$ controls and
 $n$ common observations the classical statistic is
@@ -1773,25 +2041,49 @@ adjustment and a Normal conditional-error model, or a multivariate
 Normal model. Applying an ordinary `cor.test()` to the two residual
 vectors would use $n-2=30$ df and ignore the fitted control.
 
-A sensitivity analysis asks a different question. Restricting the car
-record to weights of at most 5,000 pounds changes its cases and gives
-$r=-.8792$ between weight and mpg; removing the three ozone days above
-120 ppb changes the mean to 39.4867, the SD to 28.8942 and the median to
-30. These are consequences of stated restrictions, not reasons by
-themselves to delete observations, and linear adjustment and case
-selection remain distinct even when both change a reported association.
 
-## Report the Answer {#sec-ch5-report}
+```{r}
+#| label: ch05-partial-p
+#| eval: false
+r <- cor(resid_mpg, resid_hp)
+t <- r * sqrt(29 / (1 - r^2))
+2 * pt(abs(t), df = 29, lower.tail = FALSE)
+```
+
+The rank coefficients of Section 3.3 have their own tests, reporting
+Spearman's S or Kendall's z, using `exact = FALSE` with tied values,
+and supplying no Fisher interval. A
+preselected question supports one test. Choosing whichever method gives
+the smallest p-value or reporting a matrix of unplanned tests creates
+a comparison family that needs calibration for the choices made.
+
+The point-biserial test of Section 3.3's .5998 gives $t(30)=4.1061$,
+$p=.0003$, the statistic of Section 5.4's equal-variance two-sample t
+with manual first, under independent, conditionally Normal outcomes
+and a common variance; it generally differs from Welch's test. The
+equivalence concerns that common-variance model; it does not select
+the appropriate assumptions for the study.
+
+## Report the Study {#sec-ch5-report}
 
 []{#ch05-report}
 
-### A result connects numbers to a question
+### Connect the question, methods and results
 
-A statistical report returns from the function output to the question.
-Name the people or records, the outcome and its units, the comparison,
-the estimate and the uncertainty; then state the conditions and scope
-that support the interpretation. The sleep result can be reported as
-follows:
+A study report lets readers follow a question through the evidence used
+to answer it. Explain what was recorded, how the observations were
+obtained, which comparison addresses the question, and why the analysis
+is appropriate. Then present the results and explain their implications
+and limitations. The code and its output support this account; readers
+also need the study information that gives the numbers their meaning.
+
+For the sleep example, the question concerns the difference in extra
+sleep between two drugs. The outcome is measured in hours, and ten
+people each supply two measurements. This design makes the within-person
+difference, drug 2 minus drug 1, the relevant comparison. The analysis
+states its model for those differences; the report also identifies
+missing information about assignment, treatment order and carryover.
+Within that account, the result paragraph can read:
 
 > For the ten recorded people, extra sleep under drug 2 averaged
 > 1.58 hours more than under drug 1. The SD of the ten within-person
@@ -1807,26 +2099,39 @@ individual responses. The final sentence identifies the information a
 causal claim would need. A successful computation supplies the result;
 the study setting supplies the argument for using it [@peng2011].
 
-### Connect a report to its source
+### Use Quarto to connect the study and its source
 
-A saved script records calculations. A Quarto source places them beside
-the prose that explains them, so rendering executes the code and
-inserts its output. The prepared two-file example uses a short `.qmd`
-source and an accompanying bibliography. Its paired analysis uses these
-same data, subtraction direction, model and base-R commands: one chunk
-computes the result, an inline value inserts a number into a sentence,
-and a table or graph helps readers see what it describes.
+A saved script records calculations. For reporting the study, Quarto
+offers a practical way to bring explanatory prose, mathematical
+equations, R code, computed values, tables, figures, citations and a
+reference list together in one editable source [@quarto2026]. Rendering
+turns that source into a document for readers and can run its R code to
+produce the results. The source therefore records how a reported number
+or figure was obtained alongside the explanation of what it means.
 
-During the final Computer Lab round, render the prepared source, change
-the confidence level from .95 to .99 and revise the corresponding
-sentence. The interval becomes [0.3159, 2.8441] while the estimate stays
-1.58 hours. That small change connects an input, a calculation, its
-output and its interpretation. The lab reference explains the header,
-chunks, cross-references, citations and report-support installation,
-and its first HTML render requires no PDF typesetting setup.
+| Output | Use in communicating a study |
+|:--|:--|
+| HTML | A report read in a browser, with links and navigation. |
+| PDF report | A professionally typeset document for reading, printing or submission. |
+| PDF presentation (Beamer) | Slides that select the study's main question, evidence and conclusions for a talk. |
 
-When a data-selection rule or a method changes, computed values update
-automatically; the interpretation still needs to be reread. A
+: Quarto outputs serve different reading and presentation purposes. {#tbl-ch05-report-formats tbl-colwidths="[30,70]"}
+
+The same calculations, equations and figures can support each format.
+A presentation still needs its content selected and organized for
+slides: changing the output format alone does not decide what an
+audience should see or how much it can read at once.
+
+For the paired analysis, the same observations and
+subtraction direction produce the estimate and interval quoted above.
+A change in the confidence level from .95 to .99 widens the interval
+from [0.7001, 2.4599] to [0.3159, 2.8441] hours, while the estimate
+stays 1.58. The report must change its confidence statement as well as
+its numbers. A reproducible source makes that connection inspectable;
+automation cannot decide whether the interpretation remains appropriate.
+
+When a data-selection rule or a method changes, rerunning the source
+updates the computed values; the interpretation still needs to be reread. A
 reproducible report keeps question, data, code, output and explanation
 consistent. Rendering shows that a document can be produced, while the
 evidence and reasoning determine what its claims establish.
@@ -1853,14 +2158,10 @@ linear adjustment into regression arguments.
 Use this short reference to revisit the computing, simulation and
 matrix terms explained here. The Part One Concept Reference gives the
 principal home of the descriptive and inferential terms this chapter
-applies, which Chapters 2--3 explain.
+applies.
 
 | Term and common alternatives | Meaning |
 |:--|:--|
-| Object (R object) | A named value, vector, table, model result, or other item stored in an R session. Assignment with `<-` names an object; the Environment pane lists the current objects. |
-| Vector | A sequence of values of one basic type: numeric, character, or logical. `NA` marks an unavailable value; it is not zero. A data frame is a table whose columns are vectors of equal length, one row per case. |
-| Function and argument (R function) | A function performs an operation on supplied inputs; an argument names an input or an option, such as `na.rm = TRUE`. An R argument is distinct from a study argument in the argument-based approach. |
-| Package (library) | An installed collection of functions and data, such as stats or graphics, which are supplied with R. Installing an additional package makes it available on the computer; `library()` attaches it for the session; `package::function()` names one exported function explicitly. |
 | Script and Quarto source | A saved `.R` script records commands so an analysis can be rerun; a `.qmd` source connects prose, mathematics, executable code, tables, figures, and references, and renders to PDF, HTML, or Word. |
 | Simulation and seed (Monte Carlo simulation) | Generating data from a declared process to see what a statistic or procedure does across repetitions. A seed makes the random draws repeatable; it does not make the process true for an actual study. |
 | Monte Carlo standard error | The numerical uncertainty of a simulated probability or mean that comes from using finitely many repetitions; more repetitions shrink it. It is distinct from a study's SE, which depends on the study's sample size. |
@@ -1962,7 +2263,7 @@ groups, and 71.4286% of the 14 threshold-meeting models are manual.
 
 ### Exercise 5: Read a relationship before evaluating it (Integrative) {.unnumbered #ex-ch05-05}
 
-Section 5.1 plots five paired observations, $x=(-2,-1,0,1,2)$ and
+Section 3.1 plots five paired observations, $x=(-2,-1,0,1,2)$ and
 $y=(4,1,0,1,4)$, whose covariance and Pearson correlation are both zero.
 Describe the scatterplot, and use the signs of the paired deviations to
 explain why the covariance is zero. A report says, "The correlation is
@@ -1998,7 +2299,7 @@ differences are 1, 2, 0 and 3 hours, with mean 1.5 hours and sample SD
 
 ### Exercise 7: Simulate a sampling distribution and read its SE (Integrative) {.unnumbered #ex-ch05-07}
 
-The waiting-time simulation in Section 3.2 reports, for $n=30$, a mean
+The waiting-time simulation in Section 4.2 reports, for $n=30$, a mean
 of sample means of 9.9626 and an empirical SE of 1.7878 against a model
 SE of 1.8257.
 
@@ -2028,7 +2329,7 @@ the delayed-assessment means were 27.1 and 24.0 with SDs 6.0 and 6.4.
 
 1. State the estimand, the estimator, and the estimate in one sentence
    each, and name the repetition behind the uncertainty.
-2. Section 3.4 calculates the SE of the mean difference from these
+2. Section 4.5 calculates the SE of the mean difference from these
    summaries as 1.1325 points. Explain why its square estimates an
    upper bound on the assignment variance rather than the variance
    itself.
@@ -2065,7 +2366,7 @@ interval is not a range for individual differences.
 
 ### Exercise 10: A selected relationship (Integrative) {.unnumbered #ex-ch05-10}
 
-Section 5 analyses the common 32 rows of mpg, hp and wt. Their
+Sections 3 and 5.6 analyse the common 32 rows of mpg, hp and wt. Their
 correlations are $-.7762$ for mpg and hp, $-.8677$ for mpg and wt and
 .6587 for hp and wt; the Spearman coefficient for mpg and hp is
 $-.8947$; and `cor.test()` for the preselected weight--mpg question
@@ -2077,7 +2378,7 @@ $[-.9338,-.7441]$.
    covariance matrix.
 2. State which association the Pearson and the Spearman coefficients
    for mpg and hp each describe, and use the scatterplot of mpg against
-   horsepower in Section 5.3 to explain why the rank coefficient is
+   horsepower in Section 3.3 to explain why the rank coefficient is
    larger in magnitude.
 3. Calculate the partial correlation of mpg and hp controlling linearly
    for weight from the supplied correlations, give the df of its

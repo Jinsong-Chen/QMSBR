@@ -74,9 +74,10 @@ h2 { margin-top: 2.2rem; }
 .navbar { box-shadow: 0 2px 18px rgba(13, 43, 62, .13); }
 
 /* A navigation entry for a unit that is not out yet — Part Three on the top
-   row, the two supplementary chapters in the Argument Approach sidebar — is an
-   ordinary link whose href ends in #part-three, #supplement-a or
-   #supplement-b. This one rule mutes those links and takes them out of the
+   row, Argument Chapters A, B and C in the Argument Approach sidebar — is an
+   ordinary link whose href ends in #part-three, #argument-a, #argument-b or
+   #argument-c. The earlier #supplement-a and #supplement-b aliases stay muted.
+   This one rule mutes those links and takes them out of the
    pointer flow; assets/disabled-links.html marks the same links disabled, so
    keyboard and screen-reader users meet the state the colour shows. Hover and
    focus keep the muted colour: brightening on hover would read as a live
@@ -84,7 +85,7 @@ h2 { margin-top: 2.2rem; }
    sidebar is 4.8:1, both past the AA floor. The selectors stay inside the top
    row and the navigation sidebar, so a table of contents on the page itself
    still links to its own sections. materials/webr carries the same rule. */
-@each $muted-target in "#part-three", "#supplement-a", "#supplement-b" {
+@each $muted-target in "#part-three", "#argument-a", "#argument-b", "#argument-c", "#supplement-a", "#supplement-b" {
   .navbar .navbar-nav .nav-link[href$="#{$muted-target}"],
   .navbar .navbar-nav .nav-link[href$="#{$muted-target}"]:hover,
   .navbar .navbar-nav .nav-link[href$="#{$muted-target}"]:focus,
@@ -205,8 +206,8 @@ h2 { margin-top: 2.2rem; }
 }
 
 /* A block inside a live card whose own items are not out yet: the Argument
-   Approach card lists the two supplementary chapters this way, so the card's
-   link to the approach page stays live while A and B read as unavailable.
+   Approach card lists the three argument chapters this way, so the card's
+   link to the approach page stays live while A, B and C read as unavailable.
    #626e75 on the card's white background is 5.2:1. */
 .card-muted-block {
   border-top: 1px solid var(--qmsbr-rule);

@@ -1241,6 +1241,14 @@ $1 = h_j^{2} + \theta_{jj}$, so the residual variance $\theta_{jj}$ —
 often called the **uniqueness** — is $1 - h_j^{2}$. The larger the share
 the factors account for, the smaller the remainder.
 
+In raw units, common variance is an amount rather than a proportion; its
+share of total indicator variance is $h_j^2/\operatorname{Var}(Y_j)$.
+Hold the loadings and factor covariances fixed and increase only the residual
+variance. The common variance stays the same, but total indicator variance
+increases, so its common share falls. This changes a component of the model;
+it is a different operation from expressing an unchanged indicator in new
+units.
+
 If a standardized indicator has one nonzero loading on a unit-variance
 factor, this reduces to $h_j^{2} = \lambda_j^{2}$. That shortcut is used
 constantly and is not the general definition. With two correlated
@@ -1972,6 +1980,7 @@ to later chapters.
 Show your assumptions and arithmetic, and end every numerical answer
 with a sentence of interpretation. None of these requires software.
 
+<!-- prompt-id: PT2-CH01-E01 -->
 ## Exercise 1 - Classify the quantities {.unnumbered .unlisted}
 
 For each item below, say whether it is an observed variable, a latent
@@ -1985,6 +1994,7 @@ lost if every unobserved quantity is simply called "latent".
 4. The part of Item 4 not represented by the declared factors.
 5. The population covariance between the two factors.
 
+<!-- prompt-id: PT2-CH01-E02 -->
 ## Exercise 2 - Place the model {.unnumbered .unlisted}
 
 1. Using @tbl-map, say which family fits each of: a five-category
@@ -2000,6 +2010,7 @@ lost if every unobserved quantity is simply called "latent".
    orientation suits, and one that a confirmatory orientation suits.
    Explain what makes each appropriate.
 
+<!-- prompt-id: PT2-CH01-E03 -->
 ## Exercise 3 - Translate between representations {.unnumbered .unlisted}
 
 Consider a two-factor model in which $Y_1, Y_2, Y_3$ relate only to
@@ -2015,6 +2026,7 @@ correlate, and all residual covariances are zero.
    in your paragraph is visible in all three of the other
    representations.
 
+<!-- prompt-id: PT2-CH01-E04 -->
 ## Exercise 4 - Reconstruct and perturb {.unnumbered .unlisted}
 
 1. For the model of @sec-scenario-one, recompute one diagonal and one
@@ -2036,6 +2048,7 @@ correlate, and all residual covariances are zero.
 
 \Needspace{10\baselineskip}
 
+<!-- prompt-id: PT2-CH01-E05 -->
 ## Exercise 5 - Scale and conventions {.unnumbered .unlisted}
 
 Begin with a standardized one-factor indicator having $\lambda = .8$,

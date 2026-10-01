@@ -683,7 +683,8 @@ window.addEventListener("hashchange", openLegacySection);
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
 <!-- Navigation entries for units that are not out yet are ordinary links whose
-     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     href ends in #part-three, #argument-a, #argument-b or #argument-c. The old
+     #supplement-a and #supplement-b aliases stay muted too. styles.css mutes
      them and takes them out of the pointer flow; this marks the same links
      disabled and drops them from the tab order, so keyboard and screen-reader
      users meet the state the colour shows. Only the top row and the navigation
@@ -693,7 +694,7 @@ window.addEventListener("hashchange", openLegacySection);
 <script>
   (function () {
     var scopes = [".navbar", ".sidebar-navigation"];
-    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var targets = ["#part-three", "#argument-a", "#argument-b", "#argument-c", "#supplement-a", "#supplement-b"];
     var selector = [];
     scopes.forEach(function (scope) {
       targets.forEach(function (target) {

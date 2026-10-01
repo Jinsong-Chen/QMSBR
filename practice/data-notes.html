@@ -520,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="feedback-and-practice-quiz-scores" class="level2">
 <h2 class="anchored" data-anchor-id="feedback-and-practice-quiz-scores">Part One, Chapter 4: feedback and practice quiz scores</h2>
-<p>This QMSBR record contains 24 invented Grade 7 students, each measured once on a fractions quiz scored from 0 to 20. The imagined study crosses three feedback conditions with two practice schedules, giving six cells of four different students. The <a href="./chapter-04.html">Chapter 4 page</a> uses all 24 rows for its factorial model, its interaction plot and the selected comparison; its one-way example uses the <a href="#background-sound-comprehension-scores">background-sound record</a>.</p>
+<p>This QMSBR record contains 24 invented Grade 7 students, each measured once on a fractions quiz scored from 0 to 20. The imagined study crosses three feedback conditions with two practice schedules, giving six cells of four different students. The <a href="./chapter-04.html">Chapter 4 page</a> uses all 24 rows for its factorial model, its interaction plot and the declared comparison; its one-way example uses the <a href="#background-sound-comprehension-scores">background-sound record</a>.</p>
 <p><strong>Where to get it.</strong> <a href="data/feedback_practice.csv">Download the feedback and practice data (CSV)</a>.</p>
 <table class="caption-top table">
 <colgroup>
@@ -1079,7 +1079,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
 <!-- Navigation entries for units that are not out yet are ordinary links whose
-     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     href ends in #part-three, #argument-a, #argument-b or #argument-c. The old
+     #supplement-a and #supplement-b aliases stay muted too. styles.css mutes
      them and takes them out of the pointer flow; this marks the same links
      disabled and drops them from the tab order, so keyboard and screen-reader
      users meet the state the colour shows. Only the top row and the navigation
@@ -1089,7 +1090,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script>
   (function () {
     var scopes = [".navbar", ".sidebar-navigation"];
-    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var targets = ["#part-three", "#argument-a", "#argument-b", "#argument-c", "#supplement-a", "#supplement-b"];
     var selector = [];
     scopes.forEach(function (scope) {
       targets.forEach(function (target) {

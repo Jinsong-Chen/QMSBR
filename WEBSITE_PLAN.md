@@ -46,7 +46,9 @@ wording and order govern.
 - `LICENSE` — the terms for everything the site ships
 
 The site renders the HTML for each chapter; the PDF beside it is offered as
-a download.
+a download through `format-links: [pdf]`. The same link appears on each
+part introduction and concept reference; formats without reviewed public
+files are not offered.
 
 ## 2. Navigation
 
@@ -70,8 +72,8 @@ on their part introductions, which is why an introduction is also the first
 entry of its sidebar.
 
 **Muted items.** A navigation entry for a unit that is not yet available is
-an ordinary link whose `href` ends in `#part-three`, `#supplement-a` or
-`#supplement-b`. One shared CSS rule, selecting on those endings, mutes the
+an ordinary link whose `href` ends in `#part-three`, `#argument-a`, `#argument-b` or
+`#argument-c`. One shared CSS rule, selecting on those endings, mutes the
 entry to a colour that still meets AA contrast on its background and sets
 `pointer-events: none` and `cursor: default`; a small script in
 `include-after-body` sets `aria-disabled="true"` and `tabindex="-1"` on the
@@ -79,7 +81,9 @@ same links, so keyboard and screen-reader users meet the same state that the
 colour shows. Both sites carry the rule and the script. Nothing unreleased
 is listed as a live link, and nothing unreleased is hidden either: the muted
 entry and the card it points at say what the unit will be and that it is not
-yet available.
+yet available. The earlier `#supplement-a` and `#supplement-b` anchors
+remain aliases when the argument labels are reconciled, so existing links
+still resolve. The same disabled-link handling applies to those aliases.
 
 ### Sidebars
 
@@ -94,10 +98,14 @@ Regression, and Generalized Linear Models*. A page belongs to one of them:
 - **Part Two** — `part-two/part_two_introduction.qmd`,
   `part-two/part_two_concept_reference.qmd`, then Chapters 1--4.
 - **Argument Approach** — `argument-approach.qmd` as *The argument-based
-  approach*, then *A. How to Read a Quantitative Study as an Argument*
-  (`argument-approach.qmd#supplement-a`) and *B. Extending the
-  Argument-Based Approach to Quantitative Studies*
-  (`argument-approach.qmd#supplement-b`), both muted by the rule above.
+  approach*, then the three argument chapters: *A. How to Read a
+  Quantitative Study as an Argument* (`argument-approach.qmd#argument-a`),
+  *B. Extending the Argument-Based Approach to Quantitative Studies*
+  (`argument-approach.qmd#argument-b`), and *C. Arguments involving latent
+  variables or an additional measurement layer*
+  (`argument-approach.qmd#argument-c`). C's wording names its scope until
+  its technical specification fixes the title. Each entry stays muted
+  until its own chapter is published.
 
 Home and About carry no sidebar. The practice site has one docked sidebar of
 its own (WebR plan, Section 1).
@@ -118,7 +126,7 @@ in the order of the top row), *Using QMSBR in a course*, *How to use this
 site*, *What comes next* as a `.roadmap-grid`, and the `.author-band`. The
 Part Three card carries the id `part-three`, the `.unavailable` class and
 `aria-disabled="true"`, and lists no link. The Argument Approach card keeps
-its link to the approach page live and shows supplements A and B in a
+its link to the approach page live and shows Argument Chapters A, B and C in a
 `.card-muted-block`. Wherever a unit that is not yet available is named,
 the `.badge-unavailable` chip marks it.
 
@@ -127,9 +135,10 @@ footer and the Home page link to: `#citation`, `#licences` and `#courses`.
 
 **Argument Approach (`argument-approach.qmd`).** Titled *The Argument-Based
 Approach* and the first entry of its sidebar, with page navigation turned
-off so that a muted supplement entry never becomes a pagination link. Its
-closing section carries the anchors `supplement-a` and `supplement-b` that
-the sidebar's muted entries point at. It reads `references.bib` and
+off so that a muted argument-chapter entry never becomes a pagination
+link. Its closing section carries `argument-a`, `argument-b` and
+`argument-c`, with `supplement-a` and `supplement-b` retained as aliases,
+so the sidebar and existing links resolve. It reads `references.bib` and
 `apa.csl` for its citations.
 
 **Part introductions.** Each is the first entry of its sidebar and the
@@ -201,7 +210,7 @@ before rendering or the page keeps the old numbers.
 6. Commit the regenerated `_freeze/` entry with the sources and push; GitHub
    Actions renders and deploys.
 
-A unit that publishes into a muted slot — a supplementary chapter, Part
+A unit that publishes into a muted slot — an argument chapter, Part
 Three — is the same work plus one step: the muted entry becomes an ordinary
 link, and its card and section text drop the not-yet-available badge and
 sentence.

@@ -128,28 +128,82 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 11))
 show_value <- function(x) {
   shown <- format(round(x, 4), digits = 15, scientific = FALSE, trim = TRUE)
   tiny <- x != 0 & round(x, 4) == 0
-  shown[tiny] <- ifelse(x[tiny] > 0, "< 0.0001", "> \u22120.0001")
-  unname(sub("^-", "\u2212", shown))
+  shown <- sub("^-([0-9.]+)$", "$-\\1$", shown)
+  shown[tiny] <- ifelse(x[tiny] > 0, "$< 0.0001$", "$> -0.0001$")
+  unname(shown)
 }
+```
+
+```{r}
+#| label: ch7-anchor-check
+#| include: false
+# Stops the render if a printed anchor no longer matches its data: the
+# four-panel figure's errors, the known-truth sample of Section 1.3, the
+# repetition check of Section 4.1, the centred Galton line of Section 7.1
+# and the class line of Section 7.3.
+f4 <- function(x) sprintf("%.4f", x)
+chk_xp <- c(-0.5, 1.1, 1.4, 2.5, 3.5, 4)
+chk_yp <- c(1.2, 1, 3, 4, 4.5, 3)
+chk_e <- chk_yp - (2 + 0.5 * chk_xp)
+set.seed(123)
+chk_known <- data.frame(x = seq(6, 16, length.out = 20))
+chk_known$y <- 2 + 0.5 * chk_known$x + rnorm(20, sd = 1)
+chk_fit <- coef(summary(lm(y ~ x, data = chk_known)))
+set.seed(321)
+chk_x <- seq(6, 16, length.out = 40)
+chk_t <- numeric(2000)
+for (j in seq_along(chk_t)) {
+  chk_rep <- coef(summary(lm(I(2 + 0.5 * chk_x + rnorm(40)) ~ chk_x)))
+  chk_t[j] <- (chk_rep[2, "Estimate"] - 0.5) / chk_rep[2, "Std. Error"]
+}
+chk_galton <- read.csv("galton1886_sons.csv")
+chk_heights <- lm(son ~ father, data = chk_galton)
+set.seed(12345)
+chk_true <- rnorm(2000, mean = 65, sd = 8)
+chk_mid <- chk_true + rnorm(2000, mean = 0, sd = 6)
+chk_fin <- chk_true + rnorm(2000, mean = 0, sd = 6)
+chk_class <- lm(chk_fin ~ chk_mid)
+chk_top <- chk_mid > quantile(chk_mid, .9)
+stopifnot(
+  sum(abs(chk_e) < 1) == 4,
+  f4(chk_fit[, "Estimate"]) == c("2.4770", "0.4695"),
+  f4(chk_fit[, "Std. Error"]) == c("0.8362", "0.0733"),
+  f4(c(2 * pt(1, 18) - 1, 2 * pt(2, 18) - 1)) == c("0.6694", "0.9392"),
+  f4(c(mean(abs(chk_t) < 1), mean(abs(chk_t) < 2))) ==
+    c("0.6890", "0.9425"),
+  f4(c(2 * pt(1, 38) - 1, 2 * pt(2, 38) - 1)) == c("0.6764", "0.9473"),
+  f4(coef(chk_heights)) == c("38.5445", "0.4438"),
+  f4(colMeans(chk_galton[c("father", "son")])) == c("69.0989", "69.2140"),
+  f4(c(coef(chk_class)[2], 10 * coef(chk_class)[2])) ==
+    c("0.6670", "6.6704"),
+  f4(c(mean(chk_mid[chk_top]),
+    predict(chk_class, data.frame(chk_mid = mean(chk_mid[chk_top]))),
+    mean(chk_fin[chk_top]), mean(chk_true[chk_top]))) ==
+    c("82.3217", "76.4691", "76.5335", "76.5186"))
 ```
 
 \clearpage
 
 ::: {.callout-note title="Chapter overview"}
 This chapter reads regression as prediction with quantified uncertainty.
-From a reported claim about education and income we state a question
-about 102 occupations, plot the records and fit a straight line, read
-its slope, intercept, fitted values and residuals, and see how least
-squares chooses it and how well it fits. A process model then gives the
-slope a standard error and an interval, repeated samples of a known
-process show how fitted slopes vary, and prediction comes at three
-levels: a point, a mean response and one new case. Checks of form,
-spread, influence and support qualify these answers. The chapter closes
-with regression toward the mean, in Galton's heights of fathers and sons
-and in a hypothetical class's exam scores. By the end you will be able
-to fit and read a simple regression in R, say what its descriptive and
-model-based answers concern, and recognize regression toward the mean in
-a before-and-after claim. An appendix develops the mathematics.
+It opens with the simple regression model, a straight line for the mean
+of an outcome with three parameters, and reads those parameters in a
+picture and in a simulated process whose values we know. It then turns
+to a reported claim about education and income and a question about 102
+occupations: we plot the records, fit a straight line, read its slope,
+intercept, fitted values and residuals as a description of those
+records, and see how least squares chooses the line and how well it
+fits. Declaring the model for the occupations gives the slope a standard
+error and an interval, repeated samples of the known process show what
+the interval's coverage means, and prediction comes at three levels: a
+point, a mean response and one new case. Checks of form, spread,
+influence and support qualify these answers. The chapter closes with
+regression toward the mean in its two versions, Galton's heights of
+fathers and sons and a hypothetical class's two exams. By the end you
+will be able to state and read a simple regression model, fit and read
+one in R, say what its descriptive and model-based answers concern, and
+recognize regression toward the mean in a before-and-after claim. An
+appendix develops the mathematics.
 :::
 
 Suppose a report says, "Another year of education increases income by about
@@ -173,16 +227,231 @@ Aggregate and individual relationships can differ substantially
 [@robinson1950].
 
 Regression can be read as **prediction with quantified uncertainty**.
-The fitted line predicts an occupation's average income from its average
+A fitted line predicts an occupation's average income from its average
 education; the residuals show how far each record lies from its
-prediction; and, once a process model is declared, standard errors and
-intervals say how uncertain the slope and the predictions are. The
-chapter builds on Chapter 5's covariance, correlation and mean inference
-in R and on Chapter 6's indicator coefficients for group means.
+prediction; and, once a model for the records is declared, standard
+errors and intervals say how uncertain the slope and the predictions
+are. Section 1 states the model that gives a slope its meaning; Section
+2 returns to the occupations.
 
-## Education and Income Across Occupations {#sec-ch7-question}
+{{< pagebreak >}}
 
-### The occupation records
+## The Simple Regression Model {#sec-ch7-model}
+
+### From a mean to a line
+
+One common mean describes the centre of an outcome for all cases.
+Allowing separate means for groups recognizes that different categories
+may have different averages. Simple regression takes another step:
+the mean changes continuously along a straight line as a numerical
+predictor changes. The **conditional mean** is the mean outcome at a
+stated predictor value.
+
+For case $i$, write $x_i$ for its recorded predictor value and $Y_i$ for
+an outcome the model could generate. We hold the complete set of
+observed predictor values $x_1,\ldots,x_n$ fixed. Repetition means new
+outcomes at those same values, so expectations and variances below
+suppress conditioning on that fixed set. The mean and individual
+outcome are
+
+$$
+E(Y_i)=\beta_0+\beta_1x_i,\qquad
+Y_i=\beta_0+\beta_1x_i+\varepsilon_i.
+$$
+
+The error $\varepsilon_i$ is how far case $i$'s outcome lies above or
+below the true mean line. The conditions
+
+$$
+E(\varepsilon_i)=0,\qquad
+\operatorname{Var}(\varepsilon_i)=\sigma^2
+$$
+
+say that errors average zero at every recorded predictor value and
+have the same variance everywhere. Two more conditions complete the
+model used for exact inference. The errors are independent of one
+another, a property of how cases were sampled, assigned or measured;
+a good-looking plot cannot establish it. For the exact $t$ procedure
+of Section 3 they are also Normal,
+$\varepsilon_i\overset{\mathrm{ind}}\sim\mathcal N(0,\sigma^2)$.
+Neither the distribution of the predictor values nor the pooled
+outcomes needs to be Normal: the condition concerns errors around the
+line at each predictor value. The predictor values must differ, since
+points that all share one $x$ cannot determine a slope.
+
+The model has three parameters: the **intercept** $\beta_0$, the
+**slope** $\beta_1$ and the **error SD** $\sigma$. They belong to the
+process that produces the data, and in practice they are unknown. A hat
+marks a quantity computed from data: $\widehat\beta_0$ and
+$\widehat\beta_1$ estimate $\beta_0$ and $\beta_1$, and the residual SD
+$s_e$ of Section 2.6 estimates $\sigma$.
+
+### Reading the parameters
+
+Regression is used to predict, and its parameters are read as
+comparisons. @fig-ch7-model-parts draws each part of the model on six
+invented points around the line $y=2+0.5x$.
+
+```{r}
+#| label: fig-ch7-model-parts
+#| fig-cap: 'The parts of the simple regression model, drawn on six invented points around the true line $y=2+0.5x$. (a) The true line and the data. (b) The intercept $\beta_0$ is the mean of $y$ at $x=0$, and the slope $\beta_1$ is the difference in mean $y$ for a one-unit difference in $x$. (c) The errors $\varepsilon_i$ are the vertical distances from the points to the true line. (d) The errors follow one Normal distribution around the line, with the same SD, here $\sigma=1$, at every $x$.'
+#| fig-alt: "Four panels over x from −1 to 5 and y from −1 to 6.5, each with the same rising straight line through y equal to 2 at x equal to 0. Panel (a) shows six open points scattered around the line. Panel (b) adds dashed axes through zero, an upward arrow of length 2 from the origin to the line, labelled beta 0, and two upward arrows of length 0.5 at x equal to 1 and 2, labelled beta 1. Panel (c) joins each point to the line with a vertical segment labelled epsilon i. Panel (d) stands six identical grey bell curves sideways on the line at x from −1 to 4, each reaching about 2.5 units above and below it, with the six points among them."
+#| fig-width: 6.3
+#| fig-height: 4.2
+parts_x <- c(-0.5, 1.1, 1.4, 2.5, 3.5, 4)
+parts_y <- c(1.2, 1, 3, 4, 4.5, 3)
+true_mean <- function(x) 2 + 0.5 * x
+parts_panel <- function(title) {
+  plot(NA, xlim = c(-1, 5), ylim = c(-1, 6.5), xlab = "x", ylab = "y",
+    main = title, font.main = 1, cex.main = 1, las = 1)
+  abline(a = 2, b = 0.5, lwd = 1.5)
+}
+op <- par(mfrow = c(2, 2), mar = c(3.6, 3.6, 1.6, 0.8),
+  mgp = c(2.2, 0.6, 0), cex = 0.8)
+parts_panel("(a) The true line and the data")
+points(parts_x, parts_y)
+parts_panel("(b) Intercept and slope")
+abline(v = 0, h = 0, lty = 2, col = "grey55")
+arrows(0, 0, 0, 2, lwd = 2, length = 0.08)
+text(0, 1, expression(beta[0]), pos = 4)
+segments(c(0, 1), c(2, 2.5), c(1, 2), c(2, 2.5), lty = 3)
+arrows(c(1, 2), c(2, 2.5), c(1, 2), c(2.5, 3), lwd = 2, length = 0.06)
+text(c(1, 2), c(2.25, 2.75), expression(beta[1]), pos = 4)
+points(parts_x, parts_y, col = "grey55")
+parts_panel("(c) Errors")
+segments(parts_x, parts_y, parts_x, true_mean(parts_x))
+text(parts_x, (parts_y + true_mean(parts_x)) / 2,
+  expression(epsilon[i]), pos = 4, cex = 0.9)
+points(parts_x, parts_y)
+parts_panel(expression("(d) Normal errors, common " * sigma == 1))
+height <- seq(-2.5, 2.5, length.out = 100)
+for (x0 in -1:4) {
+  polygon(x0 + c(0, 0.75 * dnorm(height), 0),
+    true_mean(x0) + c(-2.5, height, 2.5), col = "grey80",
+    border = "grey35")
+}
+points(parts_x, parts_y)
+par(op)
+```
+
+Panel (a) shows the true line, the mean of $y$ at each $x$, with six
+observed points around it. In panel (b) the slope, $\beta_1=0.5$, is the
+difference in mean $y$ between cases one unit apart in $x$: two cases
+that differ by one unit in $x$ have mean outcomes $\beta_1$ apart,
+wherever they lie on the line. It compares different cases; it does not
+say what would happen to one case whose $x$ changed. The intercept,
+$\beta_0=2$, is the mean of $y$ at $x=0$, the baseline for these
+comparisons. Reading it as a data-supported mean requires a meaningful
+zero within the predictor's support, as in this illustration but not for
+the occupations of Section 2.
+
+In panel (c) each error $\varepsilon_i$ is the vertical distance from a
+point to the true line, positive above it and negative below. Because
+the true line is unknown in practice, so are the errors; Section 2.3
+measures distances from a fitted line instead, the residuals. Panel (d)
+shows what the error conditions claim: at every $x$ the outcomes follow
+one Normal distribution centred on the line, with the same SD $\sigma$.
+Under Normal errors about two-thirds of the outcomes lie within $\sigma$
+of the line and about 95% within $2\sigma$. Here $\sigma=1$, and four of
+the six invented points lie less than one unit from the line.
+
+The line alone is a simple R graph; the surrounding scatter expresses
+the separate assumption about errors.
+
+```{r}
+#| label: ch7-show-true-line
+#| echo: true
+#| eval: false
+curve(2 + .5*x, from = -1, to = 5)
+```
+
+### A process with known values
+
+A simulation makes the model concrete. We choose the three parameters
+ourselves, generate data from the model, fit a line and compare the
+estimates with the values we chose. Take 20 predictor values equally
+spaced from 6 to 16, close to the range of the occupations' education in
+Section 2, and generate
+
+$$
+Y_i=2+0.5x_i+\varepsilon_i,\qquad
+\varepsilon_i\overset{\mathrm{ind}}\sim\mathcal N(0,1).
+$$
+
+The true intercept is 2, the true slope 0.5 and the error SD 1; these
+are a teaching construction, not records of any study.
+
+```{r}
+#| label: ch7-known-sample-code
+#| echo: true
+set.seed(123)
+known_data <- data.frame(x = seq(6, 16, length.out = 20))
+known_data$y <- 2 + 0.5 * known_data$x + rnorm(20, sd = 1)
+known_model <- lm(y ~ x, data = known_data)
+```
+
+`set.seed()` fixes the random start, so the same 20 errors are drawn each
+time, and `rnorm()` draws them with SD 1. `lm()` fits a straight line by
+least squares, the rule of Section 2.4. @tbl-ch7-known-sample compares
+its estimates with the known parameters.
+
+\Needspace{10\baselineskip}
+
+```{r}
+#| label: tbl-ch7-known-sample
+#| tbl-cap: "One fitted sample from a process with known coefficients and error SD."
+#| echo: false
+known_summary <- coef(summary(known_model))
+knitr::kable(data.frame(
+  Quantity = c("Intercept", "Slope", "Residual SD"),
+  Estimate = show_value(c(coef(known_model), sigma(known_model))),
+  `Model SE` = c(show_value(known_summary[, "Std. Error"]), ""),
+  check.names = FALSE
+), align = c("l", "r", "r"), escape = FALSE)
+```
+
+The SE column reports uncertainty for the two coefficient estimates;
+the residual SD also has estimation uncertainty, which this table does
+not report. Section 3.1 derives the coefficient SEs, carrying the
+standard errors of Chapters 3 and 5 over to a line.
+
+```{r}
+#| label: fig-ch7-core-true-fitted
+#| echo: false
+#| fig-cap: "Known and fitted lines for one simulated dataset. The true process is programmed; the fitted line responds to the realized errors."
+#| fig-alt: "Twenty simulated points surround the known line with intercept two and slope one half. A solid fitted line and dashed true line differ slightly."
+#| fig-width: 6.3
+#| fig-height: 3
+ggplot2::ggplot(known_data, ggplot2::aes(x = x, y = y)) +
+  ggplot2::geom_point(size = 1.6) +
+  ggplot2::geom_abline(
+    intercept = 2, slope = 0.5, linetype = "dashed", linewidth = 0.8
+  ) +
+  ggplot2::geom_abline(
+    intercept = coef(known_model)[1],
+    slope = coef(known_model)[2], linewidth = 0.8
+  ) +
+  ggplot2::labs(x = "Simulated predictor", y = "Simulated outcome")
+```
+
+In this one sample each coefficient misses its programmed value by less
+than one SE: the slope is 0.4695 against 0.5, with SE 0.0733, and the
+intercept 2.477 against 2, with SE 0.8362. Misses of that size are
+usual. For this 20-point design about two-thirds of estimates fall
+within one SE of the truth and about 94% within two, the chances .6694
+and .9392 that a $t$ variable on 18 df lies within 1 and 2 of zero;
+Section 4 checks this by repeating the sample many times. In
+@fig-ch7-core-true-fitted the errors are the vertical distances to the
+dashed true line, and the residuals of Section 2.3 the distances to the
+solid fitted line.
+
+\Needspace{16\baselineskip}
+
+## The Occupation Records and the Fitted Line {#sec-ch7-line}
+
+We now return to the occupations of the opening question.
+
+### The occupation records {#sec-ch7-question}
 
 The data are distributed as *carData::Prestige* [@carData2022; @fox2019].
 The package documentation attributes education and income to the *Census of
@@ -198,7 +467,7 @@ form a probability sample, and the calculations are our reanalysis.
 | Missingness for the fit | No missing education or income values; no modeled rows excluded |
 | Observed support | Education: 6.38--15.97 years; income: 0.611--25.879 thousand dollars |
 | Descriptive estimand | Least-squares slope summarizing these 102 fixed occupation records |
-| Limits of the source record | No probability-sampling basis or individual-level analysis established here |
+| Limits of the source record | Cross-sectional and observational; no probability-sampling basis or individual-level analysis established here |
 
 : Record, measurements, and scope for the focal analysis. {#tbl-ch7-record tbl-colwidths="[30,70]"}
 
@@ -206,7 +475,7 @@ Each occupation counts once, however many people it employs, so the
 analysis does not describe an average worker's experience; and 1971
 dollars are not today's purchasing power.
 
-### A first plot and a first fit
+### Plot the records, then fit the line
 
 ```{r}
 #| label: ch7-data-visible
@@ -233,7 +502,9 @@ ggplot(prestige, aes(education, income_k)) +
        y = "Average income (thousand 1971 dollars)")
 ```
 
-Income rises with education, with much scatter. General managers
+The scatterplot is panel (a) of @fig-ch7-model-parts without its
+line: the records are visible, but the process that produced them, if
+any, is not. Income rises with education, with much scatter. General managers
 average 12.26 years of education and 25.879 thousand dollars; university
 teachers average 15.97 years and 12.480. More education does not order
 every pair of occupations by income, so a line can summarize the overall
@@ -248,11 +519,8 @@ b <- coef(model)
 coef(model)
 ```
 
-The formula puts the outcome left of the tilde and the predictor to its
-right. `lm()` finds the coefficients; it does not choose a population,
+`lm()` finds the coefficients; it does not choose a population,
 establish a causal design or justify a confidence interval.
-
-## The Fitted Line and Least Squares {#sec-ch7-line}
 
 ### Fitted values, slope and residuals
 
@@ -267,7 +535,8 @@ $$
 The subscript $i$ indexes a record and the hat marks a fitted quantity.
 The **residual** $e_i$ is observed minus fitted income: positive for an
 occupation above the line, negative below it. It is computed from the
-fitted line, unlike the unobservable error of a process model (Section 3).
+fitted line, unlike the error $\varepsilon_i$ of Section 1, measured from
+the unknown true line.
 
 For the occupation records, the line is
 
@@ -319,12 +588,26 @@ beside two sentences a report might also write about it.
 Only the first sentence compares what the records compare: occupations
 that differ in average education. The second describes a change within
 one occupation over time and the third a change within one person; the
-records observe neither [@robinson1950].
+records observe neither [@robinson1950]. The wording of a question
+signals which reading it asks for. Words such as *difference*,
+*relationship*, *higher*, *lower* and *predict* usually ask for a
+comparison between units; *effect*, *impact*, *change*, *increase* and
+*decrease* usually ask what a change would do, which needs a design that
+supports it. The opening report, "another year of education increases
+income", uses the second kind of wording for a comparison of the first
+kind.
+
+`lm()` returns this line whether or not Section 1's model holds for the
+occupations. Here the line describes the 102 records: its slope, fitted
+values and residuals are completed calculations on them. A standard
+error and an interval answer a further question, which Section 3.1 asks
+once the model is declared for the occupations.
 
 The intercept, $-2.8536$, is the line's fitted income at zero years of
-education. Zero lies far outside the observed range, so the intercept
-only places the line; no recorded occupation has negative income.
-Section 2.5 moves the intercept to a supported education value.
+education. Zero lies far outside the observed range, so, as Section 1.2
+warned, the intercept only places the line; no recorded occupation has
+negative income. Section 2.5 moves the intercept to a supported
+education value.
 
 ```{r}
 #| label: fig-ch7-line-residual
@@ -384,32 +667,37 @@ $$
 \widehat\beta_0=\bar y-\widehat\beta_1\bar x\approx-2.8536.
 $$
 
-Chapter 5's covariance and correlation matrices give the same slope. For
-the 102 complete education--income pairs, in education--income order,
+The scalar covariance is $s_{xy}=6.6911$ thousand-dollar-years and
+the education variance is $s_x^2=7.4444$ years squared. Dividing them
+leaves thousand dollars per education year. Alternatively, the
+unit-free correlation $r=.5776$ multiplied by the income SD over the
+education SD restores the same slope and units. R applies both
+identities directly to the recorded education and income values:
 
-$$
-\mathbf S=\begin{pmatrix}7.4444&6.6911\\6.6911&18.0279\end{pmatrix},
-\qquad
-\mathbf R=\begin{pmatrix}1&.5776\\.5776&1\end{pmatrix}.
-$$
+```{r}
+#| label: ch7-show-scalar-slope
+#| echo: true
+#| eval: false
+x <- prestige$education
+y <- prestige$income_k
+cov(x, y) / var(x)
+cor(x, y) * sd(y) / sd(x)
+```
 
-Dividing the covariance, in thousand-dollar-years, by the education
-variance, in years squared, leaves thousand dollars per year; the
-unit-free correlation times the income SD over the education SD gives
-the same slope. Both routes return 0.8988 when every entry comes from the
-same rows, since entries formed by separate pairwise deletion can
-describe different occupations. The Computer Lab carries out the centered
-sums and both matrix routes.
+Both routes give 0.8988 using unrounded quantities from the same 102
+complete pairs. This common set of records matters: separately
+calculated summaries that omit different occupations need not
+reproduce the fitted line.
 
 A slope needs education to vary: if every occupation had the same
 education, $S_{xx}=0$ and no slope could be identified. The line passes
 through $(\bar x,\bar y)$, since substituting $\bar x$ into the intercept
 formula gives $\bar y$. With an intercept, the residuals also sum to zero
 and their products with $x$ sum to zero; otherwise the line could be
-shifted or tilted to reduce RSS. These are algebraic properties of OLS, not tests of
-independence or linearity. **Appendix A** derives them.
-
-### A three-record example
+shifted or tilted to reduce RSS. These are algebraic properties of OLS,
+not tests of independence or linearity. Because they tie the residuals
+together, residuals are an imperfect window on the errors, which Section
+6 keeps in mind. **Appendix A** derives them.
 
 Three teaching records, $(x,y)=(1,2),(2,4),(3,3)$, show the whole
 calculation at once. Their means are $\bar x=2$ and $\bar y=3$.
@@ -436,10 +724,10 @@ $$
 
 The fitted values 2.5, 3.0 and 3.5 lie on this line, the residuals sum
 to zero, and their squares sum to $RSS=1.5$. No Normality assumption is
-needed; a probability model enters only when we ask about repeated-sample
-uncertainty.
+needed; the model of Section 1 enters only when we ask about
+repeated-sample uncertainty.
 
-### Comparing candidate lines
+### Candidate lines and centering
 
 Least squares also lets us compare the fitted line with alternatives.
 Make every candidate pass through $(\bar x,\bar y)$ and vary only its
@@ -478,7 +766,7 @@ candidate_lines <- data.frame(
 #| tbl-cap: "Candidate lines through the mean point and their residual sums of squares."
 #| echo: false
 knitr::kable(data.frame(lapply(candidate_lines, show_value)),
-  align = "r")
+  align = "r", escape = FALSE)
 ```
 
 ```{r}
@@ -512,10 +800,16 @@ Every alternative has a larger RSS than the OLS line, and slopes equally
 far above and below 0.8988 add the same excess. Because large vertical
 discrepancies weigh heavily, high-income occupations can pull the line,
 a feature of the criterion rather than evidence that they are wrong.
+The squared residuals of the fitted model recover its minimum RSS:
 
-### Centering and changes of units
+```{r}
+#| label: ch7-show-rss
+#| echo: true
+#| eval: false
+sum(resid(model)^2)
+```
 
-The fitted equation can be written
+The fitted line can also be written around a chosen reference point:
 
 $$
 \widehat y_i=\bar y+\widehat\beta_1(x_i-\bar x).
@@ -524,11 +818,11 @@ $$
 Centering education at its mean makes the intercept $\bar y=6.7979$
 thousand dollars, the fitted income at average education; centering at
 12 makes it 7.9322. The slope, fitted values, residuals and $R^2$ stay
-the same: centering moves the reference point, not the line. The
-Computer Lab refits the centered line and checks the fitted values.
+the same: centering moves the reference point, not the line.
 Changing income from thousands of dollars to dollars multiplies the
-intercept, slope, residual SD and coefficient SEs by 1,000 and leaves
-$t$, $p$, $r$ and $R^2$ unchanged; a unit change is not new evidence.
+intercept, slope, residual SD and the coefficient SEs of Section 3.1 by
+1,000 and leaves the $t$ and $p$ of Section 3.1, $r$ and $R^2$ unchanged;
+a unit change is not new evidence.
 
 ### How well does the line fit? {#sec-ch7-fit}
 
@@ -564,8 +858,8 @@ s_e=\sqrt{\frac{RSS}{n-2}}
 $$
 
 Fitting an intercept and a slope leaves $n-2$ residual degrees of
-freedom. Under the process model of Section 3, $s_e^2$ is an unbiased
-estimate of the error variance and $s_e$ estimates the error SD
+freedom. Under the model of Section 1.1, $s_e^2$ is an unbiased
+estimate of the error variance and $s_e$ estimates the error SD $\sigma$
 (Appendix A); without that model, $s_e$ measures residual scatter. It is
 not the slope's standard error. `sigma()` returns it, and `summary()`
 reports $R^2$:
@@ -577,16 +871,16 @@ c(residual_SD = sigma(model), R_squared = summary(model)$r.squared)
 ```
 
 @tbl-ch7-quantities sets four summaries side by side. Here and below,
-$SE$ denotes an estimated standard error; the last row belongs to the
-process model of Section 3, not to the completed calculation on the 102
-records.
+$SE$ denotes an estimated standard error; the last row needs Section 1's
+model declared for the occupations, which Section 3.1 does, and is not
+part of the completed calculation on the 102 records.
 
 | Quantity | Occupation result | What it describes |
 |:--|--:|:--|
 | Slope | 0.8988 | Change in fitted thousand-dollar income per education year |
 | Residual SD | 3.4834 | Remaining income scatter on the outcome scale |
 | $R^2$ | .3336 | Proportion of centered squared variation accounted for in these records |
-| Classical slope SE | 0.1270 | Model-based repetition variability of the slope, under the next assumptions |
+| Classical slope SE | 0.1270 | Model-based repetition variability of the slope, once Section 1's model is declared (Section 3.1) |
 
 : Different summaries have different units and jobs. {#tbl-ch7-quantities tbl-colwidths="[24,22,54]"}
 
@@ -598,34 +892,20 @@ records.
 
 The slope 0.8988 is not waiting to be discovered: we computed it from all
 102 records named in the question. A confidence interval answers a
-different question, about a process that could generate new outcomes.
-Suppose occupation incomes arose independently from a process with
-conditional mean
-
-$$
-E(Y_i\mid X_i=x_i)=\beta_0+\beta_1x_i.
-$$
-
-The estimand $\beta_1$ is now the slope of that hypothetical process, not
-the fixed slope of the records, and repetition means new outcomes at the
-same education values, not a random sample of occupations. Write the
-process as
-
-$$
-Y_i=\beta_0+\beta_1x_i+\varepsilon_i,\qquad
-E(\varepsilon_i\mid\mathbf X)=0,\qquad
-\operatorname{Var}(\varepsilon_i\mid\mathbf X)=\sigma^2.
-$$
-
-For the exact $t$ procedure the errors are also independent and Normal
-with this common variance, and $S_{xx}>0$. Neither education nor income
-needs a Normal distribution of its own: the conditions concern the errors
-around the line. Independence comes from how the records arose, not from
-a good-looking residual plot.
+further question, about a process that could generate new outcomes.
+Apply the model of Section 1.1 to the occupations: suppose each
+occupation's income arose independently from a process whose mean at
+education $x_i$ is $\beta_0+\beta_1x_i$, with errors of common variance
+$\sigma^2$, Normal for the exact $t$ procedure. The estimand is now
+$\beta_1$, the slope of that hypothetical process, not the fixed slope of
+the records, and repetition means new incomes at the same 102 education
+values, not a new sample of occupations. Nothing in the records
+establishes this process: it is declared, and its conditions are a
+proposed justification that Section 6 examines.
 
 ```{r}
 #| label: fig-ch7-conditional
-#| fig-cap: "What the process conditions claim, drawn on the occupation records: at each education value, a Normal distribution of incomes centred on the line, with the same spread everywhere."
+#| fig-cap: "The model of Section 1 drawn on the occupation records, with the fitted line and the residual SD in place of the unknown parameters. The records depart from it: their spread grows with education, and the curve at 8 years reaches below zero income."
 #| fig-alt: "The 102 occupation records and the fitted line rising from about 3 to 12 thousand dollars over education 6 to 16. At 8, 10, 12 and 14 years, an identical bell-shaped curve stands sideways on the line, spreading about 10 thousand dollars above and below it; the curve at 8 years extends below zero income, while several high-income records at 12 years and above lie beyond the curves' upper tails."
 #| fig-width: 6.3
 #| fig-height: 3.4
@@ -651,18 +931,17 @@ ggplot(prestige, aes(education, income_k)) +
        y = "Income (thousand 1971 dollars)")
 ```
 
-@fig-ch7-conditional draws what these conditions claim, using the fitted
-line and $s_e=3.4834$ in place of the unknown $\beta_0$, $\beta_1$ and
-$\sigma$: at every education value, a Normal distribution of incomes
-centred on the line, with one common spread. The records do not look
-like that everywhere. At higher education they spread more widely, and
+@fig-ch7-conditional draws that model on the records, as panel (d) of
+@fig-ch7-model-parts drew it on invented points, with the fitted line
+and $s_e=3.4834$ in place of the unknown $\beta_0$, $\beta_1$ and
+$\sigma$. The records do not look like that everywhere. At higher education they spread more widely, and
 several incomes lie beyond the upper tails; at 8 years the curve reaches
 below zero, a sign that a Normal model for a nonnegative outcome is an
 approximation, which Section 5 meets again.
 
 Substituting the process into the slope formula shows where slope
-uncertainty comes from. With $\mathbf X$ the predictor values we
-condition on, and since $\sum_i(x_i-\bar x)=0$,
+uncertainty comes from. The observed predictor values stay fixed, as in
+Section 1.1, and $\sum_i(x_i-\bar x)=0$, so
 
 $$
 \widehat\beta_1-\beta_1
@@ -674,7 +953,7 @@ cancel once weighted by distance from mean education. Independence and
 common variance give
 
 $$
-\operatorname{Var}(\widehat\beta_1\mid\mathbf X)
+\operatorname{Var}(\widehat\beta_1)
 =\frac{\sigma^2\sum_i(x_i-\bar x)^2}{S_{xx}^2}
 =\frac{\sigma^2}{S_{xx}},
 $$
@@ -687,6 +966,16 @@ $$
 SE(\widehat\beta_1)=\frac{s_e}{\sqrt{S_{xx}}}
 =\frac{3.4834}{\sqrt{751.8852}}=0.127,
 $$
+
+The education values `x` defined in Section 2.4 give the same SE:
+
+```{r}
+#| label: ch7-show-slope-se
+#| echo: true
+#| eval: false
+sigma(model) / sqrt(sum((x - mean(x))^2))
+```
+
 
 $$
 \widehat\beta_1\ \pm\ t_{.975,n-2}SE(\widehat\beta_1)
@@ -713,9 +1002,6 @@ coef(summary(model))
 confint(model, "education")
 ```
 
-The process conditions are a proposed justification, not facts created
-by the formula; Section 6 examines them on the occupation records.
-
 ### The slope test and the correlation test {#ch07-correlation-test}
 
 Chapter 5 tested a zero Pearson correlation. For an OLS line with an
@@ -739,12 +1025,12 @@ line, and squaring the signed $t$ gives the nondirectional $F$. For the
 occupation line both $t$ statistics are 7.0753 on 100 df, and the $F$
 statistic that `summary()` prints is $F(1,100)=50.0598=t^2$, all with
 $p<.0001$. They are one comparison written three ways, not three pieces
-of evidence, and the Computer Lab reproduces all three.
+of evidence.
 
 The equality is algebra, and it needs the same intercept, rows, weights
-and coefficient-covariance convention: an HC3 slope test, which
-estimates the slope's SE without assuming equal error variance
-(Section 6), need not equal the ordinary $F$. For randomly sampled
+and coefficient-covariance convention: a robust slope test of the kind
+Section 6 introduces, which estimates the slope's SE without assuming
+equal error variance, need not equal the ordinary $F$. For randomly sampled
 bivariate-Normal pairs a zero population correlation, $\rho=0$, also
 means a zero conditional-mean slope, but the occupation records have no
 sampling warrant, so here the Pearson test only reproduces the process
@@ -757,8 +1043,10 @@ gave each of its 24 pupils a score out of 20, twelve under massed and
 twelve under spaced practice. Code the schedule $x_i=0$ for massed and
 $x_i=1$ for spaced, and fit the same kind of line. With only two
 predictor values, the least-squares line joins the two group means
-(@fig-ch7-binary): the intercept is the massed mean and the slope the
-difference of means,
+(@fig-ch7-binary), and its coefficients take the readings of panel (b)
+of @fig-ch7-model-parts: the intercept is the mean at $x=0$, the massed
+mean, and the slope the difference for a one-unit step in $x$, from
+massed to spaced,
 
 $$
 \widehat\beta_0=\bar y_0=8,\qquad
@@ -770,9 +1058,8 @@ slope SE becomes
 $SE(\widehat\beta_1)=s_e\sqrt{1/n_0+1/n_1}=4.156\sqrt{1/12+1/12}=1.6967$,
 so $t=2.3575$ on 22 df, $p=.0277$ and the interval is
 $[0.4813,\ 7.5187]$. These are exactly the equal-variance two-sample $t$
-test and interval of Chapters 3 and 5, written as a line, with
-$R^2=.2017$ and $F(1,22)=5.5579=t^2$; the Computer Lab reproduces the
-interval with `t.test()`.
+test and interval, written as a line, with $R^2=.2017$ and
+$F(1,22)=5.5579=t^2$.
 
 \Needspace{12\baselineskip}
 
@@ -807,9 +1094,9 @@ ggplot(two_group_data, aes(spaced, score)) +
   labs(x = "Practice schedule", y = "Score (out of 20)")
 ```
 
-Welch's test (Chapter 3) uses the separate group SDs, 2.3741 and 5.3767,
-and gives 15.1322 df and $p=.0323$; the line instead assumes one common
-error variance. The HC3 covariance of Section 6 keeps the line and gives
+Welch's test uses the separate group SDs, 2.3741 and 5.3767,
+and gives 15.1322 df and $p=.0323$; the classical slope SE and test above
+instead use one common error variance. The HC3 covariance of Section 6 keeps the line and gives
 a slope SE of 1.7721. A factor with more than two levels needs more than
 one 0/1 column; Chapter 9 develops that coding, its contrasts and the
 link to the analysis of variance of Chapter 4.
@@ -818,83 +1105,16 @@ link to the analysis of variance of Chapter 4.
 
 ## Slopes Across Repeated Samples {#sec-ch7-repetition}
 
-### One sample from a known line
+### Repeated samples and coverage
 
-Section 3 described repetition in words; a simulation makes it visible.
-Generate 20 outcomes at predictor values equally spaced from 6 to 16 from
-a process we write ourselves:
-
-$$
-Y_i=2+0.5x_i+\varepsilon_i,\qquad
-\varepsilon_i\overset{\mathrm{ind}}\sim\mathcal N(0,1).
-$$
-
-The true intercept is 2, the true slope 0.5 and the error SD 1; these are
-a teaching construction, not occupation records.
-
-```{r}
-#| label: ch7-known-sample-code
-#| echo: true
-set.seed(123)
-known_data <- data.frame(x = seq(6, 16, length.out = 20))
-known_data$y <- 2 + 0.5 * known_data$x + rnorm(20, sd = 1)
-known_model <- lm(y ~ x, data = known_data)
-```
-
-`set.seed()` fixes the random start, so the same 20 errors are drawn each
-time, and `rnorm()` draws them with SD 1. @tbl-ch7-known-sample reports
-the fit.
-
-\Needspace{10\baselineskip}
-
-```{r}
-#| label: tbl-ch7-known-sample
-#| tbl-cap: "One fitted sample from a process with known coefficients and error SD."
-#| echo: false
-known_summary <- coef(summary(known_model))
-knitr::kable(data.frame(
-  Quantity = c("Intercept", "Slope", "Residual SD"),
-  Estimate = show_value(c(coef(known_model), sigma(known_model))),
-  `Model SE` = c(show_value(known_summary[, "Std. Error"]), ""),
-  check.names = FALSE
-), align = c("l", "r", "r"))
-```
-
-The residual SD has no SE in the table because it is a scale estimate,
-not a coefficient.
-
-```{r}
-#| label: fig-ch7-core-true-fitted
-#| echo: false
-#| fig-cap: "Known and fitted lines for one simulated dataset. The true process is programmed; the fitted line responds to the realized errors."
-#| fig-alt: "Twenty simulated points surround the known line with intercept two and slope one half. A solid fitted line and dashed true line differ slightly."
-ggplot2::ggplot(known_data, ggplot2::aes(x = x, y = y)) +
-  ggplot2::geom_point(size = 1.6) +
-  ggplot2::geom_abline(
-    intercept = 2, slope = 0.5, linetype = "dashed", linewidth = 0.8
-  ) +
-  ggplot2::geom_abline(
-    intercept = coef(known_model)[1],
-    slope = coef(known_model)[2], linewidth = 0.8
-  ) +
-  ggplot2::labs(x = "Simulated predictor", y = "Simulated outcome")
-```
-
-In one sample the fitted slope and intercept miss their programmed
-values. The error is the deviation from the true line and the residual
-the deviation from the fitted line; residuals are tied together by their
-zero-sum constraints, so a residual plot is an imperfect window on the
-errors.
-
-### Repeated samples and slope precision
-
-Now hold 40 predictor values fixed and regenerate only the errors, 2,000
-times, the generate--estimate--repeat route of Chapters 5 and 6. The
-study size is 40; the repetition count, 2,000, only refines the
-simulation's description of that study. Each repetition draws new
-errors, adds them to the same 40 process means, fits a line, records its
-slope and SE, and checks whether its 95% interval contains 0.5. The
-Computer Lab runs the loop.
+Section 1.3 drew one sample of 20 from the known process
+$Y_i=2+0.5x_i+\varepsilon_i$ with $\sigma=1$. Now fix 40 predictor values
+over the same range, 6 to 16, and draw 2,000 samples from the same
+generating rule. The study size is
+40; the 2,000 repetitions only refine the simulation's description of
+that study. Each repetition draws new errors, adds them to the same 40
+process means, fits a line, records its slope and SE, and checks whether
+its 95% interval contains 0.5.
 
 ```{r}
 #| label: ch7-repeated-slopes-code
@@ -953,14 +1173,20 @@ ggplot2::ggplot(repetitions, ggplot2::aes(x = slope)) +
 
 The SD of the 2,000 slopes estimates their repeated-sample spread, and
 each fitted SE estimates that spread from one sample; on average the two
-agree closely. Coverage belongs to the interval procedure, not to one
-realized interval, and with 2,000 repetitions its Monte Carlo SE at a
+agree closely, and both are close to the theoretical SD
+$\sigma/\sqrt{S_{xx}}$ that Section 3.1's variance formula gives with
+$\sigma=1$. Measured in their own SEs, .6890 of the slopes lie within one
+SE of 0.5 and .9425 within two, close to the .6764 and .9473 of a $t$
+variable on 38 df: the reading of one sample in Section 1.3 holds across
+many. Coverage belongs to the interval procedure, not to one realized
+interval, and with 2,000 repetitions its Monte Carlo SE at a
 true .95 is $\sqrt{.95(.05)/2000}\approx0.0049$, so the observed .9455
 lies within one Monte Carlo SE of .95.
 
-The theoretical slope SD is $\sigma/\sqrt{S_{xx}}$.
-@tbl-ch7-precision-conditions changes one feature of the design at a
-time.
+### What changes slope precision
+
+@tbl-ch7-precision-conditions uses the theoretical slope SD
+$\sigma/\sqrt{S_{xx}}$ to change one feature of the design at a time.
 
 ```{r}
 #| label: ch7-precision-conditions-code
@@ -1004,11 +1230,11 @@ them.
 
 ## Prediction {#sec-ch7-prediction}
 
-At a chosen education value $x_0$ the line gives one number, which can
+At a chosen fixed education value $x_0$ the line gives one number, which can
 answer three questions of increasing uncertainty: what the line
 predicts, what the mean income of occupations at $x_0$ is, and what one
-new occupation's income will be. The last two need the process model of
-Section 3.
+new occupation's income will be. The last two need Section 1's model,
+declared for the occupations in Section 3.1.
 
 ### Point prediction
 
@@ -1019,7 +1245,7 @@ $$
 $$
 
 built from the estimates, not the unknown parameters. At $x_0=12$ it is
-7.9322 thousand dollars, the value `predict()` returned in Section 2.1.
+7.9322 thousand dollars, the value `predict()` returned in Section 2.3.
 By itself a point prediction says nothing about its uncertainty, and
 the same number serves two different targets: it estimates the mean
 income of occupations at $x_0$ and predicts one new occupation's income.
@@ -1066,8 +1292,8 @@ new error is independent of the fitted data and comes from the same
 common-variance process, their variances add:
 
 $$
-\operatorname{Var}(Y_0-\widehat\mu_0\mid\mathbf X,x_0)
-=\sigma^2+\operatorname{Var}(\widehat\mu_0\mid\mathbf X,x_0).
+\operatorname{Var}(Y_0-\widehat\mu_0)
+=\sigma^2+\operatorname{Var}(\widehat\mu_0).
 $$
 
 Substituting the mean-response variance and estimating $\sigma$ by $s_e$
@@ -1130,7 +1356,7 @@ their covariance, and gives both intervals at four education values.
 
 ### Residuals, influence and unequal spread
 
-The fitted line exists whether or not any process model holds. Claims
+The fitted line exists whether or not the model of Section 1.1 holds. Claims
 that it describes a linear conditional mean, that its interval has the
 stated coverage, or that it predicts new occupations well need more
 support, and a check earns its place when its result could change one of
@@ -1161,6 +1387,17 @@ spread that changes with the fitted value challenges the common-variance
 SE. Leverage concerns an unusual predictor value; influence concerns how
 much the fit changes when a record is left out. A large residual, high
 leverage and high influence are related but different properties.
+
+A minimal version of the first display plots residuals against fitted
+values, with a horizontal reference at zero:
+
+```{r}
+#| label: ch7-show-residual-plot
+#| echo: true
+#| eval: false
+plot(fitted(model), resid(model))
+abline(h = 0, lty = 2)
+```
 
 \Needspace{7\baselineskip}
 
@@ -1264,11 +1501,27 @@ checks and what each can change.
 
 ## Regression Toward the Mean {#sec-ch7-rtm}
 
-### The line in standard units
+**Regression toward the mean** first describes a simple line's
+predictions. In standard units, with an imperfect correlation, its
+prediction for a second measurement lies nearer its mean than the first
+measurement lies to its own. Group averages follow that pattern when
+the conditional mean is approximately linear; individual outcomes and
+particular groups still vary around their predictions. The
+phenomenon comes in two versions. In the first, two different but
+related quantities are measured, such as a father's height and his
+son's (Section 7.1). In the second, one quantity is measured twice, with
+some luck in each measurement, such as a student's score on two exams
+(Section 7.3). Either way the movement runs in both directions, as
+Section 7.2 shows by selecting on the sons as well as on the fathers.
 
-Francis Galton, who gave regression its name, measured the adult heights
-of parents and their grown children in 205 families in the 1880s
-[@galton1886]. We use James Hanley's transcription of Galton's notebook
+### Version one: fathers' and sons' heights
+
+Francis Galton, who gave regression its name, noticed in the 1880s that
+the grown children of tall parents were taller than average but, on
+average, less tall than their parents, and the children of short
+parents less short [@galton1886; @gelman2020]. He measured the adult
+heights of parents and their grown children in 205 families. We use
+James Hanley's transcription of Galton's notebook
 [@hanley2004], distributed in the R package HistData [@friendly2025], and
 keep one row per family: among the 179 families with at least one son,
 one son was drawn at random from each, so every father appears once and
@@ -1281,9 +1534,24 @@ package HistData under the GPL; one son per family drawn for QMSBR. The
 measurements are historical records in the public domain; the extract is
 redistributed with this attribution.*
 
-Chapter 2 measured a value's distance from its mean in standard units,
-$z_x=(x-\bar x)/s_x$, and Section 2.2 wrote the slope as
-$\widehat\beta_1=r\,s_y/s_x$. Substituting that slope into the line
+Fathers average 69.0989 inches and sons 69.2140. Written around the
+fathers' mean, in the centred form of Section 2.5, the least-squares
+line that predicts a son's height from his father's is
+
+$$
+\widehat{\mathrm{son}}=69.2140+0.4438\,(\mathrm{father}-69.0989).
+$$
+
+A father of average height is predicted to have a son of average
+height, and each inch a father stands above or below the fathers' mean
+predicts about 0.44 inch above or below the sons' mean. As in Section
+2.3, the slope compares families: fathers an inch apart have sons
+predicted 0.4438 inch apart. (The uncentred intercept, 38.5445 inches,
+is the prediction for a father of zero height and places the line only.)
+Because the two generations' SDs differ slightly, the general statement
+uses standard units. Chapter 2 measured a value's distance from its mean
+in standard units, $z_x=(x-\bar x)/s_x$, and Section 2.4 wrote the slope
+as $\widehat\beta_1=r\,s_y/s_x$. Substituting that slope into the line
 through the mean point, $\widehat y-\bar y=\widehat\beta_1(x-\bar x)$,
 and dividing by $s_y$ gives the line in standard units:
 
@@ -1297,7 +1565,7 @@ The line passes through the origin with slope $r$. Unless the
 correlation is perfect, $\lvert r\rvert<1$, so a case $z_x$ SDs from the
 mean on the predictor is predicted only $r\,z_x$ SDs from the mean on
 the outcome. Galton called this regression toward mediocrity; we call it
-**regression toward the mean**.
+regression toward the mean.
 
 ```{r}
 #| label: ch7-galton-visible
@@ -1310,10 +1578,10 @@ c(r = cor(galton$father, galton$son),
 ```
 
 `sapply()` applies `sd()` to both columns, and `scale()` converts a
-column to standard units. Fathers average 69.0989 inches (SD 2.5466),
-sons 69.2140 inches (SD 2.6475), and $r=.4269$. In inches the fitted slope is
-0.4438 inch of son's height per inch of father's height; in standard
-units it is .4269, which is $r$. A father 1.6 SD above the fathers' mean
+column to standard units. The fathers' SD is 2.5466 inches and the
+sons' 2.6475, and $r=.4269$. In inches the fitted slope is 0.4438 inch
+of son's height per inch of father's height; in standard units it is
+.4269, which is $r$. A father 1.6 SD above the fathers' mean
 has a son predicted $.4269\times1.6=0.6831$ SD above the sons' mean:
 taller than average, but less than half as far out.
 
@@ -1355,7 +1623,7 @@ average positions of the fathers more than 1 SD above and below their
 mean with their sons, sit near the fitted line, well inside the dashed
 one.
 
-### Extreme groups and the unchanged spread
+### Extreme groups and the regression paradox
 
 @tbl-ch7-rtm-groups groups the men in bands of 1 SD, first by the fathers'
 heights and then by the sons'. Each band includes its upper bound, so the
@@ -1391,27 +1659,51 @@ height is roughly a straight line in the other, as it is in these
 families; even then each group's mean scatters around its prediction, so
 no particular extreme group is guaranteed to sit nearer the mean.
 
-If tall and short fathers both have sons nearer the mean, are the sons
-less spread out than their fathers? No: the sons' SD, 2.6475 inches, is
-slightly larger than the fathers', 2.5466. This is the **regression
-paradox**. The fitted values carry the part of a son's height that his
+If tall fathers have sons who are only tallish, and short fathers sons
+who are only shortish, will each generation be more average than the
+last, until after a few generations nearly everyone is about the same
+height? That does not happen: the sons' SD, 2.6475 inches, is slightly
+larger than the fathers', 2.5466. This is the **regression paradox**.
+Its resolution is that a son's actual height is not his predicted
+height: it is the prediction plus a part that his father's height does
+not foresee, and that part adds spread back [@gelman2020]. The fitted
+values carry the part of a son's height that his
 father's height predicts, and spread only $r\,s_y=1.1303$ inches; the
 residuals carry the rest, with spread $s_y\sqrt{1-r^2}=2.3941$ inches
 (both SDs with the $n-1$ divisor; `sigma()` divides by $n-2$ and gives
 2.4008). Variances add, not SDs: $1.1303^2+2.3941^2=2.6475^2$, which is
 Section 2.6's decomposition divided by $n-1$, in which the fitted part
-holds the share $R^2=r^2=.1823$. Some sons of average fathers are very tall or very
-short, so the sons' generation is as varied as the fathers'. Regression
-toward the mean describes predictions for selected groups, not a
-population growing more uniform.
+holds the share $R^2=r^2=.1823$. For this simple least-squares line,
+the predicted standard-unit distances shrink by the factor $r$, while
+the residual part keeps the outcomes more varied than their predictions.
+In a stable population, one that keeps its
+spread from generation to generation, the two parts balance
+[@gelman2020]. Regression toward the mean describes predictions for
+selected groups, not a population growing more uniform.
 
-### A hypothetical class: luck that does not repeat
+The two spreads can be compared directly. Fit the sons' heights to the
+fathers' heights on the same records, then compare predictions with
+observed heights:
 
-Heights show the pattern; a second case, invented for this chapter,
-shows one mechanism behind it. Imagine a large class of 2,000 students who sit a
-midterm and a final, with scores generated so that nothing between the
-exams has any effect: each student has a stable true score $T_i$, and
-each exam adds independent luck of the same size,
+```{r}
+#| label: ch7-show-predicted-spread
+#| echo: true
+#| eval: false
+galton_fit <- lm(son ~ father, data = galton)
+sd(fitted(galton_fit))
+sd(galton$son)
+```
+
+### Version two: one measurement taken twice
+
+The second version measures one quantity twice, and an invented case
+shows a mechanism behind it. Imagine a large class of 2,000 students
+who sit a midterm and a final, with scores generated so that nothing
+between the exams has any effect. Each student has a stable true score
+$T_i$, and each exam adds luck independent of the true score and of the
+other exam's luck, with the same error SD on both exams. This is the
+true-score model of classical test theory that Part Two, Chapter 1,
+develops:
 
 $$
 M_i=T_i+\varepsilon_{i1},\qquad F_i=T_i+\varepsilon_{i2},\qquad
@@ -1422,10 +1714,11 @@ $$
 Chapter 1 described reliability as the consistency of scores; here it is
 the share of score variance that comes from the true score,
 $8^2/(8^2+6^2)=.64$ on both exams. Only the true score repeats, so .64
-is also the expected correlation of the two exams, the slope of the line
+is also the population correlation of the two exams, the slope of the line
 in standard units that the sample $r$ estimates. The class is large so
-that its group means carry little chance variation. Four lines of R
-generate the scores:
+that its group means carry little chance variation. The mathematics is
+that of the heights, with the midterm in the father's place and the
+final in the son's. Four lines of R generate the scores:
 
 ```{r}
 #| label: ch7-true-score-visible
@@ -1438,7 +1731,7 @@ final <- true_score + rnorm(2000, mean = 0, sd = 6)
 
 ```{r}
 #| label: fig-ch7-true-score
-#| fig-cap: "A hypothetical class of 2,000 students, each score a stable true score plus independent luck. The top and bottom tenth on the midterm (diamonds) score nearer the class mean on the final, at their unchanged mean true score (dashed); the boxes, the middle half of the class, span about the same range of scores on the final as on the midterm."
+#| fig-cap: "A hypothetical class of 2,000 students, each score a stable true score plus independent luck. The top and bottom tenth on the midterm (diamonds) score nearer the class mean on the final, near their unchanged mean true score (dashed); the boxes, the middle half of the class, span about the same range of scores on the final as on the midterm."
 #| fig-alt: "Two grey boxes for the whole class's midterm and final scores, each spanning about 58 to 72 points around a dotted class mean near 65. A line falls from a diamond at about 82 on the midterm to one at about 77 on the final, landing on a dashed line at about 77 labelled as that group's mean true score; a mirror line rises from about 48 to about 53, landing on a dashed line at about 53."
 #| fig-width: 6.3
 #| fig-height: 3.3
@@ -1471,20 +1764,38 @@ ggplot(scores, aes(exam, score)) +
   labs(x = NULL, y = "Exam score (points)")
 ```
 
-The simulated exams correlate at $r=.6509$, close to the expected .64. In
+The simulated exams correlate at $r=.6509$, close to the population .64. In
 @fig-ch7-true-score the
 200 students in the top tenth on the midterm averaged 82.3217 points, and
 76.5335 on the final: still well above the class mean, but nearer it.
 Their true scores average 76.5186, so the midterm overstated them.
+The least-squares line that predicts the final from the midterm has
+slope 0.667, below 1, which is regression toward the mean in points: a
+student 10 points above the midterm mean is predicted to score 6.6704
+points above the final mean. At the top tenth's midterm mean, 82.3217,
+the line predicts 76.4691, close to where the group lands, 76.5335, and
+to its true-score mean.
+
 Students picked for a high score are mostly strong but, on average, also
 lucky that day; on the final their luck is drawn afresh, and the group
-lands on its true level. The bottom tenth mirror them, rising from
-47.6984 to 53.3550 toward a mean true score of 53.2729. No true score
-changed, and no one was praised, tutored or discouraged. The boxes show
+lands near its true level. The bottom tenth mirror them, rising from
+47.6984 to 53.3550 toward a mean true score of 53.2729. A causal story
+is tempting: the top students grew overconfident and eased off, while
+the bottom students, alarmed by the midterm, worked harder. Neither
+story can hold here, because the scores come from a rule we wrote in
+which nothing happens between the exams: no true score changed, and no
+one was praised, tutored or discouraged [@gelman2020]. The boxes show
 the other half of the story: the class is as spread out on the final (SD
 10.0853) as on the midterm (SD 9.8406), because fresh luck carries other
-students into the extremes. The Computer Lab reruns the simulation with
-less luck.
+students into the extremes. Less measurement error therefore reduces
+the expected movement between measurements.
+
+The stipulated Normal model makes the no-intervention prediction
+explicit: $E(F\mid M)=65+.64(M-65)$. A high midterm score combines an
+above-average true score with favorable luck; the next error has mean
+zero, while the true-score advantage remains. This known relationship
+comes from the generating rule. A correlation below one alone would not
+establish it for an actual intervention study.
 
 ### The regression fallacy
 
@@ -1493,59 +1804,89 @@ predicts is credited to a cause. Tversky and Kahneman [-@tversky1974]
 recount a conversation with flight instructors: a trainee praised for an
 unusually smooth landing tended to land less well next time, and a
 trainee reprimanded for a rough landing tended to do better, so the
-instructors concluded that praise hurts and criticism helps.
+instructors concluded that praise hurts and criticism helps. As the
+authors note, a teacher who misses regression toward the mean will
+overrate criticism and underrate praise.
 
-The hypothetical class explains the pattern without either conclusion.
-A landing reflects the trainee's skill and the luck of that attempt, so
-two landings by one trainee are correlated, but not perfectly. The
-landings that drew comment were selected for being extreme, and the next
-landing is predicted nearer the trainee's usual level whatever the
-instructor says. Crediting that movement to the feedback is the
-**regression fallacy**.
+A quantitative understanding of prediction shows how this pattern can
+arise without an effect of feedback. Suppose a landing reflects stable
+skill plus independent luck on that attempt, as in the hypothetical
+class. Landings that draw comment are selected for being extreme; a
+later attempt is expected to be less extreme even if no feedback is
+given [@gelman2020]. Crediting the whole movement to feedback without an
+adequate comparison is the **regression fallacy**. Feedback could still
+have an effect: the before-and-after pattern alone does not separate it
+from regression toward the mean or other changes.
 
-The same pattern appears whenever cases are selected for an extreme first
-measurement and measured again: pupils chosen for low test scores and
-given extra help, patients enrolled when their symptoms peak. Such
-groups move toward the mean on average even if nothing done in between
-has any effect. A comparison group selected the same way and measured at
-the same two times shows how much movement selection alone produces;
-assigning the help at random among the selected cases does better still,
-since both groups then regress alike and their difference estimates the
-help's effect [@barnett2005]. Chapter 14, Section 4.1,
+The fallacy compares what happened with a hidden benchmark: a second
+measurement equal to the first, a son exactly as many SDs from his mean
+as his father (the dashed line of @fig-ch7-rtm), a final score equal to
+the midterm, a next landing as good as the last. That comparison assumes
+perfect prediction. In the programmed exam example, the known
+no-intervention mean is $65+.64(M-65)$, and its fitted line estimates
+that relationship. For an actual intervention, the benchmark must be
+the expected outcome **without the intervention**, supported by a
+suitable design or credible untreated data. An arbitrary fitted line,
+especially one fitted to outcomes already affected by feedback, cannot
+supply that benchmark by itself. Exercise 5 states an earlier-year
+no-tutoring relationship and asks what can be inferred if it also holds
+for this year's pupils.
+
+The same mechanism can matter when cases are selected for an extreme first
+measurement and measured again: athletes and teams after a record
+season, pupils chosen for low test scores and given extra help, patients
+enrolled when their symptoms peak. Such
+groups can move toward the mean even without an intervention under a
+stable-score model with independent occasion errors. Random assignment
+of help among similarly selected cases makes both groups subject to the
+same selection mechanism, so their mean difference estimates the help's
+effect under the design's conditions. A nonrandom comparison selected
+and measured the same way also needs a justification that it represents
+what would have happened without help [@barnett2005]. Chapter 14, Section 4.1,
 applies this reasoning to selection on a noisy baseline.
 
 ## Reading Bridge {#sec-ch7-summary}
 
-A simple regression starts with a unit and a comparison. Its fitted
-values are the line's predictions for the records and its residuals the
-records' distances from them; least squares puts the line through the
-mean point, with the slope set by covariance and predictor variation.
-Across the 102 recorded occupations, fitted income rises by 0.8988
-thousand 1971 Canadian dollars, about 899 dollars, per year of
-occupation-average education over the observed 6.38--15.97 years: a
-bounded description of the records, not an individual, causal or
-population return. The residual SD, $R^2$, the slope's standard error,
-and the mean-response and new-case intervals answer different questions,
-and the checks say which answers the records support. That is the
-chapter's through-line: the line predicts, and, once a process model is
-declared, standard errors and intervals say how uncertain its slope and
-predictions are. In standard units
-the line predicts $r$ times a case's distance from the mean, so groups
-selected for extreme values are predicted nearer the mean on a second
-measurement while the spread stays; a before-and-after gain in such a group needs a
-comparison selected the same way before it is read as an effect.
-Supplementary A reads a short report of the occupation line as an
-argument.
+A simple regression starts from a model: the mean of an outcome is a
+straight line in one predictor, with an intercept, a slope and an error
+SD, and a process whose values we set shows estimates landing near
+them, usually within about one SE. Applied to records, the line starts
+with a unit and a comparison. Its fitted values are the line's
+predictions for the records and its residuals the records' distances
+from them; least squares puts the line through the mean point, with the
+slope set by covariance and predictor variation. Across the 102
+recorded occupations, fitted income rises by 0.8988 thousand 1971
+Canadian dollars, about 899 dollars, per year of occupation-average
+education over the observed 6.38--15.97 years: a bounded description of
+the records, not an individual, causal or population return. Declaring
+the model for the occupations gives the slope a standard error and an
+interval, whose coverage repeated samples make visible. The residual
+SD, $R^2$, the slope's standard error, and the mean-response and
+new-case intervals answer different questions, and the checks say which
+answers the records support. That is the chapter's through-line: the
+line predicts, and, once a model is declared, standard errors and
+intervals say how uncertain its slope and predictions are. In standard units
+the line predicts $r$ times a case's distance from the mean, whether the
+two measurements are a father's and a son's heights or one student's two
+exam scores. Groups selected for extreme values are predicted nearer
+the mean under the stated linear relation, while outcomes retain
+residual variation. Reading a before-and-after gain as an effect needs
+a credible no-intervention comparison and an appropriate causal design.
+Argument Chapter A reads a short report of the occupation line as
+an argument.
 
-Chapter 8 first refits the education-only line on the 98 occupations
+Chapter 8 writes the model with several predictors and reads a partial
+slope, first on a simulated process with two predictors. On the
+occupations it refits the education-only line on the 98 occupations
 with a recorded type, so that the change from 102 to 98 records is not
 mistaken for an effect of adjustment; it then adds prestige, percentage
 of women and occupation type, and asks a separate held-out prediction
-question. Chapter 9 collects the regression toolbox, from factors with
-several levels to robust and resampled uncertainty, and its Section 7
-(Project STAR) reads a randomized class-size experiment whose
-uncertainty follows its school-clustered design [@finn1990;
-@mosteller1995]. Chapter 10 extends the factorial interactions of
+question. Chapter 9 takes Chapter 8's model as its map, changing its
+mean part with factors of several levels, model comparison and changed
+forms, and recomputing its uncertainty with robust and resampled
+methods; its Section 7 (Project STAR) reads a randomized class-size
+experiment whose uncertainty follows its school-clustered design
+[@finn1990; @mosteller1995]. Chapter 10 extends the factorial interactions of
 Chapters 4 and 6 to regression predictors.
 
 ### Key terms {.unnumbered}
@@ -1558,7 +1899,7 @@ in Chapters 1--4.
 
 | Term and common alternatives | Meaning |
 |:--|:--|
-| Simple linear regression (regression line) | A straight-line summary of how one outcome differs across one predictor: fitted value equals intercept plus slope times the predictor. Its descriptive use concerns the records fitted; a model-based use needs a declared process. |
+| Simple linear regression (simple regression model; regression line) | A model in which an outcome's mean is a straight line in one predictor, $E(Y\mid x)=\beta_0+\beta_1x$, with errors around the line that average zero and share one SD $\sigma$; its three parameters are the intercept, the slope and $\sigma$. The least-squares line estimates the model's line: its descriptive use concerns the records fitted, and a model-based use needs a declared process. |
 | Intercept | The fitted outcome at predictor value zero. It places the line vertically; when zero is outside the observed support, it is a mathematical anchor rather than a supported prediction. Centering the predictor moves it to a supported reference point. |
 | Slope (regression coefficient) | The difference in fitted outcome per one-unit difference in the predictor, in outcome units per predictor unit. It compares units that differ in the predictor; it is not a change within one unit unless a design supports that reading. |
 | Ordinary least squares (OLS) | The rule that chooses the intercept and slope minimizing the residual sum of squares. With an intercept, the fitted line passes through the mean point and the residuals sum to zero; the slope equals covariance divided by predictor variance. |
@@ -1571,8 +1912,8 @@ in Chapters 1--4.
 | Cook's distance (influence) | A summary of how much the fitted values change when one record is omitted, combining its residual and its leverage. It prompts inspection of provenance and a disclosed sensitivity, not automatic deletion. |
 | Heteroskedasticity-consistent covariance (HC3; sandwich estimator) | A coefficient covariance estimate that allows unequal error variance across predictor values under independence. It changes SEs and intervals, not the fitted coefficients, and does not repair curvature, dependence, measurement error, or confounding. |
 | Extrapolation (predictor support) | Using a fitted line at predictor values outside the observed range or where observations are sparse. Software returns a number there; the data do not support it. |
-| Regression toward the mean (regression to the mean) | In standard units a case's predicted outcome is $r$ times its predictor value, $\widehat z_y=r\,z_x$, so with $\lvert r\rvert<1$ cases extreme on one measurement are predicted nearer the mean on the other, and a group selected for an extreme noisy first value is expected to move toward the mean on a second measurement, on average rather than in every group. The outcome's spread does not shrink (the regression paradox). |
-| Regression fallacy | Attributing to a treatment, a talent or another cause the movement toward the mean that selection on an extreme noisy measurement produces by itself. A comparison group selected the same way, or random assignment, separates a real change from regression toward the mean. |
+| Regression toward the mean (regression to the mean) | For a simple linear prediction in standard units, $\widehat z_y=r\,z_x$; when $\lvert r\rvert<1$, the predicted value is nearer its mean than the predictor is to its mean. In a stable repeated-measurement model with independent occasion errors, a group selected on an extreme noisy first score is expected to be less extreme on the second. These are statements about predictions or conditional averages, not every case; a narrower spread of predictions does not imply a narrower outcome distribution (the regression paradox). |
+| Regression fallacy | Attributing to an intervention the movement expected from selection on an extreme noisy measurement. Evaluating an intervention requires a credible no-intervention benchmark, supplied by a suitable design or untreated comparison under stated assumptions; a fitted line through treated outcomes alone does not supply it. |
 
 : Selected concepts for simple linear regression. {#tbl-ch07-key-terms tbl-colwidths="[28,72]"}
 
@@ -1637,12 +1978,17 @@ does not by itself establish that the line fits closely or identifies a cause.
 
 <!-- exercise-id: ch07-ex04 -->
 
-Under the stated independent normal-error constant-variance model, a fitted
-value at $x_0=\bar x$ is 12, $n=25$, and $s_e=3$.
-Use $t_{.975,23}=2.069$. Calculate the SE and 95% interval for the conditional
-mean, then the corresponding prediction SE and interval for one independent
-new case at the same $x_0$. Explain the extra 1 in the prediction expression.
-Would either interval validate the model in a different population?
+Under the stated independent Normal-error constant-variance model, a fitted
+value at $x_0=\bar x$ is 12, $n=25$, and $s_e=3$. Before calculating, consider
+a larger study with 100 independent records, the same predictor mean
+and the same residual SD. Predict whether the mean-response SE and
+the new-case prediction SE would both halve at $x_0=\bar x$, and
+explain your prediction. Then, for the original 25-record study, use
+$t_{.975,23}=2.069$ to calculate the SE and 95% interval for the
+conditional mean and the prediction SE and interval for one independent
+new case at the same $x_0$. Explain the extra 1 in the prediction
+expression. Would either interval validate the model in a different
+population?
 
 \Needspace{23\baselineskip}
 
@@ -1720,7 +2066,7 @@ term is zero because $\sum_i(y_i-\bar y)=0$. For $n>0$, the last term
 is nonnegative and vanishes only at $m=\bar y$, so the mean uniquely
 minimizes this criterion.
 
-The three outcomes $2,4,3$ from Section 2.3 have mean 3 and
+The three outcomes $2,4,3$ from Section 2.4 have mean 3 and
 $L(m)=2+3(m-3)^2$, so their best constant line has loss 2. Letting the
 fitted value depend on the three predictor values reduces RSS to 1.5,
 as @tbl-ch7-tiny showed; neither result requires Normal errors or a
@@ -1803,10 +2149,10 @@ $$
 
 With $S_{xx}>0$, every different line has larger RSS. If a candidate line is
 constrained to pass through $(\bar x,\bar y)$, its excess RSS is simply
-$S_{xx}(b_1-\widehat\beta_1)^2$. Section 2.4 makes this
+$S_{xx}(b_1-\widehat\beta_1)^2$. Section 2.5 makes this
 comparison visible with five candidate lines.
 
-### Residual constraints and projection geometry {.unnumbered}
+### Residual constraints and the decomposition of variation {.unnumbered}
 
 At the OLS solution the derivative equations become
 $\sum_i e_i=0$ and $\sum_i x_ie_i=0$. Thus the residuals have zero
@@ -1814,28 +2160,17 @@ sample covariance with the predictor and mean zero **by construction**.
 They are not evidence that the unknown population errors are independent,
 normally distributed, or conditionally mean zero.
 
-For the geometry, let $\mathbf X$ be the $n\times2$ matrix with first
-column all ones and second column containing the predictor. Bold
-$\mathbf X$ is a matrix, distinct from a single predictor value $x_i$.
-The normal equations can be written
+The fitted line passes through $(\bar x,\bar y)$, so
+$\widehat y_i-\bar y=\widehat\beta_1(x_i-\bar x)$. Its centred fitted
+values therefore have zero cross-product with the residuals:
 
 $$
-\mathbf X^{\mathsf T}(\mathbf y-\mathbf X\widehat{\boldsymbol\beta})
-=\mathbf0,
-\qquad
-\widehat{\boldsymbol\beta}
-=(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf X^{\mathsf T}\mathbf y.
+\sum_i(\widehat y_i-\bar y)e_i
+=\widehat\beta_1\left(\sum_i x_i e_i-\bar x\sum_i e_i\right)=0.
 $$
 
-The fitted vector is the projection of $\mathbf y$ onto the two-dimensional
-space spanned by the intercept and predictor columns. The residual vector
-is perpendicular to that space. Writing
-$\mathbf H=\mathbf X(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf X^{\mathsf T}$,
-we have $\widehat{\mathbf y}=\mathbf H\mathbf y$ and
-$\mathbf e=(\mathbf I-\mathbf H)\mathbf y$.
-
-Because the model includes an intercept, both $\widehat{\mathbf y}$ and
-the constant vector $\bar y\mathbf1$ lie in the fitted space. Consequently,
+Writing each observed deviation as its fitted part plus its residual,
+then expanding the square, gives
 
 $$
 \begin{aligned}
@@ -1856,56 +2191,44 @@ regression **with an intercept**. The identities need not hold for a
 no-intercept fit. When fitted values are nonconstant,
 $\operatorname{cor}(y,\widehat y)^2=R^2$ as well.
 
-There are two fitted directions and $n-2$ residual directions. Under a
-correct linear mean with independent constant-variance errors,
-$E(RSS\mid\mathbf X)=(n-2)\sigma^2$, so $s_e^2=RSS/(n-2)$ is an unbiased
-estimate of the error variance. Its square root $s_e$ estimates the
+The two fitted coefficients impose the two residual constraints. Under
+a correct linear mean with independent errors of common variance, the
+same least-squares identity applied to the errors gives
+
+$$
+RSS=\sum_i\varepsilon_i^2-n\bar\varepsilon^2
+-\frac{\{\sum_i(x_i-\bar x)\varepsilon_i\}^2}{S_{xx}}.
+$$
+
+The expectations of the three terms are $n\sigma^2$, $\sigma^2$ and
+$\sigma^2$. Thus $E(RSS)=(n-2)\sigma^2$, and $s_e^2=RSS/(n-2)$ is an
+unbiased estimate of the error variance. Its square root $s_e$ estimates the
 error SD in the outcome's units but is not itself exactly unbiased for
 $\sigma$.
 
 ### From an error model to slope and intercept uncertainty {.unnumbered}
 
 The 102-record least-squares line is already determined by those records.
-The next derivation concerns a **separate model-based question**: the
-slope of a process that could generate new, independent occupation
-outcomes at the observed education values. Assume
+The next derivations concern a **separate model-based question**: the
+coefficients of a process that could generate new, independent
+occupation outcomes at the observed education values. They assume the
+model of Section 1.1 at fixed observed $x_1,\ldots,x_n$, with
+$E(\varepsilon_i)=0$, $\operatorname{Var}(\varepsilon_i)=\sigma^2$ and
+$\operatorname{Cov}(\varepsilon_i,\varepsilon_j)=0$ for $i\ne j$.
+These are working conditions, not consequences of fitting `lm()`.
+Section 3.1 derives the slope's variance, $\sigma^2/S_{xx}$, and its SE,
+$s_e/\sqrt{S_{xx}}$. Because $\widehat\beta_0=\bar Y-\widehat\beta_1\bar x$ and
+$\operatorname{Cov}(\bar Y,\widehat\beta_1)=0$,
 
 $$
-Y_i=\beta_0+\beta_1x_i+\varepsilon_i,
-\quad E(\varepsilon_i\mid\mathbf X)=0,
-\quad \operatorname{Var}(\boldsymbol\varepsilon\mid\mathbf X)
-=\sigma^2\mathbf I.
-$$
-
-These are working conditions, not consequences of fitting `lm()`. The
-slope error is
-
-$$
-\widehat\beta_1-\beta_1
-=\frac{\sum_i(x_i-\bar x)\varepsilon_i}{S_{xx}}.
-$$
-
-Independence and common variance then give
-
-$$
-\operatorname{Var}(\widehat\beta_1\mid\mathbf X)
-=\frac{\sigma^2}{S_{xx}},
-\qquad
-SE(\widehat\beta_1)=\frac{s_e}{\sqrt{S_{xx}}}.
-$$
-
-Because $\widehat\beta_0=\bar Y-\widehat\beta_1\bar x$ and
-$\operatorname{Cov}(\bar Y,\widehat\beta_1\mid\mathbf X)=0$,
-
-$$
-\operatorname{Var}(\widehat\beta_0\mid\mathbf X)
+\operatorname{Var}(\widehat\beta_0)
 =\sigma^2\left(\frac1n+\frac{\bar x^2}{S_{xx}}\right),
 \qquad
-\operatorname{Cov}(\widehat\beta_0,\widehat\beta_1\mid\mathbf X)
+\operatorname{Cov}(\widehat\beta_0,\widehat\beta_1)
 =-\frac{\bar x\sigma^2}{S_{xx}}.
 $$
 
-Here $S_{xx}=\sum_i(x_i-\bar x)^2$, as in Section 2.2. The covariance is
+Here $S_{xx}=\sum_i(x_i-\bar x)^2$, as in Section 2.4. The covariance is
 why simply adding the variances of an uncentered intercept and slope
 would be wrong; with the predictor centered at its mean the two
 estimates are uncorrelated, and the intercept SE is $s_e/\sqrt n$.
@@ -1917,7 +2240,7 @@ Gauss--Markov statement does not require normal errors and does not establish
 causal identification, valid measurement, or population coverage [@fox2016;
 @kutner2005].
 
-Add a jointly normal error vector conditional on the predictor values. Then
+If the independent errors are also Normal, then
 the standardized coefficient error is normal, $RSS/\sigma^2$ has a
 $\chi^2_{n-2}$ distribution, and these quantities are independent. Their
 ratio gives
@@ -1929,10 +2252,9 @@ $$
 
 That is the basis of exact classical coverage for
 $\widehat\beta_j\pm t_{.975,n-2}SE(\widehat\beta_j)$ and of the
-corresponding null test. For the occupation slope the calculation is
-$0.8988\pm1.984(0.127)=[0.6468,1.1508]$ thousand dollars per year; the
-diagnostics of Section 6 do not support treating its nominal coverage as
-established here.
+corresponding null test, which Section 3.1 applies to the occupation
+slope; the diagnostics of Section 6 do not support treating that
+interval's nominal coverage as established.
 
 These derivations condition on the predictor values, which need not have
 been fixed by an experiment; a model with random predictors uses the same
@@ -1949,7 +2271,7 @@ Substituting the coefficient variances and covariance above gives
 
 $$
 \begin{aligned}
-\operatorname{Var}(\widehat\mu_0\mid\mathbf X)
+\operatorname{Var}(\widehat\mu_0)
 &=\operatorname{Var}(\widehat\beta_0)
  +x_0^2\operatorname{Var}(\widehat\beta_1)
  +2x_0\operatorname{Cov}(\widehat\beta_0,\widehat\beta_1)\\
@@ -1957,14 +2279,14 @@ $$
 \end{aligned}
 $$
 
-The conditioning on $\mathbf X$ is suppressed in the first line. A
+All predictor values, including the chosen $x_0$, remain fixed. A
 confidence interval for this mean uses the square root with $s_e$ for
 $\sigma$. A new occupation outcome is instead $Y_0=\mu_0+\varepsilon_0$;
 if its error is independent of the fitted data and comes from the same
 Normal, equal-variance process,
 
 $$
-\operatorname{Var}(Y_0-\widehat\mu_0\mid\mathbf X,x_0)
+\operatorname{Var}(Y_0-\widehat\mu_0)
 =\sigma^2\left\{1+\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}\right\}.
 $$
 

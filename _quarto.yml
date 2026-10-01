@@ -12,8 +12,9 @@
 # practice/ repeat the identical row with relative paths back here, so any
 # change to it has to be made in materials/webr/_quarto.yml too.
 # A navigation entry for a unit that is not out yet is an ordinary link whose
-# href ends in #part-three, #supplement-a or #supplement-b: styles.scss mutes
-# those links and assets/disabled-links.html marks them disabled.
+# href ends in #part-three, #argument-a, #argument-b or #argument-c:
+# styles.scss mutes those links and assets/disabled-links.html marks them
+# disabled. The earlier #supplement-a and #supplement-b aliases stay disabled.
 
 project:
   type: website
@@ -109,10 +110,12 @@ website:
       contents:
         - href: argument-approach.qmd
           text: "The argument-based approach"
-        - href: argument-approach.qmd#supplement-a
+        - href: argument-approach.qmd#argument-a
           text: "A. How to Read a Quantitative Study as an Argument"
-        - href: argument-approach.qmd#supplement-b
+        - href: argument-approach.qmd#argument-b
           text: "B. Extending the Argument-Based Approach to Quantitative Studies"
+        - href: argument-approach.qmd#argument-c
+          text: "C. Arguments involving latent variables or an additional measurement layer"
   page-footer:
     left: "© 2026 Jinsong Chen · CC BY 4.0"
     right:
@@ -131,7 +134,7 @@ format:
     code-copy: true
     code-overflow: wrap
     anchor-sections: true
-    format-links: false
+    format-links: [pdf]
     include-after-body: assets/disabled-links.html
 
 execute:

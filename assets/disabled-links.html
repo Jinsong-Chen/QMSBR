@@ -1,6 +1,7 @@
 <!-- Navigation entries for units that are not out yet are ordinary links whose
-     href ends in #part-three, #supplement-a or #supplement-b. styles.scss mutes
-     them and takes them out of the pointer flow; this marks the same links
+     href ends in #part-three, #argument-a, #argument-b or #argument-c,
+     including the earlier #supplement-a and #supplement-b aliases. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
      disabled and drops them from the tab order, so keyboard and screen-reader
      users meet the state the colour shows. Only the top row and the navigation
      sidebar are touched, never a table of contents on the page itself.
@@ -9,7 +10,7 @@
 <script>
   (function () {
     var scopes = [".navbar", ".sidebar-navigation"];
-    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var targets = ["#part-three", "#argument-a", "#argument-b", "#argument-c", "#supplement-a", "#supplement-b"];
     var selector = [];
     scopes.forEach(function (scope) {
       targets.forEach(function (target) {

@@ -1672,7 +1672,7 @@ Interaction plot of the six cell means
 </details>
 <details>
 <summary>
-Schedule differences and the selected Scheffe interval
+Schedule differences and the declared interval
 </summary>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a>feedback_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/feedback_practice.csv"</span>)</span>
@@ -1689,21 +1689,21 @@ Schedule differences and the selected Scheffe interval
 <pre><code>           Rereading      Answer feedback Explanatory feedback 
                    0                    4                    8 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>selected <span class="ot">&lt;-</span> schedule_difference[<span class="st">"Answer feedback"</span>] <span class="sc">-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>declared <span class="ot">&lt;-</span> schedule_difference[<span class="st">"Answer feedback"</span>] <span class="sc">-</span></span>
 <span id="cb193-2"><a href="#cb193-2" aria-hidden="true" tabindex="-1"></a>            schedule_difference[<span class="st">"Rereading"</span>]</span>
 <span id="cb193-3"><a href="#cb193-3" aria-hidden="true" tabindex="-1"></a>error_df <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(full_fit)</span>
 <span id="cb193-4"><a href="#cb193-4" aria-hidden="true" tabindex="-1"></a>MS_E <span class="ot">&lt;-</span> <span class="fu">deviance</span>(full_fit) <span class="sc">/</span> error_df</span>
-<span id="cb193-5"><a href="#cb193-5" aria-hidden="true" tabindex="-1"></a>selected_SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_E <span class="sc">*</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
-<span id="cb193-6"><a href="#cb193-6" aria-hidden="true" tabindex="-1"></a>scheffe <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> <span class="fu">qf</span>(.<span class="dv">95</span>, <span class="at">df1 =</span> <span class="dv">2</span>, <span class="at">df2 =</span> error_df))</span>
-<span id="cb193-7"><a href="#cb193-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">unname</span>(selected), <span class="at">SE =</span> selected_SE, <span class="at">multiplier =</span> scheffe)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb193-5"><a href="#cb193-5" aria-hidden="true" tabindex="-1"></a>declared_SE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(MS_E <span class="sc">*</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
+<span id="cb193-6"><a href="#cb193-6" aria-hidden="true" tabindex="-1"></a>critical <span class="ot">&lt;-</span> <span class="fu">qt</span>(.<span class="dv">975</span>, <span class="at">df =</span> error_df)</span>
+<span id="cb193-7"><a href="#cb193-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">unname</span>(declared), <span class="at">SE =</span> declared_SE, <span class="at">multiplier =</span> critical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  estimate         SE multiplier 
-  4.000000   1.825742   2.666292 </code></pre>
+  4.000000   1.825742   2.100922 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>interval <span class="ot">&lt;-</span> <span class="fu">unname</span>(selected) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> scheffe <span class="sc">*</span> selected_SE</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>interval <span class="ot">&lt;-</span> <span class="fu">unname</span>(declared) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> critical <span class="sc">*</span> declared_SE</span>
 <span id="cb195-2"><a href="#cb195-2" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(<span class="fu">round</span>(interval, <span class="dv">4</span>), <span class="at">digits =</span> <span class="dv">15</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>, <span class="at">trim =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "-0.868" "8.868" </code></pre>
+<pre><code>[1] "0.1643" "7.8357"</code></pre>
 </div>
 </div>
 </details>
@@ -2233,7 +2233,8 @@ window._ojs.runtime.interpretFromScriptTags();
 <script src="command-runner.js?v=2"></script>
 <script src="workspace.js?v=5"></script>
 <!-- Navigation entries for units that are not out yet are ordinary links whose
-     href ends in #part-three, #supplement-a or #supplement-b. styles.css mutes
+     href ends in #part-three, #argument-a, #argument-b or #argument-c. The old
+     #supplement-a and #supplement-b aliases stay muted too. styles.css mutes
      them and takes them out of the pointer flow; this marks the same links
      disabled and drops them from the tab order, so keyboard and screen-reader
      users meet the state the colour shows. Only the top row and the navigation
@@ -2243,7 +2244,7 @@ window._ojs.runtime.interpretFromScriptTags();
 <script>
   (function () {
     var scopes = [".navbar", ".sidebar-navigation"];
-    var targets = ["#part-three", "#supplement-a", "#supplement-b"];
+    var targets = ["#part-three", "#argument-a", "#argument-b", "#argument-c", "#supplement-a", "#supplement-b"];
     var selector = [];
     scopes.forEach(function (scope) {
       targets.forEach(function (target) {
