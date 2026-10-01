@@ -19,6 +19,8 @@
 project:
   type: website
   output-dir: _site
+  post-render:
+    - python tools/page_access.py
   resources:
     - practice
     - part-one/realinho2022_students.csv
@@ -131,6 +133,7 @@ format:
       - styles.scss
     toc: true
     toc-depth: 3
+    toc-location: right-body
     code-copy: true
     code-overflow: wrap
     anchor-sections: true

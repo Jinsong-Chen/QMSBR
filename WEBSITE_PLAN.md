@@ -46,9 +46,9 @@ wording and order govern.
 - `LICENSE` — the terms for everything the site ships
 
 The site renders the HTML for each chapter; the PDF beside it is offered as
-a download through `format-links: [pdf]`. The same link appears on each
-part introduction and concept reference; formats without reviewed public
-files are not offered.
+a download near the title and through `format-links: [pdf]` in the margin.
+These links appear on each part introduction and concept reference too;
+formats without reviewed public files are not offered.
 
 ## 2. Navigation
 
@@ -150,6 +150,11 @@ the second entry of their part's sidebar. They are copied in like a
 chapter; nothing on the site edits a table in place.
 
 **Chapters.** One page per chapter, with the reviewed PDF beside it.
+The download is visible in the reading column at every screen width.
+Pages using margin contents also have a collapsed **Contents** menu below
+the download on screens narrower than 768 pixels. Pages that explicitly
+place their contents in the body retain that layout at every width.
+These rules also apply to the part introductions and concept references.
 
 ## 4. Theme
 
@@ -181,6 +186,14 @@ pins, and the version that produced the committed `_freeze/` cache; keep the
 two equal. A local render also needs R with the packages the chapters load:
 chiefly `ggplot2`, `car`, `carData`, `AER` and `sandwich` in Part One, and
 `lavaan`, `psych` and `GPArotation` in Part Two.
+
+The post-render step `tools/page_access.py` uses Python 3's standard
+library, available locally and on the GitHub Actions runner. It adds the
+reviewed PDF link after the title and wraps Quarto's `right-body` contents
+copy in native HTML disclosure controls, giving that copy unique IDs.
+The controls work without JavaScript; CSS shows the body contents only
+when the margin contents is hidden. It changes rendered page navigation,
+never the copied chapter source or PDF.
 
 `_freeze/` stays committed. CI installs no R and no LaTeX, and restores
 computed results from the cache, which is why the local render is not
