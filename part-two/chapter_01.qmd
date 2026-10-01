@@ -29,68 +29,69 @@ format:
     tbl-cap: true
     fig-align: center
     include-in-header:
-      text: |
-        % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
-        % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
-        % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
-        % https://github.com/latex3/graphics-def/pull/48
-        % https://github.com/latex3/graphics-def/issues/47
-        % The upstream PR was unmerged when this local backport was made.
-        % Original driver copyright: LaTeX3 Project and its listed contributors.
-        % This adaptation is distributed under LPPL 1.3c or later:
-        % https://www.latex-project.org/lppl.txt
-        %
-        % Preserve the imported PDF's transparency group. Put the driver's additional
-        % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
-        % keys. Do not replace this with PDF post-processing or disabling transparency.
-        % Exact-token patches deliberately fail on an unexpected/new driver: review
-        % whether the upstream fix is then installed before removing this backport.
-        \usepackage{etoolbox}
-        \makeatletter
-        \newcommand{\QMSBRgraphicsPatchError}[1]{%
-          \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
-            {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
-        \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
-        \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
-        \patchcmd{\Gread@@pdftex}
-          {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
-          {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
-           \ifGread@transgroup
-             \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
-             \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
-           \fi}
-          {}{\QMSBRgraphicsPatchError{3}}
-        \patchcmd{\Gread@@pdftex}
-          {\useimageresource\the\lastsavedimageresourceindex}
-          {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
-          {}{\QMSBRgraphicsPatchError{4}}
-        \makeatother
-        \setlength{\parindent}{0pt}
-        \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
-        \ifdefined\pdftrailerid\pdftrailerid{}\fi
-        \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
-        \ifdefined\pdfvariable
-          \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
-        \fi
-        \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
-        \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
-        \addtokomafont{sectionentry}{\scriptsize}
-        \RedeclareSectionCommand[tocbeforeskip=.4em plus 1pt]{section}
-        \let\chapteroldtableofcontents\tableofcontents
-        \renewcommand{\tableofcontents}{\begingroup\scriptsize
-          \setlength{\parskip}{0pt}\chapteroldtableofcontents\endgroup}
-        \usepackage{caption}
-        \captionsetup[table]{
-          position=above, format=plain, justification=raggedright,
-          singlelinecheck=false, labelsep=newline, labelfont=bf, textfont=it
-        }
-        \usepackage{booktabs}
-        \usepackage{longtable}
-        \usepackage{array}
-        \usepackage{float}
-        \usepackage{needspace}
-        \usepackage{etoolbox}
-        \AtBeginEnvironment{CSLReferences}{\small\setlength{\parskip}{1pt}}
+      - ../koma_heading_tags.tex
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
+          \addtokomafont{sectionentry}{\scriptsize}
+          \RedeclareSectionCommand[tocbeforeskip=.4em plus 1pt]{section}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\scriptsize
+            \setlength{\parskip}{0pt}\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above, format=plain, justification=raggedright,
+            singlelinecheck=false, labelsep=newline, labelfont=bf, textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \usepackage{etoolbox}
+          \AtBeginEnvironment{CSLReferences}{\small\setlength{\parskip}{1pt}}
   html:
     df-print: kable
     toc: true

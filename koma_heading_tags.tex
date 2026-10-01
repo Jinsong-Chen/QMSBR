@@ -1,0 +1,50 @@
+% QMSBR heading tagging for the pinned KOMA-Script / LaTeX stack.
+% Adapted from the KOMA-Script project's heading-hook example, based on
+% Ulrike Fischer's code: https://sourceforge.net/p/koma-script/wiki-en/HowTo_Tagging/
+% Retains the class's existing heading typography and spacing.
+\ExplSyntaxOn
+\makeatletter
+\int_new:N \l__qmsbr_heading_level_int
+\tl_new:N \l__qmsbr_heading_title_tl
+\tl_new:N \l__qmsbr_heading_star_title_tl
+% KOMA's starred path leaves currenttocentry at the previous numbered title.
+% Capture the current starred title without changing KOMA's own cached entry.
+\AddToHookWithArguments{cmd/scr@ssect/before}
+  {\tl_set:Nn \l__qmsbr_heading_star_title_tl {#5}}
+\AddtoDoHook{heading/preinit}{\@startsection@runinfalse\@gobble}
+\AddtoDoHook{heading/postinit}{\qmsbr_heading_init:n}
+\AddtoDoHook{heading/begingroup}{\qmsbr_heading_begin:n}
+\AddtoDoHook{heading/endgroup}{\qmsbr_heading_end:n}
+\cs_new_protected:Npn \qmsbr_heading_init:n #1
+  {
+    \tl_clear:N \l__qmsbr_heading_star_title_tl
+    \int_set:Nn \l__qmsbr_heading_level_int {\use:c {toclevel@#1}}
+    \UseTaggingSocket{sec/end}{\int_use:N \l__qmsbr_heading_level_int}
+    \UseTaggingSocket{sec/begin}
+      {{\int_use:N \l__qmsbr_heading_level_int}
+       {tag=\UseStructureName{sec/\int_use:N \l__qmsbr_heading_level_int}}}
+    \if@startsection@runin
+      \UseTaggingSocket{sec/title/init}{\int_use:N \l__qmsbr_heading_level_int}
+    \fi
+  }
+\cs_new_protected:Npn \qmsbr_heading_begin:n #1
+  {
+    \tl_if_empty:NTF \l__qmsbr_heading_star_title_tl
+      {\pdf_purify:nN {\@currenttocentry} \l__qmsbr_heading_title_tl}
+      {\pdf_purify:nN {\l__qmsbr_heading_star_title_tl} \l__qmsbr_heading_title_tl}
+    \int_set:Nn \l__qmsbr_heading_level_int {\use:c {toclevel@#1}}
+    \if@startsection@runin \else
+      \tagstructbegin{tag=\UseStructureName{sec/\int_use:N \l__qmsbr_heading_level_int/title},title-o=\l__qmsbr_heading_title_tl}
+      \tagmcbegin{}\tagpdfparaOff
+    \fi
+  }
+\cs_new_protected:Npn \qmsbr_heading_end:n #1
+  {
+    \if@startsection@runin
+      \UseTaggingSocket{sec/title/split}
+    \else
+      \tagmcend\tagstructend
+    \fi
+  }
+\makeatother
+\ExplSyntaxOff

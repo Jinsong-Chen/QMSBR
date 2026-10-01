@@ -43,6 +43,8 @@ wording and order govern.
 - `styles.scss`, `assets/` — theme and favicon
 - `references.bib`, `apa.csl` — the site's own copies of the bibliography
   and citation style
+- `koma_heading_tags.tex` — the synchronized PDF heading support from
+  `materials/`, retained with the copied sources for reproducible PDF builds
 - `LICENSE` — the terms for everything the site ships
 
 The site renders the HTML for each chapter; the PDF beside it is offered as
