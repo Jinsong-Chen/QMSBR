@@ -211,7 +211,8 @@ draw_part_one_route()
 ```
 
 @tbl-part-one-sequence states what each chapter is responsible for and what
-it builds on.
+it builds on. Chapters 1--9 are available on the website. Chapters 10--14
+are not yet available; their rows outline the continuation of the curriculum.
 
 | Chapter | What it is responsible for | What it builds on |
 |:--|:--|:--|
@@ -224,9 +225,9 @@ it builds on.
 | **7. Simple Linear Regression** | The model for a conditional mean and its error variation, first through a known process and then occupation records; least-squares estimates and slope inference; repeated-study uncertainty; mean-response and new-case intervals; diagnostics; regression toward the mean, its paradox and its causal misreading, with Galton's heights and repeated exams | Extends Chapter 4's group-mean model to a line, using Chapters 5--6's covariance, inference, simulation and objective-function work |
 | **8. Multiple Regression I: Conditioning, Checks, and Coordinated Questions** | The multiple-regression model and partial slopes through a known process; estimation and inference on the same occupation records, with the overall F test; checks, coefficient covariance, fitted profiles and standardization; a separate held-out prediction question; three coordinated answers in one study | Extends Chapter 7's model and line with Chapter 5's partial correlation and Chapter 4's model comparisons, implemented in R in Chapter 6 |
 | **9. Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty** | Changes to the mean part: indicators and contrasts, covariance adjustment, nested and non-nested model comparisons, and changed forms and scales; changes to uncertainty: HC3, resampling, and a randomized study with school clusters | Extends Chapter 8's model, connecting each method to the part it changes and the conditions it needs |
-| **10. Interaction and Moderation** | Product terms, conditional slopes, comparisons within joint support, and bootstrap uncertainty for conditional relationships | Extends Chapters 8 and 9's regression models, contrasts and resampling to relationships that vary with another variable |
+| **10. Interaction and Moderation** | Product terms, conditional slopes, higher-order interaction and moderated moderation, comparisons within joint support, and bootstrap uncertainty | Extends Chapters 8 and 9's regression models, contrasts and resampling to relationships that vary with another variable |
 | **11. Binary Logistic Regression** | The Bernoulli likelihood, the logit link, probability and odds scales, fitting, comparison and checks for a binary outcome | Changes Chapter 8's outcome model while retaining its conditional-question discipline and Chapter 6's likelihood foundation |
-| **12. Extending the GLM: Nominal, Ordinal, and Count Outcomes** | Outcome classification, generalized and cumulative logits, counts and rates, overdispersion, and model checks | Extends Chapter 11's response-distribution, link and linear-predictor framework |
+| **12. Extending the GLM: Nominal, Ordinal, and Count Outcomes** | Outcome classification, generalized and cumulative logits, counts and rates, overdispersion, zero-inflated and hurdle models, and model checks | Extends Chapter 11's response-distribution, link and linear-predictor framework |
 | **13. Prediction, Cross-Validation, and Regularization** | Held-out error, leakage, penalized fitting, classification performance and changes in the deployment population | Develops Chapter 8's separate prediction question with the regression and classification models of Chapters 9--12 |
 | **14. Regression Pitfalls and Causal Design** | Adjustment structures, reversals, selection, measurement, dependence and the design support for a bounded claim | Re-examines the preceding models through Chapter 1's questions, evidence and interpretation, including what adjustment alone cannot supply |
 

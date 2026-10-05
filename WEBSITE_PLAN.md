@@ -30,7 +30,7 @@ wording and order govern.
 ## 1. What is in this repository
 
 - `part-one/` — the Part One introduction, the Part One concept reference,
-  Chapters 1--14 and Argument Chapters A/B, each `.qmd` beside its reviewed
+  Chapters 1--9 and Argument Chapters A/B, each `.qmd` beside its reviewed
   `.pdf`, and the data files the chapters read
 - `part-two/` — the Part Two introduction, the Part Two concept reference,
   Chapters 1--4, with their PDFs and data
@@ -79,7 +79,12 @@ entry of its sidebar.
 labelled placeholders. Shared CSS mutes those entries while retaining AA
 contrast; `include-after-body` applies `aria-disabled="true"` and
 `tabindex="-1"` so keyboard and screen-reader users meet the same state.
-The current navigation placeholders are Part Three and Argument C. Part Two
+The current navigation placeholders are Part Three and Argument C. Part One
+Chapters 10--14 remain outside the public release: their sources, PDFs and
+execution caches stay in the private repositories, and no page, download,
+search entry or cached build asset for those books enters this repository.
+The introduction and concept reference describe the full Part One curriculum
+and identify Chapters 1--9 as the public numbered books. Part Two
 Chapters 5--12 remain later work for publication and are described on Home;
 the public Part Two sidebar contains Chapters 1--4.
 The earlier `#supplement-a` and `#supplement-b` anchors remain live aliases
@@ -95,7 +100,7 @@ Regression, and Generalized Linear Models*. A page belongs to one of them:
 
 - **Part One** — `part-one/part_one_introduction.qmd` with the text
   *Introduction*, `part-one/part_one_concept_reference.qmd` as *Concept
-  reference*, then Chapters 1--14 by title.
+  reference*, then Chapters 1--9 by title.
 - **Part Two** — `part-two/part_two_introduction.qmd`,
   `part-two/part_two_concept_reference.qmd`, then Chapters 1--4.
 - **Argument Approach** — `argument-approach.qmd` as *The argument-based
@@ -207,6 +212,10 @@ before rendering or the page keeps the old numbers.
 
 ## 6. Adding or updating a chapter
 
+The current numbered-book release is Part One Chapters 1--9 and Part Two
+Chapters 1--4. Later private revisions do not change that boundary. Release
+clearance in the publication plan precedes copying another book here.
+
 1. Copy the `.qmd`, the `.pdf` and any data file the chapter reads into
    `part-one/` or `part-two/` (publication plan, Section 4); copy
    `references.bib` and `apa.csl` too if the citations or the style changed.
@@ -230,6 +239,12 @@ A unit that publishes into a muted slot — an argument chapter, Part
 Three — is the same work plus one step: the muted entry becomes an ordinary
 link, and its card and section text drop the not-yet-available badge and
 sentence.
+
+When narrowing the release, remove the excluded sources and PDFs, their
+chapter-specific `_freeze/` entries, and resources used only by those books.
+Clear stale `_site/` output and local `.quarto/` indexes, then rebuild and
+check the source inventory, downloads, navigation and search index. Keep the
+private authoring copies intact.
 
 `practice/` is never edited here. Fix the source in `materials/webr/` and
 copy the rendered output in again (publication plan, Section 4.1).
