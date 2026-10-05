@@ -1,0 +1,1817 @@
+---
+title: "Binary Logistic Regression"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    documentclass: scrartcl
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    latex-auto-install: false
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - ../koma_heading_tags.tex
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{16\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.pos = "!ht")
+if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
+options(digits = 7, width = 68)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+d0 <- carData::Cowles
+dat <- d0
+dat$event <- as.integer(dat$volunteer == "yes")
+dat$sex <- factor(dat$sex, levels = c("female", "male"))
+m0 <- glm(event ~ 1, data = dat, family = binomial)
+m1 <- glm(event ~ extraversion, data = dat, family = binomial)
+m2 <- glm(event ~ sex + neuroticism + extraversion, data = dat, family = binomial)
+m3 <- glm(event ~ sex + neuroticism * extraversion, data = dat, family = binomial)
+mq <- glm(event ~ sex + neuroticism + extraversion + I(extraversion^2), data = dat, family = binomial)
+md <- glm(event ~ sex + neuroticism + extraversion,
+  data = dat[-which.max(cooks.distance(m2)), ], family = binomial)
+set.seed(1010)
+n <- 1500
+hours <- round(runif(n, 0, 20), 1)
+tutor <- rbinom(n, 1, .35)
+prob <- plogis(-2.2 + .30 * hours + .60 * tutor)
+sim <- data.frame(pass = rbinom(n, 1, prob), hours, tutor)
+ms <- glm(pass ~ hours + tutor, data = sim, family = binomial)
+ml <- lm(pass ~ hours + tutor, data = sim)
+set.seed(1012)
+repcoef <- replicate(500, {
+  hours <- round(runif(300, 0, 20), 1)
+  tutor <- rbinom(300, 1, .35)
+  pass <- rbinom(300, 1, plogis(-2.2 + .30 * hours + .60 * tutor))
+  m <- glm(pass ~ hours + tutor, family = binomial)
+  c(coef(m)[2:3], cover = abs(coef(m)[2] - .30) <= 1.96 * sqrt(vcov(m)[2, 2]))
+})
+phat <- fitted(m2)
+bin <- cut(phat, quantile(phat, seq(0, 1, .05)), include.lowest = TRUE)
+bins <- data.frame(fit = as.numeric(tapply(phat, bin, mean)),
+  resid = as.numeric(tapply(dat$event - phat, bin, mean)), n = as.numeric(table(bin)))
+bins$se <- sqrt(bins$fit * (1 - bins$fit) / bins$n)
+dec <- cut(phat, quantile(phat, seq(0, 1, .1)), include.lowest = TRUE)
+cal <- data.frame(fit = as.numeric(tapply(phat, dec, mean)),
+  obs = as.numeric(tapply(dat$event, dec, mean)), n = as.numeric(table(dec)))
+cal$se <- sqrt(cal$obs * (1 - cal$obs) / cal$n)
+eligible <- which((dat$extraversion <= 8 & dat$event == 0) |
+  (dat$extraversion >= 17 & dat$event == 1))
+set.seed(1011)
+sep <- dat[sort(sample(eligible, 60)), ]
+sepfit <- glm(event ~ extraversion, data = sep, family = binomial)
+stopifnot(nrow(dat) == 1421, sum(dat$event) == 597,
+  abs(as.numeric(logLik(m2)) + 953.03064262484) < .00001,
+  abs(coef(m2)["extraversion"] - .0663253) < .000001)
+```
+
+{{< pagebreak >}}
+
+::: {.callout-note title="Chapter overview"}
+A yes-or-no outcome has a mean that is a probability. This chapter builds
+a model for that probability, connects it to odds and log-odds, and explains
+why the same odds ratio can imply very different probability differences.
+A known-process certification example makes the model's behavior visible;
+a study of student volunteering supplies the empirical analysis. Maximum
+likelihood, model comparisons and diagnostic displays lead to a report
+whose event, scale, uncertainty and scope are explicit. The appendices
+extend numerical fitting and simulation without supplying a prerequisite
+for the main analysis.
+:::
+
+Cowles and Davis recorded personality scores and volunteering for an
+experiment among 1,421 introductory psychology students [@cowles1987].
+There were 597 volunteers and 824 non-volunteers. The question is how the
+probability of volunteering differs across extraversion scores, and how
+that comparison changes after allowing for recorded sex and neuroticism.
+A department interested in recruitment needs an answer on a usable scale:
+a detectable association need not separate future volunteers from other
+students well enough to guide a decision.
+
+The distributed records are `carData::Cowles` [@carData2022; @fox2019].
+They contain one row per student, with no missing values in these fields.
+The extract supplies no probability-sampling or classroom-clustering
+information. The fitted comparisons therefore describe these recorded
+students under a working independent-row model; generalization and causal
+interpretation require additional design information.
+
+
+
+Displayed results are rounded to four decimal places, with trailing zeros
+dropped unless they align a comparison. Calculations using different
+rounding or software settings may differ slightly.
+
+## A Binary Outcome and Its Probability {#ch11-binary}
+
+### Define the event and the comparison {#ch11-event}
+
+A binary outcome has two categories. A binary model treats one as the
+**event**, coded 1, and the other as the **non-event**, coded 0. Naming
+the event determines what every coefficient and predicted probability
+means. Here the event is volunteering, and the **prevalence**, the
+proportion of records that are events, is .4201. The recorded non-event
+means only that the student did not volunteer; it does not tell us whether
+the student declined, was unavailable, or never received the invitation.
+Those distinctions concern measurement, before any statistical fit.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+d0 <- carData::Cowles
+dat <- d0
+dat$event <- as.integer(dat$volunteer == "yes")
+table(dat$sex, dat$event)
+mean(dat$event)
+```
+
+
+
+| Recorded sex | Volunteers | Non-volunteers | Proportion volunteering | Odds of volunteering |
+|:--|--:|--:|--:|--:|
+| Female | 349 | 431 | .4474 | .8097 |
+| Male | 248 | 393 | .3869 | .6310 |
+
+: One observed table supports more than one scale of comparison. {#tbl-ch11-crude tbl-colwidths="[22,16,18,22,22]"}
+
+The female-minus-male probability difference is .0605; the ratio of their
+odds is 1.2832. Both describe the same table, but they answer different
+questions. The first compares proportions directly. The second compares
+events relative to non-events in each group. Neither adjusts for the two
+personality scores or identifies a consequence of changing a person's sex.
+
+Write $\pi(x)=P(Y=1\mid X=x)$. Three possible comparisons of units
+one predictor point apart are
+
+$$
+\pi(x+1)-\pi(x),\qquad
+\frac{\pi(x+1)}{\pi(x)},\qquad
+\frac{\pi(x+1)/\{1-\pi(x+1)\}}{\pi(x)/\{1-\pi(x)\}}.
+$$
+
+They are the probability difference, risk ratio and odds ratio. A model
+with a constant logistic slope holds the third constant across $x$;
+the other two generally vary. An estimand for a binary outcome must name
+its scale as well as the units and comparison.
+
+### A probability model and its link {#ch11-glm}
+
+Applying least squares to a 0/1 outcome gives a **linear probability
+model**. Its slope is already on a probability-difference scale, which
+can be useful over a limited range. Its weakness as a general probability
+model is visible before fitting: an unrestricted line can leave $[0,1]$,
+and one fixed probability difference cannot remain plausible near both
+boundaries. Moreover a binary outcome has variance $\pi(1-\pi)$, so its
+conditional variance changes with its mean. Ordinary constant-variance
+standard errors are inappropriate; robust uncertainty can address that
+variance calculation but cannot keep a straight mean function in range.
+Normal-error small-sample $t$ theory does not apply to two-valued errors.
+
+The logistic alternative declares the outcome model and mean function
+separately:
+
+$$
+Y_i\mid \mathbf{x}_i\sim\operatorname{Bernoulli}(\pi_i),\quad
+E(Y_i\mid \mathbf{x}_i)=\pi_i,\quad
+\operatorname{Var}(Y_i\mid \mathbf{x}_i)=\pi_i(1-\pi_i),
+$$
+
+$$
+\eta_i=\beta_0+\sum_{j=1}^{p}\beta_jx_{ij},\qquad
+\operatorname{logit}(\pi_i)=\log\frac{\pi_i}{1-\pi_i}=\eta_i,
+\qquad \pi_i=\frac{1}{1+e^{-\eta_i}}.
+$$
+
+Here $\eta_i$ is the **linear predictor**, an additive combination of
+predictors. The **link** connects the conditional mean to that predictor;
+it transforms the probability, not the observed 0 or 1. The inverse logit
+turns any finite $\eta_i$ into a probability strictly between 0 and 1.
+It passes through .5 at $\eta_i=0$ and is steepest there. The model is
+linear in log-odds and curved in probability. It has no separate residual
+variance parameter because the Bernoulli mean determines its variance.
+
+A response distribution, a linear predictor and a link form the generalized
+linear model (GLM) framework [@nelder1972]. Changing the response and link
+extends this framework to other outcomes, while retaining the distinction
+between model scale and reporting scale.
+
+
+| Component | Chapter 11 | Chapter 12, nominal or ordered | Chapter 12, counts |
+|:--|:--|:--|:--|
+| Outcome | Binary event | Nominal or ordered category | Count, with an exposure where needed |
+| Response distribution | Bernoulli or binomial | Multinomial | Poisson or negative binomial |
+| Link | Logit | Generalized or cumulative logit | Log |
+| Exponentiated coefficient | Odds ratio | Relative-risk or cumulative odds ratio | Rate ratio |
+
+: Only the response distribution and the link change. {#tbl-ch11-glm-components tbl-colwidths="[24,24,28,24]"}
+
+
+
+### Conditions and the scope of interpretation {#ch11-conditions}
+
+| Condition | What it supplies or limits |
+|:--|:--|
+| AS1: a Bernoulli outcome with a well-defined event | The meaning of $\pi_i$ and its variance; coding must represent the question |
+| AS2: the log-odds is linear in the entered terms | The conditional comparison represented by each coefficient; curves or products require explicit terms |
+| AS3: independent rows given the predictors | The likelihood product and its usual standard errors; repeated and clustered rows need dependence-aware methods |
+| AS4: predictors are measured and coded as intended | The interpretation of a comparison; measurement error can change the relationship being estimated |
+| AS5: supported profiles, overlap and no separating predictor combination | A defensible comparison and a finite maximum-likelihood estimate |
+| AS6: no perfect linear dependence among predictor columns | Unique coefficient coordinates; near dependence can make estimates imprecise |
+
+: Conditions of the working logistic model. {#tbl-ch11-conditions tbl-colwidths="[44,56]"}
+
+There is no homoskedasticity or Normal-residual condition. The mean model
+is checked on the logit scale, and the study design supplies information
+about independence. Observing both events and non-events in the dataset
+is necessary but does not rule out a combination of predictors that
+separates them perfectly. Nor must both outcomes appear at every exact
+continuous predictor value. Support means that the proposed profiles and
+contrasts are represented well enough to make their interpretation credible.
+
+A coefficient compares units agreeing on the other included predictors.
+It becomes a causal effect only with an adequate design and identification
+argument. A further complication is **noncollapsibility**: a conditional
+odds ratio can differ from a marginal odds ratio even without confounding,
+because averaging nonlinear probabilities does not preserve an odds ratio
+[@agresti2018]. Movement after adjustment alone therefore does not diagnose
+confounding. A standardized probability comparison names an averaging
+population explicitly and can make the substantive magnitude clearer.
+
+## Three Scales: Probability, Odds, and Log-Odds {#ch11-scales}
+
+### Translate one quantity three ways {#ch11-conversions}
+
+A probability compares events with all units. Odds compare events with
+non-events. Log-odds put that positive ratio on an additive, unbounded scale:
+
+$$
+\text{odds}=\frac{\pi}{1-\pi},\qquad
+\pi=\frac{\text{odds}}{1+\text{odds}},\qquad
+\text{log-odds}=\log\frac{\pi}{1-\pi}.
+$$
+
+At probability .5, events and non-events are equally common: odds are 1
+and log-odds are 0. At probability .75, there are three events per
+non-event. The three scales contain the same information; they organize
+comparisons differently.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+p <- c(.05, .20, .42, .50, .75, .90)
+cbind(probability = p, odds = p / (1 - p), log_odds = qlogis(p))
+```
+
+
+| Probability | Odds | Log-odds |
+|--:|--:|--:|
+| .05 | .0526 | $-2.9444$ |
+| .20 | .2500 | $-1.3863$ |
+| .42 | .7241 | $-.3228$ |
+| .50 | 1.0000 | .0000 |
+| .75 | 3.0000 | 1.0986 |
+| .90 | 9.0000 | 2.1972 |
+
+: Probability, odds, and log-odds for selected probabilities; the odds scale is multiplicative around 1 and the log-odds scale additive around 0. {#tbl-ch11-scales tbl-colwidths="[34,33,33]"}
+
+
+
+Odds exceed probabilities for $0<\pi<1$, with a widening gap toward
+1. Complementary probabilities have log-odds equal in magnitude and
+opposite in sign. These features explain why an event reversal inverts
+an odds ratio, and why odds and risk ratios agree approximately only
+when both compared probabilities are small.
+
+### Equal logit steps, unequal probability steps {#ch11-curve}
+
+The inverse-logit function is the cumulative distribution function of a
+standard logistic variable, evaluated at $\eta$. This mathematical
+connection offers a threshold-crossing intuition without changing the
+observed Bernoulli outcome model. A one-unit step in $\eta$ has the same
+size everywhere on the logit scale; its probability consequence depends
+on the starting point.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+plogis(c(-3, -2, 0, 1))
+diff(plogis(c(-3, -2)))
+diff(plogis(c(0, 1)))
+```
+
+
+
+```{r}
+#| label: fig-ch11-logit-curves
+#| fig-cap: "Equal steps on the linear-predictor scale give unequal probability differences."
+#| fig-alt: "An S-shaped inverse-logit curve rises through probability one half at zero. A one-unit step near the centre raises probability by .2311, compared with .0718 in the left tail."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- data.frame(eta = seq(-6, 6, length.out = 401))
+g$p <- plogis(g$eta)
+ggplot(g, aes(eta, p)) + geom_line(linewidth = .8) +
+  geom_hline(yintercept = .5, linetype = 3) +
+  annotate("segment", x = c(-3, 0), xend = c(-2, 1),
+    y = plogis(c(-3, 0)), yend = plogis(c(-3, 0)), linetype = 2) +
+  annotate("segment", x = c(-2, 1), xend = c(-2, 1),
+    y = plogis(c(-3, 0)), yend = plogis(c(-2, 1)), linewidth = 1.2) +
+  annotate("text", x = c(-3.3, 1.8), y = c(.19, .65),
+    label = c("difference .0718", "difference .2311"), size = 3.5) +
+  labs(x = "Linear predictor", y = "Event probability")
+```
+
+
+
+Moving from $-3$ to $-2$ raises probability by .0718; moving from 0
+to 1 raises it by .2311, 3.2191 times as much. A statement that one more
+unit adds a fixed number of percentage points is therefore incomplete
+for a logistic model. Coefficients and their uncertainty are convenient
+on the logit scale, multiplicative comparisons on the odds scale, and
+most practical decisions on the probability scale.
+
+## Fit by Maximum Likelihood {#ch11-likelihood}
+
+### From one probability to a coefficient vector {#ch11-loglik}
+
+For a common probability, 32 successes in 50 fixed trials produce a
+binomial likelihood maximized at .64. Here each student's probability
+can differ through the predictor values, but the principle is the same:
+hold the observed data fixed and ask which parameter values make them
+most probable.
+
+A small example makes the likelihood's job concrete. Three invented
+observations have predictor values 0, 1 and 2 and outcomes 1, 0 and 1.
+Compare two proposed models, A with logit $-1+x$ and B with logit $-2+x$.
+The likelihood uses the probability of what happened: $p$ for an event
+and $1-p$ for a non-event.
+
+\Needspace{10\baselineskip}
+
+| $x$ | $y$ | A: event | A: observed | B: event | B: observed |
+|--:|--:|--:|--:|--:|--:|
+| 0 | 1 | .2689 | .2689 | .1192 | .1192 |
+| 1 | 0 | .5000 | .5000 | .2689 | .7311 |
+| 2 | 1 | .7311 | .7311 | .5000 | .5000 |
+
+: Each observed outcome contributes its own probability. {#tbl-ch11-small-likelihood tbl-colwidths="[8,8,21,21,21,21]"}
+
+Predict which model has the larger product before calculating. Model A
+helps both events but makes the non-event less probable. Its total
+log-likelihood is nevertheless larger: $-2.3197$ against $-3.1333$.
+Improving total fit need not improve every observation. Neither candidate
+has yet been claimed to maximize likelihood.
+
+```{r}
+#| eval: false
+#| echo: true
+x <- c(0, 1, 2); y <- c(1, 0, 1)
+sum(dbinom(y, 1, plogis(-1 + x), log = TRUE))
+sum(dbinom(y, 1, plogis(-2 + x), log = TRUE))
+```
+
+With independent rows,
+
+$$
+L(\boldsymbol\beta)=\prod_{i=1}^{n}\pi_i^{y_i}(1-\pi_i)^{1-y_i},\qquad
+\ell(\boldsymbol\beta)=\sum_{i=1}^{n}\{y_i\log\pi_i+(1-y_i)\log(1-\pi_i)\},
+$$
+
+where $\pi_i=\operatorname{logit}^{-1}(\mathbf{x}_i^{\mathsf T}\boldsymbol\beta)$ and
+$\mathbf{x}_i$ includes the intercept entry 1. Each observed event contributes
+its fitted probability and each non-event its fitted complement. Larger
+log-likelihood means better agreement for these observations. The
+likelihood is a function of parameters with the data fixed, not a
+probability distribution over those parameters.
+
+**Maximum likelihood** chooses the coefficient vector maximizing this
+function. Its score equations are
+
+$$
+\frac{\partial\ell}{\partial\boldsymbol\beta}
+=\sum_i \mathbf{x}_i(y_i-\pi_i)=0.
+$$
+
+The equation for the intercept says that the residuals sum to zero:
+fitted probabilities total the observed event count. Aggregate calibration
+is therefore built into a converged, unpenalized logistic fit with an
+intercept; it cannot by itself establish a good model. The remaining
+equations need numerical solution because the probabilities depend
+nonlinearly on all coefficients.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+m2 <- glm(event ~ sex + neuroticism + extraversion,
+  data = dat, family = binomial(link = "logit"))
+logLik(m2)
+sum(fitted(m2))
+```
+
+
+
+The adjusted volunteering fit has log-likelihood $-953.0306$.
+Directly summing its Bernoulli contributions gives the same value, and
+its fitted probabilities sum to 597, the observed number of volunteers.
+Appendix A connects this numerical fitting to scalar boundary cases,
+multiple starting values and local curvature.
+
+### Curvature, uncertainty and convergence {#ch11-irls}
+
+`glm()` uses **iteratively reweighted least squares** (IRLS): it forms
+a working linear regression with adjusted outcomes and weights
+$\widehat\pi_i(1-\widehat\pi_i)$, updates the coefficients, and repeats.
+For a full-rank design without separation the logistic log-likelihood has
+a unique finite maximum. A stopping flag says the algorithm met its
+numerical criterion; the data and model still require scrutiny. This fit
+reports convergence after four iterations.
+
+Before reading a covariance matrix, consider what the curve is measuring.
+In an invented two-group study, ten observations have $x=-1$ and ten have
+$x=1$. Use the one-coefficient model $\operatorname{logit}(p)=b x$, whose
+intercept is fixed at zero. If the groups contain 2 and 8 events, the
+likelihood peaks at $b=\log4=1.3863$: moving either way makes the observed
+pattern less probable. If instead they contain 0 and 10 events, increasing
+$b$ keeps improving the likelihood. Every finite curve leaves some chance
+of a contrary outcome, so the maximum is approached only as $b$ diverges.
+This second pattern is **complete separation**.
+
+```{r}
+#| label: fig-ch11-likelihood-shapes
+#| fig-cap: "Changing the event counts changes whether the likelihood has a finite maximum."
+#| fig-alt: "For ten observations at each of x minus one and plus one, two and eight events give a curved peak at b 1.3863. Zero and ten events give a curve increasing toward zero without a finite peak."
+#| fig-height: 3.6
+#| fig-width: 6.2
+b <- seq(-1, 6, length.out = 401)
+finite <- 4 * plogis(-b, log.p = TRUE) + 16 * plogis(b, log.p = TRUE)
+peak <- 4 * log(.2) + 16 * log(.8)
+g <- rbind(data.frame(b, relative = finite - peak, counts = "2 and 8 events"),
+  data.frame(b, relative = 20 * plogis(b, log.p = TRUE), counts = "0 and 10 events"))
+g$counts <- factor(g$counts, levels = c("2 and 8 events", "0 and 10 events"))
+ggplot(g, aes(b, relative)) + geom_line(linewidth = .8) +
+  geom_hline(yintercept = 0, linetype = 3) + facet_wrap(~counts) +
+  geom_point(data = data.frame(b = log(4), relative = 0, counts = "2 and 8 events"), size = 2) +
+  labs(x = "Log-odds coefficient b", y = "Relative log-likelihood")
+```
+
+The dashed zero line represents the best attainable log-likelihood in the
+finite case and the limiting value in the separated case. A flat tail is
+not evidence for a small coefficient; here it shows why a finite maximum
+is absent. Section 6.3 returns to this issue in the volunteering records.
+
+Near the maximum, curvature describes how quickly fit deteriorates as
+a coefficient moves. Flat curvature allows many neighboring values and
+therefore larger standard errors. With design matrix $\mathbf X$ and diagonal
+weight matrix $\mathbf W$, the model-based covariance is
+
+$$
+\widehat{\mathbf V}=(\mathbf{X}^{\mathsf T}\mathbf{W}\mathbf{X})^{-1},\qquad
+\mathbf W=\operatorname{diag}\{\widehat\pi_i(1-\widehat\pi_i)\},\qquad
+SE(\widehat\beta_j)=\sqrt{\widehat{\mathbf V}_{jj}}.
+$$
+
+A weight is largest at .5 and small near either boundary. Precision also
+depends on predictor spread and overlap, so neither total sample size nor
+event count alone determines it. Independent-row standard errors cannot
+repair dependence or measurement error.
+
+A **Wald interval** is $\widehat\beta_j\pm1.96SE$ for 95% coverage
+under the large-sample Normal approximation, then exponentiated if the
+reported quantity is an odds ratio. A **profile-likelihood interval**
+instead keeps values not rejected by an appropriate likelihood-ratio
+comparison while optimizing the other coefficients. It can reflect
+asymmetry the Wald interval misses. The two approaches here differ by at
+most .0015 on the odds-ratio scale; they can diverge markedly in small
+samples or near separation [@hosmer2013].
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+m2$converged
+m2$iter
+exp(confint.default(m2))
+exp(confint(m2))
+```
+
+
+
+A declared linear combination $C=\mathbf{c}^{\mathsf T}\boldsymbol\beta$ has estimated
+variance $\mathbf{c}^{\mathsf T}\widehat{\mathbf V}\mathbf c$. The off-diagonal covariance terms matter when
+combining coefficients, including for a predicted logit or a conditional
+slope. The familiar contrast rule remains; its covariance now comes from
+likelihood curvature.
+
+### A known process: certification success {#ch11-simulation}
+
+Consider an invented certification course. Passing is the event; study
+hours span 0 to 20, and tutoring is an indicator with probability .35,
+independent of hours in this constructed process. Declare
+
+$$
+\operatorname{logit}\{P(\text{pass})\}=-2.2+.3\,\text{hours}+.6\,\text{tutor}.
+$$
+
+At seed 1010, 1,500 students give 961 passes. Fitting the declared model
+returns $-2.2271$, .3024 and .5264, with all three generating values
+inside their Wald intervals. This is recovery under a known process,
+not evidence that an empirical study follows that process.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+set.seed(1010)
+hours <- round(runif(1500, 0, 20), 1)
+tutor <- rbinom(1500, 1, .35)
+pass <- rbinom(1500, 1, plogis(-2.2 + .30 * hours + .60 * tutor))
+glm(pass ~ hours + tutor, family = binomial)
+```
+
+
+| Study hours | Probability | Probability at one more hour | Probability difference | Odds ratio |
+|--:|--:|--:|--:|--:|
+| 2 | .1680 | .2142 | .0462 | 1.3499 |
+| 7 | .4750 | .5498 | .0748 | 1.3499 |
+| 12 | .8022 | .8455 | .0434 | 1.3499 |
+| 17 | .9478 | .9608 | .0130 | 1.3499 |
+
+: One constant odds ratio, four different probability differences, in the known generating process. {#tbl-ch11-sim-nonconstant tbl-colwidths="[18,20,26,22,14]"}
+
+
+
+For students without tutoring, the declared one-hour odds ratio is
+$e^{.3}=1.3499$ everywhere, yet the probability difference is .0748
+at seven hours and .013 at seventeen. The starting probability makes
+the practical benefit different even before sampling variation enters.
+The estimated hours odds ratio, 1.3531, closely recovers that truth.
+
+Repeating the declared generation at seed 1012 for 500 samples of 300
+gives an hours coefficient averaging .3068 with SD .0359 and empirical
+Wald coverage .948. The Monte Carlo SE of that coverage is .0099, so
+this run is compatible with .95 coverage. Finite-sample logistic estimates
+can be biased away from zero; simulation separates that tendency from
+variation in one sample. Tutoring's coefficient varies much more here
+(SD .3309): the two predictors have different scales and information,
+so their coefficient SDs should not be read as a general comparison of
+binary and continuous predictors.
+
+The same generated data also let us compare mean functions honestly.
+The fitted linear probability model gives .0492 per hour but produces
+193 fitted values above 1. Its fitted range is .1253 to 1.1861.
+
+
+
+```{r}
+#| label: fig-ch11-sim-lpm
+#| fig-cap: "Two mean functions fitted to the same invented certification records, for students without tutoring."
+#| fig-alt: "A logistic curve levels off below probability one, while the fitted straight line crosses one before twenty study hours."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- data.frame(hours = seq(0, 20, length.out = 201), tutor = 0)
+p <- rbind(data.frame(hours = g$hours, fit = predict(ms, g, type = "response"), model = "Logistic"),
+  data.frame(hours = g$hours, fit = predict(ml, g), model = "Linear probability"))
+ggplot(p, aes(hours, fit, linetype = model)) + geom_line(linewidth = .8) +
+  geom_hline(yintercept = 1, linetype = 3) +
+  labs(x = "Study hours", y = "Fitted probability", linetype = NULL) + theme(legend.position = "bottom")
+```
+
+
+
+This example deliberately uses a logistic truth and approaches the
+boundaries. It shows why an unbounded line can fail; it does not show
+that logistic regression must be right for every dataset. The volunteering
+analysis below supplies the complementary case in which both mean
+functions are numerically close over the observed range.
+
+## Read Coefficients on Interpretable Scales {#ch11-reading}
+
+### What an odds ratio compares {#ch11-odds-ratio}
+
+If a predictor enters additively, increasing it by one unit while holding
+the others fixed changes the log-odds by $\beta_j$:
+
+$$
+\operatorname{logit}\{\pi(x_j+1)\}-\operatorname{logit}\{\pi(x_j)\}=\beta_j,
+\qquad
+\frac{\pi(x_j+1)/\{1-\pi(x_j+1)\}}{\pi(x_j)/\{1-\pi(x_j)\}}=e^{\beta_j}.
+$$
+
+First fit extraversion alone. The coefficient is .0656 (SE .0141), giving
+an odds ratio of 1.0678 and a 95% interval [1.0386, 1.0978]. Each extra
+extraversion point is associated with 1.0678 times the odds of volunteering
+rather than not volunteering. Five points compound multiplicatively to
+1.3883, rather than adding five copies of the odds ratio.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+m1 <- glm(event ~ extraversion, data = dat, family = binomial)
+exp(coef(m1))
+exp(confint.default(m1))
+```
+
+
+
+Four qualifications make this a complete comparison: the predictor's
+**units**, any factor's **reference category**, the **event**, and the
+**adjustment set**. Changing a unit changes the contrast; changing the
+event or reference changes its direction; adding controls changes the
+conditional comparison. The intercept $-1.1394$ describes extraversion
+zero, outside the observed 2--23 range, so it is a mathematical anchor
+rather than a supported student profile.
+
+An odds ratio is not a risk ratio. At a prevalence near .42, saying
+"1.5 times the odds" as "50 percent more likely" can substantially
+exaggerate a probability comparison. The approximation is useful only
+when the event probabilities in both groups are small.
+
+The local slope on the probability scale is
+
+$$
+\frac{\partial\pi}{\partial x_j}=\beta_j\pi(1-\pi).
+$$
+
+Its absolute value is bounded by $|\beta_j|/4$, attained at .5.
+This also bounds the magnitude of a one-unit finite probability difference
+when the logit is additive in that predictor. The derivative is a local
+rate, not exactly the difference between two profiles one full unit apart;
+compute both fitted probabilities when that finite contrast is wanted.
+
+### Reverse the event, preserve the underlying probabilities {#ch11-reversal}
+
+Before looking at new output, predict the result of coding non-volunteering
+as 1. The probability must become $1-\widehat\pi_i$, the log-odds must
+change sign, and the odds ratio must become its reciprocal. The simple
+extraversion coefficient becomes $-.0656$ and its odds ratio .9365.
+Their signed $z$ statistics reverse too. Standard errors, two-sided
+p-values, deviance and McFadden's pseudo $R^2$ stay the same. After
+translating back to the original event, every student still has the same
+fitted probability of volunteering.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+dat$no <- 1 - dat$event
+rev <- glm(no ~ extraversion, data = dat, family = binomial)
+exp(coef(rev))
+max(abs(fitted(rev) + fitted(m1) - 1))
+```
+
+
+
+Changing a predictor factor's reference instead changes coefficient
+coordinates while retaining the same outcome event and fitted
+probabilities. For a binary factor the focal comparison reverses, but
+its intercept moves and other coefficient changes depend on the model's
+terms. These recodings change what a printed coefficient names, not the
+fitted probability surface.
+
+### Adjusted results and probabilities at supported profiles {#ch11-multiple}
+
+The multiple model is
+
+$$
+\log\frac{\pi_i}{1-\pi_i}=\beta_0+\beta_1\,\mathrm{male}_i+\beta_2N_i+\beta_3E_i,
+$$
+
+where $N$ and $E$ are the recorded neuroticism and extraversion scores.
+Female is the reference sex category. The fitted table attaches each
+coefficient to that event, coding and adjustment set.
+
+
+| Term | Estimate (log-odds) | SE | $z$ | Odds ratio | OR 95% lower | OR 95% upper |
+|:--|--:|--:|--:|--:|--:|--:|
+| Intercept | $-1.1165$ | .2491 | $-4.4829$ | .3274 | .2010 | .5335 |
+| Sex: male versus female | $-.2352$ | .1112 | $-2.1151$ | .7904 | .6357 | .9829 |
+| Neuroticism | .0064 | .0114 | .5602 | 1.0064 | .9842 | 1.0290 |
+| Extraversion | .0663 | .0143 | 4.6512 | 1.0686 | 1.0391 | 1.0989 |
+
+: Multiple logistic regression of volunteering on sex, neuroticism, and extraversion; Wald 95% intervals, female as the reference category, event coded as volunteering. {#tbl-ch11-fit2 tbl-colwidths="[28,16,10,12,12,11,11]"}
+
+
+
+Among students of the same recorded sex and neuroticism, an extra
+extraversion point is associated with an odds ratio of 1.0686, close to
+the unadjusted 1.0678. Male students have .7904 times the odds of female
+students of the same personality scores. Neuroticism has no detected
+adjusted association in this additive model ($p=.5754$), but its interval
+admits odds ratios from .9842 to 1.0290 per point; a large p-value does
+not prove no relationship.
+
+Choose profiles before interpreting their estimates: a female student at
+neuroticism 11, its median, and at extraversion 10, 13 or 15, its quartiles.
+These values sit within the observed support. Prediction first gives the
+logit and its SE; transform the two confidence limits to probability.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+grid <- data.frame(sex = "female", neuroticism = 11,
+  extraversion = c(10, 13, 15))
+pred <- predict(m2, grid, type = "link", se.fit = TRUE)
+plogis(cbind(pred$fit - 1.96 * pred$se.fit,
+  pred$fit, pred$fit + 1.96 * pred$se.fit))
+```
+
+
+| Extraversion | Fitted log-odds | SE (log-odds) | Fitted probability | 95% lower | 95% upper |
+|--:|--:|--:|--:|--:|--:|
+| 10 | $-.3833$ | .0830 | .4053 | .3668 | .4451 |
+| 13 | $-.1843$ | .0742 | .4541 | .4183 | .4903 |
+| 15 | $-.0516$ | .0813 | .4871 | .4474 | .5269 |
+
+: Fitted probability of volunteering for a female student at the median neuroticism score, at the quartiles of extraversion, with intervals built on the log-odds scale and transformed. {#tbl-ch11-predictions tbl-colwidths="[16,18,18,20,14,14]"}
+
+
+
+The probability rises from .4053 to .4871 across the middle half of
+extraversion, a difference of .0818. Its interval is asymmetric because
+it is transformed from the logit scale. This is uncertainty about a
+conditional probability, not a prediction interval for an individual
+student: the next student's outcome remains either 0 or 1. Comparing two
+separate intervals is also not a test of their difference; that contrast
+uses their joint covariance.
+
+### Profile and average probability comparisons {#ch11-average}
+
+A **case-specific comparison** fixes the other predictor values and
+compares fitted probabilities at two profiles. An **averaged comparison**
+computes the contrast for each recorded student's other predictor values
+and then averages it. This makes the averaging population explicit rather
+than treating one artificial "average student" as representative.
+
+
+
+
+
+
+
+Averaging is a substantive choice even when the model is already fixed.
+Consider the invented model $p(x,u)=\operatorname{logit}^{-1}(x+u)$ and
+compare $u=1$ with $u=0$. One population has equal numbers at $x=-.5$
+and $.5$; another has equal numbers at $x=-4$ and 4. Both have mean zero.
+Predict which population has the larger average probability difference
+from the vertical gaps in @fig-ch11-averaging.
+
+```{r}
+#| label: fig-ch11-averaging
+#| fig-pos: "H"
+#| fig-cap: "The same probability model gives different average differences in two populations."
+#| fig-alt: "Both panels show the same pair of logistic curves. Equal-weight profiles near zero have average difference .22; profiles at minus four and plus four have average .0204. Both sets have mean zero, where the difference is .2311."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- expand.grid(x = seq(-5, 5, length.out = 301), u = 0:1,
+  population = c("Central profiles", "Tail profiles"))
+g$p <- plogis(g$x + g$u)
+loc <- data.frame(x = c(-.5, .5, -4, 4),
+  population = rep(c("Central profiles", "Tail profiles"), each = 2))
+loc$lo <- plogis(loc$x); loc$hi <- plogis(loc$x + 1)
+ggplot(g, aes(x, p, linetype = factor(u))) + geom_line(linewidth = .7) +
+  geom_segment(data = loc, aes(x = x, xend = x, y = lo, yend = hi),
+    inherit.aes = FALSE, linewidth = 1.2) +
+  geom_rug(data = loc, aes(x = x), inherit.aes = FALSE, sides = "b") +
+  facet_wrap(~population) +
+  labs(x = "Other predictor x", y = "Event probability", linetype = "u") +
+  theme(legend.position = "bottom")
+```
+
+The central profiles give average difference .22 and the tail profiles
+give .0204. In contrast, evaluating both at the common mean $x=0$ gives
+.2311. The coefficient of $u$ and its conditional odds ratio $e$ are
+identical throughout. The average changes because the populations place
+different weight on steep and flat portions of the same probability
+curves. A profile at the average predictor is therefore not interchangeable
+with an average over the actual profiles. These are model comparisons,
+not causal effects supplied by the invented equation.
+
+```{r}
+#| eval: false
+#| echo: true
+x <- c(-.5, .5)
+mean(plogis(x + 1) - plogis(x))
+x <- c(-4, 4)
+mean(plogis(x + 1) - plogis(x))
+plogis(1) - plogis(0)
+```
+
+Return now to the recorded volunteering profiles.
+
+```{r}
+#| eval: false
+#| echo: true
+plus <- dat
+plus$extraversion <- plus$extraversion + 1
+mean(predict(m2, plus, type = "response") - fitted(m2))
+```
+
+The average one-point extraversion difference is .0159. The local
+maximum bound is .0166, and an additive linear probability fit gives
+.0158. Here its fitted values remain within [.2261, .6188], near the
+middle of the logistic curve, so the two mean functions agree closely.
+The familiar least-squares constant-variance uncertainty still needs
+correction, and a new predictor range can expose the line's boundaries.
+The one-point standardization also moves the single student at score 23
+to 24, just outside the recorded range; that small extrapolation is part
+of this explicitly defined average, not evidence about students at 24.
+
+Assigning each observed profile first the female and then the male
+indicator gives an averaged male-minus-female probability difference of
+$-.0562$. This is about 5.6 percentage points, whereas the odds ratio
+.7904 describes odds about 21 percent lower. The distinction changes
+what a reader imagines about actual volunteering rates.
+
+
+
+```{r}
+#| label: fig-ch11-fitted
+#| fig-cap: "Adjusted volunteering probabilities at neuroticism 11, with pointwise Wald 95% bands and observed score support."
+#| fig-alt: "Two gently rising curves overlap in uncertainty bands, with the female curve higher. Bands widen at sparse extremes; the rug is dense in the middle of the extraversion range."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- expand.grid(extraversion = seq(2, 23, length.out = 201), sex = c("female", "male"))
+g$neuroticism <- 11
+p <- predict(m2, g, type = "link", se.fit = TRUE)
+g$p <- plogis(p$fit); g$lo <- plogis(p$fit - 1.96 * p$se.fit); g$hi <- plogis(p$fit + 1.96 * p$se.fit)
+ggplot(g, aes(extraversion, p)) + geom_ribbon(aes(ymin = lo, ymax = hi, group = sex), alpha = .16) +
+  geom_line(aes(linetype = sex), linewidth = .8) +
+  geom_rug(data = dat, aes(extraversion, y = NULL), sides = "b", alpha = .12) +
+  labs(x = "Extraversion score", y = "Fitted probability of volunteering", linetype = "Recorded sex") +
+  theme(legend.position = "bottom")
+```
+
+
+
+The two lines are parallel on the logit scale because the additive model
+contains no product term. Their probability separation varies. Additivity
+belongs to a named scale, a distinction that matters when we next allow
+conditional contrasts to differ.
+
+## Compare and Test {#ch11-compare}
+
+### Deviance and a declared model comparison {#ch11-deviance}
+
+The **deviance** compares a fitted model with the saturated model that
+fits every observation exactly. For individual binary observations the
+saturated log-likelihood is zero, so
+
+$$
+D=-2\ell(\widehat{\boldsymbol\beta}),\qquad
+G^2=D_A-D_B\ \dot\sim\ \chi^2_q
+\quad\text{for regular nested models }A\subset B.
+$$
+
+Here $q$ counts the restrictions defining the smaller model. The
+comparison requires the same rows and event, finite well-identified
+estimates, and an adequate large-sample approximation. The absolute
+ungrouped binary deviance has no simple chi-square goodness-of-fit reading;
+its difference can test a declared nested comparison.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+anova(m0, m2, test = "LRT")
+small <- glm(event ~ sex + extraversion, data = dat, family = binomial)
+anova(small, m2, test = "LRT")
+```
+
+
+| Comparison | Added | df | $G^2$ | $p$ |
+|:--|:--|--:|--:|--:|
+| Intercept only versus full | Sex, neuroticism, extraversion | 3 | 27.4447 | $<.0001$ |
+| Without neuroticism versus full | Neuroticism | 1 | .3139 | .5753 |
+
+: Two declared likelihood-ratio comparisons on the same 1,421 rows and the same event. {#tbl-ch11-lrt tbl-colwidths="[36,30,10,12,12]"}
+
+
+
+The full block reduces deviance from 1933.5060 to 1906.0613. Its statistic
+27.4447 exceeds the 5% critical value 7.8147 on three df. This establishes
+information in the block under the model, not a separate association for
+each member. Removing neuroticism alone costs only .3139 on one df,
+with $p=.5753$.
+
+### Wald tests and likelihood comparisons {#ch11-wald-lrt}
+
+A single-coefficient Wald test uses $z=\widehat\beta/SE$, or $z^2$
+with a chi-square reference on one df. The likelihood-ratio test instead
+compares the best fits allowed by two models. For neuroticism the two
+agree: $z=.5602$, $z^2=.3138$, $p=.5754$, against $G^2=.3139$,
+$p=.5753$. Close agreement is expected when the likelihood is nearly
+quadratic near its maximum. With strong asymmetry or unstable estimates,
+the Wald approximation can be misleading. Separation below shows an
+extreme case in which its statistic shrinks despite a perfect pattern.
+
+### Criteria rank models; they do not certify them {#ch11-criteria}
+
+For $k$ estimated coefficients and $n$ records,
+
+$$
+AIC=-2\ell+2k,\qquad BIC=-2\ell+k\log n,\qquad
+R^2_{\mathrm{McF}}=1-\frac{\ell}{\ell_0}.
+$$
+
+There is no separately estimated variance parameter in the logistic
+model. AIC and BIC penalize in-sample likelihood by model size; smaller
+values are preferred among models fitted to the same records and outcome
+[@akaike1974; @schwarz1978]. McFadden's pseudo $R^2$ compares with the
+intercept-only maximum $\ell_0$. It is not a proportion of variance
+explained and should not be read against linear-model $R^2$ benchmarks.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+AIC(m0, m1, m2)
+BIC(m0, m1, m2)
+1 - as.numeric(logLik(m2) / logLik(m0))
+```
+
+
+| Model | $k$ | Deviance | AIC | BIC | McFadden pseudo $R^2$ |
+|:--|--:|--:|--:|--:|--:|
+| Intercept only | 1 | 1933.5060 | 1935.5060 | 1940.7651 | .0000 |
+| Extraversion | 2 | 1911.4838 | 1915.4838 | 1926.0020 | .0114 |
+| Sex, neuroticism, extraversion | 4 | 1906.0613 | 1914.0613 | 1935.0977 | .0142 |
+
+: Model comparison for the volunteering analysis; both criteria are comparative and neither certifies adequacy. {#tbl-ch11-criteria tbl-colwidths="[34,8,16,14,14,14]"}
+
+
+
+AIC prefers the adjusted model; BIC prefers extraversion alone. At
+$n=1421$, BIC charges $\log n=7.2591$ per coefficient against AIC's
+2, explaining the difference. Neither criterion is a test or a held-out
+prediction score. The small McFadden value .0142 is compatible with a
+detectable association and little ability to distinguish volunteers.
+
+### A product term changes a conditional contrast {#ch11-product}
+
+Allow the extraversion contrast to vary with neuroticism:
+
+$$
+\operatorname{logit}(\pi_i)=\beta_0+\beta_1\mathrm{male}_i+\beta_2N_i+
+\beta_3E_i+\beta_4N_iE_i,\qquad
+\frac{\partial\operatorname{logit}(\pi)}{\partial E}=\beta_3+\beta_4N.
+$$
+
+The product coefficient is $-.0086$ (SE .0029). The nested likelihood
+comparison gives $G^2(1)=8.6213$, $p=.0033$. The lower-order extraversion
+coefficient .1668 is its contrast at neuroticism zero, not a summary
+for every student. The additive model's undetected neuroticism term and
+the detected product answer different questions, so hierarchical model
+construction retains both lower-order terms.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+m3 <- glm(event ~ sex + neuroticism * extraversion,
+  data = dat, family = binomial)
+anova(m2, m3, test = "LRT")
+```
+
+
+| Neuroticism | Log-odds contrast | SE | Odds ratio | OR 95% lower | OR 95% upper | Students within one point |
+|--:|--:|--:|--:|--:|--:|--:|
+| 8 | .0984 | .0184 | 1.1034 | 1.0644 | 1.1438 | 276 |
+| 11 | .0727 | .0146 | 1.0755 | 1.0451 | 1.1067 | 302 |
+| 15 | .0385 | .0170 | 1.0393 | 1.0052 | 1.0746 | 242 |
+
+: Conditional extraversion odds ratios at the quartiles of neuroticism, each comparing students differing by one extraversion point at the stated neuroticism score. {#tbl-ch11-conditional tbl-colwidths="[13,18,11,14,15,15,14]"}
+
+
+```{r}
+#| label: fig-ch11-interaction
+#| fig-cap: "The same product-term fit on log-odds and probability scales, for female students."
+#| fig-alt: "Three straight lines on the logit scale cross near extraversion thirteen and are steepest at neuroticism eight. Their probability curves have the same crossing but unequal changes across the range."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- expand.grid(extraversion = seq(2, 23, length.out = 201), neuroticism = c(8, 11, 15)); g$sex <- "female"
+g$logit <- predict(m3, g); g$prob <- plogis(g$logit)
+p <- rbind(data.frame(g[, 1:2], value = g$logit, scale = "Log-odds"),
+  data.frame(g[, 1:2], value = g$prob, scale = "Probability"))
+ggplot(p, aes(extraversion, value, linetype = factor(neuroticism))) + geom_line(linewidth = .8) +
+  facet_wrap(~scale, scales = "free_y") + labs(x = "Extraversion score", y = "Fitted value", linetype = "Neuroticism") +
+  theme(legend.position = "bottom")
+```
+
+
+
+The table evaluates $\beta_3+\beta_4N$ at supported quartiles, with
+SEs from $\mathbf{c}^{\mathsf T}\widehat{\mathbf V}\mathbf c$. At extraversion 13, the probabilities for
+neuroticism 8 and 15 are nearly equal (.4519 and .4512), but a one-point
+extraversion difference is .0245 at the former and .0096 at the latter.
+Conversely, different probability differences can arise with a constant
+odds ratio simply because baseline probabilities differ. An interaction
+claim therefore names its scale. Chapter 10 develops centering and
+probing; the new issue here is the nonlinear transfer between scales.
+
+## Check Calibration, Fit, and Influence {#ch11-checks}
+
+### Form and observed support {#ch11-form}
+
+An observed proportion at each extraversion score makes both the pattern
+and its support visible. An **empirical logit**
+$\widetilde\eta=\log\{(y+.5)/(n-y+.5)\}$ adds half a count to keep
+groups with zero or all events finite. It is a plotting device rather
+than a replacement for the fitted Bernoulli likelihood.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+aggregate(event ~ extraversion, data = dat, mean)
+anova(m2, mq, test = "LRT")
+```
+
+
+
+```{r}
+#| label: fig-ch11-proportions
+#| fig-cap: "Observed volunteering by score: empirical proportions and logits, with point area showing the number of students."
+#| fig-alt: "Most students lie in the middle scores, where proportions and empirical logits rise gently. Score twenty-two contains five volunteers and score twenty-three one non-volunteer; their extreme proportions have very little support."
+#| fig-height: 3.6
+#| fig-width: 6.2
+e <- aggregate(event ~ extraversion, dat, length); names(e)[2] <- "n"
+e$yes <- aggregate(event ~ extraversion, dat, sum)$event
+e$p <- e$yes / e$n; e$logit <- log((e$yes + .5) / (e$n - e$yes + .5))
+p <- rbind(data.frame(e, value = e$p, scale = "Proportion"), data.frame(e, value = e$logit, scale = "Empirical logit"))
+ggplot(p, aes(extraversion, value)) + geom_point(aes(size = n), alpha = .7) + scale_size_area(max_size = 6) +
+  facet_wrap(~scale, scales = "free_y") + labs(x = "Extraversion score", y = NULL, size = "Students") + theme(legend.position = "bottom")
+```
+
+
+
+Score 13 has 151 students. Score 22 has five, all volunteers; score 23
+has one non-volunteer. Their extreme empirical logits, 2.3979 and
+$-1.0986$, deserve less weight than the densely populated middle.
+The observed proportions need not increase at every score: sampling
+variation around an increasing conditional mean remains.
+
+The grouped pattern gives no compelling curvature, and adding squared
+extraversion gives $G^2(1)=1.4257$, $p=.2325$. This does not prove
+linearity in the logit; it says this particular alternative is not clearly
+distinguished by the available records. A one-predictor empirical-logit
+display is also a marginal diagnostic, not a complete check of the
+adjusted model's functional form.
+
+### Residuals and influence {#ch11-residuals}
+
+Raw residuals are $y_i-\widehat\pi_i$. At a fitted probability they
+take only $1-\widehat\pi_i$ or $-\widehat\pi_i$, so the raw plot has
+two lines rather than a Normal cloud. Pearson residuals divide by
+$\sqrt{\widehat\pi_i(1-\widehat\pi_i)}$; signed deviance residuals
+have squares summing to deviance. None is expected to be Normal.
+
+A **binned residual plot** instead groups nearby fitted probabilities
+and compares their average residuals with zero. The displayed pointwise
+bands, $\pm2\sqrt{\bar\pi(1-\bar\pi)/n_{\mathrm{bin}}}$, are a rough
+visual reference for groups with similar fitted probabilities; they are
+not a simultaneous test and ignore parameter-estimation effects.
+
+
+
+```{r}
+#| label: fig-ch11-binned
+#| fig-cap: "Mean residuals in twenty fitted-probability bins, with approximate pointwise two-SE reference bands."
+#| fig-alt: "Twenty mean residuals fluctuate on both sides of zero without an evident trend. One lies outside the approximate two-standard-error bands."
+#| fig-height: 3.6
+#| fig-width: 6.2
+ggplot(bins, aes(fit, resid)) + geom_hline(yintercept = 0) +
+  geom_line(aes(y = 2 * se), linetype = 2) + geom_line(aes(y = -2 * se), linetype = 2) +
+  geom_point(size = 2) + labs(x = "Mean fitted probability", y = "Mean residual")
+```
+
+
+
+One bin falls outside its reference band. That is compatible with chance
+variation and does not certify the form. The largest Cook's distance is
+.0051. Removing that row moves the extraversion coefficient from .0663
+to .0679, with a maximum coefficient change of .0304 elsewhere. A deletion
+refit asks whether a conclusion depends on one observation; it supplies
+no automatic reason to discard it. The principal analysis retains the row.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+which.max(cooks.distance(m2))
+coef(m2)
+coef(md)
+```
+
+
+
+### Separation: a strong pattern with no finite estimate {#ch11-separation}
+
+A sparse category supplies little information. **Complete separation**
+is more specific: a predictor combination places every event on one side
+and every non-event on the other. With **quasi-complete separation**, some
+observations lie on the separating boundary. In these circumstances one
+or more coefficients can increase in magnitude without reaching a finite
+likelihood maximum [@albert1984]. A number printed by software can be
+merely the point at which iteration stopped.
+
+Make this failure visible with a deliberately constructed subset, not a
+substantive analysis. Retain non-volunteers scoring at most 8 and
+volunteers scoring at least 17, then sample 60 eligible rows at seed
+1011. There is a gap between the two outcomes by construction.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+glm(event ~ extraversion, data = sep, family = binomial)
+```
+
+
+
+| Output feature | Constructed separated fit | What it signals here |
+|:--|--:|:--|
+| Extraversion coefficient | 5.5928 | An iteration moving toward an infinite limit |
+| Standard error | 8014.9006 | Nearly flat local information in the escaping direction |
+| Wald $z$ and two-sided $p$ | .0007; .9994 | A failed Wald approximation, not absence of the observed pattern |
+| Residual deviance | $5.642\times10^{-10}$ | Almost perfect fit on the selected rows |
+| Fitted probabilities | about $2.22\times10^{-16}$ and 1 | Numerical boundary values |
+| Iterations | 25 | Far more than the four needed by the regular adjusted fit |
+
+: Symptoms of this complete-separation example, read together. {#tbl-ch11-separation tbl-colwidths="[26,25,49]"}
+
+The selected rows reproduce the separated pattern in
+@fig-ch11-likelihood-shapes: increasing the slope can approach perfect
+classification without a finite likelihood peak.
+
+The tiny Wald statistic is particularly instructive: it does not negate
+the perfect ordering. The coefficient and SE have both become enormous,
+and the usual local approximation is unusable. These are characteristic
+symptoms in this example, not a checklist every separated model must
+satisfy. Quasi-complete separation need not make the whole deviance zero,
+and a warning is neither necessary nor sufficient for diagnosis.
+
+The full data offer an unwarned example. If scores 22 and 23 are separate
+factor levels, one contains five events and the other one non-event.
+Their coefficients become 15.2161 (SE 394.7749) and $-13.916$
+(SE 882.7434). Combining the substantively adjacent upper bands as
+18+ gives 130 students with 71 events and a finite coefficient .8352
+(SE .2222). That demonstrates what the sparse bands were doing; such a
+merge still requires a meaningful category definition, not merely a
+wish for smaller standard errors.
+
+
+| Option | What it does | When it is appropriate |
+|:--|:--|:--|
+| Collapse categories | Merges a sparse level with a substantively adjacent one | The merged levels are defensibly similar on subject-matter grounds |
+| Drop the term | Removes the separating predictor | The predictor is not central to the question and its removal is reported |
+| Report the boundary honestly | States the direction, notes that the magnitude is not identified, and reports any unbounded profile limit | The separating pattern is itself the finding |
+| Penalized likelihood | Adds a penalty giving finite estimates with reduced small-sample bias, as in Firth's method | A finite estimate is needed and the penalty is disclosed |
+| Collect more data | Fills the empty cell | The design permits it |
+
+: Options when a logistic model shows separation. {#tbl-ch11-separation-options tbl-colwidths="[24,40,36]"}
+
+
+
+Firth's penalized likelihood is one way to obtain finite estimates with
+reduced small-sample bias [@firth1993]. It is a different estimation rule,
+whose penalty must be stated. It does not make the original infinite
+maximum-likelihood estimate finite. More generally, a finite estimate
+should be interpreted only where the data support the intended comparison.
+
+### Calibration and discrimination {#ch11-calibration}
+
+**Calibration** asks whether assigned probabilities agree with observed
+event frequencies: among students assigned about .4, do roughly 40%
+volunteer? **Discrimination** asks whether probabilities tend to rank
+volunteers above non-volunteers. They answer distinct questions. A
+constant fitted prevalence has perfect aggregate agreement but ranks
+nobody; a rule can rank well and systematically overstate probabilities.
+
+
+
+```{r}
+#| label: fig-ch11-calibration
+#| fig-cap: "In-sample calibration by fitted-probability decile; vertical segments show one observed-proportion SE."
+#| fig-alt: "Nine of ten groups lie reasonably near the equality line. The fifth decile is assigned about .413 but has an observed proportion about .297."
+#| fig-height: 3.6
+#| fig-width: 6.2
+ggplot(cal, aes(fit, obs)) + geom_abline(intercept = 0, slope = 1, linetype = 2) +
+  geom_linerange(aes(ymin = obs - se, ymax = obs + se)) + geom_point(size = 2) +
+  coord_equal(xlim = c(.25, .60), ylim = c(.25, .60)) +
+  labs(x = "Mean fitted probability", y = "Observed proportion volunteering")
+```
+
+
+
+The fifth decile is assigned .4126 but has observed proportion .2966,
+a gap of .1161 or 3.0596 observed-proportion SEs. This deserves
+investigation rather than dismissal. Because the group was noticed among
+ten and the model was fitted to these same rows, this descriptive SE
+comparison is not a calibrated global test of fit. Aggregate agreement
+from the intercept says nothing about agreement within each decile.
+
+
+
+```{r}
+#| label: fig-ch11-discrimination
+#| fig-cap: "Fitted probabilities overlap strongly between volunteers and non-volunteers."
+#| fig-alt: "Two boxplots overlap almost entirely across fitted probabilities from about .24 to .62, showing weak descriptive separation."
+#| fig-height: 3.1
+#| fig-width: 6.2
+ggplot(data.frame(p = phat, outcome = factor(dat$event, labels = c("Non-volunteer", "Volunteer"))), aes(outcome, p)) +
+  geom_boxplot(width = .45) + labs(x = NULL, y = "Fitted probability of volunteering")
+```
+
+
+
+Fitted probabilities average .4313 among volunteers and .412 among the
+rest, a difference of .0192, and span only [.2418, .6235]. The boxes
+overlap strongly. Extraversion is detectably associated with volunteering,
+yet the fitted probabilities separate these students poorly. A small
+coefficient p-value is not evidence of useful prediction [@shmueli2010].
+Both displays reuse the fitting data and are optimistic as performance
+assessments. Chapter 13 develops held-out evaluation, including AUC,
+Brier score, log loss and threshold choice.
+
+{{< pagebreak >}}
+
+### What changed under sensitivity analysis {#ch11-sensitivity}
+
+
+| Specification | Extraversion odds ratio per point |
+|:--|--:|
+| Simple model, extraversion only | 1.0678 |
+| Additive model, sex and neuroticism added | 1.0686 |
+| Additive model, most influential row removed | 1.0703 |
+| Additive model plus quadratic extraversion, local at extraversion 13 | 1.0745 |
+| Product-term model, at median neuroticism | 1.0755 |
+
+: Sensitivity of the extraversion odds ratio to modeling and sample choices; each row refits the model with one feature changed. {#tbl-ch11-sensitivity tbl-colwidths="[70,30]"}
+
+
+
+The quadratic entry is a local derivative-based odds ratio at score 13;
+it is not exactly the finite 13-to-14 contrast. The product entry fixes
+neuroticism at its median. These definitions keep the compared quantities
+clear. The values remain close, but every specification uses the same
+underlying study, measurements and design. Stability across them cannot
+establish accurate volunteering records, valid personality measurement,
+independent classrooms or absence of unmeasured common causes.
+
+## From Analysis to a Defensible Claim {#ch11-claim}
+
+### Report the magnitude and the limit together {#ch11-report}
+
+The event and analytic unit come before any ratio. The model, predictor
+units and reference categories make the comparison reproducible. A
+probability-scale result then says what the ratio means in this study,
+while checks and uncertainty qualify the conclusion.
+
+::: {.callout-tip title="A bounded reporting example"}
+Among 1,421 recorded introductory psychology students, the volunteering
+proportion was .4201. Adjusting for recorded sex and neuroticism, each
+extraversion point was associated with 1.0686 times the odds of
+volunteering rather than not volunteering (95% CI [1.0391, 1.0989]). The
+averaged one-point probability difference was .0159 over the observed
+profiles. For a female student at neuroticism 11, fitted probabilities
+were .4053 [.3668, .4451] at extraversion 10 and .4871 [.4474, .5269]
+at 15. The additive neuroticism association was not detected, although a
+neuroticism-by-extraversion product improved fit and showed a weaker
+extraversion contrast at higher neuroticism. A quadratic check and a
+single-row deletion gave similar local comparisons. Sparse extreme scores
+limited their own interpretation; one calibration decile showed a material
+departure, and fitted probabilities overlapped strongly by outcome. These
+are conditional associations among recorded students. They establish
+neither a causal effect of personality nor useful prediction in a new cohort.
+:::
+
+The report can contain a null comparison, a detected interaction and weak
+discrimination together. They address different aspects of the research
+question. Describing them faithfully is more useful than converting a
+coefficient table into a general claim that the model "worked".
+
+### Recognize the claim a number supports {#ch11-attractive}
+
+| Tempting sentence | What the evidence supports |
+|:--|:--|
+| "Volunteering is about 7% more likely per extraversion point." | Odds are 1.0686 times as large; the averaged probability difference is .0159. |
+| "Neuroticism has no relationship with volunteering." | The additive adjusted interval admits small associations in both directions; the product term asks another question. |
+| "The product coefficient is the extraversion effect." | Evaluate the conditional contrast at a stated neuroticism value and name its scale. |
+| "The small p-value means the model predicts well." | A coefficient test, calibration check and held-out performance assessment answer different questions. |
+| "The separated fit found a very large, imprecise effect." | Ordinary maximum likelihood has no finite estimate for that separated magnitude. |
+
+: Interpretation depends on the quantity and its conditions. {#tbl-ch11-attractive tbl-colwidths="[43,57]"}
+
+A reusable report makes seven elements recoverable: event and unit;
+model and coding; a coefficient-scale estimate with uncertainty; a
+probability-scale comparison; evidence for a declared term or block;
+adequacy and sensitivity; and the claim's boundary. They need not appear
+as seven ritual sentences. Their function is to let a reader judge what
+was estimated and why its interpretation is warranted.
+
+The empirical analyses use all Cowles records, except the explicitly
+labelled deletion and constructed separation checks. The certification
+sample uses seed 1010, its repetition uses 1012, and the separated subset
+uses 1011. More than two categories, event counts, dependence, severe
+measurement error and sparse events each require a reconsidered model
+or inferential calculation, not a stronger reading of this coefficient
+table.
+
+## Reading Bridge
+
+A logistic model connects a Bernoulli event to a linear predictor through
+the logit link. Maximum likelihood supplies estimates and uncertainty;
+probabilities give the substantive magnitude. Event coding, support,
+separation and the distinction between calibration and discrimination
+remain part of interpreting every result. Chapter 12 extends the same
+framework to nominal categories, ordered categories and counts, each with
+a new response structure and a new meaning for an exponentiated coefficient.
+
+## Key terms {.unnumbered}
+
+This reference collects the concepts introduced here. The Part One Concept
+Reference locates the broader ideas, including likelihood, coefficient
+covariance and model comparison.
+
+
+| Term and common alternatives | Meaning or essential distinction |
+| :-- | :-- |
+| Event and non-event (the category coded 1) | The category a binary model treats as occurring, named together with the category coded 0. Reversing the event reciprocates the odds ratios and complements fitted event probabilities; probabilities for the original event agree after relabelling. |
+| Prevalence (event rate) | The proportion of analytic rows that are events. Coefficient precision also depends on conditional probabilities, predictor spread and overlap; the rare-outcome approximation of an odds ratio by a risk ratio depends on the risks being compared. |
+| Generalized linear model (GLM) | A response distribution, a linear predictor and a link connecting the conditional mean to the linear predictor; changing the response distribution and link gives the models of Chapters 11 and 12. |
+| Link function; logit link and inverse logit (logistic function) | The logit is the log of the odds and its inverse the S-shaped function bounded in $(0,1)$, equal to one half and steepest at a linear predictor of zero. |
+| Odds and log-odds | The odds are $\pi/(1-\pi)$ and the log-odds their logarithm; the three scales describe one quantity with null values 1 and 0, and the log-odds scale is symmetric under reversing the event. |
+| Odds ratio (OR) | The factor $e^{\beta_j}$ by which the odds differ between units differing by one unit in a predictor and agreeing on the others; it depends on the units, reference, event and adjustment set, is not a risk ratio unless the event is rare, and implies no constant probability difference. |
+| Noncollapsibility (of the odds ratio) | A conditional odds ratio generally differs from the marginal one even with no confounding, so a coefficient that moves under adjustment is not by itself evidence of confounding. |
+| Bernoulli likelihood and score equations (binary-outcome likelihood) | The probability of the observed data as a function of the parameters, maximized to estimate them; for a binary outcome it is a product of Bernoulli probabilities whose score equations have no closed form, and a model with an intercept reproduces the observed event total. |
+| Iteratively reweighted least squares (IRLS) | The algorithm that repeatedly solves a weighted linear regression with weights $\widehat\pi_i(1-\widehat\pi_i)$ until the coefficients stop changing; its convergence flag and iteration count belong in the record and establish no adequacy. |
+| Deviance and the likelihood-ratio test ($G^2$) | For ungrouped binary data the deviance is $-2$ times the maximized log-likelihood and carries no goodness-of-fit reading alone, while the difference between nested models on the same rows and event is referred to chi-square. |
+| Wald test and profile-likelihood interval | The Wald statistic squares the estimate-to-SE ratio while a profile interval collects the values the log-likelihood does not reject; they diverge for rare events, small samples or near-infinite estimates. |
+| McFadden pseudo $R^2$ | One minus the ratio of the fitted to the intercept-only maximized log-likelihood: bounded in $[0,1]$, not a proportion of variance explained, and routinely small for useful models. |
+| Empirical logit | The log-odds of a grouped event count with one half added to each count, plotted against a predictor to check linearity of the log-odds in that predictor as entered. |
+| Binned residual | The mean raw residual within a bin of rows sorted by fitted probability, against a two-standard-error band; it replaces the residual-versus-fitted plot, which shows only two curved bands here. |
+| Separation (complete; quasi-complete) | A predictor pattern separates events from non-events completely or on a boundary, so at least one coefficient has no finite ordinary maximum-likelihood estimate. Diverging coefficients, large standard errors and convergence warnings can be symptoms; no one warning or numerical pattern is required. |
+| In-sample calibration and discrimination checks (fitted-probability checks) | Calibration asks whether fitted probabilities match observed event frequencies, discrimination whether they rank events above non-events; the two answer distinct questions, and honest evaluation of new-case performance requires held-out data. |
+| Linear probability model (LPM) | Ordinary least squares on a 0/1 outcome, whose coefficients are probability differences but whose mean function is unbounded and whose conditional variance cannot be constant. |
+| Averaged probability difference (average marginal comparison) | The mean, over the analytic rows with their own other predictor values, of the difference between fitted probabilities at two values of one predictor. |
+
+: Concepts introduced in this chapter. {#tbl-ch11-key-terms tbl-colwidths="[30,70]"}
+
+
+
+## Further reading {.unnumbered}
+
+Agresti [@agresti2018] and Hosmer, Lemeshow and Sturdivant [@hosmer2013]
+develop logistic models and diagnostics. Gelman, Hill and Vehtari
+[@gelman2020] emphasize probability-scale interpretation. The R
+`glm()`, `family()` and `predict.glm()` documentation explains the
+implementation [@rCoreLogistic; @rcore2025].
+
+## Exercises {.unnumbered}
+
+
+<!-- prompt-id: CH11-E01 -->
+
+### Exercise 1: Read a logistic result on three scales (Foundational). {.unnumbered}
+
+A
+logistic regression of whether a student volunteered for an experiment
+on an extraversion score in integer points, adjusting for recorded sex
+and a neuroticism score, gives an extraversion coefficient of .0663 with
+standard error .0143. The event is volunteering, the reference sex
+category is female, extraversion runs from 2 to 23, and the prevalence
+is .4201. (1) Give the odds ratio and its Wald 95% interval, and write
+one sentence interpreting them with the units, the event and the
+adjustment set explicit. (2) Give the odds ratio for a five-point
+difference. (3) Give the divide-by-four bound on the probability
+difference per point, compute the local rate of change at a fitted
+probability of .12 from $\partial\pi/\partial x=\beta\,\pi(1-\pi)$, and
+explain why it must be smaller than the bound. (4) Name three
+conclusions the interval excluding 1 does not establish.
+
+<!-- END exercise-id: CH11-E01 -->
+
+
+<!-- prompt-id: CH11-E02 -->
+
+### Exercise 2: Declare the event, then reverse it (Foundational). {.unnumbered}
+
+A
+researcher codes program *completion* as the event and reports an odds
+ratio of .62 per additional hour of paid weekly employment, with a 95%
+interval of [.51, .75]. (1) State in one sentence what this odds ratio
+compares, including the event and the units. (2) Give the odds ratio and
+interval the same fitted model would report with *non-completion* as the
+event, showing the arithmetic. (3) State which of these change under the
+recoding and which do not: the coefficient signs, the standard errors,
+the $z$ statistics, the p-values, the deviance, the fitted probability
+of completion for a given student, and McFadden's pseudo $R^2$. (4) The
+researcher also relevels the employment-status factor so that "employed"
+is the reference, and a reviewer complains that the results changed.
+Explain in what sense they did and did not change.
+
+<!-- END exercise-id: CH11-E02 -->
+
+
+<!-- prompt-id: CH11-E03 -->
+
+### Exercise 3: Odds ratios are not probability differences (Foundational). {.unnumbered}
+
+Two studies report the same adjusted odds ratio of
+2. In Study A the comparison group's event probability is .04; in
+Study B it is .45. (1) For each study compute the exposed group's event
+probability, the probability difference and the risk ratio. (2) Explain
+why the odds ratio and the risk ratio nearly coincide in one study and
+diverge in the other. (3) A policy brief states that "an odds ratio of
+2 means the risk is doubled" for both. Say where this is approximately
+acceptable and where it is not, and quantify the error. (4) Explain why
+noncollapsibility means an adjusted odds ratio can differ from an
+unadjusted one even when the added predictor is unrelated to the focal
+predictor. (5) Recommend, with reasons, which scale you would lead with
+in a report for school administrators, and which you would also supply.
+(6) In the invented model $p(x,u)=\operatorname{logit}^{-1}(x+u)$,
+compare $u=1$ with $u=0$. Population C has equal numbers at $x=-.5$ and
+$.5$; Population D has equal numbers at $x=-4$ and 4. Before
+calculating, predict which has the larger average probability
+difference. Explain why their common mean $x=0$ and common conditional
+odds ratio do not make these averages equal.
+
+<!-- END exercise-id: CH11-E03 -->
+
+
+<!-- prompt-id: CH11-E04 -->
+
+### Exercise 4: Deviance, Wald, and the criteria by hand (Foundational). {.unnumbered}
+
+On 1,421 rows with the same event, an intercept-only logistic model has
+deviance 1933.506 and a model with sex, neuroticism and extraversion
+has deviance 1906.0613 with four fitted coefficients; the 5% critical
+value of $\chi^2_3$ is 7.8147 and $\log 1421=7.259116$. The neuroticism
+coefficient is .0064 with standard error .0114. (1) Calculate the
+likelihood-ratio statistic for the three-predictor block, give its df,
+and state the decision at 5% and what it does and does not say about the
+three added columns. (2) Calculate AIC and BIC for the fuller model and
+say which model each criterion prefers, given the single-predictor
+model's AIC 1915.4838 and BIC 1926.002. (3) Calculate the Wald
+statistic for neuroticism, compare it with the likelihood-ratio value
+.3139, and say when the two would be expected to disagree. (4) Explain
+why a deviance of 1906.0613 on its own says nothing about fit.
+
+<!-- END exercise-id: CH11-E04 -->
+
+
+<!-- prompt-id: CH11-E05 -->
+
+### Exercise 5: Evaluate a product term, do not read it (Integrative). {.unnumbered}
+
+A
+logistic model of volunteering contains sex, neuroticism $N$,
+extraversion $E$ and their product, with $\widehat\beta_E=.1668$ and
+$\widehat\beta_{NE}=-.0086$; neuroticism runs from 0 to 24 with
+quartiles 8, 11 and 15, the likelihood-ratio test of the product gives
+$G^2(1)=8.6213$, $p=.0033$, and neuroticism alone had $p=.5754$ in the
+additive model. (1) Give the conditional extraversion log-odds contrast
+and odds ratio at each quartile. (2) Explain what .1668 refers to and
+why it is not "the extraversion effect". (3) Explain how a term with no
+detected additive association can participate in a detected product, and
+why the additive term is kept. (4) At extraversion 13 a female student's
+fitted probability is .4519 at neuroticism 8 and .4512 at 15, and the
+one-point probability differences are .0245 and .0096. Explain why the
+probability and log-odds pictures can agree here and disagree elsewhere,
+and what a report must name before claiming an interaction.
+
+<!-- END exercise-id: CH11-E05 -->
+
+
+<!-- prompt-id: CH11-E06 -->
+
+### Exercise 6: Read a separated output and a calibration display (Integrative). {.unnumbered}
+
+A logistic regression fitted to 60 rows returns a
+coefficient of 5.5928 with standard error 8014.9006, $p=.9994$, a
+residual deviance of $5.642\times10^{-10}$, fitted probabilities of
+essentially 0 and 1, and 25 iterations against the four a well-behaved
+model needed. A separate, well-behaved model has one calibration decile
+with mean fitted probability .4126 against an observed proportion of
+.2966, whose standard error is .0379, while the other nine lie within
+1.4 standard errors; its fitted probabilities span .2418 to .6235. (1)
+Name the pattern producing the first output and say why the Wald test
+reports no evidence for the strongest possible pattern. (2) State what a
+report can and cannot say about that coefficient, and name two remedies
+with the condition each requires. (3) Express the calibration gap in
+standard errors and say how much weight one such decile deserves among
+ten. (4) State what the fitted-probability range says about
+discrimination, why that differs from calibration, and why both are
+optimistic when computed on the fitting rows.
+(5) Sketch the qualitative likelihood shape for a finite estimate and
+for the separated example. Explain why a finite stopping point and a
+very small change in likelihood do not establish a finite maximum.
+
+<!-- END exercise-id: CH11-E06 -->
+
+
+
+## Appendix A: Likelihood Mathematics and Numerical Checks {#ch11-likelihood-appendix .unnumbered}
+
+A numerical optimum, a finite identified parameter and an adequate scientific model are different claims. The following two examples make their checks concrete.
+
+### Interior and boundary solutions {.unnumbered}
+
+For $s$ successes in $n>0$ independent Bernoulli trials with common
+probability $p$,
+
+$$
+L(p)=\binom{n}{s}p^{s}(1-p)^{n-s},\qquad
+\ell(p)=\log\binom{n}{s}+s\log p+(n-s)\log(1-p).
+$$
+
+For $0<s<n$, differentiating on $0<p<1$ gives
+
+$$
+\ell'(p)=\frac{s}{p}-\frac{n-s}{1-p},\qquad \widehat p=\frac{s}{n}.
+$$
+
+The binomial coefficient is constant in $p$, so recording only the count
+rather than the particular observed 0/1 pattern does not change the
+maximizing $p$: the Bernoulli product $p^{s}(1-p)^{n-s}$ and the binomial
+likelihood share a maximizer. With only an intercept in a logistic model,
+$p=\operatorname{logit}^{-1}(\beta_0)$, so the interior solution is
+$\widehat p=s/n$ with
+$\widehat\beta_0=\operatorname{logit}(s/n)$. At $s=0$ or $s=n$ the
+likelihood is maximized at a boundary probability of 0 or 1 and there is
+no finite intercept estimate, which is the one-parameter form of the
+separation problem Section 6.3 develops for predictor patterns; the
+analogy motivates, and does not replace, that section's conditions.
+Evaluate the boundaries explicitly, because an interior numerical search
+can return a point near an endpoint without ever evaluating it.
+
+The 14 of 32 `mtcars`
+records reaching 20 mpg supply a transparent illustration under a separately stipulated binomial model. Counting those outcomes does not establish
+independent Bernoulli sampling of car models; the records and their
+illustrative qualification are those of Chapters 5 and 6, and no new
+extract or file is created.
+
+
+```{r}
+#| eval: false
+#| echo: true
+nll <- function(p) -dbinom(14, 32, p, log = TRUE)
+optimize(nll, c(0, 1))
+14 / 32
+```
+
+
+Both displayed proportions are .4375 to four decimals; the small
+difference from exactly 14/32 is optimization tolerance. `dbinom()`
+includes the combinatorial term, which does not move the maximizer, and
+its `log = TRUE` form avoids taking a logarithm after underflow.
+
+
+```{r}
+#| eval: false
+#| echo: true
+dbinom(0, 32, 0, log = TRUE)
+dbinom(32, 32, 1, log = TRUE)
+qlogis(c(0, 14/32, 1))
+```
+
+
+The three fitted probabilities are 0, .4375 and 1, with minimum negative
+log-likelihoods 0, 1.9588 and 0. `qlogis()` returns negative and positive
+infinity at the two boundaries: these are exact mathematical results, not
+rounded small positive probabilities, and displaying them at four decimals
+would misrepresent them. The intercept-only logistic fit returns
+$-.2513$, which is $\operatorname{logit}(.4375)$, closing the loop between
+the scalar binomial case and the regression model of Section 3.
+
+### Several parameters and local curvature {.unnumbered}
+
+Under a hypothetical independent Normal model for a quantitative outcome,
+
+$$
+-\ell(\mu,\sigma)=\frac n2\log(2\pi)+n\log\sigma
++\frac{\sum_i(y_i-\mu)^2}{2\sigma^2},\qquad \sigma>0 .
+$$
+
+Parameterize $\sigma=e^{\eta}$, so an unconstrained search in $\eta$ keeps
+the scale positive. The parameters are then $(\mu,\eta)$ rather than
+$(\mu,\sigma)$, which also fixes the scale on which a numerical Hessian is
+reported. With positive observed variation the analytic maximizers are
+
+$$
+\widehat\mu=\bar y,\qquad
+\widehat\sigma_{\mathrm{ML}}=\sqrt{\frac1n\sum_i(y_i-\bar y)^2},
+$$
+
+so the maximum likelihood scale divides by $n$ where `sd()` divides by
+$n-1$; this is the same distinction Chapter 9 makes before AIC and BIC.
+All-equal data require separate treatment, because the Normal likelihood
+is unbounded as $\sigma$ tends to zero and no finite positive-scale
+maximizer exists. The `mpg` values below have positive variation. This
+illustration concerns a different model and a generic optimizer: it does
+not claim that car outcomes follow a Normal process, and it does not claim
+that `glm()` uses BFGS.
+
+
+```{r}
+#| eval: false
+#| echo: true
+loss <- function(par) {
+  -sum(dnorm(mtcars$mpg, par[1], exp(par[2]), log = TRUE))
+}
+start <- c(mean(mtcars$mpg) - 1, log(sd(mtcars$mpg)))
+a <- optim(start, loss, method = "BFGS", hessian = TRUE)
+a$convergence
+eigen(a$hessian, symmetric = TRUE)$values
+```
+
+
+| Check | Reproduced anchor | Meaning |
+|:--|:--|:--|
+| Analytic mean and ML scale | 20.0906; 5.9320 | Closed-form benchmark on the recorded data; `sd()` gives 6.0269 |
+| First-start estimates | 20.0908; 5.9320 | Numerical tolerance can move the last displayed digit even when convergence is reported |
+| Both convergence codes | 0 | The algorithm's stopping criterion was met |
+| First negative log-likelihood | 102.3778 | The same objective is compared under both starts |
+| First minus second objective | About $-5.99\times10^{-7}$ | Near equality supports reproducibility of the numerical solution; it is not a test of the model |
+| Hessian eigenvalues in $(\mu,\eta)$ | About 64.0006 and .9094 | Positive local curvature of the negative log-likelihood at the returned point |
+
+: Numerical and analytic values have different roles. {#tbl-ch11-optimizer tbl-colwidths="[28,26,46]"}
+
+A stopping code alone establishes neither
+agreement at the reporting precision, nor a global optimum, nor
+identification, nor scientific adequacy: compare starts and objective
+values, use an analytic benchmark where one exists, and read the returned
+local curvature. Section 3.2's IRLS report applies the same discipline to
+the fitting routine actually used, and Section 6.3 shows its symptoms when
+no maximum exists. **Extended practice.** Compare an interior binomial
+case with the zero-success and all-success cases, checking endpoint
+likelihoods explicitly and saying which constraint changes; for the Normal
+example compare the two starts with the analytic solution and state what
+the convergence codes and Hessian do and do not establish. 
+
+
+
+
+## Appendix B: Changed Conditions in the Generating Process {.unnumbered}
+
+The certification process in Section 3.3 is a reference, not a universal
+performance guarantee. The three changes below retain the hours coefficient
+.3 and alter one feature at a time. A smaller study reduces information;
+a lower intercept changes where observations lie on the logistic curve;
+a narrower range removes contrast in hours. None changes the declared
+coefficient being estimated.
+
+| Condition | Change from the baseline | Consequence to investigate |
+|:--|:--|:--|
+| Smaller study | Reduce 1,500 students to 100 | More sampling variation and greater risk of unstable estimates |
+| Lower baseline | Set the intercept to $-5$ | More probabilities near zero, reducing typical Bernoulli information |
+| Narrower hours | Generate hours uniformly from 8 to 12 | Less predictor spread for identifying the hours slope |
+
+: One changed feature per simulation condition. {#tbl-ch11-sim-conditions tbl-colwidths="[22,34,44]"}
+
+For each condition, generate 500 independent datasets and retain the hours
+estimate, its standard error, the Wald interval and any fitting warning.
+The estimate distribution, its mean and SD, and coverage of .3 answer
+different questions: sampling stability, finite-sample bias, precision and
+interval calibration. Record estimates with absolute magnitude above 5
+and separation warnings rather than silently deleting those replications.
+A warning is a screening signal, not a complete separation diagnosis.
+
+A baseline of $-5$ does not make every profile's event rare: at twenty
+hours without tutoring the logit is 1, so the probability is .7311.
+Describe it as a lower-baseline process and inspect its actual prevalence.
+When comparing coverage across 500 repetitions, Monte Carlo variation
+matters: near .95 coverage its SE is about .0097. An apparent difference
+of a few thousandths is not compelling evidence of changed calibration.
+
+Finally fit a linear probability model to one generated dataset from each
+condition and count fitted values outside $[0,1]$. A narrower range can
+make the line's boundary problem less visible while making its slope less
+precise. Boundary protection, sampling precision and correct interpretation
+are distinct reasons for preferring or questioning a model.
+
+## References {.unnumbered}
+

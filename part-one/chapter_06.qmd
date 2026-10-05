@@ -218,6 +218,9 @@ condition spread across 8 points around their own diamond. Whether a
 2-point step is large depends on that spread within conditions, and the
 model below turns this visual comparison into numbers.
 
+In the demonstration, `group_means` contains the three condition means.
+Its layer puts each mean beside the individual scores it summarizes,
+using the same condition positions and score scale.
 
 ```{r}
 #| label: ch06-show-score-graph

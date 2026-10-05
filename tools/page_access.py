@@ -16,6 +16,17 @@ TITLE = re.compile(r'<header id="title-block-header"[^>]*>.*?</header>', re.S)
 
 def improve_page(path: Path) -> bool:
     html = path.read_text(encoding="utf-8")
+    # A muted sidebar placeholder must not become a live next/previous page.
+    html = re.sub(
+        r'<div class="nav-page nav-page-(?:next|previous)">\s*'
+        r'<a\b[^>]*href="[^"]*#(?:argument-c|part-three)"[^>]*>.*?</a>\s*</div>',
+        '', html, flags=re.S,
+    )
+    html = re.sub(
+        r'<link\b(?=[^>]*rel="(?:next|prev)")'
+        r'(?=[^>]*href="[^"]*#(?:argument-c|part-three)")[^>]*>\s*',
+        '', html,
+    )
     if 'class="qmsbr-page-download"' in html or 'class="qmsbr-mobile-contents"' in html:
         # Also normalize an existing processed page during incremental builds.
         html = html.replace('id="TOC-body"', 'id="qmsbr-contents"')

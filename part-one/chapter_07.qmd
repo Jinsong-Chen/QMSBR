@@ -391,10 +391,10 @@ known_data$y <- 2 + 0.5 * known_data$x + rnorm(20, sd = 1)
 known_model <- lm(y ~ x, data = known_data)
 ```
 
-`set.seed()` fixes the random start, so the same 20 errors are drawn each
-time, and `rnorm()` draws them with SD 1. `lm()` fits a straight line by
-least squares, the rule of Section 2.4. @tbl-ch7-known-sample compares
-its estimates with the known parameters.
+The predictor values and error SD are fixed by the generating process;
+the realized errors determine this sample's fitted line. Least squares,
+the rule of Section 2.4, supplies its coefficients.
+@tbl-ch7-known-sample compares the estimates with the known parameters.
 
 \Needspace{10\baselineskip}
 
@@ -486,9 +486,9 @@ prestige$income_k <- prestige$income / 1000
 library(ggplot2)
 ```
 
-The package-qualified name `carData::Prestige` selects the supplied
-dataset, and dividing income by 1,000 changes its units without changing
-any occupation.
+Dividing income by 1,000 expresses each occupation's recorded average
+in thousands of dollars; the occupations and their relative incomes stay
+the same.
 
 ```{r}
 #| label: fig-ch7-scatter
@@ -1578,9 +1578,8 @@ c(r = cor(galton$father, galton$son),
     data = galton))[2]))
 ```
 
-`sapply()` applies `sd()` to both columns, and `scale()` converts a
-column to standard units. The fathers' SD is 2.5466 inches and the
-sons' 2.6475, and $r=.4269$. In inches the fitted slope is 0.4438 inch
+The fathers' SD is 2.5466 inches and the sons' 2.6475, and $r=.4269$.
+In inches the fitted slope is 0.4438 inch
 of son's height per inch of father's height; in standard units it is
 .4269, which is $r$. A father 1.6 SD above the fathers' mean
 has a son predicted $.4269\times1.6=0.6831$ SD above the sons' mean:

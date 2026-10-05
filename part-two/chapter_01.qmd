@@ -26,7 +26,6 @@ format:
     toc: true
     toc-depth: 2
     fig-cap: true
-    tbl-cap: true
     fig-align: center
     include-in-header:
       - ../koma_heading_tags.tex
@@ -605,7 +604,7 @@ population parameters.
 The arrows deserve care. They state a *direction of representation*: the
 model writes each indicator as a function of the factor plus a residual,
 not the reverse. That is a modeling choice with real consequences, and
-it is the choice this book makes throughout. It is not, by itself,
+it is the foundational common-factor representation developed here. It is not, by itself,
 evidence that the factor causes the responses. A diagram is a compact
 statement of a model; establishing that a latent attribute produces
 observed behavior requires theory about the response process and a
@@ -638,8 +637,10 @@ second is the direction just described. For some constructs - socioeconomic
 status is the standard example - the indicators arguably *produce* the
 construct rather than express it, and under that formative reading internal
 consistency stops being a virtue and the common-factor model no longer applies
-[@bollenLennox1991; @edwardsBagozzi2000]. This book takes the reflective
-direction throughout, which is a choice rather than a discovery.
+[@bollenLennox1991; @edwardsBagozzi2000]. This chapter takes the reflective
+direction as its common-factor representation, a choice rather than a
+discovery. Chapter 7 also considers causal indicators and the assumptions
+needed to identify that different representation.
 
 Why introduce something that is not observed? Because the model has
 consequences for quantities that are. Under assumptions developed below,
@@ -866,6 +867,94 @@ conditional response distribution. Zero covariance is not independence:
 two variables can have zero correlation and remain functionally related.
 None of the three claims says that the observed items are unrelated;
 that is the whole point of the model.
+
+Consider a pair of indicators generated from a single common factor.
+Let $\eta,u,e_1,e_2$ be independent standard Normal variables, and first set
+
+$$
+Y_1=.7\eta+\sqrt{.51}e_1,\qquad
+Y_2=.7\eta+\sqrt{.51}e_2.
+$$
+
+Panel A of @fig-local-independence pools people with different factor
+values. Higher $\eta$ tends to raise both indicators, producing their
+positive association. In Panel B we remove each person's **known simulated**
+common contribution, $.7\eta$. What remains is $\sqrt{.51}e_1$ and
+$\sqrt{.51}e_2$. These independent Normal responses have no remaining
+association. At any fixed value of the factor, the same independence holds:
+this construction supplies local independence, while the pooled indicators
+still covary.
+
+**Predict and explain.** Suppose both indicators also respond to the same
+wording influence $u$, independently of the focal factor. Change only the
+residual construction to
+
+$$
+Y_1=.7\eta+.4u+\sqrt{.35}e_1,\qquad
+Y_2=.7\eta+.4u+\sqrt{.35}e_2.
+$$
+
+Before inspecting Panel C, predict whether removing $.7\eta$ will remove
+all association. Each indicator still has variance $1$, and its residual
+variance remains $.4^2+.35=.51$. However, the shared component $.4u$
+remains in both residuals, so their conditional covariance is $.4^2=.16$.
+The focal factor alone no longer supplies local independence.
+
+```{r}
+#| label: fig-local-independence
+#| fig-cap: "Illustrative simulated responses before and after removing a known common contribution. A and B use independent residuals; C adds shared wording while preserving each indicator's total and residual variance. The two residual panels share axis limits."
+#| fig-alt: "Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence."
+#| fig-width: 8
+#| fig-height: 3.1
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+set.seed(2026101201)
+eta <- rnorm(600)
+u <- rnorm(600)
+e1 <- rnorm(600)
+e2 <- rnorm(600)
+y1 <- .7 * eta + sqrt(.51) * e1
+y2 <- .7 * eta + sqrt(.51) * e2
+w1 <- .7 * eta + .4 * u + sqrt(.35) * e1
+w2 <- .7 * eta + .4 * u + sqrt(.35) * e2
+r1 <- y1 - .7 * eta
+r2 <- y2 - .7 * eta
+s1 <- w1 - .7 * eta
+s2 <- w2 - .7 * eta
+lim <- range(r1, r2, s1, s2)
+par(mfrow = c(1, 3), mar = c(3.8, 3.8, 3.3, .6), mgp = c(2.3, .7, 0))
+plot(y1, y2, pch = 16, cex = .5,
+     col = adjustcolor("#33677F", .65),
+     xlab = "Indicator 1", ylab = "Indicator 2",
+     main = "A. Pooled indicators", cex.main = .95)
+plot(r1, r2, xlim = lim, ylim = lim, pch = 16, cex = .5,
+     col = adjustcolor("#33677F", .65),
+     xlab = "Residual 1", ylab = "Residual 2",
+     main = "B. Known factor removed", cex.main = .95)
+plot(s1, s2, xlim = lim, ylim = lim, pch = 16, cex = .5,
+     col = adjustcolor("#A66B2B", .65),
+     xlab = "Residual 1", ylab = "Residual 2",
+     main = "C. Shared wording remains", cex.main = .95)
+```
+
+| Construction | Pooled covariance | Conditional covariance given $\eta$ |
+|:--|--:|--:|
+| Independent residuals | .49 | .00 |
+| Shared wording influence | .65 | .16 |
+
+: Population covariances implied by the two stipulated constructions. Both have unit indicator variances and residual variances .51. {#tbl-local-independence}
+
+The table gives population implications, not correlations estimated from
+these 600 illustrative points. A finite cloud need not reproduce its
+population covariance exactly. Shared wording raises pooled covariance
+from $.49$ to $.49+.16=.65$, although neither loading nor residual variance
+changes. The source of covariance matters as well as its magnitude.
+
+In an empirical study the factor values are unobserved. An estimated
+factor score is an uncertain function of the indicators, so subtracting a
+contribution based on that score is a different operation. A score-residual
+plot cannot stand in for the known-factor comparison or establish local
+independence. Here the stronger conclusion follows from the declared Normal
+construction; a moment model with zero covariances alone would not provide it.
 
 # One model, four representations {#sec-four-ways}
 
@@ -1733,7 +1822,8 @@ estimates a measurement model with rotational freedom retained inside a larger
 structural model, rather than forcing every cross-loading to zero
 [@asparouhovMuthen2009; @marsh2014]. It trades the sharpness of exact zero
 restrictions for a specification that does not pretend to a precision the
-evidence never supplied - a trade whose merits are still actively argued.
+evidence never supplied. Chapter 7 develops this ESEM extension and its
+consequences for structural interpretation.
 
 ## A note on response scales {#sec-response}
 
@@ -1973,8 +2063,10 @@ consequential judgment it is.
 For fuller treatments of latent-variable representation and
 covariance-structure modeling, see @bartholomewKnott1999, @mulaik2010,
 @joreskog1969, @bollen1989 and @brown2006. This chapter uses their
-shared vocabulary selectively and leaves estimation and model evaluation
-to later chapters.
+shared vocabulary selectively. Chapter 3 develops specification,
+identification, estimation and a basic global and local evaluation;
+Chapter 4 develops comparisons, revision and the evidence needed for a
+qualified measurement conclusion.
 
 # Exercises {.unnumbered}
 
@@ -2046,6 +2138,11 @@ correlate, and all residual covariances are zero.
    fixed**. Which entries change now? Explain why these two modifications are
    not interchangeable. (In a refitted model the remaining estimates would
    also move; the point here is the direct algebraic consequence.)
+5. In the local-independence figure, predict whether removing the known
+   factor contribution removes the relation between the two indicators
+   when they share a wording influence. Explain your prediction and why
+   replacing the known factor by an estimated factor score would change
+   what this demonstration establishes.
 
 \Needspace{10\baselineskip}
 

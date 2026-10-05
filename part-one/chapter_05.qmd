@@ -288,13 +288,25 @@ what it answers still depends on the study.
 
 ### A calculation that can be checked
 
-R performs statistical calculations and draws graphs [@rcore2025]. A
-saved script records the commands behind an answer so that the
-calculation can be checked and rerun. Quarto combines those commands
-with prose, equations and their results in one report [@quarto2026].
-Together they make the connection between observations and a reported
-number visible. A reproducible computation can still answer the wrong
-question, so the records and their meaning come first.
+**R** is the programming language and statistical computing platform
+used in this chapter. It performs calculations, fits statistical models
+and draws graphs [@rcore2025]. A saved R script records the commands
+behind an answer so that the calculation can be checked and rerun.
+**RStudio** is an integrated development environment (IDE): a workspace
+that brings together a code editor, the R Console, plots and Help.
+We write and run commands in RStudio; R carries out the computations.
+
+**Quarto** is software for professional publication. It brings prose,
+equations, R code, computed results, tables, figures and references
+together in one source document, which can be rendered as an HTML page,
+a typeset PDF, a Word document or a presentation [@quarto2026]. For
+example, we can write a report in RStudio that explains the three quiz
+scores, asks R to calculate their mean, and uses Quarto to place the
+answer beside its explanation. When the scores change, rendering the
+document again can update the calculation and the report together.
+These three tools connect observations to a reported result. A
+reproducible computation can still answer the wrong question, so the
+records and their meaning come first.
 
 ### A data frame is a table of cases and variables
 
@@ -1069,8 +1081,10 @@ collects the four coefficients.
 
 The different magnitudes do not make the largest coefficient the best
 description in general: the question and the plot decide which
-association matters. Tied horsepower values keep tied ranks, and the
-ties also affect test calibration. The point-biserial .5998 corresponds
+association matters. With average ranks, tied horsepower values share
+the average of the positions they would occupy; the rank plot and
+Spearman coefficient use those same ranks. Ties also affect test
+calibration. The point-biserial .5998 corresponds
 to manual and automatic means of 24.3923 and 17.1474 mpg; reversing the
 0/1 coding reverses its sign and leaves the same two groups. For more
 than two categories, arbitrary numerical labels do not define a

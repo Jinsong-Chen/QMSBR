@@ -129,8 +129,8 @@ draw_part_two_route <- function() {
   labels <- c(
     "Chapter 1\nGeneral and conceptual\nintroduction",
     "Chapter 2\nExploratory approach\nconcepts and practice",
-    "Chapter 3\nFoundational CFA\nspecification and\nestimation",
-    "Chapter 4\nAdvanced CFA\nevaluation, comparison,\nand extensions"
+    "Chapter 3\nFoundational CFA\nformulation, estimation\nand basic evaluation",
+    "Chapter 4\nAdvanced CFA\ncomparison, revision\nand extensions"
   )
   fills <- c("#F3F5F6", "#E8EEF1", "#DCE7EB", "#D0E0E5")
 
@@ -171,15 +171,16 @@ penalized in-sample criteria; held-out evidence; and reproducible work in R.
 Part One's argument-based reading of a study is useful background rather than
 a prerequisite.
 
-Four chapters form the measurement sequence, and this introduction is about
-them. Chapter 1, *From Latent-Variable Modeling to Factor Analysis*, is the
+The first four chapters form the measurement foundation. Chapter 1,
+*From Latent-Variable Modeling to Factor Analysis*, is the
 general and conceptual presentation. Chapter 2, *Exploratory Factor Analysis
 and Model Development*, is the exploratory approach, conceptual and
 practical. Chapter 3, *Specifying and Estimating Confirmatory Factor Models*,
-is the foundational confirmatory approach, covering concepts, specification
-and estimation. Chapter 4, *Evaluating and Comparing Confirmatory Factor
-Models*, is the advanced confirmatory approach, covering evaluation,
-comparison and the higher-order and bifactor extensions. The chapters after
+is the foundational confirmatory approach, covering the general model,
+specification, identification, estimation and basic global and local
+evaluation. Chapter 4, *Evaluating and Comparing Confirmatory Factor
+Models*, develops comparison, revision, independent validation and the
+higher-order and bifactor extensions. The chapters after
 them carry the structural half of the subject, from relations between factors
 and indicators to relations among variables in a structural system; the last
 section here says what they cover and what they cannot confer.
@@ -265,7 +266,7 @@ elsewhere, and numeric category codes are not automatically continuous
 measurements. The boundary concerns the indicators rather than every variable
 in a study: categorical grouping variables and dummy-coded predictors stay in
 scope, and the later multigroup and MIMIC work uses them alongside continuous
-indicators. The family modelled here is the reflective common-factor model with
+indicators. The measurement foundation is the reflective common-factor model with
 its higher-order and bifactor relatives, estimated by normal-theory maximum
 likelihood across exploratory and confirmatory work; principal components
 analysis answers a different question and is not a common-factor estimator.
@@ -279,12 +280,12 @@ mend a weak measurement representation.
 
 ## How the Chapters Build on One Another
 
-The four chapters make four connected moves on one covariance equation:
+The first four chapters make four connected moves on one covariance equation:
 **represent** a common-factor model and derive the moments it implies;
 **explore** a development record to settle dimensionality, orientation and
-interpretation; **specify and estimate** the resulting proposal as explicit
+interpretation; **formulate and evaluate** the resulting proposal as explicit
 restrictions on evidence that played no part in producing it; and
-**evaluate, compare and extend** the fitted model. The equation is the same
+**compare, revise and extend** the fitted model. The equation is the same
 throughout. What changes at each stage is the responsibility it carries and
 the evidence it must answer to. @fig-part-two-route sets out that
 architecture; no chapter redraws it.
@@ -295,7 +296,7 @@ architecture; no chapter redraws it.
 #| fig-height: 1.75
 #| out-width: "100%"
 #| fig-cap: "The four-chapter architecture moves from representation to exploratory development, foundational CFA, and advanced CFA."
-#| fig-alt: "Four boxes connected from left to right: Chapter 1 general and conceptual introduction; Chapter 2 exploratory approach, concepts and practice; Chapter 3 foundational CFA specification and estimation; Chapter 4 advanced CFA evaluation, comparison, and extensions."
+#| fig-alt: "Four boxes connected from left to right: Chapter 1 general and conceptual introduction; Chapter 2 exploratory approach, concepts and practice; Chapter 3 foundational CFA formulation, estimation and basic evaluation; Chapter 4 advanced CFA comparison, revision and extensions."
 
 draw_part_two_route()
 ```
@@ -307,7 +308,7 @@ it hands to the chapter after it.
 |:--|:--|:--|
 | **1. From Latent-Variable Modeling to Factor Analysis** | Separate an observed variable, a latent random variable, a fixed parameter and a residual, and a factor from the construct that names it; write one two-factor, six-indicator system as scalar equations, matrices, a path diagram and a sentence and check the four against one another; say what a scaling, sign, location or coordinate convention supplies and what it cannot decide; derive $\boldsymbol\Sigma=\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta$; and say what exact reproduction does not establish | The vocabulary the three later chapters use without redefinition, and the known-value six-indicator records on which the algebra is checked before any sample is read |
 | **2. Exploratory Factor Analysis and Model Development** | Audit indicators, units, coding and missingness before reading a correlation matrix; state which matrix an extraction targets; compare observed eigenvalues with a matched permutation reference and read a structured retention profile across seven rules; count effective parameters and candidate degrees of freedom; transform loadings and factor covariance together and say what rotation preserves; and read pattern coefficients, structure correlations, factor correlations and communalities together, locating discrepancy in a residual matrix rather than an average | A frozen candidate specification with its named rivals, its retained cross-loadings, the retention evidence behind it and an explicit list of unresolved alternatives, settled before any confirmation evidence is inspected |
-| **3. Specifying and Estimating Confirmatory Factor Models** | State one restricted model as words, equations, parameter matrices and a diagram and check that they agree; separate free, fixed, equality-constrained, bounded and defined entries; set a latent metric by marker or fixed-factor scaling and transform between them; trace a cross-loading and a residual covariance into the moments each changes; count moments, free parameters and degrees of freedom and say why the count is not identification; and check convergence, admissibility, gradients and local rank before reading any coefficient | An evaluation record built in memory and never written to disk: the exact specification and parameter ledger, the active items in order, the moment and degrees-of-freedom audit, the estimator and scaling settings, the convergence and admissibility record, the estimates with their uncertainty, and the rivals declared in advance |
+| **3. Specifying and Estimating Confirmatory Factor Models** | State one restricted model as words, equations, parameter matrices and a diagram and check that they agree; separate free, fixed, equality-constrained, bounded and defined entries; set a latent metric by marker or fixed-factor scaling and transform between them; trace a cross-loading and a residual covariance into the moments each changes; count moments, free parameters and degrees of freedom and say why the count is not identification; check convergence, admissibility, gradients and local rank; read estimates with uncertainty, a basic global-fit profile and local residuals; and compare raw-record and derived-summary inputs | A specification and evaluation record: the exact specification and parameter ledger, the active items in order, the moment and degrees-of-freedom audit, the estimator and scaling settings, the convergence and admissibility record, estimates with their uncertainty, the basic global/local evidence and its limits, and the rivals declared in advance |
 | **4. Evaluating and Comparing Confirmatory Factor Models** | Reconstruct the discrepancy the estimator minimized under a named divisor convention; read the exact-fit test, RMSEA with its interval, CFI, TLI and SRMR as answers to different questions; separate the three residual scales; establish exact nesting, run a compatible difference test and say when AIC and BIC are eligible; specify, count, fit and compare the higher-order and bifactor extensions; read modification indices and expected parameter change as leads that change analytic status; and freeze one revision and evaluate it on untouched records | A calibrated measurement conclusion whose analytic history and unresolved strain stay intact, and the structural question the later chapters take up: which latent variables are endogenous, which directional restrictions enter, and how measurement uncertainty is carried forward |
 
 : *The four-chapter measurement sequence.* {#tbl-part-two-sequence tbl-colwidths="[23,47,30]"}
@@ -330,10 +331,10 @@ larger analysis, and availability is not permission to use a record early.
 |:--|:--|:--|
 | **Known-value six-indicator records** | Chapter 1 reconstructs an implied covariance matrix entrywise from parameters declared in advance | Sampling behavior, an empirical factor count, a unique rotation, a best model, or the existence of the constructs the columns are named after |
 | **SLE Sample A, 360 cases, development** | Chapter 2 audits the indicators, develops the exploratory solution, and freezes the candidate with its named rivals | Independent confirmation of any choice made while Sample A was being inspected |
-| **SLE Sample B, 360 cases, confirmation** | Chapter 3 estimates the frozen candidate; Chapter 4 evaluates it, diagnoses it, and compares the rivals declared in advance | Independent support for a relation first noticed in Sample B, which stays exploratory until fresh evidence tests it |
+| **SLE Sample B, 360 cases, confirmation** | Chapter 3 estimates and gives a basic global/local evaluation of the frozen candidate; Chapter 4 develops comparative evaluation and diagnosis | Independent support for a relation first noticed in Sample B, which stays exploratory until fresh evidence tests it |
 | **SLE Sample C, 360 cases, revalidation** | Chapter 4 evaluates the one revision frozen after Sample B | General validity, measurement invariance, or permission to search Sample C repeatedly for a revision that survives |
 | **Known SLE generating moments** | Chapter 4 discloses them only after the Sample B and Sample C sequence is complete, then computes the population optimum and the population discrepancies directly | Contemporaneous justification for an earlier choice, or a finite-sample conclusion from one realization beyond what the audit separates |
-| **Separate six-indicator examples** | Compact demonstrations of a specified calculation or model comparison, declared from their own population and seed | The development or confirmation status of the SLE sequence, which they never join |
+| **Separate constructed examples** | Chapters 3 and 4 illustrate specified models with declared populations: a six-indicator system and a four-factor higher-order comparison | The development or confirmation status of the SLE sequence, which they never join |
 
 : *Records keep distinct analytical roles even when they illustrate the same model family.* {#tbl-part-two-evidence tbl-colwidths="[24,38,38]"}
 
@@ -357,8 +358,9 @@ narrower conclusion than its name suggests -- which no real study can show.
 
 The stopping points are as deliberate as the moves. Chapter 2 does not
 relabel a developed pattern as confirmation. Chapter 3 does not treat
-convergence or admissibility as adequate fit, and says so in its own section
-title: it reads an estimated model *before its fit*. Chapter 4 does not treat
+convergence or admissibility as adequate fit: it proceeds to a basic reading
+of global and local discrepancy, keeping the limits of that evidence visible.
+Chapter 4 does not treat
 favorable fit as construct validation. Each chapter completes one
 responsibility and transfers a defined record, rather than carrying an
 unexamined conclusion forward under a new name.
@@ -414,7 +416,7 @@ and *analytic status* is the one Part Two term that carries the development,
 confirmation and replication rules set out above.
 
 The [*Part Two Concept Reference*](https://jinsong-chen.github.io/QMSBR/part-two/part_two_concept_reference.html) publishes beside these chapters and holds the
-single vocabulary the four of them share. Its four concept tables gather
+single vocabulary these chapters share. Its concept tables gather
 related terms into broad groups and give each term's meaning or essential
 distinction, and a closing table records the notation; each row names the
 chapter and section where the term is principally explained, so a term met in
@@ -425,38 +427,48 @@ and the reason behind the distinction.
 
 ## What Comes Later
 
-The chapters after Chapter 4 continue Part Two from relations between factors
-and indicators to relations among variables in a structural system. Their
-subject is observed-variable path analysis; general structural equation
-modeling; measurement invariance and multigroup measurement; MIMIC models;
-latent regression and indirect effects; latent growth in a structural
-equation form; and structural model comparison, ordered by their research
-questions rather than by a software menu. Multilevel modeling, including
-multilevel growth, belongs to Part Three -- a division of the curriculum, not
-a claim that structural and multilevel parameterizations stop being
-equivalent when observations are unbalanced or incomplete. Item-response
-theory, mixture models, multilevel factor analysis and a full treatment of
-categorical indicators lie outside Part Two altogether.
+Chapters 1--4 are available on the website. Chapters 5--12 are not yet
+available; the following map shows how they extend the measurement foundation.
 
-The measurement sequence ends where a reader can read and evaluate a
-measurement representation, and structural work begins where a new question
-requires relations among variables or among factors. An acceptable
-measurement model is necessary evidence for many latent-variable structural
-analyses, but a measurement portion plus a structural portion confers no
-substantive warrant: structural equation modeling does not upgrade an
-associational design to a causal one, does not erase measurement uncertainty,
-and does not make an indirect effect causal by calling it mediation. Before
-latent means or structural parameters are compared across groups, settings or
-occasions, the relevant level of measurement comparability is addressed with
-the loading, intercept and other restrictions it requires; and a growth model
-addresses both mean trajectories and the variation and covariation in
-trajectories.
+Chapters 5--12 extend the measurement foundation to research questions about
+relationships, comparisons, change and the design of a new study. The same
+principle continues: define what the model represents, show which observed
+patterns its restrictions imply, and decide what the evidence supports.
+Each case states its own question, data and assumptions, so a new topic does
+not depend on remembering an earlier case's numerical results.
 
-Chapter 4 therefore leaves four questions to that continuation: which latent
-variables are endogenous; which directional restrictions enter; whether the
-measurement representation is stable for the populations, groups, occasions
-and comparisons a structural question requires; and how measurement
-uncertainty is carried forward rather than replaced by exported scores. The
-bridge out of Chapter 4 is written with those questions in view, so that a
-latent intercept is not mistaken for the marginal latent mean once structural
-regressions enter.
+| Chapter | Research question and development |
+|:--|:--|
+| **5. Path Analysis and Structural Systems** | How do equations and diagrams define an observed-variable system? Known populations and empirical cases connect parameter identification, estimation, fit, constraints and comparison, including recursive and feedback systems. |
+| **6. Causal Models, Interventions and Identification** | Which intervention or counterfactual question do the data and assumptions identify? Causal assignments, adjustment, Simpson reversals and instruments separate an observed association from a proposed causal answer. |
+| **7. Structural Equation Models with Latent Variables** | How does a measurement model become part of a structural system? Joint measurement comes first, followed by a full structural refit that retains all indicators and re-estimates both portions. |
+| **8. Indirect Effects and Conditional Relationships** | How do relationships operate through intermediates or vary with another variable? Indirect effects, latent products, conditional slopes and their intervals keep measurement quality and causal assumptions visible. |
+| **9. Measurement Comparability and Group Comparisons** | Which comparisons have a common unit and origin? Group means, variances and structural relations require measurement restrictions suited to the intended comparison, including sensitivity to anchors. |
+| **10. Incomplete Data and Robust Inference** | What information remains when responses are missing or distributions depart from the working model? Incomplete-data likelihood, robust inference, auxiliary information and explicit sensitivity analyses address different problems. |
+| **11. Latent Growth Models** | What changes over time, and for whom? Growth means, person variation, piecewise and parallel processes, and within-person lagged departures are distinct longitudinal targets. |
+| **12. Study Planning and Power Analysis** | What should a future study be able to learn? Evidence-calibrated populations, power, interval precision, failures and plausible model departures inform a feasible design. |
+
+: *The structural continuation of Part Two.* {#tbl-part-two-structural-sequence tbl-colwidths="[31,69]"}
+
+Raw records and published summary statistics provide complementary routes.
+Means, covariances and sample sizes often permit a declared Normal model to
+be fitted or a published result to be replicated. Raw records additionally
+support case resampling, factor-score prediction, response-pattern inspection
+and procedures requiring information beyond the ordinary moments. Matching
+an estimate across routes does not automatically match every diagnostic or
+uncertainty calculation.
+
+For a model with several latent variables, the first step fits their
+measurement system jointly. The second adds the structural relationships,
+retains the indicators and re-estimates measurement and structural parameters
+together. Exporting estimated scores and treating them as error-free
+variables would be a different analysis. Suitable measurement support is
+also needed before interpreting latent group differences or construct change.
+
+A structural model does not upgrade an associational design to a causal one.
+Its directional claims require evidence about timing, confounding, assignment
+and the process that generated the measures. Planning therefore considers
+whether better measurement or a different design is needed, as well as
+whether more participants would improve precision. Multilevel modeling
+belongs to Part Three; categorical measurement and item-response models,
+mixture models and Bayesian SEM lie outside this Part Two sequence.

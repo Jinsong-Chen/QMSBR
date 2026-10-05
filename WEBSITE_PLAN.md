@@ -30,8 +30,8 @@ wording and order govern.
 ## 1. What is in this repository
 
 - `part-one/` — the Part One introduction, the Part One concept reference,
-  Chapters 1--9, each `.qmd` beside its reviewed `.pdf`, and the data files
-  the chapters read
+  Chapters 1--14 and Argument Chapters A/B, each `.qmd` beside its reviewed
+  `.pdf`, and the data files the chapters read
 - `part-two/` — the Part Two introduction, the Part Two concept reference,
   Chapters 1--4, with their PDFs and data
 - `index.qmd`, `about.qmd`, `argument-approach.qmd` — the three site pages
@@ -47,7 +47,8 @@ wording and order govern.
   `materials/`, retained with the copied sources for reproducible PDF builds
 - `LICENSE` — the terms for everything the site ships
 
-The site renders the HTML for each chapter; the PDF beside it is offered as
+The site renders the HTML for each available chapter; the PDF beside it is
+offered as
 a download near the title and through `format-links: [pdf]` in the margin.
 These links appear on each part introduction and concept reference too;
 formats without reviewed public files are not offered.
@@ -69,23 +70,21 @@ there is no separate Home item. The items, in order:
 | Argument Approach | `argument-approach.qmd` |
 | About | `about.qmd` |
 
-Search and the repository icon sit on the right. The two Part buttons land
+Search sits on the right; the public reading interface carries no
+development-repository link. The two Part buttons land
 on their part introductions, which is why an introduction is also the first
 entry of its sidebar.
 
-**Muted items.** A navigation entry for a unit that is not yet available is
-an ordinary link whose `href` ends in `#part-three`, `#argument-a`, `#argument-b` or
-`#argument-c`. One shared CSS rule, selecting on those endings, mutes the
-entry to a colour that still meets AA contrast on its background and sets
-`pointer-events: none` and `cursor: default`; a small script in
-`include-after-body` sets `aria-disabled="true"` and `tabindex="-1"` on the
-same links, so keyboard and screen-reader users meet the same state that the
-colour shows. Both sites carry the rule and the script. Nothing unreleased
-is listed as a live link, and nothing unreleased is hidden either: the muted
-entry and the card it points at say what the unit will be and that it is not
-yet available. The earlier `#supplement-a` and `#supplement-b` anchors
-remain aliases when the argument labels are reconciled, so existing links
-still resolve. The same disabled-link handling applies to those aliases.
+**Muted items.** Navigation entries for unavailable units point to their
+labelled placeholders. Shared CSS mutes those entries while retaining AA
+contrast; `include-after-body` applies `aria-disabled="true"` and
+`tabindex="-1"` so keyboard and screen-reader users meet the same state.
+The current navigation placeholders are Part Three and Argument C. Part Two
+Chapters 5--12 remain later work for publication and are described on Home;
+the public Part Two sidebar contains Chapters 1--4.
+The earlier `#supplement-a` and `#supplement-b` anchors remain live aliases
+on the Argument Approach page, whose A/B sections link to the books.
+The practice project repeats the same navigation rules.
 
 ### Sidebars
 
@@ -96,18 +95,18 @@ Regression, and Generalized Linear Models*. A page belongs to one of them:
 
 - **Part One** — `part-one/part_one_introduction.qmd` with the text
   *Introduction*, `part-one/part_one_concept_reference.qmd` as *Concept
-  reference*, then Chapters 1--9 by title.
+  reference*, then Chapters 1--14 by title.
 - **Part Two** — `part-two/part_two_introduction.qmd`,
   `part-two/part_two_concept_reference.qmd`, then Chapters 1--4.
 - **Argument Approach** — `argument-approach.qmd` as *The argument-based
   approach*, then the three argument chapters: *A. How to Read a
-  Quantitative Study as an Argument* (`argument-approach.qmd#argument-a`),
+  Quantitative Study as an Argument* (`part-one/chapter_arg_a.qmd`),
   *B. Extending the Argument-Based Approach to Quantitative Studies*
-  (`argument-approach.qmd#argument-b`), and *C. Arguments involving latent
+  (`part-one/chapter_arg_b.qmd`), and *C. Arguments involving latent
   variables or an additional measurement layer*
   (`argument-approach.qmd#argument-c`). C's wording names its scope until
-  its technical specification fixes the title. Each entry stays muted
-  until its own chapter is published.
+  its technical specification fixes the title. A and B are live book links;
+  C stays muted until available.
 
 Home and About carry no sidebar. The practice site has one docked sidebar of
 its own (WebR plan, Section 1).
@@ -128,8 +127,8 @@ in the order of the top row), *Using QMSBR in a course*, *How to use this
 site*, *What comes next* as a `.roadmap-grid`, and the `.author-band`. The
 Part Three card carries the id `part-three`, the `.unavailable` class and
 `aria-disabled="true"`, and lists no link. The Argument Approach card keeps
-its link to the approach page live and shows Argument Chapters A, B and C in a
-`.card-muted-block`. Wherever a unit that is not yet available is named,
+its link to the approach page live and links A/B with their PDFs; C remains
+in a `.card-muted-block`. Wherever a unit that is not yet available is named,
 the `.badge-unavailable` chip marks it.
 
 **About (`about.qmd`).** No sidebar. Its sections keep the anchors that the
@@ -137,8 +136,8 @@ footer and the Home page link to: `#citation`, `#licences` and `#courses`.
 
 **Argument Approach (`argument-approach.qmd`).** Titled *The Argument-Based
 Approach* and the first entry of its sidebar, with page navigation turned
-off so that a muted argument-chapter entry never becomes a pagination
-link. Its closing section carries `argument-a`, `argument-b` and
+off so that the unavailable C entry never becomes a pagination link. Its
+closing section carries `argument-a`, `argument-b` and
 `argument-c`, with `supplement-a` and `supplement-b` retained as aliases,
 so the sidebar and existing links resolve. It reads `references.bib` and
 `apa.csl` for its citations.
@@ -196,6 +195,8 @@ copy in native HTML disclosure controls, giving that copy unique IDs.
 The controls work without JavaScript; CSS shows the body contents only
 when the margin contents is hidden. It changes rendered page navigation,
 never the copied chapter source or PDF.
+The same step removes next/previous controls and relationship links that
+Quarto derives from an unavailable sidebar placeholder.
 
 `_freeze/` stays committed. CI installs no R and no LaTeX, and restores
 computed results from the cache, which is why the local render is not

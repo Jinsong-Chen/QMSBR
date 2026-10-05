@@ -208,17 +208,25 @@ the intercept column minus the other two, so the design matrix would lose
 full rank and no coefficient would be separately estimable. Which level
 is omitted is a choice of coordinates, not a choice of model.
 
-The Chapter 8 records and models are re-created here so that every later
-calculation has a stated origin: `m0`, `m1`, and `m2` are the
-education-only, the education-and-prestige, and the full additive models.
+The working data `d` retain the 98 occupations in `carData::Prestige`
+with a recorded type. Income divided by 1,000 gives `income_k` in
+thousand 1971 Canadian dollars, and the factor order is blue-collar,
+professional, then white-collar, so blue-collar is the reference. On
+these same rows, `m0`, `m1`, and `m2` name the education-only, the
+education-and-prestige, and the full additive models:
 
 ```{r}
-#| label: ch9-records
-#| echo: true
+#| label: ch9-records-prepare
+#| include: false
 prestige <- carData::Prestige
 prestige$income_k <- prestige$income / 1000
 d <- prestige[!is.na(prestige$type), ]
 d$type <- factor(d$type, levels = c("bc", "prof", "wc"))
+```
+
+```{r}
+#| label: ch9-records
+#| echo: true
 m0 <- lm(income_k ~ education, data = d)
 m1 <- lm(income_k ~ education + prestige, data = d)
 m2 <- lm(income_k ~ education + prestige + women + type, data = d)
@@ -460,17 +468,28 @@ the grand pretest mean $\bar X$ it is the observed posttest mean
 $\bar Y_j$ moved along the common slope by the group's pretest departure
 from $\bar X$, the second equation.
 
+The working data `reading` hold these 66 pupils, all with recorded first
+pretests and posttests. The package's group codes `Basal`, `DRTA` and
+`Strat` are labelled DRA, DRTA and Think-aloud, with DRA as the reference.
+The prediction below evaluates each group's line at the grand pretest
+mean.
+
 ```{=latex}
 \Needspace{20\baselineskip}
 ```
 
 ```{r}
-#| label: ch9-baumann
-#| echo: true
+#| label: ch9-baumann-prepare
+#| include: false
 reading <- carData::Baumann
 reading$group <- factor(reading$group,
   levels = c("Basal", "DRTA", "Strat"),
   labels = c("DRA", "DRTA", "Think-aloud"))
+```
+
+```{r}
+#| label: ch9-baumann
+#| echo: true
 ancova <- lm(post.test.1 ~ group + pretest.1, data = reading)
 coef(ancova)
 predict(ancova, interval = "confidence",

@@ -1003,6 +1003,14 @@ reasoning from Sample A. No empirical
 summary, correlation, factor solution, or fit statistic from B or C
 has been used to make the decisions reported here.
 
+Three possible actions will matter when we interpret the factor evidence:
+**retain** an indicator for a stated use, **delete** it from the proposed
+measurement system, or **redesign** its wording or observation procedure
+and collect new responses. Each changes a different part of the study.
+We will compare those choices after reading the oblique solution, while
+keeping all twelve indicators in the fitted analyses and the declared
+A/B/C sequence.
+
 ## Check the indicators before interpreting correlations
 
 Data examining is part of defining the statistical input. An unintended
@@ -1998,6 +2006,41 @@ from the other items. Removing it can make the covariance model cleaner
 while narrowing the construct. A high communality can likewise arise
 from redundancy rather than desirable breadth.
 
+**Retain, delete, or redesign: P4 and B4.** The two indicators illustrate
+different reasons to look beyond a loading cutoff. P4 links adaptive
+planning with a change of method, whereas B4 extends belonging beyond
+peers and the classroom to the university as a whole.
+
+| Indicator and intended content | What the factor evidence says | Consequence of retaining or deleting | Evidence needed for redesign or a later decision |
+|:--|:--|:--|:--|
+| P4: "I revise my plan when a study method is not working." | Planning pattern `r pt2_num(P["P4","Planning"])`; Strategy pattern `r pt2_num(P["P4","Strategy"])`, structure `r pt2_num(z$structure["P4","Strategy"])`; communality `r pt2_num(z$h2["P4"])`. | Retention preserves the planning--method link. Deletion removes that content as well as its overlap. | How students interpret revising a plan; whether the intended construct includes this overlap; stability of the proposed relations in new evidence. |
+| B4: "I feel connected to the university as a whole." | Belonging pattern `r pt2_num(P["B4","Belonging"])`; communality `r pt2_num(z$h2["B4"])`; uniqueness `r pt2_num(z$u2[match("B4",rownames(P))])`. | Retention keeps institutional connection with weaker common-factor representation. Deletion saves one item but removes its content contribution. | What "connected" and "university as a whole" mean to respondents; the intended population and score; responses to a specified revised version. |
+
+: Item decisions combine the existing Sample A estimates with the intended content. No item has been removed or refitted in this comparison. {#tbl-efa-item-decision tbl-colwidths="[23,23,26,28]"}
+
+**Predict and explain.** Suppose B4 is removed to shorten the instrument.
+What has certainly changed, and what improvement still needs evidence?
+The proposed set now contains eleven rather than twelve indicators and
+loses B4's contribution to institutional-belonging content. One fewer item
+is a burden count; it does not establish a particular time saving or an
+improvement in the resulting score. Retaining B4 instead preserves that
+content while recording how incompletely this factor system represents it.
+
+Redesign could clarify the intended reference setting, but new wording
+creates a new response task. Recoding the old B4 column cannot produce the
+answers students would have given to that task. A defensible choice needs
+response-process evidence, an explicit measurement purpose and population,
+and new evaluation of the proposed version. A higher loading or reliability
+estimate alone cannot decide whether the content remains adequate [@kano2007].
+
+An actual item-set change would also require a new model ledger, analysis
+of the changed observed system and a validation plan. AIC or BIC values
+from different outcome sets would not supply the missing comparison. Here
+all twelve indicators remain in the candidate, Sample A remains its
+development record, and B and C keep their declared independent roles.
+Their results cannot be inspected to choose new wording and then described
+as unused confirmation of that choice.
+
 ## Reconstruct a pair, then the whole matrix
 
 Under diagonal uniqueness, the reproduced correlation of distinct
@@ -2245,9 +2288,11 @@ is indispensable for implementation details, especially distinctions
 between simulation, resampling, and permutation.
 
 Chapter 3 now changes the question: **given the fixed zero, free, and
-equality restrictions, can a CFA be specified, identified, and estimated
-coherently?** An exploratory orientation becomes a confirmatory model
-only when its restrictions and analytic history are made explicit.
+equality restrictions, can a CFA be specified, identified, estimated and
+evaluated coherently?** It checks the fitted parameters and the basic
+global and local discrepancies before Chapter 4 develops comparisons and
+possible revision. An exploratory orientation becomes a confirmatory
+model only when its restrictions and analytic history are made explicit.
 
 # Key terms {.unnumbered}
 
@@ -2313,9 +2358,11 @@ possible; code is optional unless a prompt explicitly asks for it.
    smallest discrepancy nor the largest conventional $p$ value is a
    sufficient decision rule.
 7. <!-- prompt-id: PT2-CH02-E07 --> **Evaluate an item.** Contrast P4 and B4 using wording,
-   pattern, structure, and communalities. Propose what additional evidence
-   would be needed before deleting either. Do not use a loading cutoff
-   as the complete rationale.
+   pattern, structure, and communalities. Propose what additional evidence would be
+   needed before retaining, deleting, or redesigning either for a stated
+   measurement purpose. Predict what deleting B4 would change about content
+   coverage and burden, and explain why new wording needs new responses.
+   Do not use a loading cutoff as the complete rationale.
 8. <!-- prompt-id: PT2-CH02-E08 --> **State the transition.** Write the free/fixed relation
     ledger for two restricted models: the three-factor candidate that keeps the
     P4 and S4 secondary loadings free, and the stricter version that fixes both
@@ -2454,7 +2501,7 @@ pt2_sle_appendix_table(data.frame(
   IDs=c("A001-A360","B001-B360","C001-C360"),
   Seed=as.character(manifest$seed),
   `Permitted first use`=c("Chapter 2: EFA development.",
-    "Chapter 3: estimate the candidate frozen after A; Chapter 4: evaluate it.",
+    "Chapter 3: estimate and initially evaluate the candidate frozen after A; Chapter 4: compare and diagnose it.",
     "Chapter 4: retest the revision frozen after B."),
   check.names=FALSE),c(.18,.05,.17,.15,.29))
 ```

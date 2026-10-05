@@ -1,0 +1,3174 @@
+---
+title: "Regression Pitfalls and Causal Design"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    latex-auto-install: false
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - ../koma_heading_tags.tex
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \addtokomafont{sectionentry}{\small}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{16\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(ggplot2)
+library(carData)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+  fig.pos = "H")
+if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
+options(digits = 7, width = 68)
+theme_set(theme_minimal(base_size = 11))
+format_p <- function(p) ifelse(p < .0001, "< .0001",
+  paste0("= ", sub("^0", "", format(round(p, 4), trim = TRUE))))
+```
+
+{{< pagebreak >}}
+
+::: {.callout-note title="Chapter overview"}
+A correct regression calculation can support an incorrect research claim.
+This chapter connects adjustment, composition, selection, measurement and
+dependence with the comparison each analysis actually makes. Generated
+studies reveal mechanisms with known truth; Berkeley admissions,
+occupation records and Project STAR show what the same questions mean in
+real evidence. By the end, you can choose an estimand, explain when
+adjustment helps or harms, recognize a change of unit or population, and
+write a claim that respects the design and the uncertainty. The chapter
+teaches how to audit a claim; it introduces causal-design vocabulary
+without supplying an advanced causal estimator.
+:::
+
+In the autumn of 1973 the six largest graduate departments at the
+University of California, Berkeley, returned decisions to 4,526
+applicants. Among the 2,691 men, 1,198 were admitted, a rate of
+44.5188 percent; among the 1,835 women, 557 were admitted, a rate of
+30.3542 percent. A gap of 14.1645 percentage points on more than four
+thousand decisions is not a rounding artifact, and a logistic
+regression of admission on applicant gender returns a coefficient
+many standard errors from zero. Now add one column that was in the
+file all along: the department applied to. Four of the six
+departments admitted women at a higher rate than men, the two
+exceptions differed little, and the same regression with department
+included moves the gender coefficient to the other side of zero with
+an interval that comfortably contains equality. Both calculations are
+correct, and they are not contradictory, because they answer
+different questions: one describes the applicant pool as it was
+composed, in which men and women applied to very differently
+selective departments, and the other describes applicants within a
+department. Neither is by itself an account of how the decisions were
+made; the original authors said so explicitly [@bickel1975]. This
+chapter is about the distance between a number that is correct and a
+claim that is credible: what comparison did this model make, who was
+in it, what was measured, how many analyses were tried, and does the
+final sentence describe that comparison or a more attractive one?
+
+## Credibility Is Alignment {#ch14-alignment}
+
+### Six commitments that must line up
+
+A quantitative claim rests on a chain of commitments and is credible
+only when they agree. The failures in this chapter are misalignments,
+not computational errors: the regression runs, the standard errors
+print, and nothing in the output announces that the quantity named in
+the introduction and the quantity the model computed differ.
+
+| Element | Question it answers |
+|:--|:--|
+| Research question | What do we want to know, and in what mode: descriptive, associational, predictive, or causal? |
+| Estimand | What quantity, for which units and conditions, would answer that question? |
+| Design | How were units produced, selected, observed, assigned, and retained? |
+| Data | Which rows and columns survive into the analysis, and what do they measure? |
+| Model | What comparison does the fitted specification actually compute? |
+| Claim | What sentence is written at the end, and how far does it reach? |
+
+: The six commitments behind a credible claim. {#tbl-ch14-commitments tbl-colwidths="[24,76]"}
+
+Three habits keep them aligned, and none of them is a diagnostic plot.
+Name the estimand in words before fitting anything [@lundberg2021].
+Describe the comparison the model makes in one sentence that names the
+unit, the contrast, and what is held fixed. Then check that the
+concluding sentence uses no verb the design cannot support.
+
+### Pooled, within-group, and between-group comparisons
+
+Let $Y$ be an outcome, $X$ a focal predictor, and $Z$ a grouping or
+adjustment variable. Three quantities recur in this chapter and are
+different: pooling mixes groups, conditioning compares within them,
+and aggregation makes the groups themselves the rows.
+
+$$
+\Delta\mu_{\mathrm{pooled}}=E(Y\mid X=x+1)-E(Y\mid X=x),
+$$
+
+$$
+\Delta\mu_{\mathrm{within}}(z)=E(Y\mid X=x+1, Z=z)-E(Y\mid X=x, Z=z),
+$$
+
+$$
+\Delta\mu_{\mathrm{between}}=E(\bar Y_z\mid \bar X_z=x+1)
+-E(\bar Y_z\mid \bar X_z=x).
+$$
+
+The first averages over whatever mixture of $Z$ the data contain. The
+second removes that mixture, and an additive regression including $Z$
+estimates a common value when the stratum-specific comparisons are
+similar. The third changes the unit of analysis, since its rows are
+groups, and can take any sign relative to the other two. Section 3.3
+adds a fourth, the **standardized** comparison, which reweights the
+stratum-specific comparisons by a declared common distribution of $Z$.
+
+A **strict Simpson reversal** occurs when the pooled comparison and
+every stratified comparison point in opposite directions [@simpson1951;
+@yule1903]. The broader **aggregation reversal** also covers a sign
+change between a pooled comparison and an adjusted or standardized
+summary when the stratum-specific comparisons are heterogeneous. Nothing
+paradoxical has happened: composition changes the weights and, usually,
+the quantity estimated. Section 3.1's tutoring reversal is strict;
+Section 3.3's Berkeley reversal is the broader kind.
+
+### Four modes of claim and their verbs
+
+Chapters 1 and 7 introduced the typology of questions. It returns here
+as the vocabulary of the final audit, because most overclaiming is a
+silent change of mode between the analysis and the conclusion.
+
+| Mode | Legitimate verbs | What the design must supply |
+|:--|:--|:--|
+| Descriptive | is, was, differed, ranged | A defined population and unit, and data that represent them |
+| Associational | is associated with, differs by, tends to be higher among | Defined units, measurements, conditioning set and observed support |
+| Predictive | predicts, forecasts, is expected to be | Predictors available at the intended decision time and an honest held-out performance estimate for the named deployment population (Chapter 13) [@shmueli2010] |
+| Causal | causes, raises, reduces, would change | A defined intervention and target population, with assignment or an identification argument under explicit, defensible assumptions [@shadish2002] |
+
+: Four modes of claim, their verbs, and what each requires. {#tbl-ch14-modes tbl-colwidths="[14,30,56]"}
+
+The verbs are not decoration. "Pupils who received more tutoring
+scored lower" and "tutoring lowered scores" are different claims, and
+the same regression output can be made to look like support for
+either. A reader who has only the output cannot tell which claim was
+intended; a reader who has the estimand, the design and the
+conditioning set can.
+
+## Adjustment: Confounders, Mediators, and Colliders {#ch14-adjustment}
+
+### A diagram records assumptions
+
+To decide whether conditioning on $Z$ helps, something must be assumed
+about how $X$, $Y$ and $Z$ were produced. The minimum vocabulary is
+three structures, drawn as a **directed acyclic graph**: an arrow means
+"is a direct cause of", and no directed path returns to its starting point
+[@pearl2009]. A **confounder** $Z$ causes both $X$ and $Y$, so leaving
+it out mixes the direct path with the back-door path through $Z$ and
+adjusting removes that mixture. A **mediator** $M$ lies on a causal path from $X$ to $Y$, so
+conditioning on it blocks that pathway in a total-effect comparison.
+A mediator is one kind of **post-treatment variable**. The broader term
+also includes consequences of treatment that do not mediate its effect,
+including the collider in the next example; timing alone does not
+identify a variable's causal role. A
+**collider** $C$ is caused by both $X$ and an unmeasured $U$ that also
+causes $Y$; the path through $C$ is blocked while $C$ is left alone, and
+conditioning on it opens that path, creating an $X$-$U$ association that
+did not exist [@elwert2014]. The practical rule reverses "adjust for
+everything available": choose the adjustment set for the stated estimand
+from an explicit structure. Pre-treatment common causes are usually
+needed; for a total-effect target, mediators and colliders are not.
+Timing rules out some roles without settling any
+[@vanderweele2019; @pearl2009], which is why measurement timing and
+the assumed structure belong in the data audit.
+
+```{r}
+#| label: fig-ch14-structures
+#| echo: false
+#| fig-cap: 'Three minimal causal structures. $\textbf{(a)}$ A common cause $Z$ of the focal predictor $X$ and the outcome $Y$. $\textbf{(b)}$ A mediator $M$ lying on a causal path from $X$ to $Y$. $\textbf{(c)}$ A collider $C$ influenced by $X$ and by an unmeasured variable $U$ that also influences $Y$.'
+#| fig-alt: 'Three small node-and-arrow diagrams. In the first, an upper node Z sends arrows down to X on the left and Y on the right, and X also sends an arrow to Y. In the second, X sends an arrow to M above and to Y, and M sends an arrow to Y. In the third, X and an unmeasured node U both send arrows into a lower node C, U also sends an arrow to Y, and X sends an arrow to Y.'
+#| fig-width: 7.5
+#| fig-height: 3.0
+#| fig-show: hold
+#| out-width: 100%
+
+old_par <- par(no.readonly = TRUE)
+par(mfrow = c(1, 3), mar = c(1, 1, 3, 1))
+
+# (a) common cause
+plot(0, 0, type = "n", xlim = c(0, 10), ylim = c(0, 10),
+     axes = FALSE, xlab = "", ylab = "", main = "(a) Common cause")
+text(2, 2, "X", cex = 1.6)
+text(8, 2, "Y", cex = 1.6)
+text(5, 8, "Z", cex = 1.6)
+arrows(4.6, 7.3, 2.4, 2.9, length = 0.12)
+arrows(5.4, 7.3, 7.6, 2.9, length = 0.12)
+arrows(2.8, 2, 7.2, 2, length = 0.12)
+
+# (b) mediator
+plot(0, 0, type = "n", xlim = c(0, 10), ylim = c(0, 10),
+     axes = FALSE, xlab = "", ylab = "", main = "(b) Mediator")
+text(2, 2, "X", cex = 1.6)
+text(8, 2, "Y", cex = 1.6)
+text(5, 8, "M", cex = 1.6)
+arrows(2.4, 2.9, 4.6, 7.3, length = 0.12)
+arrows(5.4, 7.3, 7.6, 2.9, length = 0.12)
+arrows(2.8, 2, 7.2, 2, length = 0.12)
+
+# (c) collider
+plot(0, 0, type = "n", xlim = c(0, 10), ylim = c(0, 10),
+     axes = FALSE, xlab = "", ylab = "", main = "(c) Collider")
+text(2, 8, "X", cex = 1.6)
+text(8, 8, "U", cex = 1.6)
+text(5, 2, "C", cex = 1.6)
+text(8, 4.4, "Y", cex = 1.6)
+arrows(2.4, 7.3, 4.6, 2.9, length = 0.12)
+arrows(7.6, 7.3, 5.4, 2.9, length = 0.12)
+arrows(8, 7.3, 8, 5.0, length = 0.12)
+arrows(2.5, 7.7, 7.4, 4.7, length = 0.12)
+
+par(old_par)
+```
+
+::: {.callout-note title="What a diagram is and is not"}
+A diagram of this kind records assumptions. It is not evidence, it is
+not produced by the data, and drawing one does not make an
+observational comparison causal. Its value is that it makes the
+adjustment decision arguable in public: a reader can dispute an
+arrow, and cannot dispute an unstated intuition.
+:::
+
+### Adjusting for a mediator on a randomized programme
+
+```{r}
+#| include: false
+#| label: sim-mediator
+
+set.seed(14007)
+
+n_med <- 600
+program <- rbinom(n_med, size = 1, prob = 0.5)
+homework <- 6 + 2.0 * program + rnorm(n_med, mean = 0, sd = 2)
+achievement <- 50 + 3.0 * program + 2.5 * homework +
+  rnorm(n_med, mean = 0, sd = 5)
+
+med <- data.frame(program, homework, achievement)
+
+fit_total <- lm(achievement ~ program, data = med)
+fit_direct <- lm(achievement ~ program + homework,
+                 data = med)
+
+mediator_estimates <- c(
+  true_total_effect = 3.0 + 2.5 * 2.0,
+  unadjusted_estimate = coef(fit_total)["program"],
+  true_direct_effect = 3.0,
+  homework_adjusted_estimate = coef(fit_direct)["program"]
+)
+print(mediator_estimates)
+```
+
+```{r}
+#| include: false
+#| label: sim-mediator-ci
+total_ci <- confint(fit_total)["program", ]
+direct_ci <- confint(fit_direct)["program", ]
+```
+
+
+Both examples in this section randomize assignment. The particular
+post-treatment variables considered here change or distort the total-effect
+comparison; this is not a claim that adjustment for baseline predictors
+is harmful in randomized studies. A
+district randomizes 600 pupils to a study-skills programme, which raises
+homework completion, which raises achievement; a direct pathway does not
+run through homework.
+
+$$
+\begin{aligned}
+\text{program}_i &\sim \text{Bernoulli}(.5),\\
+\text{homework}_i &= 6+2\,\text{program}_i+u_i,
+&& u_i\sim\text{Normal}(0, 2^2),\\
+\text{achievement}_i &= 50+3\,\text{program}_i
++2.5\,\text{homework}_i+\varepsilon_i,
+&& \varepsilon_i\sim\text{Normal}(0, 5^2).
+\end{aligned}
+$$
+
+The total effect is the direct path plus the indirect path,
+$3+2.5\times2=8$ points; the direct effect, holding homework
+fixed, is 3. These are two estimands, and the question decides which
+matters: a district deciding whether to fund the programme wants the
+total effect. With seed 14007 the unadjusted regression gives 8.0198
+[6.8566, 9.1830] and the regression adding homework gives 3.066
+[2.1023, 4.0297]. Both are correct. If the report asks whether the
+programme raises achievement and by how much, the adjusted model answers
+a question nobody asked and understates the total by more than half.
+Nothing in the coefficient table warns of this; the clue is temporal,
+because homework completion follows randomization and is a consequence
+of the programme.
+
+::: {.callout-warning title="The most common version of this mistake"}
+"We controlled for baseline motivation, homework, attendance and
+engagement to isolate the effect of the programme." If the programme
+changed any of those variables, they are post-treatment and the
+resulting coefficient is not the programme's total effect. Adding
+covariates is not automatically conservative.
+:::
+
+
+```{r}
+#| eval: false
+#| echo: true
+lm(achievement ~ program, data = med)
+lm(achievement ~ program + homework, data = med)
+```
+
+
+```{r}
+#| include: false
+#| label: sim-mediator-confounding
+set.seed(14016)
+med2 <- med
+med2$support <- rnorm(nrow(med))
+med2$homework <- med$homework + 2 * med2$support
+med2$achievement <- med$achievement + 9 * med2$support
+fit_med2_total <- lm(achievement ~ program, data = med2)
+fit_med2_home <- lm(achievement ~ program + homework, data = med2)
+fit_med2_full <- lm(achievement ~ program + homework + support, data = med2)
+stopifnot(
+  round(coef(fit_med2_total)["program"], 4) == 8.4296,
+  round(coef(fit_med2_home)["program"], 4) == 1.1101,
+  round(coef(fit_med2_full)["program"], 4) == 3.0659)
+```
+
+**Change one assumption: family support also affects homework and achievement.**
+The original recipe makes the homework and achievement disturbances
+independent. Now keep its 600 assignments and both error draws, and add
+an independent pre-programme support variable $S_i\sim\mathrm{Normal}(0,1)$,
+drawn under seed 14016:
+
+$$
+\begin{aligned}
+\text{homework}_i &= 6+2\,\text{program}_i+2S_i+u_i,\\
+\text{achievement}_i &= 50+3\,\text{program}_i+
+  2.5\,\text{homework}_i+4S_i+\varepsilon_i.
+\end{aligned}
+$$
+
+The programme still has total effect 8 and direct effect 3 in this
+generated process. Before looking at the estimates, predict which
+comparison remains supported by random assignment. Assignment makes
+programme independent of support, but it does not randomize homework.
+Among pupils with the same homework amount, programme participation can
+go together with less support; support also affects achievement.
+Holding homework fixed therefore opens a noncausal path unless support
+is adequately controlled.
+
+
+```{r}
+#| label: fig-ch14-mediator-change
+#| fig-cap: The same programme pathway with and without a common cause of homework and achievement. In the second diagram, holding homework fixed opens the programme--support path through homework; adjusting for measured support blocks that path under the stated recipe.
+#| fig-alt: Two causal diagrams both show programme causing homework and achievement, and homework causing achievement. The second adds family support with arrows into both homework and achievement. Programme has no arrow to support.
+#| fig-width: 7
+#| fig-height: 2.9
+old <- par(mfrow = c(1, 2), mar = c(.5, .5, 2, .5))
+for (j in 1:2) {
+  plot.new()
+  plot.window(xlim = c(0, 10), ylim = c(0, 10))
+  title(if (j == 1) "Independent disturbances" else "Shared family support",
+        cex.main = 1)
+  text(c(1.5, 5, 8.5), c(1.3, 5, 1.3),
+       c("Programme", "Homework", "Achievement"), cex = .95)
+  arrows(2, 2, 4.3, 4.5, length = .09)
+  arrows(5.7, 4.5, 8, 2, length = .09)
+  arrows(2.8, 1.3, 7, 1.3, length = .09)
+  if (j == 2) {
+    text(7.5, 8.5, "Support", cex = .95, col = "#0072B2")
+    arrows(7.1, 7.8, 5.6, 5.6, length = .09, col = "#0072B2")
+    arrows(7.8, 7.8, 8.5, 2.2, length = .09, col = "#0072B2")
+  }
+}
+par(old)
+```
+
+| Fitted programme comparison | Original independent disturbances | Added common cause |
+|:--|--:|--:|
+| Programme only: total effect target | 8.0198 | 8.4296 |
+| Programme and homework | 3.0660 | 1.1101 |
+| Programme, homework and support | -- | 3.0659 |
+
+: Changing mediator--outcome confounding while retaining random programme assignment. {#tbl-ch14-mediator-change tbl-colwidths="[46,27,27]"}
+
+The changed recipe's unadjusted interval is [6.5256, 10.3335]. Its
+homework-adjusted interval is [0.0856, 2.1345], excluding the known direct
+effect 3. Adding the accurately observed support variable gives
+[2.1014, 4.0304]. Randomization continues to justify the total-effect
+comparison in repeated assignments; it does not guarantee an exact
+sample estimate or identify a direct effect after arbitrary adjustment.
+The repaired direct reading here depends on the stated linear,
+additive recipe and its independent disturbances. Real studies need
+evidence for those conditions; a measured proxy need not suffice.
+
+### Adjusting for a collider on the same programme
+
+```{r}
+#| include: false
+#| label: sim-collider
+
+set.seed(14069)
+
+n_col <- 600
+program2 <- rbinom(n_col, size = 1, prob = 0.5)
+support <- rnorm(n_col, mean = 0, sd = 1)
+achievement2 <- 50 + 4.0 * program2 + 5.0 * support +
+  rnorm(n_col, mean = 0, sd = 4)
+portfolio <- 1.0 * program2 + 1.0 * support +
+  rnorm(n_col, mean = 0, sd = 0.7)
+
+coll <- data.frame(
+  program2, support, achievement2, portfolio
+)
+
+fit_col_none <- lm(achievement2 ~ program2, data = coll)
+fit_col_portfolio <- lm(achievement2 ~ program2 + portfolio,
+                        data = coll)
+fit_col_support <- lm(achievement2 ~ program2 + support,
+                      data = coll)
+
+collider_estimates <- c(
+  true_program_effect = 4.0,
+  unadjusted = coef(fit_col_none)["program2"],
+  adjusted_for_collider = coef(fit_col_portfolio)["program2"],
+  adjusted_for_true_cause = coef(fit_col_support)["program2"]
+)
+print(collider_estimates)
+```
+
+```{r}
+#| include: false
+#| label: sim-collider-ci
+col_none_ci <- confint(fit_col_none)["program2", ]
+col_port_ci <- confint(fit_col_portfolio)["program2", ]
+```
+
+```{r}
+#| include: false
+#| label: sim-collider-mechanism
+
+portfolio_band <- cut(
+  coll$portfolio,
+  breaks = quantile(coll$portfolio, c(0, 1/3, 2/3, 1)),
+  include.lowest = TRUE
+)
+
+band_correlation <- numeric(3)
+band_labels <- levels(portfolio_band)
+for (j in 1:3) {
+  in_band <- portfolio_band == band_labels[j]
+  band_correlation[j] <- cor(
+    coll$program2[in_band],
+    coll$support[in_band]
+  )
+}
+
+collider_mechanism <- c(
+  whole_sample = cor(coll$program2, coll$support),
+  lower_third = band_correlation[1],
+  middle_third = band_correlation[2],
+  upper_third = band_correlation[3]
+)
+print(collider_mechanism)
+```
+
+
+Now the third variable is caused by two things at once. The same
+randomized programme runs; unmeasured family support raises achievement;
+and both programme participation and family support make a high score on
+an optional end-of-year portfolio more likely. The portfolio score is
+recorded and looks like a sensible covariate.
+
+$$
+\begin{aligned}
+\text{program}_i &\sim \text{Bernoulli}(.5),
+&&\text{support}_i\sim\text{Normal}(0, 1),\\
+\text{achievement}_i &= 50+4\,\text{program}_i
++5\,\text{support}_i+\varepsilon_i,
+&& \varepsilon_i\sim\text{Normal}(0, 4^2),\\
+\text{portfolio}_i &= 1\,\text{program}_i+1\,\text{support}_i+\nu_i,
+&& \nu_i\sim\text{Normal}(0, 0.7^2).
+\end{aligned}
+$$
+
+With seed 14069 the unadjusted estimate is 4.1052 [3.0316, 5.1788],
+close to the true 4 because randomization made programme and support
+independent. Adjusting for the portfolio score gives 0.1726 [$-0.6755$,
+1.0206]: the whole comparison vanishes, and a researcher reading only
+that model would report a null. Adjusting instead for the true cause
+gives 4.0396 [3.4011, 4.6781]. The mechanism is visible directly. In the
+whole sample the correlation between programme and support is .0061; in
+the lower, middle and upper thirds of the portfolio distribution, each
+of 200 records, it is $-.4106$, $-.4978$ and $-.2240$, because a high
+portfolio score can be reached either through the programme or through
+family support. Conditioning manufactured an association the design had
+eliminated, and because support also causes achievement, that
+manufactured association contaminates the programme coefficient
+[@elwert2014].
+
+### An adjustment decision table
+
+\Needspace{30\baselineskip}
+
+| Role of the candidate variable | Timing relative to the focal predictor | Adjust? | Consequence of adjusting |
+|:--|:--|:--|:--|
+| Common cause of predictor and outcome (confounder) | Before | Include in a sufficient causal adjustment set | Blocks the represented back-door path under the assumed structure and a suitable model |
+| Cause of the outcome only, unrelated to the predictor | Before | Optional | No systematic change; can improve precision |
+| Consequence of the predictor on the path to the outcome (mediator) | After | No, for a total-effect target | Changes the target to a conditional comparison; a direct causal reading needs additional conditions |
+| Consequence of both the predictor and an outcome cause (collider) | After | No | Creates an association that did not exist; can reverse or nullify the estimate |
+| Consequence of the outcome | After | No | Selects on information about the outcome; the conditional comparison no longer answers the original causal target |
+| Proxy measured with substantial error | Before | Partially useful | Leaves residual confounding; see Section 5.1 |
+
+: What adjusting for a candidate variable does, by its assumed role. {#tbl-ch14-adjustment tbl-colwidths="[30,18,14,38]"}
+
+The direct-effect reading in the mediator row requires a suitable model
+and control of mediator--outcome confounding; randomization of the programme
+alone does not establish it. The generated linear recipe supplies those
+conditions. A sufficient adjustment set blocks the relevant back-door
+paths without opening another path; merely including one plausible common
+cause need not remove all confounding.
+
+The table summarizes assumptions; it is not a test. No procedure applied
+to the observed data classifies a variable into these rows, because
+every row can produce the same coefficient movement. Timing, substantive
+theory and documented measurement are what distinguish them.
+
+::: {.callout-warning title="A coefficient that changes is not a diagnosis"}
+Adding $Z$ moved the focal coefficient from 0.9 to 0.2. That is
+compatible with $Z$ being a confounder whose removal was necessary, a
+mediator whose inclusion destroyed the target, a collider whose
+inclusion introduced bias, or a variable so strongly related to $X$
+that the movement is sampling noise on an imprecise estimate.
+Reporting the movement is useful; reading it as evidence of
+confounding is not warranted by the movement alone.
+:::
+
+## Reversals and Simpson's Paradox {#ch14-reversals}
+
+### A reversal built on purpose
+
+```{r}
+#| include: false
+#| label: sim-tutoring-generate
+
+set.seed(14001)
+
+n_per <- 60
+school_names <- c("School 1", "School 2", "School 3", "School 4")
+school_mean_hours <- c(1.5, 3.0, 4.5, 6.0)
+school_baseline <- c(30, 42, 54, 66)
+within_slope_true <- -1.6
+
+school <- rep(school_names, each = n_per)
+mean_hours <- rep(school_mean_hours, each = n_per)
+baseline <- rep(school_baseline, each = n_per)
+n_total <- length(school)
+
+hours <- mean_hours + rnorm(n_total, mean = 0, sd = 0.7)
+score <- baseline +
+  within_slope_true * (hours - mean_hours) +
+  rnorm(n_total, mean = 0, sd = 4)
+
+tutoring <- data.frame(
+  school = factor(school),
+  hours = hours,
+  score = score
+)
+
+sim_checks <- c(
+  rows_as_declared = nrow(tutoring) == 240L,
+  four_schools = nlevels(tutoring$school) == 4L,
+  balanced_60_per_school = all(table(tutoring$school) == 60L),
+  no_missing_values = sum(is.na(tutoring)) == 0L
+)
+print(sim_checks)
+```
+
+```{r}
+#| include: false
+#| label: sim-tutoring-schools
+
+school_summary <- aggregate(
+  cbind(hours, score) ~ school,
+  data = tutoring,
+  FUN = mean
+)
+school_summary$n <- as.numeric(table(tutoring$school))
+print(school_summary, digits = 3)
+```
+
+
+A generated example is preferable here because the comparison structure
+is known and can be altered deliberately. A district records, for every
+pupil, weekly hours of supplementary tutoring and an end-of-year reading
+score. Better-resourced schools offer more tutoring on average and also
+have higher average scores for reasons unrelated to tutoring, while
+within any one school tutoring goes to pupils who are struggling, so
+pupils receiving more tutoring tend to score lower.
+
+$$
+\begin{aligned}
+\text{hours}_{ig} &= \mu_g+u_{ig},
+&& u_{ig}\sim\text{Normal}(0, 0.7^2),\\
+\text{score}_{ig} &= \alpha_g+\beta_W(\text{hours}_{ig}-\mu_g)
++\varepsilon_{ig},
+&& \varepsilon_{ig}\sim\text{Normal}(0, 4^2),
+\end{aligned}
+$$
+
+with school means $\mu_g\in\{1.5, 3, 4.5, 6\}$ hours, baselines
+$\alpha_g\in\{30, 42, 54, 66\}$ points, a true within-school slope
+$\beta_W=-1.6$, and 60 pupils per school. Seed 14001 gives school mean
+hours 1.4945, 3.0833, 4.3461 and 6.1030 with mean scores 29.7655,
+42.1576, 54.1161 and 65.3627. In @fig-ch14-reversal, four
+clouds march up and to the right, and inside each cloud the trend runs
+down and to the right. A model that never sees the school label can only
+summarize the march.
+
+```{r}
+#| label: fig-ch14-reversal
+#| fig-cap: Simulated tutoring hours and reading scores for 240 students in four schools. The dashed line is the pooled fit ignoring school; the four solid lines are the separate within-school fits. The pooled and within-school relationships have opposite signs.
+#| fig-alt: 'A scatterplot of 240 points forms four separated school clusters running from lower left to upper right. A dashed line through all points rises steeply with a slope of about 6.6 points per hour, while the four short solid lines inside the clusters each fall with slopes between about -1.3 and -2.6 points per hour.'
+#| fig-width: 7
+#| fig-height: 4.6
+
+ggplot(tutoring, aes(x = hours, y = score)) +
+  geom_point(aes(shape = school), alpha = 0.7, size = 1.8) +
+  geom_smooth(
+    aes(group = school),
+    method = "lm", formula = y ~ x, se = FALSE,
+    color = "black", linewidth = 0.8
+  ) +
+  geom_smooth(
+    method = "lm", formula = y ~ x, se = FALSE,
+    color = "grey40", linetype = "dashed", linewidth = 1.0
+  ) +
+  labs(
+    x = "Tutoring received (hours per week)",
+    y = "End-of-year reading score",
+    shape = NULL
+  )
+```
+
+### Three fits, three estimands
+
+```{r}
+#| include: false
+#| label: sim-tutoring-fits
+
+fit_pooled <- lm(score ~ hours, data = tutoring)
+fit_adjusted <- lm(score ~ hours + school, data = tutoring)
+fit_between <- lm(score ~ hours, data = school_summary)
+
+pooled_slope <- coef(fit_pooled)["hours"]
+adjusted_slope <- coef(fit_adjusted)["hours"]
+between_slope <- coef(fit_between)["hours"]
+
+slope_summary <- c(
+  pooled = pooled_slope,
+  within_school_adjusted = adjusted_slope,
+  between_school = between_slope,
+  true_within_school = within_slope_true
+)
+print(slope_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-tutoring-fit-ci
+
+pooled_ci <- confint(fit_pooled)["hours", ]
+adjusted_ci <- confint(fit_adjusted)["hours", ]
+between_ci <- confint(fit_between)["hours", ]
+```
+
+```{r}
+#| include: false
+#| label: sim-tutoring-decomposition
+
+sxx_within <- 0
+sxy_within <- 0
+for (s in school_names) {
+  sub <- tutoring[tutoring$school == s, ]
+  sxx_within <- sxx_within + sum((sub$hours - mean(sub$hours))^2)
+  sxy_within <- sxy_within +
+    sum((sub$hours - mean(sub$hours)) *
+          (sub$score - mean(sub$score)))
+}
+
+sxx_total <- sum((tutoring$hours - mean(tutoring$hours))^2)
+sxy_total <- sum((tutoring$hours - mean(tutoring$hours)) *
+                   (tutoring$score - mean(tutoring$score)))
+
+sxx_between <- sxx_total - sxx_within
+sxy_between <- sxy_total - sxy_within
+
+weight_within <- sxx_within / sxx_total
+weight_between <- sxx_between / sxx_total
+slope_within <- sxy_within / sxx_within
+slope_between <- sxy_between / sxx_between
+
+decomposition <- c(
+  weight_within = weight_within,
+  weight_between = weight_between,
+  slope_within = slope_within,
+  slope_between = slope_between,
+  weighted_average = weight_within * slope_within +
+    weight_between * slope_between,
+  pooled_slope_from_lm = pooled_slope
+)
+print(decomposition)
+```
+
+```{r}
+#| include: false
+#| label: sim-school-slopes
+
+school_slope <- numeric(4)
+school_lower <- numeric(4)
+school_upper <- numeric(4)
+
+for (j in 1:4) {
+  sub <- tutoring[tutoring$school == school_names[j], ]
+  fit_j <- lm(score ~ hours, data = sub)
+  school_slope[j] <- coef(fit_j)["hours"]
+  ci_j <- confint(fit_j)["hours", ]
+  school_lower[j] <- ci_j[1]
+  school_upper[j] <- ci_j[2]
+}
+
+school_slopes <- data.frame(
+  school = school_names,
+  n = as.numeric(table(tutoring$school)),
+  slope = school_slope,
+  lower = school_lower,
+  upper = school_upper
+)
+print(school_slopes, digits = 3)
+```
+
+```{r}
+#| include: false
+#| label: sim-school-interaction
+
+fit_varying <- lm(score ~ hours * school, data = tutoring)
+interaction_test <- anova(fit_adjusted, fit_varying)
+print(interaction_test)
+```
+
+```{r}
+#| include: false
+#| label: sim-school-interaction-p
+p_varying <- interaction_test[2, "Pr(>F)"]
+```
+
+```{r}
+#| include: false
+#| label: sim-centered-check
+
+hours_within <- tutoring$hours - ave(tutoring$hours, tutoring$school)
+fit_centered <- lm(tutoring$score ~ hours_within)
+
+centering_checks <- c(
+  centered_slope = coef(fit_centered)[2],
+  adjusted_slope = adjusted_slope,
+  agree_to_six_decimals =
+    round(coef(fit_centered)[2], 6) == round(adjusted_slope, 6)
+)
+print(centering_checks)
+```
+
+```{r}
+#| include: false
+#| label: tutoring-sensitivity
+
+drop_slope <- numeric(4)
+for (j in 1:4) {
+  reduced <- tutoring[tutoring$school != school_names[j], ]
+  reduced$school <- droplevels(reduced$school)
+  drop_slope[j] <- coef(lm(score ~ hours + school,
+                           data = reduced))["hours"]
+}
+
+tutoring_checks <- c(
+  full_sample_adjusted_slope = adjusted_slope,
+  minimum_leave_one_out = min(drop_slope),
+  maximum_leave_one_out = max(drop_slope),
+  largest_cooks_distance = max(cooks.distance(fit_adjusted)),
+  residual_sd = sd(resid(fit_adjusted))
+)
+print(tutoring_checks)
+```
+
+```{r}
+#| include: false
+#| label: audit-support-check
+
+policy_value <- data.frame(hours = 10)
+
+support_check <- c(
+  minimum_observed_hours = min(tutoring$hours),
+  maximum_observed_hours = max(tutoring$hours),
+  proposed_policy_hours = 10,
+  students_at_or_above_8_hours = sum(tutoring$hours >= 8),
+  pooled_prediction_at_10 = predict(fit_pooled,
+                                    newdata = policy_value),
+  adjusted_prediction_at_10_school_4 = predict(
+    fit_adjusted,
+    newdata = data.frame(hours = 10, school = "School 4")
+  )
+)
+print(support_check)
+```
+
+
+Fit the three models and put their values beside the recipe. The pooled
+slope is 6.5784 [6.0565, 7.1003] with $R^2=.7215$; the school-adjusted
+slope is $-2.0018$ [$-2.8533$, $-1.1504$], covering the true $-1.6$; the
+between-school slope, from four rows and 2 residual df, is 7.8372
+[6.0877, 9.5866]. Only one estimates the parameter in the recipe. The
+other two correctly estimate how score and tutoring covary in the
+district as composed and how school averages covary; both would be wrong
+as answers to a question about pupils inside a school.
+
+With groups $g=1,\dots,G$ and
+the within and between sums of squares and cross-products
+$S_{xx}^{W}=\sum_g\sum_{i\in g}(x_{ig}-\bar x_g)^2$ and
+$S_{xx}^{B}=\sum_g n_g(\bar x_g-\bar x)^2$, and $S_{xy}^{W}$, $S_{xy}^{B}$
+defined the same way, the totals split as $S_{xx}=S_{xx}^{W}+S_{xx}^{B}$
+and $S_{xy}=S_{xy}^{W}+S_{xy}^{B}$, so
+
+$$
+\widehat\beta_{\mathrm{pooled}}=\frac{S_{xy}}{S_{xx}}
+=w_W\widehat\beta_W+w_B\widehat\beta_B,\qquad
+w_W=\frac{S_{xx}^{W}}{S_{xx}},\quad w_B=\frac{S_{xx}^{B}}{S_{xx}}.
+$$
+
+The pooled slope is a weighted average of a within-group and a
+between-group slope, weighted by the shares of predictor variation
+inside and between groups; the weights are non-negative and sum to one,
+and the slopes they combine are unrestricted. Here $S_{xx}^{W}=100.5503$
+and $S_{xx}^{B}=685.3977$ of a total 785.948, so $w_W=.1279$ and
+$w_B=.8721$: only about an eighth of the predictor variation lies inside
+schools, the weighted average returns the fitted 6.5784 at full
+precision, and the pooled slope is dominated by a comparison of school
+averages. Make the schools more alike in average tutoring and $w_B$
+shrinks; make them more different and it grows. Composition is a
+property of the sample, not of the phenomenon, so the reversal can be
+created or removed while the within-school association stays fixed. This
+recipe specifies an observed joint distribution, not the effect of
+intervening on tutoring. Appendix A gives
+the derivation and its categorical counterpart.
+
+| Research question | Estimand | Fit | Value |
+|:--|:--|:--|--:|
+| Across this district's pupils, how do reading scores compare between those receiving more and fewer tutoring hours? | Pooled | `score ~ hours` | 6.5784 |
+| Among pupils at the same school, how do scores compare between those receiving more and fewer hours? | Within-group | `score ~ hours + school` | $-2.0018$ |
+| Do schools that provide more tutoring on average have higher average scores? | Between-group, school as unit | mean score on mean hours | 7.8372 |
+
+: One dataset, three questions, three estimands. {#tbl-ch14-estimands tbl-colwidths="[48,16,22,14]"}
+
+Take each school separately before accepting one adjusted number. The
+four school-specific slopes are $-2.1063$ [$-4.0928$, $-0.1197$],
+$-1.8864$ [$-3.3807$, $-0.3920$], $-1.2688$ [$-3.0443$, 0.5067] and
+$-2.6281$ [$-4.3226$, $-0.9335$]: all negative, one interval covering
+zero. The additive model reports a single precision-weighted summary of
+those four, which is useful when they are similar and misleading when
+they are not; Chapter 10 supplies the check, and the `hours:school`
+product block here gives $F(3,232)=0.4345$, $p=.7285$, unsurprisingly,
+because the recipe gave all four schools the same slope. Subtracting
+each school's mean from `hours` removes all between-school variation in
+the predictor, and an ordinary regression on that centred predictor
+reproduces $-2.0018$ exactly, without any group indicator.
+
+Everything above comes from `lm()` on clearly defined rows. The
+within-between distinction is the entry point to multilevel and linear
+mixed models, which are outside this collection; Section 6.3 explains
+why ordinary standard errors from a pooled fit on clustered data need
+care.
+
+
+```{r}
+#| eval: false
+#| echo: true
+lm(score ~ hours, data = tutoring)
+lm(score ~ hours + school, data = tutoring)
+```
+
+### Berkeley admissions: the same arithmetic on a census
+
+```{r}
+#| include: false
+#| label: ucb-build
+
+ucb_long <- as.data.frame(UCBAdmissions)
+names(ucb_long) <- c("admit", "gender", "dept", "count")
+
+ucb <- reshape(
+  ucb_long,
+  idvar = c("gender", "dept"),
+  timevar = "admit",
+  direction = "wide"
+)
+names(ucb) <- c("gender", "dept", "admitted", "rejected")
+row.names(ucb) <- NULL
+
+ucb$applicants <- ucb$admitted + ucb$rejected
+ucb$rate <- ucb$admitted / ucb$applicants
+ucb$gender <- relevel(factor(ucb$gender), ref = "Male")
+
+ucb_checks <- c(
+  cells_as_declared = nrow(ucb) == 12L,
+  six_departments = nlevels(factor(ucb$dept)) == 6L,
+  total_decisions_4526 = sum(ucb$applicants) == 4526L,
+  counts_reconcile = sum(ucb$applicants) == sum(UCBAdmissions),
+  no_empty_cells = all(ucb$applicants > 0),
+  no_missing_values = sum(is.na(ucb)) == 0L
+)
+print(ucb_checks)
+```
+
+```{r}
+#| include: false
+#| label: ucb-pooled-fit
+
+fit_ucb_pooled <- glm(
+  cbind(admitted, rejected) ~ gender,
+  family = binomial,
+  data = ucb
+)
+print(summary(fit_ucb_pooled)$coefficients)
+
+pooled_or <- exp(coef(fit_ucb_pooled)["genderFemale"])
+pooled_or_ci <- exp(confint.default(fit_ucb_pooled)["genderFemale", ])
+print(c(odds_ratio = pooled_or, pooled_or_ci))
+```
+
+```{r}
+#| include: false
+#| label: ucb-pooled-rates
+
+pooled_rates <- aggregate(
+  cbind(admitted, applicants) ~ gender,
+  data = ucb,
+  FUN = sum
+)
+pooled_rates$rate <- pooled_rates$admitted / pooled_rates$applicants
+print(pooled_rates)
+```
+
+```{r}
+#| include: false
+#| label: ucb-pooled-values
+male_rate <- pooled_rates$rate[pooled_rates$gender == "Male"]
+female_rate <- pooled_rates$rate[pooled_rates$gender == "Female"]
+p_pooled <- coef(summary(fit_ucb_pooled))["genderFemale", 4]
+```
+
+```{r}
+#| include: false
+#| label: ucb-adjusted-fit
+
+fit_ucb_adjusted <- glm(
+  cbind(admitted, rejected) ~ gender + dept,
+  family = binomial,
+  data = ucb
+)
+print(summary(fit_ucb_adjusted)$coefficients["genderFemale", ])
+
+adjusted_or <- exp(coef(fit_ucb_adjusted)["genderFemale"])
+adjusted_or_ci <- exp(
+  confint.default(fit_ucb_adjusted)["genderFemale", ]
+)
+print(c(odds_ratio = adjusted_or, adjusted_or_ci))
+```
+
+```{r}
+#| include: false
+#| label: ucb-adjusted-values
+p_adjusted <- coef(summary(fit_ucb_adjusted))["genderFemale", 4]
+```
+
+```{r}
+#| include: false
+#| label: ucb-rates-by-dept
+
+rates_wide <- reshape(
+  ucb[, c("dept", "gender", "rate")],
+  idvar = "dept",
+  timevar = "gender",
+  direction = "wide"
+)
+apps_wide <- reshape(
+  ucb[, c("dept", "gender", "applicants")],
+  idvar = "dept",
+  timevar = "gender",
+  direction = "wide"
+)
+dept_view <- merge(rates_wide, apps_wide)
+names(dept_view) <- c(
+  "dept", "rate_male", "rate_female",
+  "apps_male", "apps_female"
+)
+dept_view$share_male <- dept_view$apps_male /
+  sum(dept_view$apps_male)
+dept_view$share_female <- dept_view$apps_female /
+  sum(dept_view$apps_female)
+```
+
+```{r}
+#| include: false
+#| label: ucb-standardization
+
+common_weight <- dept_view$apps_male + dept_view$apps_female
+common_weight <- common_weight / sum(common_weight)
+
+standardized <- c(
+  observed_male = sum(dept_view$share_male * dept_view$rate_male),
+  observed_female = sum(dept_view$share_female *
+                          dept_view$rate_female),
+  standardized_male = sum(common_weight * dept_view$rate_male),
+  standardized_female = sum(common_weight * dept_view$rate_female)
+)
+print(standardized)
+```
+
+```{r}
+#| include: false
+#| label: ucb-standardization-values
+std_male <- standardized["standardized_male"]
+std_female <- standardized["standardized_female"]
+```
+
+```{r}
+#| include: false
+#| label: ucb-interaction
+
+fit_ucb_varying <- glm(
+  cbind(admitted, rejected) ~ gender * dept,
+  family = binomial,
+  data = ucb
+)
+ucb_lrt <- anova(fit_ucb_adjusted, fit_ucb_varying, test = "LRT")
+print(ucb_lrt)
+```
+
+```{r}
+#| include: false
+#| label: ucb-dept-or
+
+dept_or <- numeric(6)
+dept_levels <- levels(factor(ucb$dept))
+for (j in 1:6) {
+  sub <- ucb[ucb$dept == dept_levels[j], ]
+  odds_f <- sub$admitted[sub$gender == "Female"] /
+    sub$rejected[sub$gender == "Female"]
+  odds_m <- sub$admitted[sub$gender == "Male"] /
+    sub$rejected[sub$gender == "Male"]
+  dept_or[j] <- odds_f / odds_m
+}
+dept_or_table <- data.frame(dept = dept_levels, odds_ratio = dept_or)
+print(dept_or_table, digits = 3)
+```
+
+```{r}
+#| include: false
+#| label: ucb-lrt-values
+p_ucb_lrt <- ucb_lrt[2, "Pr(>Chi)"]
+```
+
+```{r}
+#| include: false
+#| label: ucb-sensitivity
+
+ucb_no_a <- ucb[ucb$dept != "A", ]
+ucb_no_a$dept <- droplevels(factor(ucb_no_a$dept))
+
+fit_no_a <- glm(
+  cbind(admitted, rejected) ~ gender + dept,
+  family = binomial,
+  data = ucb_no_a
+)
+
+or_no_a <- exp(coef(fit_no_a)["genderFemale"])
+or_no_a_ci <- exp(confint.default(fit_no_a)["genderFemale", ])
+
+ucb_sensitivity <- c(
+  odds_ratio_all_six = adjusted_or,
+  odds_ratio_without_A = or_no_a,
+  lower_without_A = or_no_a_ci[1],
+  upper_without_A = or_no_a_ci[2],
+  standardized_rate_difference = std_female - std_male,
+  pooled_rate_difference = female_rate - male_rate
+)
+print(ucb_sensitivity)
+```
+
+
+The best-known reversal in the social sciences is a two-by-two-by-six
+table of graduate admissions decisions, a good empirical case because
+the reversal is real, well documented and routinely overinterpreted in
+both directions. Chapter 3, Section 6.4, reads a table of three
+categorical variables as two-way tables within the layers of the third
+and notes that the added table can point the other way from most of its
+layers; the Berkeley table is that case, with department as the layer.
+The question: among applicants to the six largest
+graduate departments at Berkeley in autumn 1973, how did the probability
+of admission compare between women and men, before and after
+conditioning on the department applied to? One row of the analysis file
+is a department-by-gender cell of counts; the unit of the question is
+one application decision, the outcome is admitted against rejected, the
+focal predictor is applicant gender with male as the reference, the
+design is an administrative census, the estimands are the pooled and the
+department-conditional contrast, and the scope is these six departments
+in one term. The counts and the composition figure reveal why the
+pooled comparison differs from comparisons within departments.
+
+```{r}
+#| label: fig-ch14-composition
+#| fig-cap: Why the pooled comparison is dominated by composition. For each department, the figure shows the department's overall admission rate and the percentage of each gender's own applications that were sent there, all on a percentage scale.
+#| fig-alt: 'Three connected series across departments A to F. The department admission rate falls from about 64 and 63 percent in A and B to 35, 34, 25 and 6 percent in C, D, E and F. Men send about 31 and 21 percent of their applications to A and B, whereas women send only about 6 and 1 percent; women instead send about 32, 20, 21 and 19 percent to C, D, E and F.'
+#| fig-width: 7.2
+#| fig-height: 4.2
+#| echo: false
+
+share <- ucb$applicants
+for (g in levels(ucb$gender)) {
+  rows <- ucb$gender == g
+  share[rows] <- ucb$applicants[rows] / sum(ucb$applicants[rows])
+}
+ucb$share <- share
+
+dept_rate <- aggregate(
+  cbind(admitted, applicants) ~ dept,
+  data = ucb,
+  FUN = sum
+)
+dept_rate$overall_rate <- dept_rate$admitted / dept_rate$applicants
+
+comp <- rbind(
+  data.frame(
+    dept = ucb$dept,
+    percent = 100 * ucb$share,
+    series = ifelse(
+      ucb$gender == "Male",
+      "Share of men's applications",
+      "Share of women's applications"
+    )
+  ),
+  data.frame(
+    dept = dept_rate$dept,
+    percent = 100 * dept_rate$overall_rate,
+    series = "Department admission rate"
+  )
+)
+
+ggplot(comp, aes(x = dept, y = percent, group = series)) +
+  geom_line(aes(linetype = series), linewidth = 0.7) +
+  geom_point(aes(shape = series), size = 2.4) +
+  labs(
+    x = "Department",
+    y = "Percent",
+    linetype = NULL,
+    shape = NULL
+  ) +
+  theme(legend.position = "bottom")
+```
+
+| Department | Men: admitted / applicants | Women: admitted / applicants |
+|:--|--:|--:|
+| A | 512 / 825 | 89 / 108 |
+| B | 353 / 560 | 17 / 25 |
+| C | 120 / 325 | 202 / 593 |
+| D | 138 / 417 | 131 / 375 |
+| E | 53 / 191 | 94 / 393 |
+| F | 22 / 373 | 24 / 341 |
+
+: Berkeley admissions in six departments, autumn 1973. {#tbl-ch14-ucb-cells tbl-colwidths="[20,40,40]"}
+
+The outcome is binary, so the model is the logistic regression of
+Chapter 11 with the logit link and a binomial response. The pooled fit
+gives a female log-odds coefficient of $-0.6104$ (SE 0.0639, $z=-9.5527$,
+$p<.0001$), an odds ratio of 0.5432 [0.4792, 0.6156]: women's odds of
+admission across the pooled pool were about 46 percent lower than men's.
+That sentence is true, it describes the pooled applicant pool, and it
+contains no information about what any department did. Adding department
+reverses the sign: the female coefficient becomes 0.0999 (SE 0.0808,
+$z=1.2353$, $p=.2167$), an odds ratio of 1.105 [0.9431, 1.2948] whose
+interval comfortably includes 1. Under that additive model the interval is compatible with equal odds
+and with modest differences in either direction; it does not establish
+equality. Each reported odds-ratio interval here is the exponentiated
+Wald interval from `confint.default()`, matching the reported $z$ and
+$p$; `confint()` applied to a `glm` object returns profile-likelihood
+intervals instead, which differ in the third decimal here, so state
+which one a report used.
+
+Two facts in the cell table produce the reversal. Admission rates differ
+enormously across departments, from .0644 in F to .6442 in A, and
+applications were distributed very differently: A and B received 1,385
+applications from men and 133 from women, while C and E each received
+more from women than from men (593 against 325 and 393 against 191). The
+pooled rate for each gender is the composition-weighted average
+$\sum_d q_dp_d$ of department-specific rates, so replacing each gender's
+own weights $q_d$ with a common set isolates composition, the
+calculation called **direct standardization**. Using the combined
+application counts as common weights gives 38.7319 percent for men and
+42.9955 for women, turning a pooled gap of 14.1645 points in men's
+favour into a standardized gap of 4.2637 points in women's. Only the
+weights changed, so this is a third estimand: the rate each gender would
+have experienced had both applied in the same proportions to these six
+departments.
+
+```{r}
+#| eval: false
+#| echo: true
+m0 <- glm(cbind(admitted, rejected) ~ gender, binomial, data = ucb)
+m1 <- glm(cbind(admitted, rejected) ~ gender + dept, binomial, data = ucb)
+exp(cbind(coef(m1), confint.default(m1)))
+```
+
+### One adjusted number needs checking
+
+The additive model is itself an assumption and deserves the scrutiny the
+pooled model gets. Comparing it with the model that lets the odds ratio
+vary gives a likelihood-ratio deviance of 20.2043 on 5 df, $p=.0011$;
+the department-specific odds ratios run from 0.8186 in E to 2.8636 in A,
+and A is the main source of the departure, admitting 82.4074 percent of
+its 108 female applicants against 62.0606 percent of its 825 male ones.
+The adjusted number that reverses the pooled result is therefore itself
+a summary the data do not fully support.
+
+::: {.callout-warning title="A reversal is a descriptive fact, not an explanation"}
+The table shows that a pooled and a department-conditional comparison
+point in opposite directions. It does not show why women and men
+applied where they did, whether departmental capacity and funding were
+themselves shaped by the fields women entered, or whether any
+individual decision was fair. @bickel1975 were explicit that their
+analysis concerned the aggregation, and that no bias within
+departments is compatible with disadvantage arising earlier, in the
+processes that channel applicants toward differently funded fields.
+For that broader question department is a mediator, not a confounder,
+and conditioning on it removes exactly the pathway the question is
+about. Neither comparison answers whether the process was fair.
+:::
+
+## Selection, Support, and Regression to the Mean {#ch14-selection}
+
+Adjustment changes what is held fixed. Selection changes who is in the
+comparison at all, and it operates before any model is fitted.
+
+### Regression toward the mean after selection on a noisy baseline
+
+```{r}
+#| include: false
+#| label: sim-rtm
+
+set.seed(14002)
+
+n_students <- 400
+true_ability <- rnorm(n_students, mean = 50, sd = 8)
+pretest <- true_ability + rnorm(n_students, mean = 0, sd = 6)
+posttest <- true_ability + rnorm(n_students, mean = 0, sd = 6)
+
+retest <- data.frame(
+  student = 1:n_students,
+  true_ability = true_ability,
+  pretest = pretest,
+  posttest = posttest
+)
+
+cutoff <- quantile(retest$pretest, probs = 0.15)
+selected <- retest[retest$pretest <= cutoff, ]
+
+rtm_summary <- c(
+  reliability_theoretical = 8^2 / (8^2 + 6^2),
+  observed_pre_post_correlation = cor(retest$pretest,
+                                      retest$posttest),
+  n_selected = nrow(selected),
+  mean_pretest_selected = mean(selected$pretest),
+  mean_posttest_selected = mean(selected$posttest),
+  mean_apparent_gain = mean(selected$posttest - selected$pretest),
+  true_ability_selected = mean(selected$true_ability),
+  true_ability_overall = mean(retest$true_ability)
+)
+print(rtm_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-test
+
+naive_test <- t.test(selected$posttest, selected$pretest,
+                     paired = TRUE)
+
+naive_result <- c(
+  mean_gain = naive_test$estimate,
+  t_statistic = naive_test$statistic,
+  df = naive_test$parameter,
+  p_value = naive_test$p.value
+)
+print(naive_result)
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-values
+p_naive <- naive_test$p.value
+gain <- mean(selected$posttest - selected$pretest)
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-mirror
+
+top_cut <- quantile(retest$pretest, probs = 0.85)
+top_group <- retest[retest$pretest >= top_cut, ]
+
+mirror_summary <- c(
+  n_top = nrow(top_group),
+  apparent_change_top = mean(top_group$posttest -
+                               top_group$pretest)
+)
+print(mirror_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-control
+
+set.seed(14003)
+
+arm <- sample(rep(c("Program", "Comparison"),
+                  length.out = nrow(selected)))
+selected$arm <- arm
+selected$change <- selected$posttest - selected$pretest
+
+arm_means <- aggregate(
+  cbind(pretest, posttest, change) ~ arm,
+  data = selected,
+  FUN = mean
+)
+print(arm_means)
+
+arm_test <- t.test(
+  selected$change[selected$arm == "Program"],
+  selected$change[selected$arm == "Comparison"]
+)
+
+arm_result <- c(
+  difference = arm_test$estimate[1] - arm_test$estimate[2],
+  lower = arm_test$conf.int[1],
+  upper = arm_test$conf.int[2],
+  p_value = arm_test$p.value
+)
+print(arm_result)
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-arm-values
+p_arm <- arm_test$p.value
+```
+
+```{r}
+#| include: false
+#| label: sim-rtm-change-on-baseline
+
+fit_change <- lm(I(posttest - pretest) ~ pretest, data = retest)
+print(summary(fit_change)$coefficients)
+```
+
+
+In standard units a regression line predicts $\widehat z_y=r\,z_x$.
+When $0<r<1$, its prediction for an extreme first value is nearer the
+mean on the second measurement. The spread of individual second
+measurements remains: the whole population does not converge on its
+mean. Here that distinction reveals why a before--after comparison can
+mislead when entry depends on a noisy baseline.
+
+Suppose 400 pupils take a reading test, the lowest-scoring 15 percent
+enter a support programme, and they are retested at the end of the year.
+Their average score rises substantially, and the obvious reading is that
+the programme worked. The recipe below contains no programme effect at
+all.
+
+$$
+\begin{aligned}
+T_i &\sim\text{Normal}(50, 8^2)
+&&\text{(stable ability, unobserved)},\\
+\text{pretest}_i &= T_i+\varepsilon_{i1},
+&& \varepsilon_{i1}\sim\text{Normal}(0, 6^2),\\
+\text{posttest}_i &= T_i+\varepsilon_{i2},
+&& \varepsilon_{i2}\sim\text{Normal}(0, 6^2).
+\end{aligned}
+$$
+
+Both measurements are the same stable quantity plus independent noise,
+so the correlation between them, the reliability under this model, is
+$8^2/(8^2+6^2)=.64$; with seed 14002 the observed correlation is
+.6371. Selecting the lowest scorers on the pretest selects pupils with
+genuinely low ability **and** pupils whose measurement error happened to
+be negative, and the second group cannot repeat that luck
+[@galton1886; @barnett2005]. The 60 selected pupils, all below
+38.3371, average 33.5726 on the pretest and 39.0568 on the posttest, a
+gain of 5.4842 points with a paired $t(59)=4.8378$, $p<.0001$ and a
+95 percent interval of [3.2158, 7.7526]. Every number is computed
+correctly, and the effect written into the recipe is zero. The mirror
+image confirms the mechanism: the highest 15 percent show an apparent
+decline of $-5.823$.
+
+```{r}
+#| label: fig-ch14-rtm
+#| fig-cap: Regression to the mean with no intervention. Points are 400 simulated students; the vertical dotted lines mark the lowest and highest 15% of pretest scores. The solid line is the identity, the dashed line is the fitted regression, and the fitted line is flatter, so the selected extremes move toward the middle on retest.
+#| fig-alt: 'A scatterplot of posttest against pretest for 400 students, with a positive but noisy association of about 0.64. Two vertical dotted lines at roughly 38 and 60 mark the lowest and highest 15 percent of pretest scores. The diagonal identity line, of slope 1, is steeper than the dashed fitted line, whose slope is about 0.63, and the two cross near the middle of the range, so points in the low band average above the identity line and points in the high band average below it.'
+#| fig-width: 6.6
+#| fig-height: 4.4
+#| echo: false
+
+ggplot(retest, aes(x = pretest, y = posttest)) +
+  geom_point(alpha = 0.45, size = 1.5) +
+  geom_abline(slope = 1, intercept = 0, linewidth = 0.8) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE,
+              color = "grey35", linetype = "dashed",
+              linewidth = 0.9) +
+  geom_vline(xintercept = cutoff, linetype = "dotted") +
+  geom_vline(xintercept = top_cut, linetype = "dotted") +
+  labs(
+    x = "Pretest score",
+    y = "Posttest score"
+  )
+```
+
+A bigger sample does not repair this: the phenomenon is systematic, and
+more pupils estimate the spurious gain more precisely. A comparison
+group selected the same way does repair it, because both arms are then
+subject to identical regression to the mean. Keep the 60 selected pupils
+in their original row order rather than sorting them by pretest, assign
+arms with `sample(rep(c("Program", "Comparison"), length.out = 60))`
+under seed 14003, and compare the arms' change scores with a Welch
+two-sample test: the arms gain 6.4651 and 4.5033 points, a difference of
+1.9618 [$-2.5867$, 6.5103], $p=.3915$. A pooled-variance or `lm()`
+interval differs in the fourth decimal, so name the test. A second
+baseline with an independent measurement error, used for selection but
+not for the change score, removes this particular selection-on-error
+artifact in the recipe; it does not by itself identify a programme effect.
+The artifact also has a regression signature. On the original scales,
+the fitted slope of change on baseline is
+$b_{\mathrm{post,pre}}-1=r(s_{\mathrm{post}}/s_{\mathrm{pre}})-1=-0.3707$.
+When each measurement is standardized separately, the corresponding
+slope is $r-1=-0.3629$. These are distinct calculations; the raw-scale
+slope equals $r-1$ only when the two sample SDs agree. Thus "pupils who
+started lowest gained most" can arise with a zero programme effect.
+
+::: {.callout-warning title="What regression to the mean is not"}
+It is not a claim that an intervention failed, and it is not a claim
+that one succeeded. In this recipe it is a consequence of two things holding
+together: repeated noisy measurement of the same quantity, and
+selection on an extreme value of the first measurement. Where either
+is absent, this particular mechanism is absent. Where both are present, a
+single-arm pre-post comparison cannot distinguish a real effect from
+the artifact, whatever the p-value [@barnett2005].
+:::
+
+### Selection on the predictor and selection on the outcome
+
+```{r}
+#| include: false
+#| label: sim-range-restriction
+
+set.seed(14006)
+
+n_applicants <- 500
+score <- rnorm(n_applicants, mean = 100, sd = 15)
+gpa <- 1.0 + 0.020 * score +
+  rnorm(n_applicants, mean = 0, sd = 0.45)
+
+applicants <- data.frame(score, gpa)
+
+fit_all <- lm(gpa ~ score, data = applicants)
+restricted_x <- applicants[applicants$score >= 110, ]
+fit_cut_on_x <- lm(gpa ~ score, data = restricted_x)
+restricted_y <- applicants[applicants$gpa >= 3.0, ]
+fit_cut_on_y <- lm(gpa ~ score, data = restricted_y)
+
+restriction_summary <- c(
+  true_slope = 0.020,
+  full_sample_slope = coef(fit_all)["score"],
+  slope_after_cut_on_predictor =
+    coef(fit_cut_on_x)["score"],
+  slope_after_cut_on_outcome =
+    coef(fit_cut_on_y)["score"],
+  full_r_squared = summary(fit_all)$r.squared,
+  r_squared_after_cut_on_predictor =
+    summary(fit_cut_on_x)$r.squared,
+  n_full = nrow(applicants),
+  n_cut_on_predictor = nrow(restricted_x),
+  n_cut_on_outcome = nrow(restricted_y)
+)
+print(restriction_summary)
+```
+
+
+Selection on the predictor and selection on the outcome are often
+discussed together and behave very differently. The recipe below is a
+correctly specified linear model over the whole range: an admission-test
+score predicts first-year grade point average with a true slope of 0.02
+grade points per test point, 500 applicants, score
+$\sim\text{Normal}(100, 15^2)$ and error SD 0.45. With seed 14006 the
+full-sample slope is 0.021 (SE 0.0014, $R^2=.3091$, $r=.556$).
+
+Each row is `lm(gpa ~ score)` on the rows its rule
+keeps.
+
+\Needspace{10\baselineskip}
+
+| Rows kept | Selection rule | Slope | SE | $R^2$ | $r$ |
+|:--|:--|--:|--:|--:|--:|
+| 500 | None | 0.0210 | 0.0014 | .3091 | .5560 |
+| 148 | Score at least 110: on the predictor | 0.0234 | 0.0053 | .1178 | .3433 |
+| 261 | Grade point average at least 3: on the outcome | 0.0106 | 0.0015 | .1636 | .4045 |
+
+: What predictor and outcome selection do to the same fit. {#tbl-ch14-restriction tbl-colwidths="[11,43,12,11,11,12]"}
+
+Under a correctly specified linear model with errors independent of the
+predictor, restricting the predictor range preserves the population slope;
+sample estimates still vary. What
+it destroys is precision and apparent strength. A selective institution
+concluding that "the admission test barely predicts grades" from a
+within-admitted correlation has confused a restricted correlation with a
+weak relationship. Selecting on the outcome instead halves the slope,
+because that rule removes low-outcome applicants disproportionately at
+low test scores. Selection on the outcome, and attrition related to the
+outcome, are threats of a different order from selection on the
+predictor.
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+lm(gpa ~ score, data = applicants)
+lm(gpa ~ score, data = subset(applicants, score >= 110))
+```
+
+**When the conditional mean is curved.**
+
+Predict whether restricting the predictor still preserves one slope.
+The reassuring result just established depended on
+a correct linear mean model. Now use 500 observations under seed 14012,
+draw study hours uniformly from 0 to 20, and generate
+
+$$E(\mathrm{learning}\mid h)=20+4h-0.14h^2,\qquad
+\varepsilon\sim\mathrm{Normal}(0,4^2).$$
+
+The 187 observations at eight hours or fewer occupy the steep rising
+part of the curve. Their fitted line has slope 2.6951; the line through
+all observations has slope 1.0845. Neither slope is the constant effect
+of an hour over the whole range, because the derivative $4-0.28h$
+changes with $h$.
+
+```{r}
+#| include: false
+#| label: sim-curved-restriction
+
+set.seed(14012)
+
+n_curve <- 500
+study_hours <- runif(n_curve, min = 0, max = 20)
+learning <- 20 + 4.0 * study_hours - 0.14 * study_hours^2 +
+  rnorm(n_curve, mean = 0, sd = 4)
+
+curve_data <- data.frame(study_hours, learning)
+low_range <- curve_data[curve_data$study_hours <= 8, ]
+
+fit_curve_all <- lm(learning ~ study_hours, data = curve_data)
+fit_curve_low <- lm(learning ~ study_hours, data = low_range)
+
+new_point <- data.frame(study_hours = 18)
+true_mean_18 <- 20 + 4.0 * 18 - 0.14 * 18^2
+
+extrapolation_summary <- c(
+  n_low_range = nrow(low_range),
+  slope_full_range = coef(fit_curve_all)["study_hours"],
+  slope_low_range_only = coef(fit_curve_low)["study_hours"],
+  predicted_at_18_from_low_range =
+    predict(fit_curve_low, newdata = new_point),
+  true_mean_at_18 = true_mean_18
+)
+print(extrapolation_summary)
+```
+
+```{r}
+#| label: fig-curved-restriction
+#| fig-cap: A curved conditional mean seen through a restricted window. The curve is the true mean; the solid line is fitted to all 500 observations; the dashed line is fitted only to observations with at most 8 study hours and then extended across the full range.
+#| fig-alt: 'A scatterplot of learning against study hours from 0 to 20 with a true mean curve that rises steeply, peaks near 14 hours around 48 points, and then falls slightly. A solid straight line fitted to all points rises gently with slope near 1.1. A dashed line fitted only to the observations at 8 hours or fewer rises much more steeply with slope near 2.7 and, when extended, reaches about 71 at 18 hours where the true mean is about 47.'
+#| fig-width: 6.8
+#| fig-height: 4.4
+#| echo: false
+
+curve_grid <- data.frame(study_hours = seq(0, 20, length.out = 200))
+curve_grid$true_mean <- 20 + 4.0 * curve_grid$study_hours -
+  0.14 * curve_grid$study_hours^2
+curve_grid$low_fit <- predict(fit_curve_low, newdata = curve_grid)
+curve_grid$all_fit <- predict(fit_curve_all, newdata = curve_grid)
+
+ggplot(curve_data, aes(x = study_hours, y = learning)) +
+  geom_point(alpha = 0.3, size = 1.3) +
+  geom_line(data = curve_grid, aes(y = true_mean),
+            linewidth = 1.0, color = "grey25") +
+  geom_line(data = curve_grid, aes(y = all_fit),
+            linewidth = 0.9, color = "black") +
+  geom_line(data = curve_grid, aes(y = low_fit),
+            linewidth = 0.9, linetype = "dashed") +
+  geom_vline(xintercept = 8, linetype = "dotted") +
+  labs(x = "Study hours", y = "Learning score")
+```
+
+Extending the restricted line to 18 hours predicts 71.1765, while the
+known conditional mean is 46.64. A narrow model-based interval around
+the line would describe uncertainty within that assumed line, not
+evidence that the line remains adequate outside its observed window.
+
+
+### Missingness and attrition are selection by another name
+
+The same logic covers rows that disappear rather than rows never
+recruited. Three standard labels describe how missingness relates to the
+data [@little2002; @littlerubin2019]. **Missing completely at random**
+is unrelated to observed and unobserved values, so a complete-case
+regression loses observations without systematic selection on their values.
+**Missing at random** means that, conditional on the observed information,
+missingness does not depend on the missing values. It can bias a
+complete-case analysis, but need not do so: missing outcomes depending only
+on a fully observed predictor can preserve its correctly specified
+conditional regression. **Missing not at random** means that dependence on
+missing values remains after conditioning on the observed information.
+The observed records alone cannot identify that mechanism; analyses require
+explicit assumptions and sensitivity checks. The target and the missingness
+process together determine whether a complete-case result is adequate.
+
+Two habits matter more than the labels. Report the funnel, how many
+units were eligible, invited, observed, retained and analysed, with the
+reason at each step; Chapters 1 and 9 built that discipline and Section
+7.1 applies it to Project STAR. And resist the idea that adding
+predictors repairs selection: a larger model changes what is held fixed
+among the units that remain and restores none that left. Where dropout
+depends on the outcome, the analytic sample is a selected-on-the-outcome
+sample, and Section 4.2 shows what that does.
+
+::: {.callout-warning title="Selection changes who is being compared"}
+A regression estimates a comparison among the rows it receives. If
+those rows arose through participation decisions, attrition,
+eligibility cutoffs or an institution's admission rules, the estimand
+quietly becomes a statement about that selected group. This is a
+design and data problem. Fitting an ordinary regression to the retained
+rows does not by itself repair it; explicit selection methods require
+additional information and defensible assumptions.
+:::
+
+## Measurement, Aggregation, and the Unit of Analysis {#ch14-unit}
+
+The previous sections asked which comparison was made and among whom.
+This one asks what the columns actually contain and what the rows
+actually are.
+
+### Measurement error in a predictor and in a control
+
+```{r}
+#| include: false
+#| label: sim-attenuation
+
+set.seed(14008)
+
+n_measure <- 800
+motivation_true <- rnorm(n_measure, mean = 0, sd = 1)
+outcome <- 50 + 5.0 * motivation_true +
+  rnorm(n_measure, mean = 0, sd = 5)
+motivation_measured <- motivation_true +
+  rnorm(n_measure, mean = 0, sd = 0.75)
+
+measure_data <- data.frame(
+  motivation_true, motivation_measured, outcome
+)
+
+fit_true_predictor <- lm(outcome ~ motivation_true,
+                         data = measure_data)
+fit_noisy_predictor <- lm(outcome ~ motivation_measured,
+                          data = measure_data)
+
+attenuation_summary <- c(
+  true_slope = 5.0,
+  slope_with_true_predictor =
+    coef(fit_true_predictor)["motivation_true"],
+  slope_with_measured_predictor =
+    coef(fit_noisy_predictor)["motivation_measured"],
+  reliability = 1 / (1 + 0.75^2),
+  predicted_attenuated_slope =
+    5.0 * (1 / (1 + 0.75^2))
+)
+print(attenuation_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-residual-confounding
+
+set.seed(14009)
+
+n_confound <- 800
+status <- rnorm(n_confound, mean = 0, sd = 1)
+participation <- 0.9 * status + rnorm(n_confound, mean = 0, sd = 1)
+result <- 50 + 0.0 * participation + 3.0 * status +
+  rnorm(n_confound, mean = 0, sd = 3)
+status_proxy <- status + rnorm(n_confound, mean = 0, sd = 0.9)
+
+confound_data <- data.frame(
+  participation, status, status_proxy, result
+)
+
+fit_no_control <- lm(result ~ participation, data = confound_data)
+fit_exact_control <- lm(result ~ participation + status,
+                        data = confound_data)
+fit_proxy_control <- lm(result ~ participation + status_proxy,
+                        data = confound_data)
+
+residual_confounding <- c(
+  true_participation_effect = 0.0,
+  no_control = coef(fit_no_control)["participation"],
+  exact_control = coef(fit_exact_control)["participation"],
+  noisy_proxy_control = coef(fit_proxy_control)["participation"]
+)
+print(residual_confounding)
+```
+
+
+Chapter 7 separated the conditions of the least-squares algebra from the
+requirement that a recorded predictor adequately represent the construct
+the estimand names, and no residual plot assesses that requirement.
+Motivation measured with a scale whose error variance is $0.75^2$ against
+a true-score variance of 1 has reliability $1/(1+0.75^2)=.64$; with
+seed 14008 and 800 records the slope falls from 4.8327 with the true
+predictor to 3.0577 with the measured one, close to the predicted
+$5\times.64=3.2$. The SE 0.1683 does not warn of this, the
+residual plot cannot show it, and the p-value stays below .001: the
+estimate is aimed at the wrong quantity. In this single-predictor linear
+model, classical measurement error multiplies the population slope by the
+predictor's reliability. With several mismeasured or correlated predictors,
+bias need not be toward zero [@cohen2003; @fox2016].
+
+The more damaging consequence appears when the mismeasured variable is a
+control. Suppose a programme has no effect but socioeconomic status
+causes both participation and the outcome.
+
+Draw the four columns in the
+order shown, so that the seed reproduces the printed values.
+
+$$
+\begin{aligned}
+\text{status}_i &\sim\text{Normal}(0, 1),\\
+\text{participation}_i &= 0.9\,\text{status}_i+v_i,
+&& v_i\sim\text{Normal}(0, 1),\\
+\text{outcome}_i &= 50+0\,\text{participation}_i+3\,\text{status}_i
++\varepsilon_i,
+&& \varepsilon_i\sim\text{Normal}(0, 3^2),\\
+\text{proxy}_i &= \text{status}_i+w_i,
+&& w_i\sim\text{Normal}(0, 0.9^2).
+\end{aligned}
+$$
+
+The proxy's reliability is $1/(1+0.9^2)=.5525$. With seed 14009 and 800
+records, `outcome ~ participation` gives 1.3709 for a true effect of
+zero, `outcome ~ participation + status` recovers $-0.113$, and
+`outcome ~ participation + proxy` gives 0.7377, leaving about 54 percent
+of the unadjusted bias in place. "We controlled for socioeconomic status" is
+therefore an incomplete sentence: what matters is how well status was
+measured [@aeraApaNcme2014]. **Construct drift** is the same problem
+with a different face, since a variable named `engagement` in a 2015 and
+a 2020 wave may be two constructs if the items, response scale or
+administration changed. Regressions do not notice; a codebook and a
+documented measurement history do.
+
+### Ecological inference: the rows are not people
+
+```{r}
+#| include: false
+#| label: sim-ecological
+
+set.seed(14010)
+
+n_occupations <- 60
+workers_per_occupation <- 40
+
+occupation_share_women <- runif(n_occupations, min = 0.05, max = 0.95)
+occupation_level <- 40 - 18 * occupation_share_women +
+  rnorm(n_occupations, mean = 0, sd = 3)
+
+worker_occupation <- rep(1:n_occupations,
+                         each = workers_per_occupation)
+worker_is_woman <- rbinom(
+  n_occupations * workers_per_occupation,
+  size = 1,
+  prob = rep(occupation_share_women, each = workers_per_occupation)
+)
+worker_income <- occupation_level[worker_occupation] +
+  2.0 * worker_is_woman +
+  rnorm(n_occupations * workers_per_occupation, mean = 0, sd = 4)
+
+workers <- data.frame(
+  occupation = worker_occupation,
+  is_woman = worker_is_woman,
+  income = worker_income
+)
+
+fit_worker_pooled <- lm(income ~ is_woman, data = workers)
+fit_worker_within <- lm(income ~ is_woman + factor(occupation),
+                        data = workers)
+
+occupation_means <- aggregate(
+  cbind(is_woman, income) ~ occupation,
+  data = workers,
+  FUN = mean
+)
+fit_aggregate <- lm(income ~ is_woman, data = occupation_means)
+
+ecological_summary <- c(
+  true_within_occupation_gap = 2.0,
+  worker_level_pooled = coef(fit_worker_pooled)["is_woman"],
+  worker_level_within_occupation =
+    coef(fit_worker_within)["is_woman"],
+  occupation_level_slope = coef(fit_aggregate)["is_woman"]
+)
+print(ecological_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-ecological-gaps
+
+gap_by_occupation <- numeric(n_occupations)
+for (j in 1:n_occupations) {
+  sub <- workers[workers$occupation == j, ]
+  gap_by_occupation[j] <- mean(sub$income[sub$is_woman == 1]) -
+    mean(sub$income[sub$is_woman == 0])
+}
+
+gap_summary <- c(
+  mean_within_occupation_gap = mean(gap_by_occupation),
+  minimum_gap = min(gap_by_occupation),
+  maximum_gap = max(gap_by_occupation),
+  share_of_gaps_that_are_positive = mean(gap_by_occupation > 0)
+)
+print(gap_summary)
+```
+
+
+An **ecological inference** transfers a relationship estimated among
+aggregates to the individuals inside them, and the two need not agree in
+magnitude or in sign [@robinson1950]. The recipe makes the
+disagreement exact. Sixty occupations of 40 workers vary in their share
+of women, drawn Uniform(.05, .95); the occupation level is
+$40-18\,\text{share}+\varepsilon$ with error SD 3; within any
+occupation women earn 2 thousand dollars more than men, with worker
+noise SD 4.
+
+With seed 14010 the three numbers are $-3.0228$ at worker level pooled,
+1.9869 at worker level within occupation, and $-14.3063$ [$-17.3278$,
+$-11.2847$] at occupation level. Only the middle one estimates the
+quantity in the recipe. The occupation-level slope, read as a gender
+gap, is about seven times the true gap and points the wrong way: it is
+not wrong about occupations, it is wrong about workers. The
+within-occupation differences average 1.9602 and run from $-2.2702$ to
+6.0976, with 90 percent positive. The worker-level pooled estimate is
+negative although its rows are individuals, because the omitted
+occupational structure does the work composition did in Section 3.1.
+This is a reversal and the ecological fallacy in one dataset.
+
+```{r}
+#| label: fig-ch14-ecological
+#| fig-cap: Aggregate and within-group relationships in the same simulated data. Panel (a) plots the 60 occupation means with the occupation-level fitted line. Panel (b) shows the distribution of the within-occupation income differences between women and men; the dashed line marks the true within-occupation difference of plus 2 thousand dollars.
+#| fig-alt: 'Panel (a) shows 60 points falling steeply from about 40 thousand dollars at a five percent share of women to about 22 thousand dollars at a ninety-five percent share, with a fitted line whose slope is about -14 thousand dollars per unit share. Panel (b) is a histogram of the 60 within-occupation differences between women and men, centered near plus 2 thousand dollars with most values between about -2 and plus 6, and a dashed vertical reference line at plus 2.'
+#| fig-width: 7.4
+#| fig-height: 3.6
+#| fig-show: hold
+#| echo: false
+
+old_par <- par(no.readonly = TRUE)
+par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2.5, 1))
+
+plot(
+  occupation_means$is_woman, occupation_means$income,
+  xlab = "Share of occupation who are women",
+  ylab = "Mean income (thousand dollars)",
+  main = "(a) Occupation level, n = 60",
+  pch = 1, cex = 0.9
+)
+abline(fit_aggregate, lwd = 2)
+
+hist(
+  gap_by_occupation,
+  breaks = 12,
+  xlab = "Within-occupation income difference",
+  ylab = "Number of occupations",
+  main = "(b) Within occupation",
+  col = "grey85", border = "white"
+)
+abline(v = 2, lty = 2, lwd = 2)
+
+par(old_par)
+```
+
+### The same problem in real occupation records
+
+```{r}
+#| include: false
+#| label: prestige-build
+
+data("Prestige")
+
+occupations <- Prestige
+occupations$occupation <- rownames(occupations)
+occupations$income_k <- occupations$income / 1000
+
+prestige_checks <- c(
+  rows_as_declared = nrow(occupations) == 102L,
+  complete_rows_98 = sum(complete.cases(occupations)) == 98L,
+  missing_only_in_type = sum(is.na(occupations$type)) == 4L,
+  women_is_a_percentage = min(occupations$women) >= 0 &&
+    max(occupations$women) <= 100
+)
+print(prestige_checks)
+```
+
+```{r}
+#| include: false
+#| label: prestige-ecological
+
+fit_women <- lm(income_k ~ women, data = occupations)
+print(summary(fit_women)$coefficients)
+print(confint(fit_women)["women", ])
+```
+
+```{r}
+#| include: false
+#| label: prestige-ecological-values
+women_ci <- confint(fit_women)["women", ]
+p_women <- coef(summary(fit_women))["women", 4]
+```
+
+
+Chapters 7 and 8 used the 1971 Canadian census occupation records, which
+carry the percentage of incumbents who were women, and it is tempting to
+regress occupation-average income on it. Across the 102 occupations the
+fitted contrast is $-0.059$ thousand 1971 dollars per percentage point
+(SE 0.012, [$-0.0829$, $-0.0352$], $R^2=.1945$), so ten points of share
+corresponds to about 0.5903 thousand dollars of lower occupational
+average income. That is a defensible occupation-level description, not
+an estimate of what a woman and a man in the same job earned, and
+Section 5.2 shows the two can differ in sign. These records contain no
+individuals, so the aggregate association alone cannot identify the
+individual comparison; state
+the occupation-level claim and stop.
+
+\Needspace{18\baselineskip}
+
+| Symptom | Question to ask |
+|:--|:--|
+| The conclusion names people; the rows are schools, occupations, regions, or years | What does one row represent, and was that unit used consistently from question to claim? |
+| A percentage or an average is used as a predictor | Is it a property of the group, or a stand-in for an unobserved individual variable? |
+| A relationship is much stronger in aggregate than at the individual level | Has averaging removed the individual variation that would weaken it? |
+| A construct label is reused across waves, sites, or instruments | Were the items, scale, and administration the same? |
+| A control variable is a scale score, index, or proxy | What is its reliability, and what residual confounding remains? |
+
+: A checklist for unit-of-analysis mistakes. {#tbl-ch14-unit-checklist tbl-colwidths="[42,58]"}
+
+
+```{r}
+#| eval: false
+#| echo: true
+lm(income_k ~ women, data = occupations)
+```
+
+## Specification Sensitivity and Dependence {#ch14-sensitivity}
+
+### Analyst degrees of freedom
+
+```{r}
+#| include: false
+#| label: prestige-multiverse
+
+complete_rows <- occupations[complete.cases(occupations), ]
+
+base_education_fit <- lm(income_k ~ education, data = complete_rows)
+cook_values <- cooks.distance(base_education_fit)
+highest_five <- order(cook_values, decreasing = TRUE)[1:5]
+
+sample_full <- complete_rows
+sample_no_influence <- complete_rows[-highest_five, ]
+sample_no_top_income <- complete_rows[complete_rows$income_k <= 20, ]
+
+adjustment_formulas <- c(
+  "income_k ~ education",
+  "income_k ~ education + prestige",
+  "income_k ~ education + women",
+  "income_k ~ education + prestige + women",
+  "income_k ~ education + type"
+)
+adjustment_labels <- c(
+  "none", "+ prestige", "+ women",
+  "+ prestige + women", "+ type"
+)
+sample_labels <- c(
+  "All complete rows",
+  "Drop 5 most influential",
+  "Drop income above 20k"
+)
+sample_list <- list(sample_full, sample_no_influence,
+                    sample_no_top_income)
+
+multiverse <- data.frame()
+for (i in 1:5) {
+  for (j in 1:3) {
+    fit_ij <- lm(as.formula(adjustment_formulas[i]),
+                 data = sample_list[[j]])
+    ci_ij <- confint(fit_ij)["education", ]
+    multiverse <- rbind(multiverse, data.frame(
+      adjustment = adjustment_labels[i],
+      sample = sample_labels[j],
+      n = nrow(sample_list[[j]]),
+      estimate = coef(fit_ij)["education"],
+      lower = ci_ij[1],
+      upper = ci_ij[2],
+      p_value = coef(summary(fit_ij))["education", 4]
+    ))
+  }
+}
+row.names(multiverse) <- NULL
+
+multiverse_summary <- c(
+  n_specifications = nrow(multiverse),
+  minimum_estimate = min(multiverse$estimate),
+  median_estimate = median(multiverse$estimate),
+  maximum_estimate = max(multiverse$estimate),
+  n_below_point_05 = sum(multiverse$p_value < 0.05),
+  n_negative = sum(multiverse$estimate < 0)
+)
+print(multiverse_summary)
+```
+
+
+Everything so far assumed one analysis. In practice a defensible
+analysis has many defensible versions, and the choice among them is made
+by a person who can see the results. Modest undisclosed flexibility
+suffices to produce significant support for essentially any hypothesis
+[@simmons2011]; the response is to run the reasonable specifications
+and report the distribution rather than one selected member of it
+[@steegen2016].
+
+The Chapter 7 and 8 question supplies a natural example: how does
+occupation-average income differ across occupations with different
+average education? Five adjustment sets (education alone, adding
+prestige, adding the percentage of women, adding both, and adding occupational type alone) and three sample rules (all 98 type-complete rows,
+the 93 remaining after dropping the five largest Cook's distances from
+the education-only fit, the 96 with income at or below 20 thousand) give
+fifteen plausible descriptive specifications, each an `lm()` of
+`income` on `education` and the set's other terms, with 95 percent
+intervals from `confint()`. The education coefficient, read in thousands
+of dollars per year of average education, runs from $-0.2179$ to 0.9370
+with a median of 0.7301; eleven of the fifteen have $p<.05$, three are
+negative, and four intervals cover zero. Reported by adjustment set,
+education alone gives 0.6472 to 0.8830, adding the percentage of women
+0.7301 to 0.9292, adding occupational type 0.7983 to 0.9370, and the six
+specifications containing prestige collapse to $-0.2179$ to 0.3023, which
+is where every interval covering zero sits. The spread is not
+mysterious: education and prestige correlate
+.8665 across these occupations, so models containing both split the
+shared variation between them, which is the collinearity Chapter 8
+examined and also a change of estimand, because the coefficient now
+compares occupations at the same prestige.
+
+```{r}
+#| label: fig-ch14-multiverse
+#| fig-cap: The education coefficient across fifteen specifications, with 95% confidence intervals, grouped by adjustment set and distinguished by sample rule. The vertical line marks zero.
+#| fig-alt: 'Fifteen horizontal interval estimates. Education-only specifications lie between about 0.65 and 0.88; those adding percentage women lie between about 0.73 and 0.93; those adding occupational type lie between about 0.80 and 0.94. These nine intervals exclude zero. The six specifications containing prestige have estimates from about -0.22 to 0.30, and four intervals cover zero.'
+#| fig-width: 7.4
+#| fig-height: 4.6
+#| echo: false
+
+multiverse$row_label <- paste(multiverse$adjustment,
+                              multiverse$sample, sep = " | ")
+multiverse$row_label <- factor(
+  multiverse$row_label,
+  levels = rev(multiverse$row_label)
+)
+
+ggplot(multiverse, aes(x = estimate, y = row_label)) +
+  geom_vline(xintercept = 0, color = "grey55") +
+  geom_errorbar(
+    aes(xmin = lower, xmax = upper),
+    orientation = "y", width = 0.2
+  ) +
+  geom_point(aes(shape = sample), size = 2.2) +
+  labs(
+    x = "Education coefficient (thousand 1971 dollars per year)",
+    y = NULL,
+    shape = NULL
+  ) +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size = 7)
+  )
+```
+
+An analyst who reports only the specification that best fits an expected
+story is not lying about a number, and it survives replication of that
+specification; what is lost is the reader's ability to know how much of
+the result was a choice.
+
+::: {.callout-warning title="Robustness is evidence about specification, not about bias"}
+A stable coefficient across fifteen models shows that the result does
+not depend on those fifteen choices. It says nothing about an omitted
+common cause that none of the fifteen contains, about selection that
+shaped all fifteen samples identically, or about measurement error
+present in every version. A robustness table is a useful disclosure;
+it is not a proof of causality and not a substitute for design.
+:::
+
+### Multiplicity and the four disclosures
+
+Chapter 4, Section 3.3, developed multiplicity: as the number of comparisons grows,
+so does the chance that at least one crosses a conventional threshold
+under a true null, and it calibrated a declared family. In an
+applied project the comparisons are rarely counted, because they
+accumulate informally across outcomes, subgroups, covariate sets,
+transformations and exclusion rules. The practical response is
+disclosure rather than arithmetic [@wasserstein2016; @appelbaum2018].
+Four disclosures do most of the work.
+
+::: {.callout-note title="Four disclosures"}
+1. **Prespecify.** Write the primary specification and the primary
+   outcome before seeing results, which separates confirmation from
+   exploration.
+2. **Count.** Report the number and nature of the analyses performed,
+   so that a reader can calibrate the p-values.
+3. **Show the set.** Present the sensitivity set rather than its best
+   member, and label subgroup findings exploratory unless they were
+   prespecified.
+4. **Open the file.** Share code and data where permitted, which makes
+   the specification auditable [@nationalAcademies2019; @peng2011;
+   @nosek2018].
+:::
+
+### Dependence is a design fact {#ch14-dependence}
+
+```{r}
+#| include: false
+#| label: sim-dependence
+
+set.seed(14011)
+
+n_classrooms <- 20
+students_per_class <- 15
+
+class_treatment <- rep(rbinom(n_classrooms, size = 1, prob = 0.5),
+                       each = students_per_class)
+class_identifier <- rep(1:n_classrooms, each = students_per_class)
+class_offset <- rep(rnorm(n_classrooms, mean = 0, sd = 6),
+                    each = students_per_class)
+
+class_score <- 60 + 0.0 * class_treatment + class_offset +
+  rnorm(n_classrooms * students_per_class, mean = 0, sd = 5)
+
+classroom_data <- data.frame(
+  classroom = class_identifier,
+  treatment = class_treatment,
+  score = class_score
+)
+
+fit_student_rows <- lm(score ~ treatment, data = classroom_data)
+
+classroom_means <- aggregate(
+  cbind(score, treatment) ~ classroom,
+  data = classroom_data,
+  FUN = mean
+)
+fit_classroom_rows <- lm(score ~ treatment, data = classroom_means)
+
+dependence_summary <- c(
+  true_treatment_effect = 0.0,
+  student_level_estimate = coef(fit_student_rows)["treatment"],
+  student_level_SE =
+    coef(summary(fit_student_rows))["treatment", 2],
+  classroom_level_estimate = coef(fit_classroom_rows)["treatment"],
+  classroom_level_SE =
+    coef(summary(fit_classroom_rows))["treatment", 2],
+  intraclass_correlation = 6^2 / (6^2 + 5^2)
+)
+print(dependence_summary)
+```
+
+```{r}
+#| include: false
+#| label: sim-dependence-coverage
+
+set.seed(14013)
+
+n_replications <- 1000
+covered_student <- 0
+covered_classroom <- 0
+
+for (r in 1:n_replications) {
+  treat_r <- rep(rbinom(n_classrooms, size = 1, prob = 0.5),
+                 each = students_per_class)
+  offset_r <- rep(rnorm(n_classrooms, mean = 0, sd = 6),
+                  each = students_per_class)
+  score_r <- 60 + 0.0 * treat_r + offset_r +
+    rnorm(n_classrooms * students_per_class, mean = 0, sd = 5)
+  data_r <- data.frame(
+    classroom = rep(1:n_classrooms, each = students_per_class),
+    treatment = treat_r,
+    score = score_r
+  )
+
+  ci_student <- confint(lm(score ~ treatment, data = data_r))
+  if (ci_student["treatment", 1] <= 0 &&
+      ci_student["treatment", 2] >= 0) {
+    covered_student <- covered_student + 1
+  }
+
+  means_r <- aggregate(cbind(score, treatment) ~ classroom,
+                       data = data_r, FUN = mean)
+  ci_class <- confint(lm(score ~ treatment, data = means_r))
+  if (ci_class["treatment", 1] <= 0 &&
+      ci_class["treatment", 2] >= 0) {
+    covered_classroom <- covered_classroom + 1
+  }
+}
+
+coverage <- c(
+  nominal_level = 0.95,
+  student_row_coverage = covered_student / n_replications,
+  classroom_row_coverage = covered_classroom / n_replications
+)
+print(coverage)
+```
+
+
+Every standard error in this collection assumes that rows carry
+independent information, or that the calculation represents the
+dependence. When pupils share a classroom, measurements repeat within a
+person, or records repeat within a site, treating rows as independent
+can misrepresent uncertainty. Positive classroom clustering in the examples
+below makes independent-row standard errors too small; ignoring a useful
+pairing can instead make them too large. Treating dependent observations as
+independent replicates is **pseudoreplication**.
+
+Project STAR is the worked case, and Chapter 9 §7 owns its mechanics, so
+recall its result rather than re-deriving it. Among the 3,745
+observed-reading pupils in 79 schools, kindergarten reading averaged
+434.7323 in regular classes and 440.5474 in small ones, a difference of
+5.8151 points. Treating pupils as independent gives an SE of 1.0377; HC3
+gives 1.0416, barely different; clustering pupils within their schools
+gives 1.8476, about 1.7805 times the row-level value, so with
+$t_{.975,78}=1.9908$ the clustered interval is [2.1368, 9.4935] against
+the row-level [3.7807, 7.8496]. Unequal spread across pupils was not the
+issue addressed by the clustered calculation; it allows residual
+dependence within schools while treating schools as independent. This
+cluster-based approximation needs enough independent schools and a
+suitable model. The within-school randomization is a separate design
+fact: it neither uniquely selects this covariance estimator nor makes
+the interval an exact randomization interval.
+
+A short calibration check makes the cost of the wrong choice visible
+without leaving the collection's methods. Twenty classrooms of 15
+pupils, treatment assigned at classroom level with a true effect of
+zero, classroom SD 6 against pupil SD 5 and therefore
+$\rho_I=6^2/(6^2+5^2)=.5902$.
+
+Draw the three random
+quantities in the order shown, so that the seed reproduces the printed
+values; `rbinom(20, 1, .5)` assigns each classroom independently rather
+than forcing a 10-and-10 split, and each classroom's draw is repeated to
+its 15 pupils.
+
+$$
+\begin{aligned}
+\text{treat}_g &\sim\text{Bernoulli}(.5),
+&&\text{repeated to the 15 pupils of classroom }g,\\
+a_g &\sim\text{Normal}(0, 6^2),
+&&\text{one draw per classroom},\\
+\text{score}_{ig} &= 60+0\,\text{treat}_g+a_g+\varepsilon_{ig},
+&& \varepsilon_{ig}\sim\text{Normal}(0, 5^2).
+\end{aligned}
+$$
+
+With seed 14011 one dataset gives the same estimate 0.2343 from pupil
+rows and from classroom means, the latter from `score ~ treatment` on
+the 20 classroom averages, but standard errors of 1.0021 and 3.3249. One
+dataset proves nothing about calibration, so repeating the same recipe
+1,000 times with seed 14013 counts how often each nominal 95 percent
+interval covers zero: 48.2 percent from pupil rows and 94.3 percent from
+classroom means. The pupil-row analysis is not slightly optimistic; it
+is wrong about the information the design supplied.
+
+::: {.callout-warning title="Dependence is a design fact, not a modelling preference"}
+An analysis does not become appropriate for clustered data because the
+cluster identifier was not recorded. When treatment is assigned by
+classroom, the assignment unit is the classroom and the analysis must
+reflect it: analysing classroom means is the simplest honest response,
+Chapter 9's cluster-robust covariance is the one used for Project
+STAR, and multilevel models are the standard alternative outside this
+collection. Sampling pupils within classrooms is a distinct design;
+the sampling and dependence structure, not the presence of a classroom
+label, determines the unit of inference.
+:::
+
+## What a Design Supplies That Adjustment Cannot {#sec-ch14-design}
+
+### What randomization supplied in Project STAR
+
+A causal effect compares outcomes for the same unit under two conditions.
+Write $Y_i(0)$ for pupil $i$'s outcome without the programme and $Y_i(1)$
+for the outcome with it. Only the outcome under the assigned condition
+is observed. This notation assumes well-defined conditions and no
+spillover from one pupil's assignment to another pupil's outcome.
+
+| Pupil | Assigned condition | $Y_i(0)$ | $Y_i(1)$ |
+|:--|:--|--:|--:|
+| A | Without programme | 12 | ? |
+| B | With programme | ? | 19 |
+| C | Without programme | 20 | ? |
+| D | With programme | ? | 16 |
+
+: Four invented pupils: each row is missing the other potential outcome. {#tbl-ch14-counterfactual tbl-colwidths="[16,40,22,22]"}
+
+Could any row establish its pupil's programme effect? Could the observed
+group difference do so? The treated mean is 17.5 and the untreated mean
+is 16, a difference of 1.5, but the groups contain different pupils.
+For this constructed illustration alone, reveal the missing outcomes:
+A would score 18 with the programme, B would score 15 without it, C would
+score 27 with it, and D would score 11 without it. Their individual effects
+are 6, 4, 7 and 5, averaging 5.5. The observed difference is not that
+average in this allocation.
+
+Randomly assigning exactly two of these four pupils, with all six pairs
+equally likely, would make the unadjusted difference unbiased for their
+average effect across repeated assignments; it would neither fill the missing cells nor
+make every realized difference equal 5.5. A sound uncertainty calculation
+represents that variation. The small table separates an individual effect,
+an average effect and an observed group comparison before a fitted model
+can blur them together.
+
+Sections 2 to 6 catalogued what adjustment cannot do: remove a
+confounder nobody measured, repair a mismeasured control, restore rows
+that left, tell a confounder from a mediator or a collider, or decide
+which comparison the question wants. A design supplies what adjustment
+cannot, because it acts before the data exist.
+
+Project STAR assigned kindergarten pupils to class types within their
+schools by a known probability mechanism [@finn1990; @mosteller1995],
+and that mechanism supplies three things at once.
+
+::: {.callout-note title="What randomization supplied in Project STAR"}
+1. **Independence under the assignment mechanism**, conditional on
+   school and any other variables used to set allocation probabilities,
+   between assignment and baseline characteristics or potential outcomes.
+   This concerns measured and unmeasured characteristics and does not
+   guarantee exact balance in one realized sample. On the same 3,735
+   primary records, the adjusted comparison is 6.6575 (SE 1.6974,
+   [3.2782, 10.0368]) and the unadjusted one 5.8955 (SE 1.8491,
+   [2.2143, 9.5767]); adjustment changes precision and the fitted
+   comparison without supplying the randomization warrant.
+2. **Fixed timing**, so class type is settled before the kindergarten
+   year and no within-year measure can be a pre-treatment common
+   cause; nothing in the data would show that after the fact.
+3. **A named assignment mechanism** against which uncertainty can be
+   assessed. Assignment was within schools. Section 6.3's interval
+   additionally treats schools as approximately independent clusters,
+   allowing dependence within them. It is a cluster-asymptotic
+   approximation, not an exact randomization interval or a unique
+   consequence of the assignment protocol.
+:::
+
+What randomization does
+not supply is equally explicit, and Chapter 9 listed it: 349 of the
+4,094 eligible pupils have no recorded reading score, and their absence
+is a selection question randomization does not answer; the link from
+recorded class type to original assignment is unverified in the
+distributed file; the raw arm means weight schools by arm-specific
+counts; and the result concerns assigned class type, one kindergarten
+reading outcome and participating Tennessee schools, not a realized
+headcount or a portable policy dose response [@krueger1999;
+@hanushek1999; @nye2000; @chetty2011].
+
+### Four designs, named and bounded
+
+When assignment is not available, some studies borrow an event or a rule
+that behaves, under stated assumptions, like part of an assignment
+mechanism. Read the vocabulary, recognize the claim and check the
+assumption that carries it; the procedures are a separate course.
+
+| Design | Identifying idea in one sentence | The assumption that carries it | What it does not remove |
+|:--|:--|:--|:--|
+| Natural experiment | An external event or administrative accident allocates exposure in a way the units did not choose | The event is unrelated to the units' potential outcomes | Selection into the affected population; measurement and dependence |
+| Difference in differences | Compare the change over time in an exposed group with the change in an unexposed group | The two groups' outcomes would have moved in parallel without the exposure | Differential composition change, anticipation, and other events at the same time |
+| Regression discontinuity | Compare units just above and just below a threshold that determines exposure | Potential-outcome means would be continuous at the cut without the exposure; precise manipulation or another change at the same cut can undermine this | Anything away from the threshold; the estimate is local |
+| Instrumental variables | Use a variable that shifts exposure but has no other route to the outcome | Relevance, independence and exclusion; a complier-effect reading also needs monotonicity and a well-defined exposure | Weak-instrument imprecision; under these conditions the effect concerns compliers |
+
+: Four designs as reading vocabulary, with the assumption each rests on. {#tbl-ch14-designs tbl-colwidths="[18,32,26,24]"}
+
+Chapter 1 §3.2 gave one short illustration, and recalling it fixes the
+pattern. A lottery offer of a programme place changes take-up; if the
+lottery is independent of the outcome and affects it only by changing
+take-up, the offer can identify an effect for those whose take-up the
+lottery changed. Independence and exclusion require support rather than
+assertion, further assumptions decide which effect is identified and for
+whom, and none of it makes the volunteers represent a wider
+population.
+
+### Where this chapter's reasoning stops
+
+The audit is a discipline, not a method: it supplies no estimator and
+cannot supply a design the study did not have.
+
+::: {.callout-note title="Four boundaries"}
+1. **No new causal estimator.** The chapter develops identification questions
+   but does not implement an observational causal estimator. Recognizing that department is a
+   mediator for one question and a confounder for another says what a
+   regression cannot do, not what to fit instead.
+2. **Dependence.** Aggregating to the cluster is honest but discards
+   within-cluster information; Chapter 9's clustered covariance is the
+   calculation used here, and multilevel models are the natural
+   continuation outside this collection.
+3. **Missing data.** They receive an audit and a bounded claim, not a
+   method; multiple imputation is the continuation.
+4. **Measurement error.** It is diagnosed and its direction stated,
+   not corrected; errors-in-variables models are the continuation.
+:::
+
+What the
+chapter does supply is transferable: naming the estimand, describing the
+comparison a model computes, checking who is in it and what was
+measured, disclosing how many analyses were run, and writing a final
+sentence that stays inside all of it.
+
+## From Analysis to a Credible Claim {#ch14-claim}
+
+### Five stages for auditing a results paragraph
+
+The chapter closes by auditing one results paragraph against five stages
+and rewriting it. The paragraph concerns the generated district data of
+Section 3.1, so every number can be checked and the truth is known.
+
+The five stages are this chapter's reading device for one results
+paragraph, not the collection's account of the research process, and they complement the broader schemes introduced in Chapter 1: §6.3's six quality-evaluation questions ---
+Question alignment under Alignment; Evidence integrity, Justification
+adequacy and Inferential adequacy under Support; Transition fidelity and
+Claim calibration under Translation --- and §7.3's six-stage, two-phase
+construction workflow. The workflow explains when a problem arose, while
+the audit judges the completed record; the five stages group the audit
+questions in @tbl-ch14-audit and replace neither scheme.
+
+::: {.callout-note title="The five stages of this chapter's audit"}
+1. **Research question:** state the substantive question and its mode.
+2. **Population and unit, measurement and design:** define what one
+   row represents, how variables were produced, how units entered and
+   left, and what comparisons the design warrants.
+3. **Estimand, data, model, and estimation:** name the target
+   comparison explicitly, construct the analytic sample, specify the
+   model that computes that comparison, and estimate it.
+4. **Assumption checking and sensitivity, uncertainty and evidence:**
+   examine mean structure, dependence, support, measurement and
+   specification sensitivity, and report what moved.
+5. **Interpretation, prediction, scope, and bounded claim:** write a
+   conclusion whose unit, verb, population and range the previous four
+   stages support.
+
+Stage 5 is not a formatting step. Failures can originate at any
+earlier stage; many computations in this chapter ran exactly as
+specified, and Stage 5 is where an unresolved mismatch upstream
+becomes a false sentence.
+:::
+
+### One paragraph, audited and rewritten
+
+::: {.callout-important title="Draft results paragraph, as submitted"}
+Using data on 240 pupils across four schools, we examined the effect
+of supplementary tutoring on reading achievement. A regression of
+end-of-year reading score on weekly tutoring hours showed that each
+additional hour of tutoring raised scores by 6.5784 points
+($p<.0001$), explaining 72 percent of the variance in achievement. The
+effect was highly significant, confirming that tutoring is an
+effective intervention. Because the relationship was so strong, we
+recommend that the district expand tutoring to 10 hours per week for
+all pupils, which the model predicts would produce scores of
+approximately 89 points. Robustness checks confirmed the finding.
+:::
+
+Every number in that paragraph is arithmetically correct, and the
+paragraph is indefensible at four of the five stages.
+
+**Stage 1.** The paragraph uses causal verbs, "effect", "raised",
+"effective intervention", for an observational regression with no
+assignment mechanism and no identification argument. The mode changed
+silently between the analysis and the sentence: the analysis supports
+an associational claim and the sentence makes a causal one.
+
+**Stage 2.** One row is a pupil in one of four fixed schools, not
+sampled at random, differing systematically in tutoring provision and
+baseline achievement. Nothing is said about how tutoring was
+allocated, which Section 3.1 showed to be decisive, about who was
+measured with what instrument, or about pupils missing an end-of-year
+score.
+
+**Stage 3.** The fitted model is `score ~ hours`, whose coefficient is
+the pooled comparison. That is a legitimate estimand, but not the one
+the sentence describes: 87 percent of the predictor variation lies
+between schools, so the reported number is largely a comparison of
+school averages, and the within-school comparison $-2.0018$ has the
+opposite sign.
+
+**Stage 4.** "Highly significant" is offered as confirmation, but a
+small p-value states compatibility with a null model, not size,
+importance or causal status [@wasserstein2016]; "explaining 72
+percent of the variance" is an algebraic decomposition of sample
+variation; and "robustness checks confirmed the finding" names neither
+the checks, nor their number, nor their spread. The intervals suit
+this recipe's independent residual errors conditional on four fixed
+schools, which a real report would have to justify rather than infer
+from a missing cluster column.
+
+**Stage 5.** The recommended prediction is made at 10 tutoring hours
+per week, and the observed range is 0.1496 to 7.5722 hours, with no
+pupil at or above 8. The pooled model returns 88.9215 points there and
+the school-adjusted model returns 57.5615 at School 4: outside the
+support the two fits of the same data separate by more than 31 points
+because nothing constrains them. The recommendation also assumes the
+association would survive an intervention that changes how tutoring is
+allocated, which is precisely what the design cannot license.
+
+\Needspace{34\baselineskip}
+
+::: {.callout-tip title="Revised results paragraph"}
+We analysed end-of-year reading scores and weekly tutoring hours for
+240 pupils in four schools in one district. Tutoring is allocated by
+schools rather than assigned by the study, so every estimate below is
+a comparison, not an effect. Pooling across schools, pupils receiving
+one more hour of tutoring per week scored 6.5784 points higher on
+average (95 percent interval [6.0565, 7.1003]). This pooled figure
+mainly reflects differences between schools: only 12.79 percent of the
+variation in tutoring hours occurs within schools, and
+better-resourced schools both provide more tutoring and have higher
+average scores. Within schools the comparison reverses: adjusting for
+school, pupils receiving one more hour scored 2.0018 points lower
+(95 percent interval [$-2.8533$, $-1.1504$]), all four school-specific
+slopes were negative, from $-2.6281$ to $-1.2688$, and a
+school-by-hours product block did not improve fit ($F(3,232)=0.4345$,
+$p=.7285$). Leaving out any one school left the adjusted comparison
+between $-2.2289$ and $-1.7504$. The negative within-school pattern is
+consistent with tutoring being allocated to pupils who are already
+struggling, and these data cannot separate that allocation from any
+benefit of tutoring itself. The intervals are model-based and
+appropriate for independent residual errors conditional on four fixed
+schools; real school data would require a residual-dependence check.
+Observed tutoring ranges from 0.1496 to 7.5722 hours per week, so we
+make no statement about ten-hour provision. Answering the district's
+actual question would require either random assignment of tutoring or
+an explicit identification argument with adequate pre-allocation
+measurements and defensible assumptions about confounding, support and
+measurement. Baseline achievement would be relevant evidence, not a
+guarantee by itself.
+:::
+
+The revision reports more numbers than the original, retracts the causal
+verb, names the estimand each number belongs to, states the support
+limit, discloses the dependence question, and ends by saying what design
+would answer the question. It is a weaker claim and a stronger piece of
+research.
+
+### A template and a closing audit table
+
+::: {.callout-tip title="Template for a credible regression claim"}
+Among **[population and unit]**, over **[supported range or observed
+levels]**, **[focal contrast]** was associated with a **[estimate,
+units]** difference in mean **[outcome]** (95 percent interval
+**[lower, upper]**), holding **[conditioning set]** fixed. This is a
+**[pooled / within-group / between-group / standardized]** comparison;
+the **[alternative estimand]** comparison gives **[value]**, and the
+two differ because **[composition, adjustment, or unit reason]**. The
+analysis rests on **[design]**, in which units entered through
+**[selection and retention description]**, and **[key predictor]** was
+measured by **[instrument, reliability]**. Across **[k]**
+prespecified specifications the estimate ranged from **[min]** to
+**[max]**. The interval **[includes / excludes]** no difference, so
+the result is reported as **[an inconclusive or null comparison / a
+difference of the stated size]** rather than as an absent effect, and
+**[plausible alternative explanation]** remains consistent with the
+pattern. Because **[design, support, measurement, or dependence
+limit]**, this result does not establish **[the specific unsupported
+causal, individual-level, out-of-range, or population claim]**.
+:::
+
+Following one estimate from output to prose checks that its unit, scale,
+direction, magnitude, uncertainty, weak or null status, claim mode,
+plausible alternative explanations and supported range all survive the
+translation. The template and the audit table's Stage 5 row name the
+weak or null status and the plausible alternative explanations
+explicitly, so that a null is reported as a null rather than as an
+absent effect and an alternative account of the pattern is not dropped
+between the results and the conclusion.
+
+The table connects each audit question with a concrete failure case.
+
+| Stage | Audit question | Where it failed in this chapter |
+|:--|:--|:--|
+| 1. Question | Is the mode descriptive, associational, predictive or causal, and does the concluding verb match? | "Tutoring lowers scores" from a pooled associational fit |
+| 2. Unit | What does one row represent, and does the claim use the same unit? | Occupation-level income read as a worker-level gender gap |
+| 2. Entry and exit | How did rows enter and leave: eligibility, participation, attrition, missingness? | Selection on the outcome halving the admission-test slope |
+| 2. Dependence | Do rows carry independent information? | Classroom-assigned pupils analysed as independent rows |
+| 2. Measurement | What is each column's construct, units and reliability, and did they change across waves? | A noisy status proxy leaving residual confounding |
+| 3. Estimand | Is the target pooled, stratified, between-group, standardized or causal? | Berkeley's pooled and department-conditional odds ratios |
+| 3. Model | Is each adjustment variable justified by the estimand and the assumed structure, rather than being a mediator, collider or unsupported proxy? | Homework as a mediator; the portfolio as a collider |
+| 3. Support | Are the compared values observed jointly, and is any prediction interpolation? | Extending a line fitted below 8 study hours to 18 |
+| 4. Sensitivity | How much does the result move across defensible specifications, samples and codings? | The education coefficient from $-0.2179$ to 0.9370 |
+| 4. Uncertainty | Is the interval calibrated for the design that produced the data? | Nominal 95 percent intervals covering 48.2 percent of the time |
+| 5. Claim | Does the final sentence stay inside the unit, population, support, design and measurement, and do the direction, magnitude, uncertainty, weak or null status and plausible alternative explanations survive into it? | The audited paragraph above |
+
+: The regression-credibility audit, by stage. {#tbl-ch14-audit tbl-colwidths="[16,46,38]"}
+
+The author performs the audit first, as a documented self-evaluation,
+and any reader, collaborator, supervisor or reviewer repeats it
+afterwards on the accessible record. Its output is a profile of what
+each stage supports, together with the revision priorities that follow,
+rather than a total score, a pass mark or a publication verdict.
+
+## Reading Bridge
+
+A credible claim is an aligned one: the question, the estimand, the
+design, the rows, the fitted comparison and the final sentence must
+describe the same thing. Adjustment is a decision about an assumed
+structure, helpful for a pre-treatment common cause and harmful for a
+mediator or a collider, and a coefficient that moves is not a
+diagnosis. A pooled slope is a composition-weighted average of a
+within-group and a between-group slope, so a reversal is arithmetic
+about weights rather than a paradox, and Berkeley's pooled,
+conditional and standardized comparisons are three answers to three
+questions. Selection, restriction, attrition and regression to the
+mean change who is compared before any model runs; measurement error
+and aggregation change what a column and a row mean; fifteen
+defensible specifications can spread an estimate across zero; and
+dependence follows the design, as Project STAR's clustered interval
+showed. Randomization supplies a known allocation mechanism: conditional on
+its allocation variables, assignment is independent of pre-treatment
+attributes in the randomization distribution. It also fixes timing and
+defines repetitions for design-based inference; a cluster-based model
+interval remains an approximation. The
+quasi-experimental designs are named so that you can read them. Carry
+the five-stage audit and the claim template into your own project,
+where the first question is not which model to fit but which
+comparison the question asks for. Part Two turns to measurement
+itself, where the constructs this chapter asked you to audit become
+the objects modelled.
+
+Use the table to revisit a tool when the question in your own study
+requires it. The chapter's cases explain the comparisons needed here;
+the references offer further depth without requiring every preceding
+chapter to be taken as one course.
+
+| Audit question | Where the tool was built |
+|:--|:--|
+| Is the question descriptive, associational, predictive or causal, and what population and unit does it name? | Chapter 1 |
+| What do the distributions and relationships look like before any model, and how much would they vary across samples? | Chapter 2 |
+| What does an interval mean, and what does a p-value not mean? | Chapter 3 |
+| Which comparison among group means is asked, and does its calibration cover the family it belongs to? | Chapter 4 |
+| Is the analysis reproducible from a clean session, with seeds and versions recorded? | Chapters 5 and 6 |
+| What does one slope mean, and where is it supported? | Chapter 7 |
+| What changes when a predictor is added, and what do the checks interrogate? | Chapter 8 |
+| How do factors, contrasts and nested comparisons work, and when does the uncertainty need a robust or clustered calculation? | Chapter 9 |
+| Does the comparison vary across groups or values, and is the probe value supported? | Chapter 10 |
+| How is a binary outcome modelled, and on which scale is the claim made? | Chapter 11 |
+| How are unordered, ordered and count outcomes kept distinct? | Chapter 12 |
+| Is the performance estimate honest and out of sample? | Chapter 13 |
+| Does the final claim match the comparison actually made? | Chapter 14 |
+
+: Each audit question and the chapter that built its tool. {#tbl-ch14-callback tbl-colwidths="[72,28]"}
+
+
+## Key terms {.unnumbered}
+
+Use this reference to revisit the concepts introduced here. The Part One
+Concept Reference gives the broader reference and the principal home of
+each concept.
+
+| Term and common alternatives | Meaning or essential distinction |
+|:--|:--|
+| Directed acyclic graph (causal diagram; DAG) | A diagram whose arrows state assumed direct causes and whose directed paths cannot return to their starting point; it records assumptions that can be questioned, rather than conclusions produced by the data. |
+| Mediator (intermediate variable) | A variable caused by the focal predictor and lying on a path to the outcome; one kind of post-treatment variable, not a synonym for every variable measured after treatment. Conditioning on it changes a total-effect comparison; a direct causal reading needs additional identification and modelling conditions. |
+| Collider (common effect) | A variable caused by two others. A path through a collider is blocked unless the collider or a descendant is conditioned on; such conditioning can induce an association along that path. |
+| Adjustment set | The variables conditioned on for a stated estimand under an assumed structure, justified by that structure and the timing rather than by the available columns or a coefficient's movement. |
+| Aggregation reversal (Simpson's paradox; strict Simpson reversal) | A sign difference between a pooled comparison and the stratified or standardized comparisons, strict when every stratum points the opposite way to the pooled result; it arises from composition, not from a computational error. |
+| Within-group, between-group, and pooled comparison | Three estimands from one dataset: inside a level of the grouping variable, across group summaries, and across all rows ignoring the grouping, with the pooled slope a weighted average of the other two by the within and between shares of predictor variation. |
+| Direct standardization (standardized comparison) | Recomputing each group's summary under one declared common distribution of a stratifying variable; a third estimand rather than a compromise between the pooled and conditional comparisons. |
+| Range restriction (restriction of range) | Keeping only part of the observed range; restricting the predictor under a correctly specified linear model costs precision, apparent strength and support outside the window, while restricting on the outcome also moves the slope. |
+| Missingness mechanisms (MCAR; MAR; MNAR) | MCAR means missingness is unrelated to observed and missing values; MAR means it is unrelated to missing values conditional on observed information; MNAR means dependence on missing values remains. Complete-case validity depends on the target and mechanism, and MNAR requires assumptions not identified by the observed data alone. |
+| Attenuation from measurement error | In a single-predictor linear model, classical predictor error multiplies the population slope by reliability. With several predictors the direction can differ; a mismeasured control can leave residual confounding. |
+| Ecological inference (ecological fallacy) | Inferring an individual-level relationship from aggregate records. Aggregate and individual relationships can differ in sign and magnitude; the aggregate relationship alone does not identify the individual comparison. |
+| Specification sensitivity (multiverse analysis; analyst degrees of freedom) | The spread of an estimate across the defensible analyses that could have been run; a disclosure about specification, not evidence about an omitted common cause, selection or measurement shared by every version. |
+| Pseudoreplication (dependence as a design fact) | Treating dependent observations as independent replicates, misrepresenting uncertainty. The relevant dependence, sampling and assignment structure must be represented; its effect on a standard error depends on the comparison. |
+| Identification argument (design warrant) | The explicit reasons a comparison estimates the intended causal quantity, whether assignment or a named quasi-experimental design with its stated assumption; naming a design is not meeting its assumption. |
+| Bounded regression claim (credible-claim template) | A concluding statement whose unit, verb, conditioning set, supported range, design and disclosed sensitivity all match the analysis that produced it. |
+
+: Concepts introduced in this chapter. {#tbl-ch14-key-terms tbl-colwidths="[30,70]"}
+
+## Further reading {.unnumbered}
+
+*Regression and Other Stories*
+(<https://avehtari.github.io/ROS-Examples/>) for regression to the mean
+in its Section 6.5 and its chapters on causal inference and adjustment
+in observational studies [@gelman2020]; *The Effect*
+(<https://theeffectbook.net/>) for a free book-length treatment of
+causal diagrams and adjustment; *ModernDive* (2e)
+(<https://moderndive.com/v2/06-multiple-regression.html>) for the
+multiple-regression chapter and its Simpson's paradox exercises;
+*Introduction to Modern Statistics*
+(<https://openintrostat.github.io/ims/>) chapters 1 and 2 on
+observational data, confounding and study design; the R documentation
+for `UCBAdmissions`, which carries its own worked reversal;
+@shadish2002 for quasi-experimental vocabulary; and @lundberg2021 on
+writing the estimand before the model.
+
+## Exercises {.unnumbered}
+
+<!-- prompt-id: CH14-E01 -->
+### Exercise 1: Choose the estimand before the model (Foundational) {.unnumbered #ex-ch14-01}
+
+A
+district has the tutoring records of this chapter: 240 pupils in four
+schools, with a pooled slope of 6.5784, a school-adjusted slope of
+$-2.0018$, and a between-school slope of 7.8372 points per hour, and
+with $w_W=.1279$ and $w_B=.8721$.
+
+1. For each question below, say
+which of the three numbers answers it and write that answer as one
+sentence naming the unit and the comparison: (a) in this district, do
+pupils who receive more tutoring have higher or lower reading scores?
+(b) among pupils at the same school, do those receiving more tutoring
+score higher or lower? (c) do schools that provide more tutoring have
+higher average scores?
+
+2. A colleague says the pooled slope is wrong
+and the adjusted slope right. Use the decomposition to explain why
+that framing is incorrect, and give one question for which the pooled
+slope is the correct target.
+
+3. Suppose the four schools were made
+much more alike in average tutoring hours while every within-school
+slope stayed identical: predict what happens to $w_B$ and justify it
+from the decomposition.
+
+4. The district now asks whether expanding
+tutoring would raise scores. Explain why none of the three numbers
+answers that, and name the design feature that would be needed.
+
+<!-- prompt-id: CH14-E02 -->
+### Exercise 2: Read the Berkeley table without overreading it (Foundational) {.unnumbered #ex-ch14-02}
+
+Among 4,526 decisions in six departments, the pooled
+admission odds ratio for women against men was 0.5432 (95 percent
+interval [0.4792, 0.6156]); conditioning on department it was 1.105
+([0.9431, 1.2948]); the model letting the odds ratio vary by department
+improved fit with a deviance of 20.2043 on 5 df, $p=.0011$. Men sent
+.3066 and .2081 of their applications to departments A and B, whose
+admission rates were .6442 and .6325; women sent .0589 and .0136.
+
+1. Write one sentence interpreting each odds ratio, making clear what is
+held fixed and which population of decisions is described.
+
+2. Using
+the shares and rates above, explain why the two estimates differ, without
+using the word bias.
+
+3. A reader concludes that the admissions
+process was fair. Give two distinct reasons this is unsupported, one
+about what conditioning on department does to the question and one
+about what an administrative census of six departments can establish.
+
+4. Explain what the varying-odds-ratio result implies about reporting
+one adjusted number, and say what you would report instead.
+
+<!-- prompt-id: CH14-E03 -->
+### Exercise 3: Classify the adjustment (Foundational) {.unnumbered #ex-ch14-03}
+
+For each
+scenario, state the assumed role of the named variable using the three
+minimal structures, say whether adjusting for it helps or harms the
+stated target, and say what the coefficient would estimate instead if
+it harms.
+
+1. Target: the total effect of a randomized reading
+programme on comprehension; candidate: minutes of independent reading
+during the programme year. Assume the programme increases reading time
+and reading time affects comprehension. Now add family support as
+a cause of both reading time and comprehension. Predict whether randomizing
+the programme still justifies its total-effect comparison, and whether
+adjusting for reading time alone now identifies its direct effect.
+
+2. Target:
+the total effect of neighbourhood income on adolescent mental
+health; assume parental education predates neighbourhood selection
+and causes both neighbourhood income and mental health. Candidate:
+parental education.
+
+3. Target: the effect of an after-school
+programme on attendance, in a study whose analytic sample holds only
+pupils who returned an optional end-of-year survey, where both
+participation and family engagement raise the chance of returning it,
+and family engagement also causes attendance.
+
+4. Target: the association between class size and achievement across
+schools; candidate: teacher-reported classroom disruption, measured at
+the end of the year. Only timing is known here; say what additional
+information would be needed before assigning a causal role.
+
+5. For scenario 3, explain why the harm occurs
+even though the survey variable never enters the model.
+
+<!-- prompt-id: CH14-E04 -->
+### Exercise 4: Separate the artifact from the effect (Foundational) {.unnumbered #ex-ch14-04}
+
+Four hundred pupils were measured twice on the same reading construct
+with a reliability of .64. The lowest-scoring 15 percent, 60 pupils,
+averaged 33.5726 at pretest and 39.0568 at posttest, a gain of 5.4842
+with a paired $t(59)=4.8378$ and interval [3.2158, 7.7526]. Splitting
+those 60 pupils at random into 30 receiving a programme and 30 not
+gives a between-arm difference of 1.9618 ([$-2.5867$, 6.5103]). In a
+separate admission study with a true slope of 0.02 grade points per
+test point, the full 500-applicant fit gives 0.021 (SE 0.0014,
+$R^2=.3091$); keeping only the 148 applicants scoring 110 or more
+gives 0.0234 (SE 0.0053, $R^2=.1178$); keeping instead the 261
+applicants whose grade point average exceeded 3 gives 0.0106.
+
+1. Explain the 5.4842-point gain without referring to any programme, and
+name the two conditions that together produce it.
+
+2. Say what the
+randomized split changes and why the second analysis is the credible
+one.
+
+3. Compare what predictor restriction and outcome restriction do
+to the slope, the SE and $R^2$, and say which of the three quantities
+is the odd one out.
+
+4. Explain in one sentence why collecting more
+pupils would not repair the first analysis.
+
+<!-- prompt-id: CH14-E05 -->
+### Exercise 5: Name the unit before naming the gap (Integrative) {.unnumbered #ex-ch14-05}
+
+In
+a generated economy of 60 occupations with 40 workers each, women earn
+2 thousand dollars more than men inside every occupation, and
+occupations with more women pay less. Three fitted numbers are
+$-3.0228$ from a worker-level regression of income on being a woman,
+1.9869 from the same regression adding occupation indicators, and
+$-14.3063$ from a regression of occupation mean income on the
+occupation's share of women. In the real 1971 Canadian census records,
+occupation mean income on the percentage of incumbents who are women
+gives $-0.059$ thousand dollars per percentage point ([$-0.0829$,
+$-0.0352$], $R^2=.1945$).
+
+1. State, for each generated number, the
+unit of the rows and the question it answers.
+
+2. Explain why the
+worker-level pooled number is negative although its rows are
+individuals.
+
+3. Write the one defensible sentence the real records
+support, then the sentence a careless reader would write instead,
+marking the word that makes it indefensible.
+
+4. State what further
+data would answer the individual-level question, and why no model
+applied to the 102 occupation rows can supply it.
+
+<!-- prompt-id: CH14-E06 -->
+### Exercise 6: Choose the uncertainty, then name what a design supplies (Integrative) {.unnumbered #ex-ch14-06}
+
+In Project STAR the small-minus-regular kindergarten
+reading difference on 3,745 observed records is 5.8151 points, with
+standard errors of 1.0377 treating pupils as independent, 1.0416 with
+HC3, and 1.8476 clustering pupils within their 79 schools; use
+$t_{.975}=1.9606$ for the first two and 1.9908 for the third. In a
+separate check of 20 classrooms of 15 pupils with classroom-level
+assignment and a true effect of zero, nominal 95 percent intervals
+covered zero in 48.2 percent of 1,000 repetitions from pupil rows and
+94.3 percent from classroom means.
+
+1. Give the interval under the
+first and the third calculation. Explain when the clustered interval
+is appropriate, distinguish assignment within schools from dependence
+within schools, and state the independence approximation it uses.
+
+2. Explain what the
+coverage check adds that the single STAR comparison cannot show.
+
+3. Name three things randomization supplied in STAR that adjustment of an
+observational file could not.
+
+4. Name two limitations of the STAR
+result that randomization does not remove.
+
+## Appendix A: Composition Arithmetic {.unnumbered}
+
+### How the pooled slope splits {.unnumbered}
+
+The decomposition in Section 3.2 follows by separating a pupil's deviation
+from the district mean into a deviation from the school mean and the
+school mean's deviation from the district mean:
+
+$$x_{ig}-\bar x=(x_{ig}-\bar x_g)+(\bar x_g-\bar x).$$
+
+Squaring and summing gives a within term, a between term and a cross-term.
+Within each school, $\sum_{i\in g}(x_{ig}-\bar x_g)=0$, so the cross-term
+vanishes. The same argument for the product of the $x$ and $y$
+deviations gives
+
+$$
+S_{xx}=S_{xx}^{W}+S_{xx}^{B},\qquad
+S_{xy}=S_{xy}^{W}+S_{xy}^{B}.
+$$
+
+Divide by $S_{xx}$ and multiply each component by its own denominator:
+
+$$
+\frac{S_{xy}}{S_{xx}}=
+\frac{S_{xx}^{W}}{S_{xx}}\frac{S_{xy}^{W}}{S_{xx}^{W}}+
+\frac{S_{xx}^{B}}{S_{xx}}\frac{S_{xy}^{B}}{S_{xx}^{B}}.
+$$
+
+The two ratios at the right are the common within-school slope and the
+between-school slope weighted by school size. Because this example has
+60 pupils in every school, ordinary regression on the four school means
+gives that same between-school slope. With unequal school sizes, the
+between-school fit for this identity must weight each school by its size.
+The weights displayed as .1279 and .8721 combine slopes displayed as
+$-2.0018$ and 7.8372 to recover 6.5784 from the full-precision values.
+Rounded ingredients can give a slightly different last digit.
+
+The identity explains the source of a pooled coefficient; it does not
+establish that one component has a causal interpretation. Nor does
+reducing the between-school weight alone guarantee a smaller pooled
+slope: the between-school slope can change at the same time.
+
+### Standardization changes the weights {.unnumbered}
+
+For gender $a$ and department $d$, let $p_{ad}$ be the admission rate and
+$q_{ad}$ the share of that gender's applications sent to the department.
+The observed pooled rate is
+
+$$p_a=\sum_d q_{ad}p_{ad}.$$
+
+Choose one declared set of weights $q_d$ that sums to one. The standardized
+rate is $p_a^*=\sum_d q_dp_{ad}$, so the contrast becomes
+
+$$p_{\mathrm{women}}^*-p_{\mathrm{men}}^*
+=\sum_d q_d(p_{\mathrm{women},d}-p_{\mathrm{men},d}).$$
+
+Using each department's share of all 4,526 decisions gives 42.9955 percent
+for women and 38.7319 percent for men. The 4.2637-point difference concerns
+that common distribution. It is a rate difference, not the conditional
+odds ratio from a logistic model; changing the scale and changing the
+weights are separate decisions.
+
+### The change-score identity {.unnumbered}
+
+Let $X$ be pretest and $Y$ posttest on their original scales. The fitted
+slope from regressing change $Y-X$ on $X$ is exactly
+
+$$
+b_{Y-X,X}
+=\frac{\operatorname{Cov}(X,Y-X)}{s_X^2}
+=\frac{\operatorname{Cov}(X,Y)}{s_X^2}-1
+=r\frac{s_Y}{s_X}-1=b_{Y,X}-1.
+$$
+
+In the generated records it is $-0.3707$. If both measurements are first
+standardized separately, their SDs are one and the corresponding slope
+is $r-1=-0.3629$. The raw-scale expression reduces to $r-1$ only when the
+two sample SDs agree. In the generating population of Section 4.1 they
+are equal, so the population change slope is $\rho-1=.64-1=-0.36$.
+Sampling variation need not preserve equality of the two sample SDs.
+
+## Appendix B: Extended Selection, Support, and Dependence Studies {.unnumbered}
+
+### Reliability changes the apparent gain {.unnumbered}
+
+Keep the 400 stable abilities and the seed 14002 recipe, but change both
+measurement-error SDs together to 2, 6 or 10. Select the lowest 15 percent
+separately in each version. The error variance increases while the true
+ability variance stays at $8^2$, so reliability decreases. Every
+programme effect remains zero.
+
+\Needspace{10\baselineskip}
+
+| Error SD | Reliability | Observed correlation | Apparent gain | Paired $p$ |
+|--:|--:|--:|--:|--:|
+| 2 | .9412 | .9385 | 1.0570 | .0082 |
+| 6 | .6400 | .6371 | 5.4842 | < .0001 |
+| 10 | .3902 | .3952 | 13.1818 | < .0001 |
+
+: Less reliable selection produces a larger apparent gain in this recipe. {#tbl-ch14-reliability tbl-colwidths="[15,20,23,22,20]"}
+
+The lower reliability gives unusually low measurement errors a larger
+role in who enters the selected group. Repeating the measurement does
+not repeat those errors, and the selected group rises further. The
+p-values test zero mean change among selected records; they cannot
+convert that change into a programme effect.
+
+### Repeated sampling checks an interval procedure {.unnumbered}
+
+For the classroom recipe in Section 6.3, each of 1,000 repetitions
+draws 20 classroom assignments, 20 classroom offsets and 300 pupil
+errors, in that order, under seed 14013. Each repetition fits the
+pupil-row regression and the regression on 20 classroom means, then
+records whether its 95 percent interval covers the true effect zero.
+With equal classroom sizes and classroom-level assignment, aggregation
+leaves the estimated contrast unchanged but represents the independent
+units in its standard error.
+
+\Needspace{10\baselineskip}
+
+| Calculation | Unit treated as independent | Coverage in 1,000 repetitions |
+|:--|:--|--:|
+| Pupil-row regression | 300 pupils | 48.2% |
+| Classroom-mean regression | 20 classrooms | 94.3% |
+
+: Interval coverage under the declared classroom recipe. {#tbl-ch14-coverage tbl-colwidths="[34,34,32]"}
+
+Coverage is a property of repeated intervals under a specified
+data-generating process. It cannot be read off a single interval, and
+these results do not certify either procedure under every possible
+classroom process. Here the classroom-mean interval has the usual
+Normal linear-model justification conditional on nondegenerate
+classroom assignments. The pupil-row calculation ignores the common
+offset and counts information repeatedly.
+
+**Extended practice 1 (Integrative).** Change the design to 40 classrooms
+with eight pupils each. Predict which change matters for independent
+information, repeat the coverage comparison and explain the difference.
+
+**Extended practice 2 (Integrative).** Repeat the fifteen specifications
+using log income. Explain how the estimand changes and why unadjusted
+residual sums of squares or AIC values computed on different response
+scales cannot directly rank the two sets.
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

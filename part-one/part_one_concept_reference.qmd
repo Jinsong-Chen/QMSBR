@@ -1,6 +1,6 @@
 ---
 title: "Part One Concept Reference"
-subtitle: "Central concepts and notation for Chapters 1--9"
+subtitle: "Central concepts and notation for Chapters 1--14"
 author: "Jinsong Chen"
 
 lang: en
@@ -88,8 +88,8 @@ format:
           \usepackage{array}
           \usepackage{float}
           \usepackage{needspace}
-          \AddToHook{cmd/section/before}{\Needspace{12\baselineskip}\phantomsection}
-          \AddToHook{cmd/subsection/before}{\Needspace{12\baselineskip}\phantomsection}
+          \AddToHook{cmd/section/before}{\Needspace{18\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{18\baselineskip}\phantomsection}
           \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
   html:
     df-print: kable
@@ -111,8 +111,8 @@ editor:
     wrap: 72
 ---
 
-This reference collects selected concepts from Chapters 1--9 and the
-notation those chapters use. Its six concept tables work at two levels: a
+This reference collects selected concepts from Chapters 1--14 and the
+notation those chapters use. Its nine concept tables work at two levels: a
 broad **concept group** gathers ideas that belong together, and within a
 group a selected **term** is listed. Each row displays four things: the
 concept group, the term with its common alternatives, its meaning or the
@@ -120,7 +120,7 @@ distinction that matters most, and the main explanation, the place in the
 book where that meaning is developed. A procedures table then lists, for
 the procedures of Chapters 3 and 4, what each one estimates and the
 conditions behind it, and a closing table lists the notation of
-Chapters 1--9 with each symbol's meaning, main use, and alternatives. The
+Chapters 1--14 with each symbol's meaning, main use, and alternatives. The
 reference is meant to be consulted while reading rather than read through:
 a term's first use, its worked example, and the reasoning around it stay in
 the chapter that teaches it.
@@ -138,8 +138,8 @@ cases and samples through its studies, while Chapter 2 develops their use
 in reading records and calculations. A few rows cite *Arg. A* and
 *Arg. B*, Argument Chapters A and B, *How to Read a Quantitative Study as
 an Argument* and *Extending the Argument-Based Approach to Quantitative
-Studies*, and a few point ahead to Chapters 10--14; these units are not
-yet available.
+Studies*. They extend the reading of one question-level argument to
+several statistical strands and coordinated questions.
 
 \small
 
@@ -174,8 +174,8 @@ yet available.
 |Study design            |Confounding                                                     |Mixing an exposure's effect with effects of other factors that influence both exposure and outcome. Such a factor is a confounder, a specific causal role.                        |Ch. 1, Sec. 3.1  |
 |Study design            |External validity (generalizability)                            |Support for extending findings to other people, settings, or conditions. The intended extension determines which similarities and differences matter.                             |Ch. 1, Sec. 3.2  |
 | Argument-based reading | Argument component | One of the four functions, evidence, justification, inference, and bounded claim, that a piece of study information performs in the statistical or the substantive layer. A reader identifies the function before judging its adequacy. | Arg. A, Sec. 2 |
-| Argument-based reading | Documentary location | The place in a report or its related materials, such as Methods, a protocol, a codebook, or an analytical supplement, where the traceable information for a component is found. | Arg. A, Sec. 4 |
-| Argument-based reading | Evaluation question | One of the six questions on alignment, support, and translation used to judge the quality of a question-level argument after it has been read. Each receives a reasoned judgment, not a score. | Arg. A, Sec. 5 |
+| Argument-based reading | Documentary location | The place in a report or its related materials, such as Methods, a protocol, a codebook, or an analytical supplement, where the traceable information for a component is found. | Arg. A, Sec. 1 |
+| Argument-based reading | Evaluation question | One of the six questions on alignment, support, and translation used to judge the quality of a question-level argument after it has been read. Each receives a reasoned judgment, not a score. | Arg. A, Sec. 4 |
 | Argument-based reading | Statistical strand | An estimand-specific statistical chain inside one argument. Two strands arise only when sibling estimands are jointly required for one integrated substantive answer; each has its own statistical inference and conclusion. | Arg. B, Sec. 1 |
 | Argument-based reading | Coordinated questions | Several question-answer pairs in one study whose support depends on one another. Each answer is read on its own, and their coherence across questions is judged separately. | Arg. B, Sec. 3 |
 
@@ -325,8 +325,99 @@ yet available.
 |Model form |Log-transformed outcome (geometric-mean scale) |Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and $100(e^{\beta}-1)$ percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale's. |Ch. 9, Sec. 4 |
 |Uncertainty |Bootstrap (case resampling; percentile interval) |Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design. |Ch. 9, Sec. 6 |
 |Uncertainty |Cluster-robust standard error (school-clustered covariance) |A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting. |Ch. 9, Sec. 7 |
+|Conditional models |Product term (interaction term; multiplicative term) |A column formed by multiplying two predictors, so that each one's fitted comparison depends on the other's value. Its coefficient is a difference in slopes, not a slope, and nonadditivity is defined on the modelled scale: a nonlinear change of outcome scale can create or remove it. |Ch. 10, Sec. 2 |
+|Conditional models |Conditional slope (simple slope; conditional effect) |The fitted difference in outcome per one-unit difference in a focal predictor evaluated at a stated value or group of the other predictor. It is a linear combination of coefficients, so its SE uses their covariance, and it describes a conditional mean, not an individual case. |Ch. 10, Sec. 2 |
+|Conditional models |Moderator (moderating variable; moderation) |The variable across whose values or groups a named focal relationship is allowed to vary. The product-term algebra is symmetric in the two predictors, so the label comes from the research question; a moderation reading describes when a relationship differs, not how an effect is transmitted. |Ch. 10, Sec. 1 |
+|Model form |Hierarchy principle (marginality; well-formulated model) |The rule that a model containing a product also contains both component terms. Dropping a component forces the other's slope to zero at its coded zero and makes the fitted surface depend on the origin; hierarchy does not require that every possible product be added. |Ch. 10, Sec. 2 |
+|Model form |Centering a predictor (anchoring; reparameterization) |Replacing a predictor by its difference from a chosen value, so that coefficients anchored at zero become comparisons at that value. It changes the intercept and the lower-order coefficients and leaves the product coefficient, the fitted values, the residuals and the product-block test unchanged; it repairs no design, selection, or measurement problem. |Ch. 10, Sec. 2 |
+|Probing |Probe value (pick-a-point value) |A stated value of the moderator at which a conditional slope or contrast is evaluated, chosen from the measurement scale, a threshold, or a decision need rather than by an automatic mean-and-SD rule, and restricted to values the records support. |Ch. 10, Sec. 3 |
+|Probing |Johnson--Neyman boundary (region of significance) |A moderator value at which a pointwise interval for a conditional slope touches zero, found as a root of a quadratic whose leading coefficient decides which side is the region. A boundary outside the observed support describes the algebra and not the data, and a pointwise band is not a simultaneous band. |Ch. 10, Sec. 3 |
+|Specific comparisons |Interaction contrast (difference in differences within a model) |A linear combination of coefficients comparing two conditional comparisons, such as one group's difference minus another group's difference. Under reference coding it equals a product coefficient up to sign; its SE uses the coefficient covariance, and its causal reading depends on design, not on the algebra. |Ch. 10, Sec. 5 |
 
 : Regression. {#tbl-intro-concepts-regression tbl-colwidths="[16,23,45,16]"}
+
+## Generalized Linear Models {#sec-concepts-glm}
+
+|Concept group |Term and common alternatives |Meaning or essential distinction |Main explanation |
+|:--|:--|:--|:--|
+|Binary outcomes |Event and non-event (the category coded 1) |The category a binary model treats as occurring, named together with the category coded 0. Reversing the event reciprocates the odds ratios and complements fitted event probabilities; probabilities for the original event agree after relabelling. |Ch. 11, Sec. 1 |
+|Binary outcomes |Prevalence (event rate) |The proportion of analytic rows that are events. Coefficient precision also depends on conditional probabilities, predictor spread and overlap; the rare-outcome approximation of an odds ratio by a risk ratio depends on the risks being compared. |Ch. 11, Sec. 1 |
+|Generalized linear models |Generalized linear model (GLM) |A response distribution, a linear predictor and a link connecting the conditional mean to the linear predictor; changing the response distribution and link gives the models of Chapters 11 and 12. |Ch. 11, Sec. 1 |
+|Generalized linear models |Link function; logit link and inverse logit (logistic function) |The logit is the log of the odds and its inverse the S-shaped function bounded in $(0,1)$, equal to one half and steepest at a linear predictor of zero. |Ch. 11, Sec. 1 |
+|Binary outcomes |Odds and log-odds |The odds are $\pi/(1-\pi)$ and the log-odds their logarithm; the three scales describe one quantity with null values 1 and 0, and the log-odds scale is symmetric under reversing the event. |Ch. 11, Sec. 2 |
+|Binary outcomes |Odds ratio (OR) |The factor $e^{\beta_j}$ by which the odds differ between units differing by one unit in a predictor and agreeing on the others; it depends on the units, reference, event and adjustment set, is not a risk ratio unless the event is rare, and implies no constant probability difference. |Ch. 11, Sec. 4 |
+|Binary outcomes |Noncollapsibility (of the odds ratio) |A conditional odds ratio generally differs from the marginal one even with no confounding, so a coefficient that moves under adjustment is not by itself evidence of confounding. |Ch. 11, Sec. 1 |
+|Estimation |Bernoulli likelihood and score equations (binary-outcome likelihood) |The probability of the observed data as a function of the parameters, maximized to estimate them; for a binary outcome it is a product of Bernoulli probabilities whose score equations have no closed form, and a model with an intercept reproduces the observed event total. |Ch. 11, Sec. 3 |
+|Estimation |Iteratively reweighted least squares (IRLS) |The algorithm that repeatedly solves a weighted linear regression with weights $\widehat\pi_i(1-\widehat\pi_i)$ until the coefficients stop changing; its convergence flag and iteration count belong in the record and establish no adequacy. |Ch. 11, Sec. 3 |
+|Model comparison |Deviance and the likelihood-ratio test ($G^2$) |For ungrouped binary data the deviance is $-2$ times the maximized log-likelihood and carries no goodness-of-fit reading alone, while the difference between nested models on the same rows and event is referred to chi-square. |Ch. 11, Sec. 5 |
+|Model comparison |Wald test and profile-likelihood interval |The Wald statistic squares the estimate-to-SE ratio while a profile interval collects the values the log-likelihood does not reject; they diverge for rare events, small samples or near-infinite estimates. |Ch. 11, Sec. 3 |
+|Model comparison |McFadden pseudo $R^2$ |One minus the ratio of the fitted to the intercept-only maximized log-likelihood: bounded in $[0,1]$, not a proportion of variance explained, and routinely small for useful models. |Ch. 11, Sec. 5 |
+|Checks |Empirical logit |The log-odds of a grouped event count with one half added to each count, plotted against a predictor to check linearity of the log-odds in that predictor as entered. |Ch. 11, Sec. 6 |
+|Checks |Binned residual |The mean raw residual within a bin of rows sorted by fitted probability, against a two-standard-error band; it replaces the residual-versus-fitted plot, which shows only two curved bands here. |Ch. 11, Sec. 6 |
+|Checks |Separation (complete; quasi-complete) |A predictor pattern separates events from non-events completely or on a boundary, so at least one coefficient has no finite ordinary maximum-likelihood estimate. Diverging coefficients, large standard errors and convergence warnings can be symptoms; no one warning or numerical pattern is required. |Ch. 11, Sec. 6 |
+|Checks |In-sample calibration and discrimination checks (fitted-probability checks) |Calibration asks whether fitted probabilities match observed event frequencies, discrimination whether they rank events above non-events; the two answer distinct questions, and honest evaluation of new-case performance requires held-out data. |Ch. 11, Sec. 6 |
+|Binary outcomes |Linear probability model (LPM) |Ordinary least squares on a 0/1 outcome, whose coefficients are probability differences but whose mean function is unbounded and whose conditional variance cannot be constant. |Ch. 11, Sec. 1 |
+|Binary outcomes |Averaged probability difference (average marginal comparison) |The mean, over the analytic rows with their own other predictor values, of the difference between fitted probabilities at two values of one predictor. |Ch. 11, Sec. 4 |
+|Outcome types |Outcome triage |The measurement judgment, made before any model is fitted, classifying an outcome as binary, nominal, ordered, a count, a rate, a proportion of known trials, or a duration. The model follows the classification and cannot establish it. |Ch. 12, Sec. 1.2 |
+|Nominal outcomes |Generalized logit model (baseline-category logit; multinomial logistic regression) |For $K$ unordered categories, $K-1$ log-ratio equations against one baseline, each with its own intercept and slopes. The fitted probability surface is the same whichever baseline is chosen; the coefficients are not. |Ch. 12, Sec. 2.1 |
+|Nominal outcomes |Baseline outcome category |The outcome category in the denominator of every generalized-logit equation: a coordinate choice, distinct from the reference level of a categorical *predictor*, whose change alters every reported ratio. |Ch. 12, Sec. 2.1 |
+|Nominal outcomes |Relative-risk ratio (RRR) |The exponentiated generalized-logit coefficient: the factor by which one category's probability relative to the baseline's differs per predictor unit. It is not a probability difference, and is incomplete unless both compared categories are named. |Ch. 12, Sec. 2.2 |
+|Nominal outcomes |Independence of irrelevant alternatives (IIA) |The generalized logit's assumption that the ratio of two categories' probabilities does not depend on which other categories were available: a claim about the choice set, argued rather than settled by one test. |Ch. 12, App. A |
+|Ordered outcomes |Cumulative probability and cumulative logit |$\gamma_{ij}=P(Y_i\le j)$ at each of the $K-1$ cut points, and its log-odds. A category probability is a difference of two adjacent cumulative probabilities. |Ch. 12, Sec. 3.1 |
+|Ordered outcomes |Threshold (cut point; ordinal intercept) |One of the ordered constants $\zeta_1<\cdots<\zeta_{K-1}$ placing the cut points on the logit scale. Their ordering keeps fitted probabilities nonnegative; they are not comparisons and are not read as effects. |Ch. 12, Sec. 3.1 |
+|Ordered outcomes |Proportional odds (common-slope restriction; partial proportional odds) |The restriction that one slope vector governs every cut point, so a single odds ratio applies at all of them. It is imposed by the analyst, not conferred by ordering the levels, and is testable against a cut-specific alternative. |Ch. 12, Sec. 3.2 |
+|Counts and rates |Poisson regression (log-linear count model) |A GLM with a Poisson random component and a log link, so the conditional mean is positive and differences are multiplicative on the count scale. Its conditional variance is not free: it is forced to equal the mean. |Ch. 12, Sec. 4.1 |
+|Counts and rates |Incidence-rate ratio (IRR; rate ratio) |The exponentiated coefficient of a count or rate model: the factor by which the expected count, or rate when an exposure is included, differs per predictor unit. It hides its baseline, so an absolute difference is not recoverable from it alone. |Ch. 12, Sec. 4.2 |
+|Counts and rates |Exposure and offset |The window over which each unit was observed, and $\log t_i$ entered with its coefficient fixed at one so the model describes a rate. An offset is a decision about the estimand, not an estimate: no SE, no $p$-value, and freeing its coefficient gives a testable alternative. |Ch. 12, Sec. 4.3 |
+|Counts and rates |Overdispersion and the dispersion statistic |Conditional variance exceeding the conditional mean, assessed by the mean squared Pearson residual $\widehat\phi$ under a suitable mean model; the deviance ratio is a rough diagnostic and need not be near 1 for sparse counts even under a correct Poisson model. The diagnosis is conditional; a marginal ratio above one is not evidence. |Ch. 12, Sec. 5.1 |
+|Counts and rates |Quasi-Poisson (quasi-likelihood; scaled Poisson) |The Poisson mean with variance $\phi\mu$: identical estimates and every SE multiplied by $\sqrt{\widehat\phi}$. No full distribution is specified, so there is no log-likelihood and no AIC or BIC. |Ch. 12, Sec. 5.2 |
+|Counts and rates |Negative-binomial regression |A count model with variance $\mu+\mu^2/\theta$, arising when the Poisson mean varies across units sharing predictor values. A different likelihood, not a rescaling: estimates move because large fitted means are down-weighted, and the Poisson comparison sits on the boundary $1/\theta=0$. |Ch. 12, Sec. 5.3 |
+
+: Generalized linear models. {#tbl-intro-concepts-glm tbl-colwidths="[16,23,45,16]"}
+
+## Prediction and Validation {#sec-concepts-prediction}
+
+|Concept group |Term and common alternatives |Meaning or essential distinction |Main explanation |
+|:--|:--|:--|:--|
+|Prediction |Generalization error (prediction error; risk) |Expected loss on a new unit from the stated deployment distribution. It can be defined for one fitted model conditional on its training data, or averaged over training samples for a learning rule at a stated training size; held-out observations estimate the chosen target. |Ch. 13, Sec. 1 |
+|Prediction |Deployment moment (prediction time) |The point at which a prediction must be produced, which decides whether a predictor is available. A variable recorded later may improve measured performance but cannot be used for that earlier prediction task. |Ch. 13, Sec. 1 |
+|Prediction |Apparent error (training error; resubstitution error) |Loss on the records used to fit the rule. Using those outcomes in fitting generally makes this loss optimistic for new-case performance; greater fitting flexibility can increase that optimism, without guaranteeing an ordering in every sample or for every loss. |Ch. 13, Sec. 2 |
+|Prediction |Root mean squared error (RMSE) |The square root of the mean squared prediction error, in outcome units. It penalizes a large error far more than MAE does, so the choice between them states which mistakes matter. |Ch. 13, Sec. 2 |
+|Prediction |Out-of-sample $R^2$ |One minus the held-out squared error divided by the held-out squared error of a named constant reference fitted in the same analysis rows. It can be negative and is not the in-sample $R^2$ of Chapter 7. |Ch. 13, Sec. 2 |
+|Prediction |Data leakage (information leakage) |Using information unavailable at the deployment moment, or letting held-out records influence a training or selection step used to predict them. It can make performance estimates optimistic; there is no general proportional rule for the size of that optimism. |Ch. 13, Sec. 3 |
+|Prediction |Development and test split (holdout set) |A partition in which fitting, screening and tuning use the development records, while test outcomes remain protected until the rule is fixed. Adapting the rule after seeing test results uses the test set for development; repeating an unchanged calculation does not itself do so. |Ch. 13, Sec. 3 |
+|Prediction |Proper scoring rule (log loss; Brier score) |A score for a predicted probability that is minimized in expectation by the true probability, so that honest uncertainty is rewarded. Accuracy and a single confusion matrix are not proper scores. |Ch. 13, Sec. 5 |
+|Prediction |Calibration |Agreement between predicted probabilities and observed event rates among cases with similar predictions. It is invisible in a ranking measure such as AUC and is checked on held-out predictions. |Ch. 13, Sec. 5 |
+|Prediction |Discrimination (AUC; concordance) |The probability that a randomly chosen event case receives a higher score than a non-event case, with half credit for tied scores. It depends on ranking and does not establish calibration of the probabilities. |Ch. 13, Sec. 5 |
+|Prediction |Decision threshold (operating point) |The predicted probability above which an action is taken, determined by the ratio of the costs of the two errors and not by the model. Two decision-makers with different costs read the same probabilities and act differently. |Ch. 13, Sec. 5 |
+|Prediction |Dataset shift (covariate, label, and concept shift) |A difference between the distribution the rule was developed in and the distribution where it is used: in the predictors, in the outcome rate, or in the relationship itself. Resampling within one sample cannot detect it. |Ch. 13, Sec. 6 |
+|Regularization |Penalized regression (shrinkage; ridge; lasso; elastic net) |Fitting that adds a coefficient penalty to the loss, trading bias against variance. Ridge's squared penalty generally shrinks coefficients without selecting exact zeros; the lasso's absolute-value penalty can set coefficients to zero, and elastic net combines the penalties. |Ch. 13, Sec. 4 |
+|Regularization |Tuning parameter (penalty; $\lambda$) |A quantity that indexes a family of fits and is chosen from data the fit did not see. Choosing it is itself a data-dependent step and belongs inside the resample. |Ch. 13, Sec. 4 |
+|Regularization |One-standard-error rule |A convention choosing the largest penalty whose observed cross-validated loss is within the estimated standard error at the minimum. It prefers a simpler fit under that empirical tolerance; it does not bound the increase in true prediction error. |Ch. 13, Sec. 4 |
+
+: Prediction and validation. {#tbl-intro-concepts-prediction tbl-colwidths="[16,23,45,16]"}
+
+## Credible Claims and Design {#sec-concepts-credibility}
+
+|Concept group |Term and common alternatives |Meaning or essential distinction |Main explanation |
+|:--|:--|:--|:--|
+|Adjustment structure |Directed acyclic graph (causal diagram; DAG) | A diagram whose arrows state assumed direct causes and whose directed paths cannot return to their starting point; it records assumptions that can be questioned, rather than conclusions produced by the data. |Ch. 14, Sec. 2.1 |
+|Adjustment structure |Mediator (intermediate variable) | A variable caused by the focal predictor and lying on a path to the outcome; one kind of post-treatment variable, not a synonym for every variable measured after treatment. Conditioning on it changes a total-effect comparison; a direct causal reading needs additional identification and modelling conditions. |Ch. 14, Sec. 2.2 |
+|Adjustment structure |Collider (common effect) | A variable caused by two others. A path through a collider is blocked unless the collider or a descendant is conditioned on; such conditioning can induce an association along that path. |Ch. 14, Sec. 2.3 |
+|Adjustment structure |Adjustment set |The variables conditioned on for a stated estimand under an assumed structure, justified by that structure and the timing rather than by the available columns or a coefficient's movement. |Ch. 14, Sec. 2.4 |
+|Composition |Aggregation reversal (Simpson's paradox; strict Simpson reversal) |A sign difference between a pooled comparison and the stratified or standardized comparisons, strict when every stratum points the opposite way to the pooled result; it arises from composition, not from a computational error. |Ch. 14, Sec. 3 |
+|Composition |Within-group, between-group, and pooled comparison |Three estimands from one dataset: inside a level of the grouping variable, across group summaries, and across all rows ignoring the grouping, with the pooled slope a weighted average of the other two by the within and between shares of predictor variation. |Ch. 14, Sec. 3.2 |
+|Composition |Direct standardization (standardized comparison) |Recomputing each group's summary under one declared common distribution of a stratifying variable; a third estimand rather than a compromise between the pooled and conditional comparisons. |Ch. 14, Sec. 3.3 |
+|Selection |Range restriction (restriction of range) |Keeping only part of the observed range; restricting the predictor under a correctly specified linear model costs precision, apparent strength and support outside the window, while restricting on the outcome also moves the slope. |Ch. 14, Sec. 4.2 |
+|Selection |Missingness mechanisms (MCAR; MAR; MNAR) | MCAR means missingness is unrelated to observed and missing values; MAR means it is unrelated to missing values conditional on observed information; MNAR means dependence on missing values remains. Complete-case validity depends on the target and mechanism, and MNAR requires assumptions not identified by the observed data alone. |Ch. 14, Sec. 4.3 |
+|Measurement |Attenuation from measurement error | In a single-predictor linear model, classical predictor error multiplies the population slope by reliability. With several predictors the direction can differ; a mismeasured control can leave residual confounding. |Ch. 14, Sec. 5.1 |
+|Unit of analysis |Ecological inference (ecological fallacy) | Inferring an individual-level relationship from aggregate records. Aggregate and individual relationships can differ in sign and magnitude; the aggregate relationship alone does not identify the individual comparison. |Ch. 14, Sec. 5.2 |
+|Specification |Specification sensitivity (multiverse analysis; analyst degrees of freedom) |The spread of an estimate across the defensible analyses that could have been run; a disclosure about specification, not evidence about an omitted common cause, selection or measurement shared by every version. |Ch. 14, Sec. 6.1 |
+|Dependence |Pseudoreplication (dependence as a design fact) | Treating dependent observations as independent replicates, misrepresenting uncertainty. The relevant dependence, sampling and assignment structure must be represented; its effect on a standard error depends on the comparison. |Ch. 14, Sec. 6.3 |
+|Design |Identification argument (design warrant) |The explicit reasons a comparison estimates the intended causal quantity, whether assignment or a named quasi-experimental design with its stated assumption; naming a design is not meeting its assumption. |Ch. 14, Sec. 7.2 |
+|Reporting |Bounded regression claim (credible-claim template) |A concluding statement whose unit, verb, conditioning set, supported range, design and disclosed sensitivity all match the analysis that produced it. |Ch. 14, Sec. 8.3 |
+
+: Credible claims and design. {#tbl-intro-concepts-credibility tbl-colwidths="[16,23,45,16]"}
 
 ## Procedures and Their Conditions {#sec-concepts-procedures}
 
@@ -355,9 +446,9 @@ stay with that analysis in its chapter.
 
 : Procedures and their conditions. {#tbl-intro-concepts-procedures tbl-colwidths="[17,15,26,27,15]"}
 
-## Notation for Chapters 1--9 {#sec-concepts-notation}
+## Notation for Chapters 1--14 {#sec-concepts-notation}
 
-The table below lists the notation Chapters 1--9 use, with each chapter
+The table below lists the notation Chapters 1--14 use, with each chapter
 explaining its symbols where they are first used.
 
 |Group |Symbol (preferred form) |Meaning |Main use |Alternatives and notes |
@@ -416,6 +507,27 @@ explaining its symbols where they are first used.
 |Argument diagrams |STAT-E/J/I/C; SUB-E/J/I/C |The four functions in the statistical and substantive layers |Ch. 1; Arg. A/B |SUB-E situates, SUB-J augments and contextualizes, SUB-I interprets, SUB-C bounds the substantive reach of the corresponding statistical contribution |
 |Argument diagrams |Support arrows and cross-layer links |Arrows show logical support within an argument; labelled links connect the meanings of the two layers |Ch. 1; Arg. A/B |Neither is a time sequence or causal path; label cross-question dependencies by the receiving function |
 |Numbers |Displayed values |Calculated results rounded once to four decimals with trailing zeros dropped (3.1, not 3.1000), and with no thousands separator; values shown as one set, such as a table column or an interval's limits, share the fewest decimals, up to four, that show every member; the leading zero is kept except for bounded quantities ($p$, $r$, $R^2$, proportions, probabilities: $.0059$); a nonzero value that rounds to zero is written as a bound ($p<.0001$), and a proportion or probability that rounds to 1 without equalling 1 keeps four decimals; negative numbers with a true minus sign ($-0.2179$) in prose, equations, and every authored table; counts, ordinary $df$, and codes as integers, and a count of 1,000 or more takes a comma in text and tables |Ch. 1 |Native software output printed as output and figure axis labels keep their own format; that output and the text R draws in a figure keep R's hyphen before a negative value |
+|Interaction |$\beta_{XW}$, $\widehat\beta_{XW}$ |Product-term coefficient and its estimate: a difference in conditional slopes per unit of the moderator |Ch. 10 |One such coefficient per indicator column when the moderator is a factor |
+|Interaction |$\beta_X(w)$, $\widehat\beta_X(w)$ |Conditional slope of $X$ at moderator value $w$ and its estimate $\widehat\beta_X+w\widehat\beta_{XW}$ |Ch. 10 |Written with $\widehat\beta$ as elsewhere |
+|Interaction |$W$, $w$, $W_c=W-c$ |The moderator, a stated probe value, and the moderator centered at anchor $c$ |Ch. 10 |Distinct from the ANOVA subscript in $SS_W$ |
+|Interaction |$C_{\mathrm{DD}}$, $\widehat C_{\mathrm{DD}}$ |An interaction contrast (difference in differences) as $\mathbf c^{\mathsf T}\boldsymbol\beta$ and its estimate |Ch. 10 |Continues the $C$, $\widehat C$ convention of Ch. 4 and Ch. 9 |
+|Interaction |$w_{\mathrm{JN}}$ |A Johnson--Neyman boundary value of the moderator |Ch. 10 |Read together with the sign of the quadratic's leading coefficient and the observed range of the moderator |
+|GLM |$\pi_i$, $\pi(x)$, $\widehat\pi_i$ |Conditional event probability and its fitted value |Ch. 11 |$\widehat p_i$ names a predicted probability in Ch. 13; $\widehat p$ stays the sample proportion of Ch. 6; Chapter 2 writes categorical-model probabilities $\pi_1,\ldots,\pi_K$ locally |
+|GLM |$\eta_i$, $g(\cdot)$ |Linear predictor and link function |Ch. 11 |$\operatorname{logit}(\pi)=\log\{\pi/(1-\pi)\}$ and $\operatorname{logit}^{-1}$ name the logit link and its inverse |
+|GLM |$D$, $G^2$ |Deviance and a deviance difference referred to $\chi^2_q$ |Ch. 11 |Recalled in Ch. 12 |
+|GLM |$\mathbf W$, $\widehat{\mathbf V}=(\mathbf X^{\mathsf T}\mathbf W\mathbf X)^{-1}$ |Working weights $\operatorname{diag}\{\widehat\pi_i(1-\widehat\pi_i)\}$ and the curvature-based coefficient covariance |Ch. 11 |$\widetilde\eta$ names an empirical logit |
+|GLM |$K$, $\pi_{ik}$, $\beta_{jk}$ |Number of outcome categories, the probability that unit $i$ falls in category $k$, and the coefficient of predictor $j$ in category $k$'s equation |Ch. 12 |Generalized logit |
+|GLM |$\gamma_{ij}=P(Y_i\le j)$, $\zeta_j$ |Cumulative probability at cut point $j$ and the ordered thresholds $\zeta_1<\cdots<\zeta_{K-1}$ |Ch. 12 |Cumulative logit |
+|GLM |$\mu_i$, $\lambda_i$, $t_i$ |Conditional mean count, conditional rate per unit exposure, and the exposure of unit $i$ |Ch. 12 |$\log t_i$ enters as an offset; an unsubscripted $\gamma$ names a freed exposure coefficient locally |
+|GLM |$\phi$, $\widehat\phi$; $\theta$, $\widehat\theta$ |Quasi-likelihood variance multiplier and the negative-binomial dispersion parameter, with their estimates |Ch. 12 |Defined where used; this $\theta$ is not a contrast |
 |Prediction |$MAE$ |Mean absolute error of held-out predictions |Ch. 8 |--- |
+|Prediction |$\mathrm{Err}$, $\mathcal{L}(y,\widehat y)$ |Generalization error and the loss it averages |Ch. 13 |Each use names its loss and the cases to which the predictions apply |
+|Prediction |$\widehat f$, $\widehat f^{(-k)}$, $\widehat y_i^{(-k(i))}$ |A fitted learning rule, the rule fitted without fold $k$, and the held-out prediction for record $i$ |Ch. 13 |Distinct from $\widehat y_i$, the in-sample fitted value of Ch. 7 |
+|Prediction |$RMSE$, $R^2_{\mathrm{out}}$ |Root mean squared held-out error and out-of-sample $R^2$ against a named reference |Ch. 13 |$MAE$ keeps its Ch. 8 row and $R^2$ its Ch. 7 row |
+|Prediction |$\lambda$, $\alpha$, $\lambda_{\min}$, $\lambda_{1SE}$ |Penalty size, elastic-net mixing parameter, and the two tuned penalties |Ch. 13 |Distinct from the Poisson rate $\lambda$ of Ch. 2 and Ch. 12; the setting is stated at first use; $\alpha$ here is the elastic-net mixing parameter, not the significance level of Ch. 3 |
+|Prediction |$\mathcal{F}_1,\dots,\mathcal{F}_k$, $k(i)$ |The folds of a partition and the fold containing record $i$ |Ch. 13 |$k$ is the fold count in this use |
+|Credibility |$\Delta\mu_{\mathrm{pooled}}$, $\Delta\mu_{\mathrm{within}}(z)$, $\Delta\mu_{\mathrm{between}}$ |Pooled, within-group, and between-group comparisons as estimands, extending Ch. 3's $\Delta\mu$ |Ch. 14 |A subscripted word names the comparison, not a new operator |
+|Credibility |$\widehat\beta_{\mathrm{pooled}}$, $\widehat\beta_W$, $\widehat\beta_B$, $w_W$, $w_B$ |Pooled, within-group, and between-group fitted slopes and the within and between shares of predictor variation, $w_W+w_B=1$ |Ch. 14 |$S_{xx}^{W}$, $S_{xx}^{B}$, $S_{xy}^{W}$, $S_{xy}^{B}$ are the matching sums of squares and cross-products, distinct from the ANOVA $SS_W$ and $SS_B$ |
+|Credibility |$q_d$, $p_d$; $\rho_I$; $M$, $C$, $U$ |A stratum's share of a group's units and its outcome rate, so that a pooled rate is $\sum_d q_d p_d$; the intraclass correlation; mediator, collider, and unmeasured cause as diagram labels |Ch. 14 |Diagram labels name assumed roles, not measured variables |
 
-: Notation for Chapters 1--9. {#tbl-intro-concepts-notation tbl-colwidths="[12,20,32,10,26]"}
+: Notation for Chapters 1--14. {#tbl-intro-concepts-notation tbl-colwidths="[12,20,32,10,26]"}

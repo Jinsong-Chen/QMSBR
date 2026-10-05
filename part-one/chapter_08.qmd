@@ -1305,9 +1305,11 @@ learning rule predicts held-out records; that is Pair 3's question.
 ### Standardizing over the observed profiles
 
 A standardized fitted value averages over a named set of profiles rather
-than using one. Copy the 98 observed profiles, change every type to
-white-collar, predict each fitted value, and average them with equal
-weights.
+than using one. Here the target is the mean fitted income if all 98
+observed combinations of education, prestige and percentage of women
+were evaluated as white-collar. Each combination receives the same
+weight, so the target keeps their joint distribution rather than
+selecting one typical occupation.
 
 \Needspace{11\baselineskip}
 

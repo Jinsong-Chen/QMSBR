@@ -1,6 +1,6 @@
 ---
 title: "Part Two Concept Reference"
-subtitle: "Central concepts and notation for Chapters 1--4"
+subtitle: "Central concepts and notation for Chapters 1--12"
 author: "Jinsong Chen"
 
 lang: en
@@ -112,13 +112,15 @@ editor:
     wrap: 72
 ---
 
-This reference gives one agreed meaning for each concept the four chapters of
+This reference gives one agreed meaning for each concept the twelve chapters of
 Part Two use. It exists so that a reader who meets a term in Chapter 3 can find
 the chapter and section that explains it, and so that the chapters need not
-define a term again each time they use it. The four concept tables gather
+define a term again each time they use it. The concept tables gather
 related terms into broad groups and give each term's meaning or essential
 distinction; the closing table records the notation the chapters share. It is
-written for lookup rather than for reading through.
+written for lookup rather than for reading through. Chapters 1--4 are
+available on the website; references to Chapters 5--12 point forward to
+chapters that are not yet available.
 
 A row is read from left to right. The preferred name comes first, with the
 common alternatives a reader will meet elsewhere beside it. The meaning cell
@@ -135,6 +137,8 @@ teaching it: first-use explanations, worked examples and the reasons behind each
 distinction stay in the chapters themselves.
 
 \small
+
+\Needspace{18\baselineskip}
 
 ## Latent Variables and the Common-Factor Model {#sec-p2-concepts-latent .unnumbered}
 
@@ -173,6 +177,8 @@ distinction stay in the chapters themselves.
 
 : Latent variables and the common-factor model. {#tbl-intro-p2-concepts-latent tbl-colwidths="[16,23,45,16]"}
 
+\Needspace{18\baselineskip}
+
 ## Exploratory Factor Analysis and Model Development {#sec-p2-concepts-efa .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
@@ -209,6 +215,8 @@ distinction stay in the chapters themselves.
 
 : Exploratory factor analysis and model development. {#tbl-intro-p2-concepts-efa tbl-colwidths="[16,23,45,16]"}
 
+\Needspace{18\baselineskip}
+
 ## Confirmatory Specification, Identification, and Estimation {#sec-p2-concepts-cfa .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
@@ -234,20 +242,22 @@ distinction stay in the chapters themselves.
 | Mean structure | Indicator intercepts and the latent location convention | Free indicator intercepts with latent intercepts fixed at zero add $p$ moments and $p$ parameters, leaving the covariance restrictions and degrees of freedom unchanged. Freeing both at once identifies no latent origin, because $\boldsymbol\alpha+\mathbf c$ with $\boldsymbol\nu-\boldsymbol\Lambda\mathbf c$ reproduces the same means. | Chapter 3, Sec. 5 |
 | Solution quality | Convergence, admissibility, and the Heywood case | Convergence is an optimizer's stopping statement; admissibility requires positive residual variances and positive definite factor and implied covariance matrices. A negative or zero residual variance is a symptom of the whole decomposition and is neither a cosmetic warning nor something to replace by zero in a report. | Chapter 3, Sec. 8 |
 | Inference | Wald test of a linear restriction ($\mathbf R\boldsymbol\vartheta=\mathbf r$) | A $\chi^2_q$ test computed from the estimates and their covariance matrix, requiring the covariance between estimates and not only their variances. It tests the stated restriction conditional on the rest of the model; it is not a global-fit test and need not equal a refitted likelihood-ratio statistic. | Chapter 3, Sec. 8 |
-| Transition record | Evaluation transition record (handoff record) | What evaluation begins from: evidence identity, specification, parameter conventions, estimation settings, data handling, numerical status, parameter output, fitted moments, stored evaluation fields, and reproduction metadata. Storing those fields is not interpreting them. | Chapter 3, Sec. 8 |
+| Transition record | Evaluation transition record (handoff record) | The auditable record of evidence identity, model, parameter conventions, estimation settings, numerical checks, parameter uncertainty, global/local evaluation and its limits, and reproduction metadata. It preserves what was fixed, inspected, or revised so a later comparison cannot silently change the analysis. | Chapter 3, Sec. 8 |
 | Observed system | Parceling (item aggregation) | Fitting $\mathbf z=\mathbf A\mathbf y$ with $\operatorname{Var}(\mathbf z)=\mathbf A\boldsymbol\Sigma\mathbf A^{\mathsf T}$. Reducing dimension lets different item-level patterns give the same parcel covariance, so a well-fitting parcel model does not establish the item-level restrictions. | Chapter 3, Appendix |
 
 : Confirmatory specification, identification, and estimation. {#tbl-intro-p2-concepts-cfa tbl-colwidths="[16,23,45,16]"}
+
+\Needspace{18\baselineskip}
 
 ## Evaluation, Comparison, Reliability, and Extensions {#sec-p2-concepts-evaluation .unnumbered}
 
 | Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
 |:--|:--|:--|:--|
-| Global fit | Model chi-square (exact-fit test; likelihood-ratio model test) | $T_M=N\widehat F_{\mathrm{ML}}$ referred to $\chi^2_{df_M}$, testing whether some admissible parameter vector reproduces the population moment structure exactly. Nonrejection is not acceptance of the model, and rejection at large $N$ is evidence against exact fit rather than a measure of its magnitude. | Chapter 4, Sec. 2 |
-| Global fit | RMSEA (root mean square error of approximation) with its 90% interval | Estimated discrepancy per degree of freedom, $\sqrt{\max\{(T_M-df_M)/(N\,df_M),0\}}$, comparable across models of different size, with an interval obtained by inverting a noncentral chi-square reference. A zero estimate is a truncation, not zero residuals; the convention ($N$ or $N-1$) must be named. | Chapter 4, Sec. 2 |
-| Global fit | Incremental fit index (CFI; TLI or NNFI) with its independence baseline | Improvement of the model relative to a stated reference rather than relative to exact fit. The usual baseline frees the observed variances and fixes all covariances to zero, so a high value depends on how poor that baseline is; TLI is not bounded by one. | Chapter 4, Sec. 2 |
-| Global fit | SRMR (standardized root mean square residual) | Root mean square of observed-SD-standardized covariance residuals over one triangle including the diagonal. Not a mean absolute residual; a small value can hide a few large cells among many near-zero ones. | Chapter 4, Sec. 3 |
-| Local diagnosis | Covariance residual (raw; observed-SD-standardized; correlation residual) | Observed minus implied covariance, either in the product of the two indicators' units, divided by the product of observed SDs, or as a difference of separately formed correlations. None is a residual divided by its sampling standard error, so none is automatically a $z$ statistic. | Chapter 4, Sec. 3 |
+| Global fit | Model chi-square (exact-fit test; likelihood-ratio model test) | $T_M=N\widehat F_{\mathrm{ML}}$ referred to $\chi^2_{df_M}$, testing whether some admissible parameter vector reproduces the population moment structure exactly. Nonrejection is not acceptance of the model, and rejection at large $N$ is evidence against exact fit rather than a measure of its magnitude. | Chapter 3, Sec. 8; Chapter 4, Sec. 2 |
+| Global fit | RMSEA (root mean square error of approximation) with its 90% interval | Estimated discrepancy per degree of freedom, $\sqrt{\max\{(T_M-df_M)/(N\,df_M),0\}}$, whose behavior also depends on model size and degrees of freedom, with an interval obtained by inverting a noncentral chi-square reference. A zero estimate is a truncation, not zero residuals; the convention ($N$ or $N-1$) must be named. | Chapter 3, Sec. 8; Chapter 4, Sec. 2 |
+| Global fit | Incremental fit index (CFI; TLI or NNFI) with its independence baseline | Improvement of the model relative to a stated reference rather than relative to exact fit. The usual baseline frees the observed variances and fixes all covariances to zero, so a high value depends on how poor that baseline is; TLI is not bounded by one. | Chapter 3, Sec. 8; Chapter 4, Sec. 2 |
+| Global fit | SRMR (standardized root mean square residual) | Root mean square of observed-SD-standardized covariance residuals over one triangle including the diagonal. Not a mean absolute residual; a small value can hide a few large cells among many near-zero ones. | Chapter 3, Sec. 8; Chapter 4, Sec. 3 |
+| Local diagnosis | Covariance residual (raw; observed-SD-standardized; correlation residual) | Observed minus implied covariance, either in the product of the two indicators' units, divided by the product of observed SDs, or as a difference of separately formed correlations. None is a residual divided by its sampling standard error, so none is automatically a $z$ statistic. | Chapter 3, Sec. 8; Chapter 4, Sec. 3 |
 | Local diagnosis | Modification index (score statistic; Lagrange multiplier) and expected parameter change (EPC; standardized EPC) | A local one-parameter approximation to the improvement from releasing one fixed restriction, with the approximate value the released parameter would take. Read with the residual pattern, the parameter's meaning, and the status of the search; not the exact LR change, and not an instruction. | Chapter 4, Sec. 6 |
 | Comparison | Nested difference test ($\chi^2$ difference; likelihood-ratio difference test) | $\Delta T=T_R-T_U$ on $\Delta df=df_R-df_U$ for regularly nested, compatible ML fits on identical cases, outcomes, scale, mean structure, and likelihood convention. A smaller parameter count is not proof of nesting, and failure to reject is not equivalence. | Chapter 4, Sec. 4 |
 | Comparison | Information criteria for covariance structures (AIC; BIC) eligibility | $-2\ell+2q$ and $-2\ell+q\log N$ with $q$ the effective free-parameter count. They rank eligible candidates fitted to the same observations and outcomes under one likelihood convention, including nonnested ones; neither is a test or an adequacy index. | Chapter 4, Sec. 4 |
@@ -257,6 +267,7 @@ distinction stay in the chapters themselves.
 | Extensions | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. | Chapter 4, Sec. 5 |
 | Extensions | Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain has the same general-to-specific loading ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. | Chapter 4, Sec. 5 |
 | Extensions | Method effect; testlet effect | Common variance among items sharing a format (reverse keying, response scale, informant) or a stimulus (passage, vignette, apparatus). Both are design-known groupings and the least controversial motivation for a specific factor, which generalizes a freed residual covariance to several items. | Chapter 4, Sec. 5 |
+| Reliability | Cronbach's alpha for a declared unit-weighted score, $\alpha_C$ | A coefficient computed from item variances and their total-score variance. Interpreting it as reliability requires additional measurement assumptions; it is not a universal lower bound when residual dependence is allowed. | Chapter 4, Sec. 8 |
 | Reliability | Model-based omega for a declared score, $\omega(\mathbf w)$ (composite reliability) | The proportion of a declared weighted composite's model-implied variance attributable to all modeled common factors. It retains cross-loadings, factor correlations, and modeled residual covariances, and is conditional on model, weights, and sample. | Chapter 4, Sec. 8 |
 | Reliability | Omega-hierarchical, $\omega_h(\mathbf w)$ | The share of a declared score's variance attributable specifically to a bifactor general factor. Its complement within total omega is modeled reliable specific-factor variance, not error, and a substantial value does not establish essential unidimensionality. | Chapter 4, Sec. 5 |
 | Reliability | Average variance extracted (AVE) and coefficient $H$ as bounded neighbours | AVE summarizes average communality for a simple fully-standardized single-factor item set; $H=a/(1+a)$ with $a=\boldsymbol\lambda^{\mathsf T}\boldsymbol\Theta^{-1}\boldsymbol\lambda$ is a maximum over optimally weighted composites. Neither is the reliability of a stated unit-weighted score, and neither applies unqualified to a cross-loading subscale. | Chapter 4, Appendix |
@@ -266,7 +277,164 @@ distinction stay in the chapters themselves.
 
 : Evaluation, comparison, reliability, and extensions. {#tbl-intro-p2-concepts-evaluation tbl-colwidths="[16,23,45,16]"}
 
-## Notation for Chapters 1--4 {#sec-p2-concepts-notation .unnumbered}
+\Needspace{18\baselineskip}
+
+## Observed Structural Systems {#sec-p2-concepts-path .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Structural systems | Structural equation | An equation representing an outcome as a function of its designated predictors and a disturbance, within a declared system. Its causal interpretation requires assumptions beyond covariance fit. | Chapter 5, Sec. 1 |
+| Structural systems | Endogenous variable | A variable explained by another variable in the structural system. This model role differs from econometric endogeneity, which concerns dependence between a regressor and its equation's disturbance. | Chapter 5, Sec. 1; Sec. 3 |
+| Structural systems | Exogenous variable | A variable whose distribution is supplied without modeling incoming structural paths in the declared system. The label alone does not establish independence from every unmeasured cause. | Chapter 5, Sec. 1 |
+| Structural systems | Structural disturbance ($\zeta$) | Variation in a structural outcome not represented by its designated predictors. Covariances among disturbances and with exogenous variables are part of the model's assumptions. | Chapter 5, Sec. 1 |
+| Structural systems | Reduced form | The structural equations solved in terms of the exogenous inputs and disturbances, when the required inverse exists. Reduced-form coefficients combine direct and transmitted relationships. | Chapter 5, Sec. 1; Sec. 7 |
+| Structural systems | Direct, indirect and total effect | A direct coefficient belongs to one structural equation; an indirect contribution follows a directed route. In an acyclic linear system, the total sums the compatible directed-route products. Feedback requires the inverse-system response. A causal reading requires the declared causal assumptions. | Chapter 5, Sec. 2; Sec. 7 |
+| Structural systems | Saturated structural system | A structural parameterization that leaves the modeled variables' covariance unrestricted. Its coefficients can be estimated with uncertainty even though its global covariance test has zero degrees of freedom. | Chapter 5, Sec. 3; Sec. 4 |
+| Structural systems | Recursive and nonrecursive system | Under the chapter's convention, a recursive linear system has an acyclic ordering, mutually uncorrelated disturbances, and disturbances uncorrelated with exogenous inputs. Feedback or relaxed disturbance assumptions require a separate identification analysis. | Chapter 5, Sec. 1; Sec. 7 |
+| Feedback | Feedback (reciprocal system) | A directed cycle in a simultaneous structural system. Its equilibrium interpretation differs from an observed lagged relationship across measurement occasions. | Chapter 5, Sec. 7 |
+| Feedback | Equilibrium stability | For the declared repeated linear adjustment, the condition $\rho(\mathbf B)<1$ that makes departures decay. Existence of $(\mathbf I-\mathbf B)^{-1}$ alone does not establish stability. | Chapter 5, Sec. 7 |
+| Reproducibility | Summary-statistic reconstruction | Analysis using the published moments, variable definitions, sample information and model restrictions actually available. Distinguish a numerical reproduction from a changed reanalysis or an independent empirical replication. | Chapter 5, Sec. 5; Sec. 8 |
+
+: Observed Structural Systems. {#tbl-intro-p2-concepts-path tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Causal Models, Interventions and Identification {#sec-p2-concepts-causal .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Causal interpretation | Structural causal model (SCM) | Structural assignments and a distribution for their disturbances, with an intervention defined by replacing an assignment while retaining the other declared mechanisms. | Chapter 6, Sec. 1 |
+| Causal interpretation | Conditioning | Comparing or selecting observations at a recorded value of a variable. It generally changes the distribution of related variables and is different from intervening on the variable. | Chapter 6, Sec. 1 |
+| Causal interpretation | Intervention | Replacing a variable's structural assignment by a specified value or policy under the model's invariance assumptions. Setting a value removes that variable's incoming causal arrows. | Chapter 6, Sec. 4 |
+| Causal interpretation | Collider | A variable at which two arrows on a path meet head to head. Conditioning on it or its descendant can open an otherwise blocked path. | Chapter 6, Sec. 2 |
+| Causal interpretation | d-separation | A graph criterion that blocks every path between two sets under a conditioning set and implies conditional independence under the graph's Markov assumptions. An open path permits dependence but does not guarantee it for every parameter value. | Chapter 6, Sec. 2 |
+| Identification | Instrumental variable | A source of regressor variation requiring relevance, exclusion from the outcome equation, and the stated independence or orthogonality to its disturbance. A first-stage association tests neither exclusion nor exogeneity. | Chapter 6, Sec. 6 |
+| Identification | Instrument relevance | Association with the endogenous regressor after the included controls are accounted for. Weak conditional association makes the identifying covariance ratio unstable. | Chapter 6, Sec. 6 |
+| Identification | Exclusion restriction | A restriction removing a direct route from an instrument to the outcome in the stated structural equation and control set. It needs substantive support distinct from first-stage strength. | Chapter 6, Sec. 6 |
+| Identification | Causal identification | Whether the stated causal target is uniquely determined by the observed distribution together with the declared causal assumptions; statistical parameter recovery within one chosen model does not establish this. | Chapter 6, Sec. 1; Sec. 6 |
+| Adjustment | Backdoor adjustment | Recovering an intervention distribution by averaging conditional outcome distributions over a stated target covariate distribution when the covariates satisfy the causal adjustment requirements, with consistency and positivity. | Chapter 6, Sec. 4 |
+| Counterfactuals | Counterfactual outcome | The outcome under a specified replacement of a structural assignment while retaining the unit's relevant disturbances; factual evidence determines what is known or uncertain about those disturbances. | Chapter 6, Sec. 5 |
+| Counterfactuals | Abduction, action and prediction | Updating disturbance information using factual evidence, replacing the specified assignment, and propagating that retained information through the altered system. | Chapter 6, Sec. 5 |
+| Sensitivity | Exclusion sensitivity | Re-estimating a target under explicitly fixed alternative direct instrument-outcome effects; conditional sampling intervals and the across-assumption sensitivity range answer different questions. | Chapter 6, Sec. 7 |
+
+: Causal Models, Interventions and Identification. {#tbl-intro-p2-concepts-causal tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Joint Measurement and Structural Modeling {#sec-p2-concepts-sem .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Full SEM | Joint measurement model | One model containing all relevant measurement blocks, with their factors allowed to covary before structural restrictions are imposed. | Chapter 7, Sec. 1 |
+| Full SEM | Two-step SEM workflow | Evaluation of a joint measurement specification followed by joint estimation of its measurement and structural parameters in the full SEM. | Chapter 7, Sec. 1 |
+| Full SEM | Structurally saturated model | A model whose structural component reproduces an unrestricted covariance among its latent variables; measurement restrictions may still leave the complete model with positive degrees of freedom. | Chapter 7, Sec. 2; Sec. 4 |
+| Exploratory measurement | ESEM | A structural equation model containing an exploratory factor block whose estimated loadings are oriented by rotation, potentially alongside confirmatory blocks and structural regressions. | Chapter 7, Sec. 5 |
+| Exploratory measurement | Target rotation | Rotation toward a declared loading pattern whose target entries guide orientation rather than necessarily fixing corresponding loadings to exact values. | Chapter 7, Sec. 5 |
+| Measurement representation | Causal indicator | An observed variable proposed to contribute to a latent variable whose disturbance represents additional causes. Identification requires more than assigning arrows to its predictors. | Chapter 7, Sec. 6 |
+| Measurement representation | Exact composite | A variable defined as a specified weighted combination of observed components, with no disturbance in that defining equation. | Chapter 7, Sec. 6 |
+| Means and covariates | Mean structure | The model's specification of expected observed levels through intercepts, latent means, and predictor means. | Chapter 7, Sec. 7 |
+| Means and covariates | MIMIC model | A model combining observed predictors of a latent variable with multiple indicators of that latent variable. | Chapter 7, Sec. 7 |
+
+: Joint Measurement and Structural Modeling. {#tbl-intro-p2-concepts-sem tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Indirect and Conditional Relationships {#sec-p2-concepts-conditional .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Indirect relationships | Specific indirect effect | The product of coefficients along one directed indirect route between a stated source and outcome in the declared linear structural system. | Chapter 8, Sec. 1 |
+| Indirect relationships | Total indirect effect | The sum of the specified directed indirect-route contributions between the same source and outcome. Contributions with opposite signs can cancel. | Chapter 8, Sec. 2 |
+| Indirect relationships | Indirect-effect contrast | A difference or other declared comparison of indirect effects whose uncertainty retains the dependence between their estimated component paths. | Chapter 8, Sec. 2 |
+| Conditional relationships | Conditional slope | The rate of change in a modeled conditional mean with a predictor at stated values of the moderator and other conditioned variables. Its value depends on the declared scale and origin. | Chapter 8, Sec. 6 |
+| Conditional relationships | Latent interaction | A product relationship involving latent predictors represented through explicit measurement models. A latent outcome alone does not turn an observed predictor product into a latent interaction. | Chapter 8, Sec. 5 |
+| Conditional relationships | Product indicator | An observed product of indicators used to represent a latent product under specified measurement-error and centering assumptions. Its measurement error contains more than the product of the two original errors. | Chapter 8, Sec. 5 |
+| Conditional relationships | Conditional indirect effect | A specified indirect-effect function evaluated at stated moderator values, with its uncertainty propagated through the joint parameter estimates. | Chapter 8, Sec. 7 |
+| Conditional relationships | Index of moderated mediation | The coefficient describing change in a specified indirect effect per unit of a moderator when that indirect-effect function is linear in the moderator. Its formula depends on the structural model. | Chapter 8, Sec. 7 |
+
+: Indirect and Conditional Relationships. {#tbl-intro-p2-concepts-conditional tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Measurement Comparability and Group Comparisons {#sec-p2-concepts-comparability .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Comparability | Measurement invariance | Equality of the conditional response distribution across groups at the same latent values. Particular loading, intercept and residual restrictions express aspects of this requirement within a declared measurement model. | Chapter 9, Sec. 1; Sec. 3 |
+| Comparability | Configural model | A joint group model with the same designated factor-loading pattern and separately estimated group parameters under declared scale and location constraints. The shared pattern alone does not establish a common factor unit or origin. | Chapter 9, Sec. 2 |
+| Comparability | Metric invariance (loading invariance) | Equality of the designated factor loadings across groups, supporting a common factor unit through the stated anchors. It does not impose common indicator intercepts or residual structures. | Chapter 9, Sec. 3 |
+| Comparability | Scalar invariance (intercept invariance) | Equality of the designated indicator intercepts as well as loadings, supporting a common origin for the specified latent-mean comparison. The comparison group's latent means remain free when they are the target. | Chapter 9, Sec. 3 |
+| Comparability | Strict invariance | Equality of the measurement residual covariance structure in addition to the scalar restrictions. It is not generally required for a latent-mean comparison and does not alone guarantee equal reliability. | Chapter 9, Sec. 3 |
+| Comparability | Partial invariance | A declared model that retains specified cross-group equality restrictions while allowing selected measurement parameters to differ. Its interpretation depends on the remaining anchors and the evidence supporting them. | Chapter 9, Sec. 4 |
+| Identification and comparison | Anchor | A retained measurement restriction that supplies a common reference for the latent scale or origin. A numerically identifying anchor can still lack substantive comparability. | Chapter 9, Sec. 4 |
+| Identification and comparison | Anchor sensitivity | Variation in an interpreted factor comparison when the declared parameters linking its scale or origin across groups are changed. | Chapter 9, Sec. 4 |
+| Group targets | Latent-mean contrast | A difference or other declared comparison of latent means on a supported common scale and origin. Its standardized form additionally depends on the chosen reference variance. | Chapter 9, Sec. 5 |
+| Group targets | Multigroup SEM | Joint estimation of group-specific measurement and structural systems with explicit restrictions on which parameters are shared and which can differ. | Chapter 9, Sec. 2; Sec. 5 |
+| Group targets | Conditional group contrast | A comparison at specified covariate values under the fitted model. It can differ from the marginal group difference because the groups' covariate distributions differ. | Chapter 9, Sec. 5; Sec. 6 |
+| Item comparisons | Intercept differential item functioning (uniform DIF) | A group difference in an indicator's conditional expected response at the same latent values, represented by an intercept difference or a group-to-indicator direct path in the stated model. It is distinct from loading noninvariance. | Chapter 9, Sec. 6 |
+
+: Measurement Comparability and Group Comparisons. {#tbl-intro-p2-concepts-comparability tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Incomplete Data and Robust Inference {#sec-p2-concepts-missing .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Observation process | Missingness pattern | The combination of observed and missing variables in a record. | Chapter 10, Sec. 1 |
+| Observation process | MCAR | Missingness does not depend on the observed or unobserved values in the analysis. | Chapter 10, Sec. 2 |
+| Observation process | MAR | Conditional on the observed information included in the analysis, missingness does not depend on the unobserved values. | Chapter 10, Sec. 2 |
+| Observation process | MNAR | Missingness still depends on unobserved values after conditioning on the observed information in the analysis. | Chapter 10, Sec. 2 |
+| Observation process | Ignorability | Conditions under which inference for the data-model parameters can omit an explicit missingness model; for likelihood inference these include MAR and distinct parameters. | Chapter 10, Sec. 2 |
+| Observed-data estimation | Observed-data likelihood | A likelihood formed from the values actually observed, integrating over the missing values under the specified model. | Chapter 10, Sec. 3 |
+| Observed-data estimation | FIML | Joint maximum-likelihood estimation using each record's observed variables and the corresponding model-implied distribution. | Chapter 10, Sec. 3 |
+| Additional information | Auxiliary variable | An additional variable included to supply information about incomplete values or missingness without assigning it a substantive structural role. | Chapter 10, Sec. 6 |
+| Robust inference | Sandwich covariance | A parameter covariance estimate combining likelihood curvature with the empirical variability of individual score contributions. | Chapter 10, Sec. 5 |
+| Robust inference | Scaled difference test | A model-comparison test that adjusts the difference in compatible unscaled fit statistics using information from the fitted models. | Chapter 10, Sec. 5 |
+| Additional information | Sensitivity parameter | A quantity fixed at substantively considered values to examine how conclusions depend on an assumption the observed data do not identify. | Chapter 10, Sec. 6 |
+
+: Incomplete Data and Robust Inference. {#tbl-intro-p2-concepts-missing tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Latent Growth Models {#sec-p2-concepts-growth .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Trajectory components | Latent intercept | A person-specific level of the modeled trajectory at the declared time origin. Its unit and location depend on the outcome or measurement scale. | Chapter 11, Sec. 2 |
+| Trajectory components | Latent slope | A person-specific change per unit of coded time in a linear growth model; its meaning changes when the time unit or growth basis changes. | Chapter 11, Sec. 2 |
+| Trajectory components | Mean slope | The population mean of the latent slope in an unconditional model; with predictors, the structural slope intercept describes the mean at the stated predictor reference. | Chapter 11, Sec. 2 |
+| Trajectory components | Slope variance | Between-person variance of the latent slope under the specified trajectory model, distinct from uncertainty in the estimated mean slope. | Chapter 11, Sec. 2 |
+| Time and shape | Intercept–slope covariance | Covariance between the latent level at a declared time origin and the latent slope; changing that origin can change its value or sign without changing the modeled trajectories. | Chapter 11, Sec. 4 |
+| Time and shape | Time centering | Replacing time by time minus a stated constant, changing the intercept meaning and its moments while preserving the same trajectory model. | Chapter 11, Sec. 4 |
+| Time and shape | Latent basis | A growth model that fixes two basis loadings to set the origin and unit and estimates the remaining loadings; people share the basis shape while their levels and amplitudes vary. | Chapter 11, Sec. 4 |
+| Time and shape | Piecewise growth | A trajectory represented by distinct functions over prespecified time segments, with explicit restrictions on the knot, continuity and the meaning of each slope. | Chapter 11, Sec. 4 |
+| Longitudinal measurement | Occasion disturbance | An occasion-specific latent deviation from the growth curve, distinguished from an indicator-specific measurement residual in a multiple-indicator growth model. | Chapter 11, Sec. 5 |
+| Longitudinal measurement | Longitudinal measurement comparability | Support for measurement restrictions that make the intended construct comparison meaningful across occasions, including suitable loading and intercept anchors for latent mean growth. | Chapter 11, Sec. 5 |
+
+: Latent Growth Models. {#tbl-intro-p2-concepts-growth tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Study Planning and Power Analysis {#sec-p2-concepts-planning .unnumbered}
+
+| Concept group | Term and common alternatives | Meaning or essential distinction | Main explanation |
+|:--|:--|:--|:--|
+| Study planning | Prospective power | Probability that a specified test rejects its null under a stated alternative, study design and analysis. | Chapter 12, Secs. 1 and 3 |
+| Study planning | Parameter power | Power for a named parameter restriction within a specified model. | Chapter 12, Secs. 1 and 3 |
+| Study planning | Global-fit power | Power for a stated hypothesis about the model's overall population discrepancy. | Chapter 12, Sec. 3 |
+| Study planning | Calibration scenario | A fully specified planning population informed by evidence and explicit choices. | Chapter 12, Sec. 2 |
+| Simulation | Monte Carlo error | Numerical uncertainty because performance is estimated from finitely many simulated studies. | Chapter 12, Sec. 5 |
+| Simulation | Operating characteristic | A feature of an analysis's repeated-study performance under a declared scenario. | Chapter 12, Sec. 5 |
+| Simulation | Coverage | Probability that the stated interval procedure contains the target value across repeated studies under the scenario. | Chapter 12, Sec. 5 |
+| Simulation | Simulation failure rate | Fraction of scheduled analysis attempts that fail the declared convergence, admissibility or usable-output criteria. | Chapter 12, Sec. 5 |
+| Study planning | Precision target | A declared requirement for the uncertainty of the study's estimate. | Chapter 12, Secs. 1 and 8 |
+
+: Study Planning and Power Analysis. {#tbl-intro-p2-concepts-planning tbl-colwidths="[14,22,48,16]"}
+
+\Needspace{18\baselineskip}
+
+## Notation for Chapters 1--12 {#sec-p2-concepts-notation .unnumbered}
 
 | Group | Symbol (preferred form) | Meaning | Main use | Alternatives and notes |
 |:--|:--|:--|:--|:--|
@@ -335,4 +503,4 @@ distinction stay in the chapters themselves.
 | Population audit | $F_0$, $\operatorname{RMSEA}_0$ | The population discrepancy and the population RMSEA $\sqrt{F_0/df}$ | Chapter 4, Sec. 7 | Not the sample RMSEA formula |
 | Structural extension | $\mathbf B$, $\boldsymbol\Gamma$, $\boldsymbol\zeta$, $\boldsymbol\Psi$ | Latent structural paths, exogenous links, the structural disturbance, and its covariance | Chapter 4, Sec. 8 | Bold $\mathbf B$; the plain $B$ of Chapter 2, Sec. 3.4 is a replication count. The bare $\boldsymbol\Psi$ is the structural disturbance covariance and nothing else: the Schmid-Leiman equations of Chapter 4, Sec. 5.5 write the first-order disturbance covariance as $\boldsymbol\Psi_h$ |
 
-: Notation for Chapters 1--4. {#tbl-intro-p2-concepts-notation tbl-colwidths="[12,20,32,10,26]"}
+: Notation for Chapters 1--12. {#tbl-intro-p2-concepts-notation tbl-colwidths="[12,20,32,10,26]"}

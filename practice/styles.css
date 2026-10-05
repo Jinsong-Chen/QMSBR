@@ -5,8 +5,7 @@ h1 { font-weight: 650; }
 h2 { margin-top: 1.8rem; }
 a { color: #146477; }
 .navbar { border-bottom: 3px solid var(--practice-accent); }
-/* Unavailable navigation entries use #part-three or #argument-a, #argument-b
-   and #argument-c. The #supplement-a and #supplement-b aliases stay muted.
+/* Unavailable navigation entries use #part-three or #argument-c.
    These rules disable pointer interaction; the matching include-after-body
    script supplies aria-disabled and removes the links from the tab order.
    Hover and focus retain the same colour. The navbar and sidebar colours
@@ -16,26 +15,10 @@ a { color: #146477; }
 .navbar .navbar-nav .nav-link[href$="#part-three"]:hover,
 .navbar .navbar-nav .nav-link[href$="#part-three"]:focus,
 .navbar .navbar-nav .nav-link[href$="#part-three"].active,
-.navbar .navbar-nav .nav-link[href$="#argument-a"],
-.navbar .navbar-nav .nav-link[href$="#argument-a"]:hover,
-.navbar .navbar-nav .nav-link[href$="#argument-a"]:focus,
-.navbar .navbar-nav .nav-link[href$="#argument-a"].active,
-.navbar .navbar-nav .nav-link[href$="#argument-b"],
-.navbar .navbar-nav .nav-link[href$="#argument-b"]:hover,
-.navbar .navbar-nav .nav-link[href$="#argument-b"]:focus,
-.navbar .navbar-nav .nav-link[href$="#argument-b"].active,
 .navbar .navbar-nav .nav-link[href$="#argument-c"],
 .navbar .navbar-nav .nav-link[href$="#argument-c"]:hover,
 .navbar .navbar-nav .nav-link[href$="#argument-c"]:focus,
-.navbar .navbar-nav .nav-link[href$="#argument-c"].active,
-.navbar .navbar-nav .nav-link[href$="#supplement-a"],
-.navbar .navbar-nav .nav-link[href$="#supplement-a"]:hover,
-.navbar .navbar-nav .nav-link[href$="#supplement-a"]:focus,
-.navbar .navbar-nav .nav-link[href$="#supplement-a"].active,
-.navbar .navbar-nav .nav-link[href$="#supplement-b"],
-.navbar .navbar-nav .nav-link[href$="#supplement-b"]:hover,
-.navbar .navbar-nav .nav-link[href$="#supplement-b"]:focus,
-.navbar .navbar-nav .nav-link[href$="#supplement-b"].active {
+.navbar .navbar-nav .nav-link[href$="#argument-c"].active {
   color: #d9e5e6;
   pointer-events: none;
   cursor: default;
@@ -43,21 +26,9 @@ a { color: #146477; }
 .sidebar-navigation a[href$="#part-three"],
 .sidebar-navigation a[href$="#part-three"]:hover,
 .sidebar-navigation a[href$="#part-three"]:focus,
-.sidebar-navigation a[href$="#argument-a"],
-.sidebar-navigation a[href$="#argument-a"]:hover,
-.sidebar-navigation a[href$="#argument-a"]:focus,
-.sidebar-navigation a[href$="#argument-b"],
-.sidebar-navigation a[href$="#argument-b"]:hover,
-.sidebar-navigation a[href$="#argument-b"]:focus,
 .sidebar-navigation a[href$="#argument-c"],
 .sidebar-navigation a[href$="#argument-c"]:hover,
-.sidebar-navigation a[href$="#argument-c"]:focus,
-.sidebar-navigation a[href$="#supplement-a"],
-.sidebar-navigation a[href$="#supplement-a"]:hover,
-.sidebar-navigation a[href$="#supplement-a"]:focus,
-.sidebar-navigation a[href$="#supplement-b"],
-.sidebar-navigation a[href$="#supplement-b"]:hover,
-.sidebar-navigation a[href$="#supplement-b"]:focus {
+.sidebar-navigation a[href$="#argument-c"]:focus {
   color: #64717a;
   pointer-events: none;
   cursor: default;

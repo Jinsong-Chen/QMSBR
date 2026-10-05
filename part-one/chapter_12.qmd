@@ -1,0 +1,1957 @@
+---
+title: "Extending the GLM: Nominal, Ordinal, and Count Outcomes"
+author: "Jinsong Chen"
+
+bibliography: ../references.bib
+csl: ../apa.csl
+link-citations: true
+lang: en
+tbl-cap-location: top
+fig-cap-location: bottom
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+
+format:
+  pdf:
+    documentclass: scrartcl
+    pdf-engine: lualatex
+    pdf-standard: ua-2
+    colorlinks: false
+    latex-min-runs: 3
+    latex-auto-install: false
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    fig-align: center
+    include-in-header:
+      - ../koma_heading_tags.tex
+      - text: |
+          % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
+          % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
+          % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
+          % https://github.com/latex3/graphics-def/pull/48
+          % https://github.com/latex3/graphics-def/issues/47
+          % The upstream PR was unmerged when this local backport was made.
+          % Original driver copyright: LaTeX3 Project and its listed contributors.
+          % This adaptation is distributed under LPPL 1.3c or later:
+          % https://www.latex-project.org/lppl.txt
+          %
+          % Preserve the imported PDF's transparency group. Put the driver's additional
+          % group on a separate outer Form XObject, avoiding conflicting duplicate /Group
+          % keys. Do not replace this with PDF post-processing or disabling transparency.
+          % Exact-token patches deliberately fail on an unexpected/new driver: review
+          % whether the upstream fix is then installed before removing this backport.
+          \usepackage{etoolbox}
+          \makeatletter
+          \newcommand{\QMSBRgraphicsPatchError}[1]{%
+            \PackageError{qmsbr-graphics-compat}{Graphics compatibility patch #1 failed}%
+              {Expected LuaTeX graphics driver 2025/09/29 v1.2f. Review the upstream fix and local header before rendering.}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup 1\fi}{}{}{\QMSBRgraphicsPatchError{1}}
+          \patchcmd{\Gread@@pdftex}{\ifGread@transgroup/Group<</S/Transparency/K false/I false>>\fi}{}{}{\QMSBRgraphicsPatchError{2}}
+          \patchcmd{\Gread@@pdftex}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}}
+            {\setbox\@tempboxa=\hbox{\useimageresource\lastsavedimageresourceindex}%
+             \ifGread@transgroup
+               \saveboxresource attr{/Group<</S/Transparency/K false/I false>>}\@tempboxa
+               \setbox\@tempboxa=\hbox{\useboxresource\lastsavedboxresourceindex}%
+             \fi}
+            {}{\QMSBRgraphicsPatchError{3}}
+          \patchcmd{\Gread@@pdftex}
+            {\useimageresource\the\lastsavedimageresourceindex}
+            {\ifGread@transgroup\useboxresource\the\lastsavedboxresourceindex\else\useimageresource\the\lastsavedimageresourceindex\fi}
+            {}{\QMSBRgraphicsPatchError{4}}
+          \makeatother
+          \setlength{\parindent}{0pt}
+          \ifdefined\pdfinfoomitdate\pdfinfoomitdate=1\fi
+          \ifdefined\pdftrailerid\pdftrailerid{}\fi
+          \ifdefined\pdfsuppressptexinfo\pdfsuppressptexinfo=-1\fi
+          \ifdefined\pdfvariable
+            \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
+          \fi
+          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \let\chapteroldtableofcontents\tableofcontents
+          \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
+          \usepackage{caption}
+          \captionsetup[table]{
+            position=above,
+            format=plain,
+            justification=raggedright,
+            singlelinecheck=false,
+            labelsep=newline,
+            labelfont=bf,
+            textfont=it
+          }
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{float}
+          \usepackage{needspace}
+          \AddToHook{cmd/section/before}{\Needspace{16\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AddToHook{cmd/subsubsection/before}{\Needspace{6\baselineskip}\phantomsection}
+          \AtBeginDocument{\renewcommand{\boldsymbol}[1]{\symbf{#1}}}
+  html:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+  docx:
+    df-print: kable
+    toc: true
+    toc-depth: 3
+    number-sections: false
+
+editor_options:
+  chunk_output_type: console
+
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.pos = "!ht")
+if (knitr::is_latex_output()) knitr::opts_chunk$set(dev = "cairo_pdf")
+options(digits = 7, width = 68)
+library(ggplot2); library(nnet); library(ordinal); library(MASS)
+theme_set(theme_minimal(base_size = 11))
+d0 <- carData::Womenlf; dat <- d0
+dat$partic <- relevel(dat$partic, "not.work")
+nom <- multinom(partic ~ hincome + children, data = dat, trace = FALSE)
+dat$ord <- factor(as.character(dat$partic), levels = c("not.work", "parttime", "fulltime"), ordered = TRUE)
+ord <- polr(ord ~ hincome + children, data = dat, Hess = TRUE)
+ordcheck <- clm(ord ~ hincome + children, data = dat)
+opinion <- carData::WVS
+po <- clm(poverty ~ religion + degree + country + age + gender, data = opinion)
+cutfit <- clm(poverty ~ religion + degree + age + gender, nominal = ~ country, data = opinion)
+absence <- MASS::quine
+mp <- glm(Days ~ Eth + Sex + Age + Lrn, family = poisson, data = absence)
+mq <- glm(Days ~ Eth + Sex + Age + Lrn, family = quasipoisson, data = absence)
+mn <- MASS::glm.nb(Days ~ Eth + Sex + Age + Lrn, data = absence)
+mi <- glm(Days ~ Eth * Age + Sex + Lrn, family = poisson, data = absence)
+set.seed(1202)
+risk <- rnorm(500)
+mentor <- rbinom(500, 1, plogis(-.4 + .8 * risk))
+mobile <- rbinom(500, 1, plogis(-1.2 + .7 * risk))
+days <- ifelse(mobile == 1, round(runif(500, 30, 150)), 180)
+events <- rpois(500, days * exp(-4.2 - .35 * mentor + .45 * risk))
+sim <- data.frame(events, mentor, risk, days)
+ratefit <- glm(events ~ mentor + risk, offset = log(days), family = poisson, data = sim)
+countfit <- glm(events ~ mentor + risk, family = poisson, data = sim)
+freefit <- glm(events ~ mentor + risk + log(days), family = poisson, data = sim)
+stopifnot(nrow(dat) == 263, nrow(opinion) == 5381, nrow(absence) == 146,
+  abs(deviance(nom) - 422.8819) < .0001,
+  abs(AIC(po) - 10420.5924) < .0001,
+  abs(mn$theta - 1.2749) < .0001)
+```
+
+{{< pagebreak >}}
+
+::: {.callout-note title="Chapter overview"}
+An outcome's measurement determines what a model must represent. This
+chapter extends regression to three kinds of outcome: a category with no
+assumed ordering, an ordered category with unknown spacing, and a count
+observed over a specified window. A household employment study, four
+countries' opinions and school absences connect the equations to the
+comparisons they answer. The chapter develops probability compositions,
+cumulative odds, exposure offsets and conditional dispersion, and uses
+fitted values to make the size of each comparison intelligible.
+:::
+
+Three questions motivate the models. Among 263 Canadian women surveyed in
+1977, how does labour-force participation differ across household income
+and the presence of children? Among 5,381 respondents in four countries,
+how does opinion about government effort for people in poverty differ
+across country and recorded characteristics? Among 146 Australian pupils,
+how does expected absence in an academic year differ across the study's
+recorded groups? The outcomes are respectively a composition, an ordered
+response and a count. Each needs a mean structure respecting what was
+measured, rather than an arbitrary numerical score followed by a line.
+
+The records come from `carData::Womenlf`, `carData::WVS` and `MASS::quine`
+[@carData2022; @fox2019; @venables2002]. The package extracts carry no
+sampling weights, clustering or stratification information. Their
+availability does not establish a probability sample, so the inferential
+readings below are conditional comparisons among the recorded units under
+working independent-row models. The exposure simulation later is explicitly
+invented. The distinction between those sources matters for what a model
+can demonstrate and what a study can establish.
+
+Displayed results are rounded to four decimal places, with trailing zeros
+dropped unless they align a comparison. Calculations using different
+rounding or software settings may differ slightly.
+
+## One Family, Three Outcomes {#ch12-family}
+
+### Keep the predictor; change the response structure
+
+A generalized linear model separates a response distribution, a linear
+predictor $\eta_i=\mathbf{x}_i^{\mathsf T}\boldsymbol\beta$, and a link connecting the
+conditional mean to that predictor [@nelder1972]. A binary logistic model
+uses a Bernoulli outcome and a logit link. Nominal and ordinal models
+extend the idea to several category probabilities; count models connect
+a nonnegative expected count to a log predictor. These are related
+regression structures, not identical single-response GLMs in every detail.
+In the vector notation, $\mathbf{x}_i$ includes an initial 1 when the
+model contains an intercept. The ordered model below uses thresholds
+instead and omits that entry.
+
+| Outcome | Random component | Link and mean | Conditional variance | Home |
+|:--|:--|:--|:--|:--|
+| Quantitative score | Normal | identity, $\mu_i=\eta_i$ | $\sigma^2$, a free parameter | Ch. 7--9 |
+| Binary event | Bernoulli | logit, $\pi_i=\operatorname{logit}^{-1}(\eta_i)$ | $\pi_i(1-\pi_i)$ | Ch. 11 |
+| Unordered categories | Categorical, $K$ classes | generalized logit, $K-1$ equations | multinomial | Sec. 2 |
+| Ordered categories | Categorical, $K$ ordered classes | cumulative logit, $K-1$ thresholds | multinomial | Sec. 3 |
+| Count or rate | Poisson | log, $\mu_i=t_ie^{\eta_i}$ | $\mu_i$ | Sec. 4 |
+| Overdispersed count | Quasi-Poisson or negative binomial | log, as above | $\phi\mu_i$ or $\mu_i+\mu_i^2/\theta$ | Sec. 5 |
+
+: A common predictor framework, with different response and variance specifications. The linear predictor is the same object throughout. {#tbl-ch12-components tbl-colwidths="[20,21,25,22,12]"}
+
+
+The predictor remains a sum of terms, but a coefficient's interpretation
+changes with the response and link. Full probability models use maximum
+likelihood. Quasi-Poisson is the exception: it specifies a mean and variance
+without a full probability distribution, so it has no ordinary likelihood
+or information criterion.
+
+### Decide what the outcome records
+
+| Outcome kind | What one value records | Model in this collection |
+|:--|:--|:--|
+| Binary event | Whether an event occurred | Logistic regression, Chapter 11 |
+| Nominal categories | A category with no defensible ordering: field of study, party voted for, mode of transport | Generalized (baseline-category) logits, Section 2 |
+| Ordered categories | A rank on one substantive dimension with unknown spacing: agreement, severity stage, service rating | Cumulative logits, Section 3 |
+| Count | How many events occurred in a window supplied by the design | Poisson-family regression, Sections 4--5 |
+| Rate | How many events per unit of exposure, when windows differ across units | Count regression with an exposure offset, Section 4.3 |
+| Proportion of known trials | How many of a known number of trials succeeded | Binomial regression with a denominator, named only |
+| Duration until an event | How long until an event, possibly not yet observed | Survival models, outside this collection |
+
+: Outcome triage. The classification is a measurement judgment made before any model is fitted. {#tbl-ch12-triage tbl-colwidths="[22,48,30]"}
+
+
+The distinction between nominal and ordered categories is substantive.
+Employment status can be studied as different roles, or ordered by work
+intensity if that is the declared construct. Coding an order does not
+establish it. Even when an order is defensible, the distances between
+categories need not be known. Giving them scores 0, 1 and 2 imposes both
+ordering and equal spacing; it answers a mean-score question that may
+not match the intended composition question.
+
+
+```{r}
+#| eval: false
+#| echo: true
+dat$score <- ifelse(dat$partic == "not.work", 0,
+  ifelse(dat$partic == "parttime", 1, 2))
+scored <- lm(score ~ hincome + children, data = dat)
+range(fitted(scored))
+```
+
+
+The scored labour-force fit ranges from $-.2099$ to 1.5278, including
+four negative fitted means, and supplies no probability for any category.
+A count likewise needs its observation window: ten incidents in one
+month and ten in a year are different rates. A successes count out of a
+known number of trials can instead be modeled as binomial; having a count
+does not automatically imply a Poisson response.
+
+All three empirical examples use the full distributed extract, with no
+missing analysis values. `Womenlf` records 155 not working, 66 full time
+and 42 part time. `WVS` has 2,708 Too Little, 1,862 About Right and 811
+Too Much responses. `quine` has integer absence counts from 0 to 81,
+including nine zeros. Auditing those definitions and denominators comes
+before fitting.
+
+
+```{r}
+#| eval: false
+#| echo: true
+table(dat$partic)
+table(opinion$poverty)
+range(absence$Days)
+colSums(is.na(opinion))
+```
+
+
+### Likelihood and comparison carry over
+
+A likelihood evaluates the observed outcomes under specified probabilities,
+with the data fixed. Maximizing it selects coefficients; the **deviance**
+compares that maximum with a saturated model fitting each observation:
+
+$$
+D=2\{\ell_{\mathrm{saturated}}-\ell(\widehat{\boldsymbol\beta})\}.
+$$ {#eq-ch12-deviance}
+
+Differences between regular nested models with the same outcome and rows
+can yield likelihood-ratio tests. AIC and BIC add a parameter penalty to
+$-2\ell$. A smaller deviance by itself is neither proof of adequate fit
+nor permission to compare any two models by chi-square. In particular,
+changing the family can change the saturated likelihood, and quasi-Poisson
+has no full likelihood. Section 6 makes these distinctions concrete.
+
+## Nominal Outcomes: The Generalized Logit {#ch12-nominal}
+
+### Several category probabilities, one reference
+
+Let $Y_i$ take one of $K$ unordered categories, with
+$\pi_{ik}=P(Y_i=k\mid \mathbf{x}_i)$. Choosing category $K$ as the baseline,
+the **generalized logit**, or baseline-category multinomial logit, states
+
+$$
+\log\frac{\pi_{ik}}{\pi_{iK}}=\beta_{0k}+\sum_{j=1}^p\beta_{jk}x_{ij},
+\qquad k=1,\ldots,K-1.
+$$ {#eq-ch12-baseline-logit}
+
+There are $K-1$ equations, each with its own intercept and slopes. One
+baseline sets the coordinate system; it does not make the category more
+fundamental. Writing its predictor as $\eta_{iK}=0$, the probabilities are
+
+$$
+\pi_{ik}=\frac{e^{\eta_{ik}}}{\sum_{m=1}^K e^{\eta_{im}}}.
+$$ {#eq-ch12-baseline-probs}
+
+They sum to one by construction. A new reference changes the printed
+coefficient equations while preserving the same fitted probabilities.
+The rows must still support the comparisons: a tiny or empty category
+within a predictor region can destabilize an estimate.
+
+### Name both categories in every ratio
+
+The exponentiated coefficient $e^{\beta_{jk}}$ is the factor by which
+$\pi_k/\pi_K$ differs for units one predictor unit apart, holding the
+other predictors fixed. It is conventionally called a **relative-risk
+ratio** (RRR), also interpretable as a pairwise-category odds ratio when
+the comparison is restricted to those two categories. It is not the
+cumulative odds ratio developed in Section 3.
+
+An RRR above one need not make category $k$'s own probability rise: a
+third category may rise faster, changing the shared denominator. The
+ratio names both compared categories, its predictor unit and adjustment
+set. Probabilities then show the whole composition, which a single
+pairwise ratio cannot do [@long2000].
+
+### Labour-force composition in the household records
+
+The unit is one recorded woman. Husband's income is in thousands of 1977
+dollars, and children are coded absent or present. We ask about conditional
+labour-force composition within these records, choosing not working
+outside the home as the baseline. With children absent, 46 of 79 women
+worked full time; with children present, 20 of 184 did. Part-time counts
+are 7 and 35. These observations motivate separate category probabilities,
+without themselves proving or disproving an ordered model.
+
+
+```{r}
+#| eval: false
+#| echo: true
+dat$partic <- relevel(dat$partic, "not.work")
+nom <- nnet::multinom(partic ~ hincome + children, data = dat, trace = FALSE)
+exp(coef(nom))
+exp(confint(nom))
+```
+
+| Equation and term | Coefficient | SE | RRR | 95% interval |
+|:--|--:|--:|--:|:--|
+| Full time: intercept | 1.9828 | 0.4842 | --- | --- |
+| Full time: husband's income | $-0.0972$ | 0.0281 | 0.9073 | [0.8587, 0.9587] |
+| Full time: children present | $-2.5586$ | 0.3622 | 0.0774 | [0.0381, 0.1574] |
+| Part time: intercept | $-1.4323$ | 0.5925 | --- | --- |
+| Part time: husband's income | 0.0069 | 0.0235 | 1.0069 | [0.9617, 1.0543] |
+| Part time: children present | 0.0215 | 0.4690 | 1.0217 | [0.4075, 2.5619] |
+
+: Generalized logits for labour-force participation, with not working outside the home as baseline. Deviance 422.8819 on six parameters; AIC 434.8819. {#tbl-ch12-nominal-fit tbl-colwidths="[34,14,12,12,28]"}
+
+
+An additional thousand dollars of husband's income multiplies the
+full-time-to-not-working probability ratio by .9073. Children present
+are associated with .0774 times that ratio, at the same income. The
+part-time-to-not-working intervals both cover one. That leaves a wide
+range of compatible comparisons rather than proving no association.
+Each predictor appears in two equations, so testing its removal as a
+block uses two df: the income block gives $\chi^2(2)=15.1532$,
+$p=.0005$, and the children block 63.5586, $p<.0001$.
+
+### Read the fitted composition
+
+
+```{r}
+#| eval: false
+#| echo: true
+grid <- expand.grid(hincome = c(5, 15, 25),
+  children = c("absent", "present"))
+predict(nom, grid, type = "probs")
+```
+
+```{r}
+#| label: fig-ch12-nominal-fitted
+#| fig-cap: "Fitted participation probabilities across income, with observed income support shown below."
+#| fig-alt: "Full-time probability falls as income increases in both panels, especially with children present. Not-working and part-time probabilities take the remaining share. Rugs show that observations are concentrated at lower incomes."
+#| fig-height: 3.6
+#| fig-width: 6.2
+grid <- expand.grid(hincome = seq(1, 45, length.out = 201),
+  children = c("absent", "present"))
+prob <- predict(nom, grid, type = "probs")
+curves <- data.frame(grid[rep(seq_len(nrow(grid)), 3), ],
+  category = rep(colnames(prob), each = nrow(grid)), probability = as.vector(prob))
+curves$category <- factor(curves$category, levels = c("not.work", "parttime", "fulltime"),
+  labels = c("Not working", "Part time", "Full time"))
+ggplot(curves, aes(hincome, probability, linetype = category)) +
+  geom_line(linewidth = .8) + facet_wrap(~children) +
+  geom_rug(data = dat, aes(x = hincome), inherit.aes = FALSE, alpha = .3) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = "Husband's income, thousands of 1977 dollars", y = "Fitted probability", linetype = NULL) +
+  theme(legend.position = "bottom")
+```
+
+Full-time probabilities decline with income, while part-time probabilities
+rise. The middle-category rise is possible under a proportional-odds
+model too; it is not by itself evidence against ordering. The curves answer the composition question directly: each vertical slice
+allocates one whole probability across three categories. With children
+absent, full-time probability falls from .7817 at income 5 to .3323 at 25;
+with children present it falls from .2164 to .0369. Thus the same income
+relative-risk ratio need not imply the same probability difference.
+Predict how changing the reference category would change this figure:
+its fitted curves would stay in place. At income
+25 with children present the observed full-time cell is empty, making
+the small fitted probability dependent on the regression's pooling across
+income values, rather than a precise direct estimate for that cell.
+
+
+```{r}
+#| label: fig-ch12-nominal-observed
+#| fig-cap: "Observed participation composition by income band and children present; bar labels are counts."
+#| fig-alt: "Full-time participation declines across income bands, especially among women with children present, where the highest-income band has no full-time workers. Part-time and not-working categories carry different patterns."
+#| fig-height: 4.2
+#| fig-width: 6.2
+z <- as.data.frame(table(income = cut(dat$hincome, c(0, 10, 15, 20, 45)), children = dat$children, status = dat$partic))
+z$share <- ave(z$Freq, z$income, z$children, FUN = function(x) x/sum(x))
+ggplot(z, aes(income, share, fill = status)) + geom_col(position = "dodge") +
+ geom_text(aes(label = Freq), position = position_dodge(.9), vjust = -.3, size = 3) + facet_wrap(~children) +
+ scale_fill_grey(start = .25, end = .8) + scale_y_continuous(limits = c(0, 1)) +
+ labs(x = "Husband's income, thousands of 1977 dollars", y = "Observed proportion", fill = "Participation") + theme(legend.position = "bottom")
+```
+
+
+### A different reference gives the same fitted surface
+
+With full-time work as the reference, the not-working coefficients become
+$-1.9828$, .0972 and 2.5586; the part-time coefficients become
+$-3.4151$, .1041 and 2.5801. Deviance remains 422.8819. Fitted
+probabilities agree with the first fit to within $5\times10^{-5}$,
+reflecting numerical tolerance. Predict this invariance before refitting:
+relabeling a denominator cannot change the modeled distribution of the
+same outcome.
+
+
+```{r}
+#| eval: false
+#| echo: true
+other <- dat
+other$partic <- relevel(other$partic, "fulltime")
+refit <- nnet::multinom(partic ~ hincome + children, data = other, trace = FALSE)
+predict(refit, grid, type = "probs")
+```
+
+
+These are cross-sectional comparisons. "Women whose husbands earned
+more were less likely to work full time" describes them; "raising the
+husband's income would move a woman out of full-time work" requires a
+causal design and assumptions the records do not supply.
+
+## Ordered Outcomes: The Cumulative Logit {#ch12-ordinal}
+
+### Cumulative probabilities and thresholds
+
+For a defensible order $1<\cdots<K$, define
+$\gamma_{ij}=P(Y_i\le j\mid \mathbf{x}_i)$ for $j=1,\ldots,K-1$. Each is
+a cumulative probability at one **cut point**. Category probabilities
+are differences of successive cumulative probabilities. A cumulative
+logit model with proportional odds is
+
+$$
+\log\frac{P(Y_i\le j\mid \mathbf{x}_i)}{P(Y_i>j\mid \mathbf{x}_i)}
+=\zeta_j-\mathbf{x}_i^{\mathsf T}\boldsymbol\beta,\qquad
+\zeta_1<\cdots<\zeta_{K-1}.
+$$ {#eq-ch12-cumulative-logit}
+
+The ordered $\zeta_j$ are thresholds, not effects. The predictor vector here
+omits the intercept entry because the thresholds supply the location
+constants. The minus sign used by `ordinal::clm()` and `MASS::polr()`
+means that a positive coefficient shifts probability toward higher
+categories. Thus $e^{\beta_j}$ multiplies the odds **above** either cut,
+not a single pair of categories.
+
+One useful picture imagines a continuous response
+$Y_i^*=\mathbf{x}_i^{\mathsf T}\boldsymbol\beta+\varepsilon_i$ with standard logistic
+error, observed only as the interval between fixed thresholds into which
+it falls. The shift changes how much probability lies in each interval.
+This is a representation of the model, not proof that an actual latent
+attitude has a logistic distribution.
+
+
+```{r}
+#| label: fig-ch12-thresholds
+#| fig-pos: H
+#| fig-cap: "The same thresholds divide two shifted logistic distributions into three ordered categories."
+#| fig-alt: "Fixed thresholds at minus one half and one and a half divide a logistic density. Moving its centre from minus one to plus one shifts probability from the lowest to the highest category."
+#| fig-height: 3.6
+#| fig-width: 6.2
+g <- expand.grid(value = seq(-7, 7, length.out = 601), centre = c(-1, 1))
+g$density <- dlogis(g$value, location = g$centre)
+g$category <- cut(g$value, c(-Inf, -.5, 1.5, Inf), labels = c("Low", "Middle", "High"))
+ggplot(g, aes(value, density)) + geom_area(aes(fill = category), alpha = .7) + geom_line() +
+ geom_vline(xintercept = c(-.5, 1.5), linetype = 2) + facet_wrap(~centre, labeller = label_both) +
+ scale_fill_grey(start = .25, end = .8) + labs(x = "Latent response", y = "Logistic density", fill = "Category") + theme(legend.position = "bottom")
+```
+
+
+### The common-slope restriction is testable
+
+The model uses the same slope vector at every cut. Consequently the
+cumulative log-odds difference between two otherwise comparable units is
+the same at each cut: **proportional odds**. A cut-specific alternative
+replaces $\boldsymbol\beta$ by $\boldsymbol\beta_j$. The common-slope
+model is nested in that alternative, so their likelihood comparison tests
+a real restriction [@mccullagh1980]. Ordering the outcome alone does not
+impose or justify it.
+
+**Start with a process whose truth is known.** Imagine a study of
+confidence, recorded as Low, Middle or High, and a preparation score $x$
+rescaled to lie between $-1$ and 1. We generate independent records with
+$x$ uniform over that range. For the two cumulative probabilities, set
+
+$$
+\operatorname{logit}\{P(Y\le 1\mid x)\}=-.5-b_1x,\qquad
+\operatorname{logit}\{P(Y\le 2\mid x)\}=2-b_2x.
+$$ {#eq-ch12-po-truth}
+
+These cumulative probabilities stay ordered throughout the chosen range,
+so their differences give valid Low, Middle and High probabilities. The
+first process uses $b_1=b_2=.6$: preparation has the same above-cut
+odds ratio at both splits. The second uses $b_1=.3$ and $b_2=1.5$:
+preparation is much more strongly related to reaching High than to
+leaving Low. Both processes describe ordered responses; only the first
+has proportional odds.
+
+**Predict and explain.** We fit a common-slope model to 4,000 records
+from each process. Which fitted lines must be parallel, and where might
+that restriction conceal a category-probability difference?
+
+```{r}
+#| include: false
+draw <- function(n, b = c(.6, .6)) {
+  x <- runif(n, -1, 1)
+  p1 <- plogis(-.5 - b[1] * x)
+  p2 <- plogis(2 - b[2] * x)
+  stopifnot(all(p1 < p2))
+  u <- runif(n)
+  data.frame(x, y = ordered(1 + (u > p1) + (u > p2)))
+}
+set.seed(1211)
+sim1 <- draw(4000)
+set.seed(1212)
+sim2 <- draw(4000, c(.3, 1.5))
+fit1 <- ordinal::clm(y ~ x, data = sim1)
+fit2 <- ordinal::clm(y ~ x, data = sim2)
+free2 <- ordinal::clm(y ~ 1, nominal = ~x, data = sim2)
+stopifnot(abs(coef(fit1)['x'] - .5253486262) < 1e-7,
+  abs(coef(fit2)['x'] - .6673200983) < 1e-7)
+```
+
+```{r}
+#| label: fig-ch12-po-process
+#| fig-pos: H
+#| fig-cap: "Known cumulative logits and the common-slope fits to two generated samples. The lower row makes the imposed restriction visible."
+#| fig-alt: "Four panels compare truth and fit. Common generating slopes of .6 yield a fitted common slope .5253. Different generating slopes .3 and 1.5 are forced into parallel fitted lines with slope .6673, hiding their different changes across preparation."
+#| fig-height: 4.4
+#| fig-width: 6.2
+g <- expand.grid(x = seq(-1, 1, length.out = 101),
+  cut = c("Low | higher", "Up to Middle | High"),
+  process = c("Common slopes", "Different slopes"),
+  view = c("Generating process", "Common-slope fit"))
+j <- match(g$cut, c("Low | higher", "Up to Middle | High"))
+g$logit <- NA_real_
+for (k in 1:2) {
+  rows <- g$process == c("Common slopes", "Different slopes")[k]
+  fit <- list(fit1, fit2)[[k]]
+  truth <- if (k == 1) c(.6, .6) else c(.3, 1.5)
+  g$logit[rows] <- ifelse(g$view[rows] == "Generating process",
+    c(-.5, 2)[j[rows]] - truth[j[rows]] * g$x[rows],
+    fit$alpha[j[rows]] - fit$beta * g$x[rows])
+}
+g$view <- factor(g$view,
+  levels = c("Generating process", "Common-slope fit"))
+ggplot(g, aes(x, logit, linetype = cut)) + geom_line(linewidth = .7) +
+  facet_grid(process ~ view) +
+  labs(x = "Preparation score (rescaled)",
+    y = "Cumulative log-odds", linetype = "Cut point") +
+  theme(legend.position = "bottom")
+```
+
+The fitted common slopes are .5253 and .6673. Sampling variation explains
+the first estimate's difference from its truth of .6. In the second
+sample, the model forces a compromise: its coefficient is a restricted
+likelihood summary, not an arithmetic average of the two true slopes.
+At $x=1$, the second process has High probability .3775, whereas its
+common-slope fit gives .2406. A plausible-looking coefficient can thus
+conceal a consequential error on the response scale.
+
+Freeing the slope at the second cut adds one parameter. The nested
+likelihood comparisons give $\chi^2(1)=.3466$, $p=.556$ for the first
+sample and $\chi^2(1)=176.0519$, $p<.0001$ for the second. The first
+result is compatible with common slopes; a nonsignificant test does not
+establish that restriction in an unknown population. For the second
+sample, the strong evidence and the probability discrepancy point in
+the same direction.
+
+\Needspace{5\baselineskip}
+
+```{r}
+#| echo: true
+#| eval: false
+fit2 <- ordinal::clm(y ~ x, data = sim2)
+free2 <- ordinal::clm(y ~ 1, nominal = ~x, data = sim2)
+anova(fit2, free2)
+```
+
+**Detection also depends on study size.** A less obvious departure,
+$b_1=.6$ and $b_2=.85$, illustrates why a diagnostic $p$-value needs
+context. Hold that process fixed and generate 500 independent studies at
+each of two sample sizes. Repeat the same comparison under the true
+common-slope process as a reference.
+
+| Process | Records per study | Rejections in 500 studies | Rejection proportion | Monte Carlo SE |
+|:--|--:|--:|--:|--:|
+| Common slopes | 300 | 25 | .050 | .0097 |
+| Common slopes | 6,000 | 23 | .046 | .0094 |
+| Different slopes | 300 | 75 | .150 | .0160 |
+| Different slopes | 6,000 | 470 | .940 | .0106 |
+
+: Repeated tests at the .05 level, with thresholds and predictor distribution held fixed. All fitted comparisons were valid; the 500 repetitions describe sampling variation across studies. {#tbl-ch12-po-detection tbl-colwidths="[16,18,25,23,18]"}
+
+The first two rows estimate false-positive rates when common slopes are
+true. The last two estimate power against this particular alternative.
+The same modest departure is detected much more often in the larger
+studies. More observations improve detection; they do not make the
+underlying departure larger. Conversely, a small study can miss a
+restriction that matters for its intended probability comparison.
+
+Each reported proportion also has simulation uncertainty. Its Monte
+Carlo standard error is $\sqrt{\widehat r(1-\widehat r)/500}$, where
+$\widehat r$ is the rejection proportion. This describes the precision
+of the simulation's rate estimate, not the uncertainty of a coefficient
+in one study. One simulated sample supplies one test result; repeated
+samples are needed to estimate a rejection rate. In an empirical study,
+we still need the fitted category probabilities and substantive context
+to judge what a detected departure means.
+
+The World Values Survey records order opinion as Too Little, About Right,
+Too Much government effort. Observed country proportions offer an early
+warning: Sweden's cumulative logit differs from Australia's by .3826
+at the lower cut but 2.009 at the upper. The gaps are not parallel.
+These are marginal summaries, so an adjusted model must still be checked
+rather than treating the graph as its formal test.
+
+
+```{r}
+#| label: fig-ch12-observed-logits
+#| fig-cap: "Observed cumulative logits by country, before adjustment."
+#| fig-alt: "Country gaps differ greatly between the two cut points. Norway and Sweden have much larger upper-cut logits than Australia, while the United States is lower at both cuts."
+#| fig-height: 3.6
+#| fig-width: 6.2
+o <- table(opinion$country, opinion$poverty); z <- prop.table(o, 1)
+p <- data.frame(country = rep(rownames(o), 2), logit = c(qlogis(z[,1]), qlogis(z[,1]+z[,2])),
+ cut = rep(c("Too Little | higher", "Up to About Right | Too Much"), each = nrow(o)))
+ggplot(p, aes(country, logit, group = cut, linetype = cut)) + geom_line() + geom_point(size = 2) +
+ labs(x = NULL, y = "Observed cumulative log-odds", linetype = "Cut point") + theme(legend.position = "bottom")
+```
+
+
+### Fit and interpret opinion among the recorded respondents
+
+The four samples contain 1,874 Australian, 1,127 Norwegian, 1,003 Swedish
+and 1,377 United States respondents. The comparison adjusts for age,
+recorded gender, membership of a religion and university degree. There
+are few Too Much responses in Norway (36) and Sweden (25), a support
+feature that will matter when checking fitted composition.
+
+
+```{r}
+#| eval: false
+#| echo: true
+po <- ordinal::clm(poverty ~ religion + degree + country + age + gender,
+  data = opinion)
+exp(confint(po, type = "Wald"))
+```
+
+| Term | Coefficient | SE | OR | 95% interval |
+|:--|--:|--:|--:|:--|
+| Threshold Too Little $\mid$ About Right | 0.7298 | 0.1041 | --- | --- |
+| Threshold About Right $\mid$ Too Much | 2.5325 | 0.1103 | --- | --- |
+| Member of a religion | 0.1797 | 0.0773 | 1.1969 | [1.0285, 1.3928] |
+| University degree | 0.1409 | 0.0662 | 1.1513 | [1.0112, 1.3108] |
+| Norway against Australia | $-0.3224$ | 0.0738 | 0.7244 | [0.6269, 0.8371] |
+| Sweden against Australia | $-0.6033$ | 0.0795 | 0.5470 | [0.4681, 0.6392] |
+| United States against Australia | 0.6178 | 0.0707 | 1.8548 | [1.6149, 2.1303] |
+| Age, per year | 0.0111 | 0.0016 | 1.0112 | [1.0081, 1.0143] |
+| Male against female | 0.1764 | 0.0530 | 1.1929 | [1.0752, 1.3234] |
+
+: Proportional-odds fit for opinion about government effort; $-2\ell=10402.5924$ on nine parameters, AIC 10420.5924. A positive coefficient shifts probability toward the higher ordered categories, from Too Little through About Right to Too Much. {#tbl-ch12-ordinal-fit tbl-colwidths="[36,14,12,12,26]"}
+
+
+Under this restriction, United States respondents have 1.8548 times the
+Australian respondents' cumulative odds above either cut at the same
+other predictor values: About Right/Too Much versus Too Little, and
+Too Much versus Too Little/About Right. It is not the odds of Too Much
+versus Too Little with About Right discarded.
+
+Check the sign convention on a profile. For a 45-year-old religious woman
+without a degree in Norway, subtract the linear predictor from each
+threshold and apply the inverse logit. The cumulative probabilities are
+.5917 and .8979; subtracting gives category probabilities .5917, .3062
+and .1021. A positive predictor shift decreases the cumulative probability
+below each cut and moves mass upward, as claimed.
+
+
+```{r}
+#| eval: false
+#| echo: true
+profile <- data.frame(religion = "yes", degree = "no",
+  country = "Norway", age = 45, gender = "female")
+predict(po, profile, type = "prob")
+```
+
+
+### Let the cut points have different contrasts
+
+`nominal_test()` checks a predictor's proportional-odds restriction by
+allowing its effects to differ across cuts within the cumulative-link
+family. Country gives $\chi^2(3)=362.3463$, $p<.0001$; degree gives
+10.2866 ($p=.0013$), age 5.0587 ($p=.0245$), gender 3.0902
+($p=.0788$) and religion .414 ($p=.52$). These checks identify a large
+country departure and smaller possible departures; a large p-value does
+not establish a restriction.
+
+
+```{r}
+#| eval: false
+#| echo: true
+ordinal::nominal_test(po)
+cutfit <- ordinal::clm(poverty ~ religion + degree + age + gender,
+  nominal = ~ country, data = opinion)
+anova(po, cutfit)
+```
+
+| Country against Australia | Common log-odds coefficient | Lower cut | Upper cut |
+|:--|--:|--:|--:|
+| Norway | $-0.3224$ | $-0.1227$ | $-1.7812$ |
+| Sweden | $-0.6033$ | $-0.4449$ | $-2.0687$ |
+| United States | 0.6178 | 0.3626 | 0.8727 |
+
+: One common coefficient against two cut-specific ones, all in the direction of the higher ordered categories. {#tbl-ch12-cutspecific tbl-colwidths="[34,22,22,22]"}
+
+
+For Norway, the single common coefficient $-.3224$ masks a small lower-cut
+contrast and a much larger upper-cut contrast. The striking feature is
+how few Norwegian respondents choose Too Much. AIC falls from 10420.5924
+to 10064.2461 for three more parameters; the fitted Too Much probability
+at the Norway profile falls from .1021 to .0289. This **partial
+proportional-odds** model frees country while retaining common slopes for
+the other predictors. Those remaining restrictions still require checking;
+freeing the largest departure does not settle every condition.
+
+```{r}
+#| label: fig-ch12-ordinal-comparison
+#| fig-cap: "Relaxing the country restriction reallocates probability across the opinion categories."
+#| fig-alt: "Four country panels compare common and cut-specific country slopes at the same profile. Norway Too Much falls from .1021 to .0289; the United States About Right category also changes substantially."
+#| fig-height: 4.4
+#| fig-width: 6.2
+profile <- data.frame(religion = "yes", degree = "no", country = levels(opinion$country),
+  age = 45, gender = "female")
+a <- predict(po, newdata = profile, type = "prob")$fit
+b <- predict(cutfit, newdata = profile, type = "prob")$fit
+z <- data.frame(country = rep(profile$country, 6),
+  category = rep(rep(colnames(a), each = nrow(profile)), 2),
+  model = rep(c("Common slopes", "Cut-specific country"), each = length(a)),
+  probability = c(a, b))
+z$category <- factor(z$category, levels = colnames(a))
+ggplot(z, aes(category, probability, fill = model)) +
+  geom_col(position = "dodge", width = .75) + facet_wrap(~country) +
+  scale_fill_grey(start = .3, end = .75) +
+  labs(x = NULL, y = "Fitted probability", fill = NULL) +
+  theme(legend.position = "bottom", axis.text.x = element_text(size = 9))
+```
+
+The paired bars hold age, religion, degree and gender fixed. Follow all
+three probabilities when the country restriction is relaxed: probability
+removed from Norway's Too Much category must go somewhere else. In the
+United States panel the largest shift is in About Right. The figure shows
+how a restriction can alter the substantive description, not just a
+p-value. These are conditional profile comparisons, not country averages;
+better in-sample agreement does not establish the remaining restrictions.
+
+A common-slope estimate after a demonstrated violation is at best a
+model-dependent compromise, not a literal arithmetic average of the
+cut-specific coefficients. Report cut-specific comparisons and fitted
+probabilities when they explain the substantive pattern.
+
+The known-truth example in Section 3.2 separated detection from its
+consequences. Here the generating process is unknown, but the same
+interpretive step is available: inspect the probabilities at profiles
+that matter. The simulation's rejection rates are not power estimates
+for these survey records. The Norwegian profile shows a practical
+consequence of this fitted restriction beyond the small $p$-value.
+
+### Separate ordering from proportional odds
+
+Return to employment and stipulate the order not working, part time,
+full time. The proportional-odds fit has four parameters, deviance
+441.663 and AIC 449.663; the nominal fit has six parameters, deviance
+422.8819 and AIC 434.8819. The lower nominal AIC favors its probability
+surface among these candidates on the same records.
+
+These are generally **nonnested** families. Linear cumulative logits do
+not generally produce linear baseline-category logits, so subtracting
+the two deviances and calling the difference chi-square on two df is
+invalid. Valid common-slope checks compare cumulative models with common
+and cut-specific slopes: here income gives 4.1382 ($p=.0419$), and
+children 11.2982 ($p=.0008$). They challenge proportional odds, not the
+logical ordering of employment intensity.
+
+
+```{r}
+#| eval: false
+#| echo: true
+dat$ord <- factor(dat$partic,
+  levels = c("not.work", "parttime", "fulltime"), ordered = TRUE)
+ord <- MASS::polr(ord ~ hincome + children, data = dat, Hess = TRUE)
+AIC(ord, nom)
+ordinal::nominal_test(ordinal::clm(ord ~ hincome + children, data = dat))
+```
+
+
+A nominal analysis remains natural for a question about distinct employment
+roles. If an ordered construct is substantively warranted, relaxing
+proportional odds can preserve that ordering. Conversely, good fit cannot
+make an arbitrary ordering meaningful. Collapsing adjacent categories
+also changes the measurement and estimand; a better statistic on the
+collapsed outcome cannot justify the merge because the outcome changed.
+
+
+## Counts and Rates: Poisson Regression {#ch12-counts}
+
+### A positive mean with a specified variance
+
+For count $Y_i$, the Poisson model assigns probabilities
+$P(Y_i=y\mid \mathbf{x}_i)=e^{-\mu_i}\mu_i^y/y!$ for integers $y\ge0$.
+The **log link** connects its positive mean to a linear predictor:
+
+$$
+\log\mu_i=\eta_i=\beta_0+\sum_j\beta_jx_{ij},\qquad
+\mu_i=e^{\beta_0}\prod_j e^{\beta_jx_{ij}}.
+$$ {#eq-ch12-log-link}
+
+Adding a coefficient on the log scale multiplies the expected count by
+its exponential. Unlike an unrestricted straight mean, this function
+cannot predict a negative count. A fitted mean can be fractional even
+though an observed count is an integer, because it is an expectation
+over repeated observations rather than one possible observation.
+
+The Poisson distribution ties spread to the mean:
+
+$$
+\operatorname{Var}(Y_i\mid \mathbf{x}_i)=E(Y_i\mid \mathbf{x}_i)=\mu_i.
+$$ {#eq-ch12-poisson-var}
+
+There is no separately fitted residual SD. As the mean rises the spread
+rises, while the distribution becomes less skewed. This variance condition
+will be the central problem in the absence data.
+
+
+```{r}
+#| eval: false
+#| echo: true
+dpois(0:5, lambda = 2)
+exp(c(0, 1, 2))
+```
+
+
+```{r}
+#| label: fig-ch12-poisson-pmf
+#| fig-cap: "Poisson distributions at means 2, 8 and 20; the conditional variance equals the mean in each panel."
+#| fig-alt: "Three bar distributions over nonnegative integers become wider and less right-skewed as their means rise from two to eight to twenty."
+#| fig-height: 3.0
+#| fig-width: 6.2
+p <- expand.grid(count = 0:40, mean = c(2, 8, 20)); p$prob <- dpois(p$count, p$mean)
+ggplot(p, aes(count, prob)) + geom_col(fill = "grey40", width = .8) +
+ facet_wrap(~mean, labeller = label_both) + labs(x = "Count", y = "Probability")
+```
+
+
+```{r}
+#| label: fig-ch12-log-link
+#| fig-cap: "An additive log mean implies multiplicative expected counts."
+#| fig-alt: "A straight line on the log-mean scale corresponds to a rising convex curve for expected counts."
+#| fig-height: 3.0
+#| fig-width: 6.2
+x <- seq(0, 6, length.out = 121)
+p <- rbind(data.frame(x, value = 1 + .3*x, scale = "Log expected count"),
+ data.frame(x, value = exp(1 + .3*x), scale = "Expected count"))
+ggplot(p, aes(x, value)) + geom_line(linewidth = .8) + facet_wrap(~scale, scales = "free_y") + labs(x = "Predictor", y = NULL)
+```
+
+
+### Ratios and counts in the absence study
+
+For one predictor unit at the same other predictor values,
+$\mu(x_j+1)/\mu(x_j)=e^{\beta_j}$. This **incidence-rate ratio**
+(IRR) compares expected counts when windows are common, or expected
+rates when exposure is accounted for. It is not a probability, an odds
+ratio or a within-person change. A constant ratio already implies larger
+absolute differences at larger baseline means; a ratio that itself
+changes with another predictor is an interaction on the log scale.
+
+The `quine` study records days absent in one academic year. Its ethnic
+and learner classifications are the historical study's own labels, not
+claims about inherent group qualities. We use the stated common academic
+year as the exposure, while recognizing that unrecorded enrollment or
+attendance-recording differences would undermine that comparison.
+
+
+```{r}
+#| label: fig-ch12-absence-distribution
+#| fig-cap: "Recorded days absent among 146 pupils in a rural New South Wales study."
+#| fig-alt: "Absences have a floor at zero, with nine zero counts, and a long right tail extending to eighty-one days."
+#| fig-height: 3.1
+#| fig-width: 6.2
+ggplot(absence, aes(Days)) + geom_histogram(binwidth = 5, boundary = -.5, fill = "grey65", colour = "white") +
+ labs(x = "Days absent in the academic year", y = "Pupils")
+```
+
+
+The observed mean is 16.4589 days, variance 264.1673, and quartiles
+5, 11 and 22.75. That marginal variance is much larger than the marginal
+mean, but heterogeneous expected means alone can create such a difference.
+We must first condition on the predictors before diagnosing overdispersion.
+
+| Field | What it records | Reference level in the model |
+|:--|:--|:--|
+| Days | Days absent in the academic year | Outcome count |
+| Eth | Historical Aboriginal/not-Aboriginal classification | A: Aboriginal |
+| Sex | Recorded sex | F: female |
+| Age | School form, a four-level factor | F0: primary form |
+| Lrn | Historical learner classification | AL: average learner |
+
+: Variables and reference levels in the absence analysis. {#tbl-ch12-count-data tbl-colwidths="[18,47,35]"}
+
+
+```{r}
+#| eval: false
+#| echo: true
+mp <- glm(Days ~ Eth + Sex + Age + Lrn,
+  family = poisson(link = "log"), data = absence)
+exp(coef(mp))
+```
+
+| Term | Coefficient | SE | IRR |
+|:--|--:|--:|--:|
+| Intercept | 2.7154 | 0.0647 | 15.1104 |
+| Not Aboriginal | $-0.5336$ | 0.0419 | 0.5865 |
+| Male | 0.1616 | 0.0425 | 1.1754 |
+| Form 1 | $-0.3339$ | 0.0701 | 0.7161 |
+| Form 2 | 0.2578 | 0.0624 | 1.2941 |
+| Form 3 | 0.4277 | 0.0677 | 1.5337 |
+| Slow learner | 0.3489 | 0.0520 | 1.4176 |
+
+: Poisson fit for days absent; residual deviance 1696.7066 on 139 df, null deviance 2073.5328 on 145, AIC 2299.1836. Reference child: Aboriginal, female, primary form, average learner. {#tbl-ch12-poisson-fit tbl-colwidths="[34,22,22,22]"}
+
+
+The reference child's fitted expected absence is 15.1104 days.
+The not-Aboriginal/Aboriginal IRR is .5865, at the same other recorded
+classifications. That ratio is interpretable only beside its baseline:
+it implies 8.862 expected days for a female average learner in F0
+classified as not Aboriginal. These are conditional group descriptions,
+not effects of changing an identity or classification.
+
+The output's small p-values might initially appear impressive, but its
+residual deviance is 1696.7066 on 139 df. The conditional variance check
+in Section 5 shows why the usual Poisson standard errors are too small.
+The number of small p-values alone is not the diagnosis.
+
+### Exposure is part of the estimand
+
+If unit $i$ is observed for $t_i$ days, person-years or another exposure,
+let $\lambda_i$ denote its event rate. Then $\mu_i=t_i\lambda_i$.
+A log-linear rate model gives
+
+$$
+\log\mu_i=\log t_i+\beta_0+\sum_j\beta_jx_{ij}.
+$$ {#eq-ch12-offset}
+
+The exposure term has a coefficient fixed at one. Such a known-coefficient
+predictor is an **offset**. Doubling exposure doubles the expected count
+while retaining the same rate, a substantive restriction about how events
+accumulate. It is appropriate only when that relation matches the process
+and the exposure has been measured adequately.
+
+Before fitting a rate model, name the event, the observation window and
+whether that window differs across units. Without the offset the
+coefficients compare counts over those potentially different windows;
+with it they compare rates. When exposure is related to predictors,
+omitting it can move slopes as well as the intercept. Even with equal
+exposure, naming it tells the reader what a count means.
+
+An offset has no estimated coefficient, SE or p-value. To assess the
+proportional-exposure restriction, fit a free coefficient $\gamma$ on
+$\log t_i$ and compare it with 1. Here $\gamma$ is a locally defined
+exposure coefficient, distinct from the cumulative probabilities
+$\gamma_{ij}$ in Section 3. The question is whether the stipulated
+accumulation rule is consistent with the data, not whether exposure is
+"significant" and can therefore be dropped.
+
+### A known process with unequal observation windows
+
+The invented district example records behavioral referrals for 500
+students. Higher screening risk makes mobility more probable, so students
+with higher rates tend to have fewer enrolled days. Mentoring is related
+to risk in the generated records. The declared conditional process is
+
+$$
+\log\lambda_i=-4.2-.35\,\mathrm{mentor}_i+.45\,\mathrm{risk}_i,
+\qquad Y_i\sim\operatorname{Poisson}(t_i\lambda_i).
+$$ {#eq-ch12-sim-truth}
+
+The true mentoring and risk IRRs are .7047 and 1.5683. At seed 1202,
+125 students have fewer than the full 180 days; exposure ranges from
+31 to 180, correlating $-.2976$ with risk. The 79,090 enrolled days
+contain 1,195 referrals. Thus observation time and propensity for events
+must be separated to recover the declared rate comparison.
+
+
+```{r}
+#| eval: false
+#| echo: true
+ratefit <- glm(events ~ mentor + risk, offset = log(days),
+  family = poisson, data = sim)
+countfit <- glm(events ~ mentor + risk, family = poisson, data = sim)
+exp(coef(ratefit))
+exp(coef(countfit))
+```
+
+
+```{r}
+#| label: fig-ch12-exposure
+#| fig-cap: "Counts depend on both rate and exposure in the invented 500-student study."
+#| fig-alt: "Two scatterplots by mentoring show incident counts rising in spread with enrolled days, with a dense stripe at one hundred eighty days."
+#| fig-height: 3.1
+#| fig-width: 6.2
+ggplot(sim, aes(days, events)) + geom_jitter(width = 1.1, height = .13, alpha = .35) +
+ facet_wrap(~mentor, labeller = label_both) + labs(x = "Enrolled days", y = "Incident referrals")
+```
+
+| Quantity | Truth | Offset model | Offset omitted |
+|:--|--:|--:|--:|
+| Mentoring IRR | 0.7047 | 0.7024 | 0.7174 |
+| Risk IRR | 1.5683 | 1.5700 | 1.4192 |
+| Intercept, daily rate | 0.0150 | 0.0157 | --- |
+| Residual deviance | --- | 521.9792 | 666.1568 |
+| Pearson dispersion statistic | 1 | 0.9438 | 1.2050 |
+
+: A declared process recovered with and without its exposure offset; 500 generated students, seed 1202. {#tbl-ch12-offset tbl-colwidths="[36,16,24,24]"}
+
+
+The offset fit recovers the declared IRRs: .7024 [.6202, .7955] for
+mentoring and 1.57 [1.4791, 1.6665] for risk. Omitting exposure moves
+the risk IRR to 1.4192, because less observed time partly conceals higher
+rates. The demonstration concerns a stipulated conditional process; it
+does not make observational mentoring coefficients causal in a real district.
+
+A free exposure coefficient gives 1.1631 (SE .1124), with interval
+[.9429, 1.3833]. Testing $\gamma=1$ gives Wald $z=1.4517$,
+$p=.1466$, and a nested likelihood statistic 2.197, $p=.1383$.
+The records are compatible with proportional accumulation, while the
+interval describes the remaining uncertainty about that restriction.
+
+
+```{r}
+#| eval: false
+#| echo: true
+freefit <- glm(events ~ mentor + risk + log(days),
+  family = poisson, data = sim)
+confint.default(freefit)["log(days)", ]
+```
+
+| Profile | Rate per 100 enrolled days | Expected count, 180 days | Expected count, 60 days |
+|:--|--:|--:|--:|
+| Not mentored, average risk | 1.5721 | 2.8298 | 0.9433 |
+| Mentored, average risk | 1.1043 | 1.9877 | 0.6626 |
+| Not mentored, risk one SD higher | 2.4682 | 4.4427 | 1.4809 |
+| Mentored, risk one SD higher | 1.7337 | 3.1206 | 1.0402 |
+
+: Fitted rates at four profiles and the counts they imply over two observation windows; 500 generated students, seed 1202. {#tbl-ch12-rates-counts tbl-colwidths="[34,22,22,22]"}
+
+
+The rates in a row are stable across windows, but the 180-day expected
+count is three times the 60-day count. One fitted number without its
+window would leave the study's main distinction invisible. These generated
+counts have marginal variance-to-mean ratio 1.599, yet the correctly
+specified conditional Pearson ratio is .9438. A marginal ratio above
+one therefore does not establish conditional overdispersion.
+
+## Overdispersion: Quasi-Poisson and the Negative Binomial {#ch12-dispersion}
+
+### Compare spread around conditional means
+
+**Overdispersion** means conditional variance exceeds the conditional
+mean, relative to the Poisson variance assumption. If $k$ coefficients
+are estimated, a common diagnostic is the mean squared Pearson residual:
+
+$$
+\widehat\phi=\frac{1}{n-k}\sum_i\frac{(y_i-\widehat\mu_i)^2}{\widehat\mu_i}.
+$$ {#eq-ch12-dispersion}
+
+With an adequate Poisson mean and variance it estimates a value near one.
+The deviance ratio $D/(n-k)$ is a rough companion diagnostic, whose
+behavior also depends on the expected counts. It is not automatically a
+conservative or interchangeable estimate of dispersion.
+
+
+```{r}
+#| eval: false
+#| echo: true
+sum(residuals(mp, type = "pearson")^2) / df.residual(mp)
+deviance(mp) / df.residual(mp)
+var(absence$Days) / mean(absence$Days)
+```
+
+
+The absence fit has Pearson ratio 13.1668, deviance ratio 12.2065
+and marginal ratio 16.0501. The first two already condition on the four
+recorded predictors. Binning similar fitted means makes the excess spread
+concrete, although bins still contain some mean heterogeneity and their
+raw variance-to-mean ratios are descriptive rather than exact tests.
+
+| Fitted-value bin | Children | Observed mean | Observed variance | Variance / mean |
+|:--|--:|--:|--:|--:|
+| 1 | 36 | 8.0000 | 55.1429 | 6.8929 |
+| 2 | 26 | 11.6538 | 91.8354 | 7.8803 |
+| 3 | 33 | 19.6364 | 374.9886 | 19.0966 |
+| 4 | 29 | 17.5172 | 193.8300 | 11.0651 |
+| 5 | 22 | 29.8182 | 437.2987 | 14.6655 |
+
+: Observed mean and variance within five bins of Poisson-fitted values. Bins pool unequal fitted means, so their ratios are descriptive; some excess above 1 can come from remaining mean variation within a bin. {#tbl-ch12-bins tbl-colwidths="[22,16,20,22,20]"}
+
+
+Before changing the variance family, consider the mean, exposure,
+recording process and dependence. All four predictors are factors, but
+the additive log mean still restricts interactions. Adding ethnicity by
+form improves deviance by 153.87 on three df and leaves a Pearson ratio
+of 11.7342. This particular interaction explains little of the excess
+spread; it does not prove every other mean specification correct. The
+comparison below retains the additive mean as a working approximation
+while examining what variance assumptions do to uncertainty.
+
+If the mean is correct and independent-row regularity conditions hold,
+Poisson estimating equations can consistently estimate its coefficients
+even with a wrong variance [@cameron2013]. The conventional model-based
+SEs can then be seriously wrong. Under variance $\phi\mu$, a variance
+multiplier near 13 makes those SEs too small by about $\sqrt{13}$.
+That mechanism, rather than impressive-looking p-values, motivates a remedy.
+
+### Quasi-Poisson preserves the fitted mean
+
+Quasi-Poisson keeps the same log mean and specifies
+$\operatorname{Var}(Y_i\mid \mathbf{x}_i)=\phi\mu_i$. Its coefficient estimating
+equations match the Poisson equations, so the estimates are identical;
+SEs multiply by $\sqrt{\widehat\phi}$. Here the multiplier is 3.6286.
+R's summary coefficient tests use an approximate $t$ reference. The
+reported `confint.default()` intervals instead use the large-sample
+Normal Wald reference, a distinction that should remain explicit.
+
+
+```{r}
+#| eval: false
+#| echo: true
+mq <- glm(Days ~ Eth + Sex + Age + Lrn,
+  family = quasipoisson, data = absence)
+exp(confint.default(mq))
+drop1(mq, test = "F")
+```
+
+
+The not-Aboriginal IRR stays .5865, while its interval widens from
+[.5403, .6367] to [.4354, .7900]. None of the three individual form
+contrasts excludes one, yet the whole form block gives
+$F(3,139)=4.5966$, $p=.0042$. A joint factor comparison and a single
+contrast against one arbitrary reference answer different questions.
+
+Quasi-likelihood specifies no complete outcome distribution. Consequently
+there is no ordinary log-likelihood, AIC or BIC, and R returns `NA` for
+AIC deliberately. Nested quasi-Poisson mean models can be compared using
+approximate scaled-deviance $F$ tests. A predictive count distribution
+also needs assumptions beyond this mean-and-variance specification.
+
+### Negative binomial changes the distribution and weighting
+
+The negative binomial supplies a full distribution with
+
+$$
+E(Y_i\mid \mathbf{x}_i)=\mu_i,\qquad
+\operatorname{Var}(Y_i\mid \mathbf{x}_i)=\mu_i+\frac{\mu_i^2}{\theta},\qquad\theta>0.
+$$ {#eq-ch12-nb-var}
+
+One interpretation mixes Poisson rates across units sharing the same
+observed predictors, with a gamma mixing factor of mean one. That gives
+quadratic extra variance in the mean [@hilbe2011]. It is a possible
+mechanism, not something uniquely established by a fitted negative-binomial
+curve. Small $\theta$ means more overdispersion; as $\theta$ grows,
+the variance approaches Poisson.
+
+Quasi-Poisson has constant variance-to-mean multiplier $\phi$, whereas
+the negative binomial's multiplier $1+\mu/\theta$ increases with the
+mean. Thus the two families disagree about how variability grows across
+profiles, not merely about one correction factor.
+
+
+```{r}
+#| eval: false
+#| echo: true
+mn <- MASS::glm.nb(Days ~ Eth + Sex + Age + Lrn, data = absence)
+mn$theta
+exp(confint.default(mn))
+```
+
+
+```{r}
+#| label: fig-ch12-variance-functions
+#| fig-cap: "Variance functions fitted to the absence records, with descriptive binned means and variances."
+#| fig-alt: "The Poisson identity line lies far below the observed binned variation. The quasi-Poisson straight line and negative-binomial curve cross around mean fifteen and a half days."
+#| fig-height: 3.6
+#| fig-width: 6.2
+bin <- cut(fitted(mp), quantile(fitted(mp), seq(0, 1, .2)), include.lowest = TRUE)
+b <- data.frame(mean = as.numeric(tapply(absence$Days, bin, mean)), variance = as.numeric(tapply(absence$Days, bin, var)))
+x <- seq(0, 32, length.out = 201); phi <- summary(mq)$dispersion
+v <- rbind(data.frame(mean = x, variance = x, family = "Poisson"),
+ data.frame(mean = x, variance = phi*x, family = "Quasi-Poisson"),
+ data.frame(mean = x, variance = x+x^2/mn$theta, family = "Negative binomial"))
+ggplot(v, aes(mean, variance, linetype = family)) + geom_line(linewidth = .8) +
+ geom_point(data = b, aes(mean, variance), inherit.aes = FALSE, size = 2.5) +
+ labs(x = "Mean days absent", y = "Variance", linetype = NULL) + theme(legend.position = "bottom")
+```
+
+
+The fit gives $\widehat\theta=1.2749$ (SE .161) and Pearson ratio
+.9912. Large fitted means receive less information weight relative to
+Poisson, so coefficients change as well as SEs. The not-Aboriginal IRR
+becomes .5659 with interval [.4190, .7643]. This is a new likelihood
+fit, not the old fit with a rescaled covariance matrix.
+
+### Compare remedies against the question and the evidence
+
+| Term | IRR, Poisson and quasi | SE, Poisson | SE, quasi | IRR, negative binomial | SE, negative binomial |
+|:--|--:|--:|--:|--:|--:|
+| Intercept | 15.1104 | 0.0647 | 0.2347 | 18.0759 | 0.2284 |
+| Not Aboriginal | 0.5865 | 0.0419 | 0.1520 | 0.5659 | 0.1533 |
+| Male | 1.1754 | 0.0425 | 0.1543 | 1.0858 | 0.1599 |
+| Form 1 | 0.7161 | 0.0701 | 0.2543 | 0.6386 | 0.2397 |
+| Form 2 | 1.2941 | 0.0624 | 0.2265 | 1.0921 | 0.2362 |
+| Form 3 | 1.5337 | 0.0677 | 0.2456 | 1.4289 | 0.2483 |
+| Slow learner | 1.4176 | 0.0520 | 0.1888 | 1.3392 | 0.1865 |
+
+: Days absent under three variance specifications on the same 146 records. SEs are on the log-coefficient scale, not the IRR scale. The conditional-dispersion evidence motivates comparing uncertainty specifications. {#tbl-ch12-three-fits tbl-colwidths="[24,17,13,13,17,16]"}
+
+
+The SE columns are on the coefficient's log scale, not the IRR scale.
+Quasi-Poisson multiplies them all by 3.6286; negative binomial changes
+them by different factors. Under both, ethnicity is the only individual
+contrast whose 95% interval excludes one. Form remains jointly informative:
+negative-binomial deletion tests give approximately $\chi^2(3)=11.979$,
+$p=.0075$. These package deletion tests hold its fitted dispersion
+parameter fixed; refitting dispersion in every reduced model is a different
+likelihood comparison and should be labeled as such.
+
+| Response | Target it serves | Plausible mechanism | Checking evidence |
+|:--|:--|:--|:--|
+| Quasi-Poisson | The same mean model with honest uncertainty, where no likelihood-based comparison is needed | A constant variance-to-mean multiplier across the fitted range | $\widehat\phi$ far above 1, with the binned variance-to-mean ratio roughly level in the fitted mean |
+| Negative binomial | A full likelihood, for information criteria, intervals or a predicted count distribution | The Poisson mean varies across units sharing predictor values, so variability grows with the mean | $\widehat\phi$ far above 1, with the binned ratio rising in the fitted mean, and a Pearson statistic near 1 after the refit |
+| Revise the mean instead | The same question, answered with a mean the records support | An omitted predictor, an unmodelled interaction, or a missing exposure | Enriching the mean removes most of the excess spread |
+
+: Choosing a variance specification from the target, the mechanism and the checking evidence. {#tbl-ch12-family-choice tbl-colwidths="[16,28,28,28]"}
+
+
+AIC is 2299.1836 for Poisson and 1109.151 for negative binomial; there
+is no quasi-Poisson entry. The Poisson limit is $1/\theta=0$, on the
+boundary of the negative-binomial parameter space. Under appropriate
+regularity conditions the likelihood-ratio null reference is a half-mass
+at zero and half $\chi^2_1$ mixture, not ordinary chi-square on one df.
+Here the large likelihood improvement accompanies compelling dispersion
+evidence; it does not excuse checking mean structure or dependence.
+Other mixture or zero-inflation comparisons can have further unidentified
+parameters, so this exact mixture must not be assumed universal.
+
+Before reading the diagnostic numbers, predict which model can place more
+probability in both tails while retaining similar mean comparisons.
+
+A fitted count mean does not show how much probability the model assigns
+to zero or to a long upper tail. For each pupil, the fitted model assigns
+a probability to each count band. Adding those probabilities across
+pupils gives the expected number in that band. This preserves the pupils'
+different fitted means. Substituting one overall mean would instead
+create a different distribution.
+
+
+```{r}
+#| eval: false
+#| echo: true
+sum(dpois(0, fitted(mp)))
+sum(dnbinom(0, mu = fitted(mn), size = mn$theta))
+sum(ppois(50, fitted(mp), lower.tail = FALSE))
+```
+
+
+```{r}
+#| label: tbl-ch12-count-bands
+#| tbl-cap: "Observed and fitted count-band totals; the final band includes the entire upper tail."
+#| tbl-colwidths: [25,25,25,25]
+breaks <- c(-1, 0, 2, 5, 10, 20, 50, Inf)
+band <- c("0", "1-2", "3-5", "6-10", "11-20", "21-50", "51 or more")
+expect <- function(fit, theta = NULL) {
+  F <- sapply(breaks, function(q) if (is.null(theta)) ppois(q, fitted(fit)) else
+    pnbinom(q, mu = fitted(fit), size = theta))
+  colSums(F[, -1, drop = FALSE] - F[, -ncol(F), drop = FALSE])
+}
+knitr::kable(data.frame(Band = band,
+  Observed = as.vector(table(cut(absence$Days, breaks, labels = band))),
+  Poisson = expect(mp), `Negative binomial` = expect(mn, mn$theta),
+  check.names = FALSE), digits = c(0, 0, 4, 4), row.names = FALSE)
+```
+
+```{r}
+#| label: fig-ch12-count-bands
+#| fig-cap: "Observed and fitted count-band totals show where the two count distributions differ."
+#| fig-alt: "The Poisson model assigns almost no pupils to zero or above fifty days absent, although nine and eight were observed. Negative binomial places appreciable mass in both tails and reduces the Poisson excess in the eleven-to-twenty-day band."
+#| fig-height: 3.6
+#| fig-width: 6.2
+z <- data.frame(band = rep(band, 3),
+  source = rep(c("Observed", "Poisson", "Negative binomial"), each = length(band)),
+  pupils = c(as.vector(table(cut(absence$Days, breaks, labels = band))),
+    expect(mp), expect(mn, mn$theta)))
+z$band <- factor(z$band, levels = band)
+z$source <- factor(z$source, levels = c("Observed", "Poisson", "Negative binomial"))
+ggplot(z, aes(band, pupils, fill = source)) + geom_col(position = "dodge", width = .8) +
+  scale_fill_grey(start = .2, end = .8) +
+  labs(x = "Days absent", y = "Number of pupils", fill = NULL) +
+  theme(legend.position = "bottom")
+```
+
+The Poisson fit expects almost no zero counts and almost no counts above
+50; nine and eight were observed. The negative-binomial distribution
+places appreciable probability in both regions. Its total expectations
+sum to 146, just as the observed counts do. Summing only counts from 0
+to 100 would silently lose some of its upper tail, so the last band is
+calculated with the distribution function all the way to infinity.
+
+These are fitted, model-dependent comparisons. Their discrepancy is a
+useful diagnostic, not automatically a chi-square test with a degrees-of-
+freedom count obtained by subtracting arbitrary numbers of bins and
+parameters. Several expected Poisson totals are very small, and every
+pupil has a different fitted distribution. A reference distribution for
+a formal statistic would need an argument or a simulation reflecting
+this fitting procedure.
+
+Quasi-Poisson specifies a mean and a variance, not a full count
+distribution. There is therefore no corresponding quasi-Poisson column
+of expected band probabilities without adding a distributional
+assumption. This is the same reason its fitted variance alone does not
+supply a likelihood-based AIC.
+
+
+## Check and Compare Across the Family {#ch12-checking}
+
+### Residuals use a model-specific yardstick
+
+For counts, a Pearson residual is
+$(y_i-\widehat\mu_i)/\sqrt{V(\widehat\mu_i)}$; a signed deviance
+residual uses the square root of that observation's deviance contribution.
+They are read against their own response family, not against an assumed
+Normal residual cloud. The largest absolute Pearson residual in the
+absence fit falls from 13.5933 under Poisson to 3.7975 under negative
+binomial; the corresponding maximum deviance residual falls from 9.9091
+to 2.7918. The pupil absent 81 days has fitted means 27.7199 and 26.4371:
+the large change is the variance yardstick, not a disappearance of the
+unusual observation.
+
+### Compare observed and fitted composition
+
+For categories, group records meaningfully and sum fitted probabilities
+to obtain expected counts. The descriptive discrepancy
+$X^2=\sum(O-E)^2/E$ shows where a model misses. Automatically attaching
+a chi-square reference is risky when continuous predictor values are
+pooled into coarse cells, parameters were estimated on ungrouped data,
+or expected cells are small.
+
+For the nominal labour-force fit, total fitted category counts match
+155, 66 and 42 to numerical precision because of the intercept score
+equations. Within eight income-band-by-children groups, $X^2=12.4195$,
+with smallest fitted cell 1.0738. Read that as a display diagnostic,
+not a calibrated goodness-of-fit test with a mechanically subtracted df.
+The empty high-income full-time cell with children present remains a
+support question even if overall composition looks reasonable.
+
+| Country | Observed Too Much | Proportional odds | Cut-specific |
+|:--|--:|--:|--:|
+| Australia | 300 | 271.1860 | 300.0223 |
+| Norway | 36 | 126.8882 | 36.3260 |
+| Sweden | 25 | 89.7115 | 24.9734 |
+| United States | 450 | 344.1366 | 448.1760 |
+
+: Observed and fitted counts in the highest ordered category, by country. Over all twelve country-by-category cells, $X^2=322.9447$ under proportional odds and 0.0164 under the cut-specific model. {#tbl-ch12-composition tbl-colwidths="[28,24,24,24]"}
+
+
+The proportional-odds fit expects about 127 Norwegian and 90 Swedish
+Too Much responses where 36 and 25 occurred. The cut-specific model
+brings those expectations much closer. This discrepancy shows what the
+restriction was concealing on the scale of the data. Close in-sample
+agreement after adding flexibility is useful but is not held-out validation.
+
+
+```{r}
+#| eval: false
+#| echo: true
+vars <- c("religion", "degree", "country", "age", "gender")
+P <- predict(po, newdata = opinion[, vars], type = "prob")$fit
+colSums(P)
+table(opinion$country, opinion$poverty)
+```
+
+
+### Match comparison rules to the fitted models
+
+AIC and BIC use $-2\ell+2k$ and $-2\ell+k\log n$, counting all estimated
+parameters. Nominal slopes enter $K-1$ equations; cumulative models count
+thresholds; negative-binomial criteria count dispersion as well as mean
+coefficients. Compare likelihoods only for the same records, outcome
+coding and likelihood convention.
+
+| Records and outcome | Model | $k$ | Deviance or $-2\ell$ | AIC |
+|:--|:--|--:|--:|--:|
+| 263 women, three participation categories | Null | 2 | 500.4926 | 504.4926 |
+| | Husband's income only | 4 | 486.4405 | 494.4405 |
+| | Children only | 4 | 438.0351 | 446.0351 |
+| | Proportional odds, both predictors | 4 | 441.6630 | 449.6630 |
+| | Generalized logits, both predictors | 6 | 422.8819 | 434.8819 |
+| 5,381 respondents, three ordered categories | Null | 2 | 10740.3765 | 10744.3765 |
+| | Without country | 6 | 10653.4731 | 10665.4731 |
+| | Proportional odds | 9 | 10402.5924 | 10420.5924 |
+| | Cut-specific country | 12 | 10040.2461 | 10064.2461 |
+| 146 pupils, days absent | Poisson | 7 | 1696.7066 | 2299.1836 |
+| | Quasi-Poisson | 7 | 1696.7066 | none |
+| | Negative binomial | 8 | 167.9518 | 1109.1510 |
+
+: Likelihood criteria within each set of records. Check nesting separately; count-model deviances use different saturated likelihoods. {#tbl-ch12-criteria tbl-colwidths="[30,28,8,17,17]"}
+
+
+Within the women block, the proportional-odds and generalized-logit rows
+can be compared by AIC but are not a nested chi-square comparison. Within
+the opinion block, freeing country slopes is a nested comparison in the
+same cumulative-link family. In the count block, Poisson and
+negative-binomial deviances use different saturated likelihoods: their
+deviance difference is not their likelihood-ratio statistic. Their AICs
+use comparable complete likelihoods, with the boundary qualification for
+a formal test. Nothing is comparable across the three datasets' blocks.
+
+### What changing a family cannot repair
+
+A variance remedy cannot supply a missing exposure, recover an unmeasured
+predictor, undo measurement error or establish independent sampling.
+Pupils within schools, patients within clinics and repeated observations
+need dependence-aware uncertainty or models. Counts truncated or censored
+by a recording rule need that rule represented; an estimated population
+denominator adds uncertainty that a fixed offset does not include.
+The choice set in a nominal model and the substantive order in an ordinal
+model are also claims about measurement, not facts certified by a small
+residual or a favorable criterion.
+
+## From Analysis to a Defensible Claim {#ch12-claim}
+
+### Use the outcome scale alongside the ratio
+
+A report states the analytic units and question, response model and coding,
+ratio and its interval, fitted probabilities or counts at named profiles,
+condition checks, and limits of extension. These are pieces of a reasoned
+account, not a required six-sentence ritual. A fitted probability without
+an interval is a point summary, not an exact quantity; an interval on a
+coefficient elsewhere in the paragraph does not quantify every derived
+probability or count. Evaluating a rule on new cases is a separate task
+from illustrating its fitted means.
+
+### Three reports, each bounded by its study
+
+::: {.callout-tip title="Labour-force composition"}
+Among the 263 women recorded in the 1977 Canadian extract, an additional
+thousand dollars of husband's income was associated with a full-time-to-not-working
+RRR of .9073 (95% interval [.8587, .9587]), adjusting for children
+present. With no children present, fitted full-time probabilities were
+.7817 at income 5 and .3323 at 25 thousand dollars. Part-time comparisons
+were less precisely determined. A nominal composition model had lower
+AIC than the candidate proportional-odds model, whose common-slope
+restriction was also challenged by within-family tests. These conditional
+comparisons do not identify consequences of changing household income
+or childbearing.
+:::
+
+::: {.callout-tip title="Opinion about government effort"}
+Opinion was ordered from Too Little through About Right to Too Much in
+5,381 recorded respondents. A common-slope cumulative model gave a United
+States/Australia odds ratio of 1.8548 [1.6149, 2.1303] above either cut,
+but country effects differed substantially across cuts
+($\chi^2(3)=362.3463$, $p<.0001$). Allowing cut-specific country
+coefficients reduced AIC from 10420.5924 to 10064.2461 and better
+represented the few Too Much responses in Norway and Sweden. These are
+conditional cross-sectional comparisons. The extract does not supply
+survey-design information, and remaining common-slope restrictions require
+further checking.
+:::
+
+::: {.callout-tip title="Absence counts"}
+Days absent during a common academic year were modeled for 146 recorded
+pupils. The Poisson Pearson dispersion ratio was 13.1668; one additional
+interaction left 11.7342. A negative-binomial fit gave
+$\widehat\theta=1.2749$ (SE .161) and Pearson ratio .9912. The
+not-Aboriginal/Aboriginal IRR was .5659 [.4190, .7643] at common recorded
+sex, form and learner classification. For female average learners in F0,
+fitted expectations were 18.0759 and 10.2288 days respectively. A
+quasi-Poisson fit gave a similar substantive reading with wider uncertainty
+than Poisson. The historical group labels describe this study; the
+comparison does not identify an effect of changing a classification,
+and dependence or unrecorded differences remain possible.
+:::
+
+### Diagnose an overclaim before calculating again
+
+"The relative-risk ratio was .9073" omits the compared categories.
+"Swedes had lower odds" omits the cumulative direction. "The offset was
+not significant" mistakes a fixed coefficient for an estimate.
+"The model predicted well" confuses in-sample fit with evaluated
+performance. Each repair restores the missing statistical meaning,
+not merely a cautious adjective.
+
+An interval covering one is also a quantitative result. The
+negative-binomial male/female IRR interval [.7936, 1.4855] permits
+substantively lower or higher expected absence. Whether that range is
+small enough for a decision depends on the question, not only on its
+p-value [@wasserstein2016].
+
+## Reading Bridge
+
+Nominal models explain a composition through several baseline-category
+logits; ordinal models use cumulative probabilities and testable slope
+restrictions; count models connect positive means to exposure and a
+variance assumption. Their ratios are different quantities, each needing
+an outcome-scale comparison and a stated scope. Chapter 13 changes the
+goal: evaluating how a fitted rule performs on records it has not seen.
+
+## Key terms {.unnumbered}
+
+These are the concepts introduced here. The Part One Concept Reference
+locates likelihood, links, model comparison and other earlier concepts.
+
+| Term and common alternatives | Meaning or essential distinction |
+| :-- | :-- |
+| Outcome triage | The measurement judgment, made before any model is fitted, classifying an outcome as binary, nominal, ordered, a count, a rate, a proportion of known trials, or a duration. The model follows the classification and cannot establish it. |
+| Generalized logit model (baseline-category logit; multinomial logistic regression) | For $K$ unordered categories, $K-1$ log-ratio equations against one baseline, each with its own intercept and slopes. The fitted probability surface is the same whichever baseline is chosen; the coefficients are not. |
+| Baseline outcome category | The outcome category in the denominator of every generalized-logit equation: a coordinate choice, distinct from the reference level of a categorical *predictor*, whose change alters every reported ratio. |
+| Relative-risk ratio (RRR) | The exponentiated generalized-logit coefficient: the factor by which one category's probability relative to the baseline's differs per predictor unit. It is not a probability difference, and is incomplete unless both compared categories are named. |
+| Independence of irrelevant alternatives (IIA) | The generalized logit's assumption that the ratio of two categories' probabilities does not depend on which other categories were available: a claim about the choice set, argued rather than settled by one test. |
+| Cumulative probability and cumulative logit | $\gamma_{ij}=P(Y_i\le j)$ at each of the $K-1$ cut points, and its log-odds. A category probability is a difference of two adjacent cumulative probabilities. |
+| Threshold (cut point; ordinal intercept) | One of the ordered constants $\zeta_1<\cdots<\zeta_{K-1}$ placing the cut points on the logit scale. Their ordering keeps fitted probabilities nonnegative; they are not comparisons and are not read as effects. |
+| Proportional odds (common-slope restriction; partial proportional odds) | The restriction that one slope vector governs every cut point, so a single odds ratio applies at all of them. It is imposed by the analyst, not conferred by ordering the levels, and is testable against a cut-specific alternative. |
+| Poisson regression (log-linear count model) | A GLM with a Poisson random component and a log link, so the conditional mean is positive and differences are multiplicative on the count scale. Its conditional variance is not free: it is forced to equal the mean. |
+| Incidence-rate ratio (IRR; rate ratio) | The exponentiated coefficient of a count or rate model: the factor by which the expected count, or rate when an exposure is included, differs per predictor unit. It hides its baseline, so an absolute difference is not recoverable from it alone. |
+| Exposure and offset | The window over which each unit was observed, and $\log t_i$ entered with its coefficient fixed at one so the model describes a rate. An offset is a decision about the estimand, not an estimate: no SE, no $p$-value, and freeing its coefficient gives a testable alternative. |
+| Overdispersion and the dispersion statistic | Conditional variance exceeding the conditional mean, assessed by the mean squared Pearson residual $\widehat\phi$ under a suitable mean model; the deviance ratio is a rough diagnostic and need not be near 1 for sparse counts even under a correct Poisson model. The diagnosis is conditional; a marginal ratio above one is not evidence. |
+| Quasi-Poisson (quasi-likelihood; scaled Poisson) | The Poisson mean with variance $\phi\mu$: identical estimates and every SE multiplied by $\sqrt{\widehat\phi}$. No full distribution is specified, so there is no log-likelihood and no AIC or BIC. |
+| Negative-binomial regression | A count model with variance $\mu+\mu^2/\theta$, arising when the Poisson mean varies across units sharing predictor values. A different likelihood, not a rescaling: estimates move because large fitted means are down-weighted, and the Poisson comparison sits on the boundary $1/\theta=0$. |
+
+: Concepts introduced here. {#tbl-ch12-key-terms tbl-colwidths="[31,69]"}
+
+
+## Further reading {.unnumbered}
+
+Agresti [@agresti2010; @agresti2018] develops categorical models;
+McCullagh [@mccullagh1980] gives the cumulative-link framework. Cameron
+and Trivedi [@cameron2013] and Hilbe [@hilbe2011] develop counts and
+dispersion. The `ordinal`, `nnet` and `MASS` documentation gives the
+parameterizations used here [@christensen2025; @venables2002].
+
+## Exercises {.unnumbered}
+
+<!-- prompt-id: CH12-E01 -->
+
+### Exercise 1: Triage four outcomes and find the exposure (Foundational). {.unnumbered}
+
+For each of the following, state the outcome kind
+from the chapter's triage table, name the model family, and say in one
+sentence what the exposure is or why none is needed. (1) The field of
+study a first-year student enrols in, from six faculties. (2) A
+patient's self-rated recovery, recorded as worse, unchanged, or better.
+(3) The number of behaviour referrals recorded for each of 400 pupils
+during one full school year. (4) The number of emergency presentations
+from each of 60 districts during 2023, where the districts have
+populations from 4,000 to 210,000. (5) A pupil's score out of 20 on a
+spelling test. For (4), write the linear predictor with its offset term
+and say which quantity the coefficients then compare.
+
+<!-- END exercise-id: CH12-E01 -->
+
+<!-- prompt-id: CH12-E02 -->
+
+### Exercise 2: Read a generalized-logit result (Foundational). {.unnumbered}
+
+A
+generalized-logit model of labour-force participation among 263 women,
+with not working outside the home as the baseline, reports
+relative-risk ratios of 0.9073 per thousand dollars of husband's income
+and 0.0774 for children present in the full-time equation, and 1.0069
+and 1.0217 in the part-time equation, with intervals [0.8587, 0.9587],
+[0.0381, 0.1574], [0.9617, 1.0543] and [0.4075, 2.5619]. (1) Write one
+complete sentence reporting the 0.9073, naming both compared
+categories. (2) State what the part-time equation does and does not
+establish. (3) A colleague reports "the relative-risk ratio for
+children was 0.0774" with no other wording. Say what is missing and why
+the number cannot be checked without it. (4) The same data refitted
+with full-time work as the baseline give a children coefficient of
+2.5586 in the not-working equation. Explain why the two fits are the
+same model.
+
+(5) Use the chapter's fitted-probability curves to explain why a
+constant full-time versus not-working relative-risk ratio does not give
+a constant full-time probability difference. Predict what happens to all
+three curves when the reference category changes.
+
+<!-- END exercise-id: CH12-E02 -->
+
+<!-- prompt-id: CH12-E03 -->
+
+### Exercise 3: State the cumulative direction (Foundational). {.unnumbered}
+
+A
+cumulative-logit model of opinion about government effort, coded so
+that a positive coefficient shifts probability toward the higher
+ordered categories from Too Little through About Right to Too Much,
+reports thresholds 0.7298 and 2.5325 and coefficients 0.1797
+(religion), $-0.3224$ (Norway against Australia), 0.6178 (United States
+against Australia) and 0.0111 per year of age. (1) Report the United
+States odds ratio of 1.8548 in one sentence with its direction and its
+conditioning set. (2) Say what the Norway coefficient means in the same
+terms. (3) Calculate the fitted probability of answering Too Little for
+a 45-year-old religious woman without a degree in Norway, using
+$\operatorname{logit}(\gamma_1)=\zeta_1-\mathbf{x}^{\mathsf T}\boldsymbol\beta$
+and the coefficients above. (4) Explain in one sentence why the
+thresholds are not reported as effects.
+
+(5) The common-slope model gives Too Much probability .1021 at this
+Norway profile, whereas the partial model gives .0289. Use the paired
+probability display to explain what the common restriction was
+concealing, and name one reason why the better fitted picture does not
+settle the analysis. Predict what would happen to the frequency of
+rejection if a fixed modest slope departure were studied with 6,000
+rather than 300 records. Explain why this change would not by itself
+show a larger practical consequence.
+
+<!-- END exercise-id: CH12-E03 -->
+
+<!-- prompt-id: CH12-E04 -->
+
+### Exercise 4: The offset is a decision, not an estimate (Foundational). {.unnumbered}
+
+Five hundred students were observed for between 31
+and 180 enrolled days, and behavioural incidents were counted. Two
+Poisson models were fitted to the same records: one with
+$\log(\text{days enrolled})$ as an offset, giving a risk
+incidence-rate ratio of 1.57, and one without it, giving 1.4192. (1)
+State the estimand of each model in one sentence each. (2) The data
+were generated with a true risk rate ratio of 1.5683. Explain why
+omitting the offset moved a slope and not only the intercept. (3) A
+reviewer asks for the offset's standard error and $p$-value. Explain
+why there are none, and describe the model that would answer the
+underlying question. (4) At a fitted rate of 1.5721 incidents per 100
+enrolled days, give the expected number of incidents over 180 days and
+over 60 days, and say which of the three numbers is the stable
+quantity.
+
+<!-- END exercise-id: CH12-E04 -->
+
+<!-- prompt-id: CH12-E05 -->
+
+### Exercise 5: Diagnose dispersion before choosing a family (Integrative). {.unnumbered}
+
+A Poisson regression of days absent on four
+categorical predictors, fitted to 146 children, has residual deviance
+1696.7066 on 139 degrees of freedom and a Pearson dispersion statistic
+of 13.1668; every coefficient has $p<.001$. (1) State what the
+dispersion statistic estimates under a correct Poisson model, and by
+what rescaling factor the quasi-Poisson variance model would imply. (2) Adding an
+ethnicity-by-form interaction improves the deviance by 153.87 on
+three degrees of freedom but leaves the dispersion statistic at
+11.7342. Explain what this says about that particular interaction and what it leaves unresolved. (3) A quasi-Poisson refit leaves the
+not-Aboriginal incidence-rate ratio at 0.5865 and raises its log-coefficient
+standard error from 0.0419 to 0.1520; a negative-binomial refit gives 0.5659
+with log-coefficient standard error 0.1533. Explain why one estimate moved and the
+other did not. (4) The quasi-Poisson fit has no AIC and the
+negative-binomial fit has AIC 1109.151 against the Poisson 2299.1836.
+Say which comparisons are legitimate and which is not, and why.
+
+(5) Nine pupils have zero absences and eight exceed 50 days. Poisson
+expects .0141 and .0074 in these bands; negative binomial expects 6.2136
+and 7.3623. Explain what this adds to the coefficient and AIC
+comparisons, and why there is no comparable quasi-Poisson probability
+column without a further assumption.
+
+<!-- END exercise-id: CH12-E05 -->
+
+<!-- prompt-id: CH12-E06 -->
+
+### Exercise 6: Critique a categorical-outcome report (Integrative). {.unnumbered}
+
+A
+report states: "Multinomial logistic regression showed that higher
+household income reduced the relative-risk ratio to 0.91. An ordinal
+model showed that Swedish respondents had significantly lower odds
+(OR = 0.55). A Poisson model of clinic visits showed that every
+predictor was highly significant ($p<.001$), and the exposure offset
+was retained because it was significant." (1) Name five distinct omissions or unsupported readings, using the chapter's vocabulary. (2) Rewrite the passage as
+three defensible sentences, inventing no new numbers but adding the
+information each claim requires. (3) State one check the authors should
+have reported for each of the three models, and say what each check
+would and would not establish.
+
+<!-- END exercise-id: CH12-E06 -->
+
+
+## Appendix A: Choice Sets and Cut-specific Structure {.unnumbered}
+
+### What a nominal choice model assumes {.unnumbered .unlisted}
+
+In a baseline-category multinomial logit, the probability ratio for two
+categories depends on their two linear predictors. Adding a third
+category changes the denominator of both probabilities, so it leaves
+their ratio unchanged if those predictors stay fixed. This property is
+called **independence of irrelevant alternatives** (IIA).
+
+Imagine a travel choice between a car and a blue bus. If an otherwise
+identical red bus becomes available, people who preferred the bus might
+split between the two colours, leaving car use nearly unchanged. A model
+that treats red and blue buses as independent alternatives instead
+redistributes probability according to a more restrictive rule. The
+problem is substantive similarity between alternatives, rather than a
+minor numerical imperfection. The same question matters if two response
+categories are nearly interchangeable or the available choice set
+varies between people.
+
+For labour-force participation, consider whether part-time and full-time
+work are substitutes in the same way as not working and either work
+category. The observed labels alone do not answer that question. IIA
+checks and more flexible choice models can be useful, but a small-sample
+formal test cannot establish a plausible choice mechanism. The nominal
+fit in this chapter is a conditional description of the recorded
+composition, with the stated working structure.
+
+### A partial proportional-odds comparison {.unnumbered .unlisted}
+
+The opinion example can be fitted through `MASS::polr()` or
+`ordinal::clm()` using the same ordered response, rows, formula and logit
+link. The coefficient vectors agree to numerical tolerance (within
+$10^{-5}$ here), and both give AIC 10420.5924. Different function defaults
+or reversed category order would prevent this direct comparison.
+
+
+```{r}
+#| eval: false
+#| echo: true
+bridge <- MASS::polr(poverty ~ religion + degree + country + age + gender,
+                     data = opinion, Hess = TRUE)
+AIC(bridge, po)
+nominal_test(po)
+```
+
+
+Relaxing the country restriction allows a separate country comparison
+at each cut point, while retaining common slopes for religion, degree,
+age and gender. The fitted signs must be translated to the same
+above-cut direction before comparison. @tbl-ch12-partial-full
+reports that direction: a positive coefficient increases the log-odds
+of a response **above** the named split, conditional on the remaining
+variables. Australia is the reference country.
+
+
+```{r}
+#| label: tbl-ch12-partial-full
+#| tbl-cap: "Country comparisons at the two cumulative splits, with common slopes for the remaining recorded predictors."
+#| tbl-colwidths: [32,22,22,24]
+ct <- coef(summary(cutfit))
+cutrows <- grep("country", rownames(ct))
+z <- ct[cutrows, , drop = FALSE]
+term <- c("Norway, lower split", "Norway, upper split",
+  "Sweden, lower split", "Sweden, upper split",
+  "USA, lower split", "USA, upper split")
+knitr::kable(data.frame(Comparison = term, `Above-cut coefficient` = -z[, 1],
+  SE = z[, 2], `Odds ratio` = exp(-z[, 1]), check.names = FALSE),
+  digits = 4, row.names = FALSE)
+```
+
+The remaining coefficients and thresholds complete the partial model.
+Thresholds retain the cumulative-link convention $\zeta_j-\mathbf{x}_i^{\mathsf T}\boldsymbol\beta$;
+they receive no odds-ratio interpretation.
+
+```{r}
+#| label: tbl-ch12-partial-common
+#| tbl-cap: "Thresholds and common slopes in the partial proportional-odds fit."
+#| tbl-colwidths: [45,18,18,19]
+common <- ct[-cutrows, , drop = FALSE]
+term <- c("Lower threshold", "Upper threshold", "Religion: yes versus no",
+  "Degree: yes versus no", "Age per year", "Male versus female")
+ratio <- c("---", "---", sprintf("%.4f", exp(common[3:6, 1])))
+knitr::kable(data.frame(Parameter = term, Estimate = common[, 1],
+  SE = common[, 2], `Odds ratio` = ratio, check.names = FALSE),
+  digits = 4, row.names = FALSE)
+```
+
+The likelihood-ratio comparison with the common-slope model is nested:
+it frees three country contrasts at a second cut point. It gives
+$\chi^2(3)=362.3463$, $p<.0001$, and reduces AIC from 10420.5924 to
+10064.2461. This is evidence against a common country slope in this
+specified model. Other restrictions and the observational interpretation
+still require judgment. Allowing country to vary by cut does not
+establish that every other term satisfies proportional odds.
+
+
+```{r}
+#| eval: false
+#| echo: true
+anova(po, cutfit)
+AIC(po, cutfit)
+```
+
+
+The probability comparison below holds religion at "yes", university
+degree at "no", age at 45 and gender at "female". The profiles define
+what is being compared. They are not national population averages.
+Probabilities are reported in the recorded order Too Little, About
+Right, Too Much; inspect the changed allocation across all three,
+rather than treating a threshold coefficient as a category probability.
+
+
+```{r}
+#| label: tbl-ch12-partial-probs
+#| tbl-cap: "Profile probabilities under common and country-specific cumulative slopes."
+#| tbl-colwidths: [19,24,19,19,19]
+profile <- data.frame(religion = factor("yes", levels = levels(opinion$religion)),
+  degree = factor("no", levels = levels(opinion$degree)),
+  country = levels(opinion$country), age = 45,
+  gender = factor("female", levels = levels(opinion$gender)))
+a <- predict(po, newdata = profile, type = "prob")$fit
+b <- predict(cutfit, newdata = profile, type = "prob")$fit
+pr <- rbind(data.frame(Country = profile$country, Model = "Common slopes", a),
+            data.frame(Country = profile$country, Model = "Cut-specific country", b))
+names(pr)[3:5] <- c("Too Little", "About Right", "Too Much")
+knitr::kable(pr, digits = 4, row.names = FALSE)
+```
+
+An adjacent-category logit instead compares neighbouring categories;
+a continuation-ratio logit describes successive transitions conditional
+on reaching a stage. Those models answer differently structured
+questions. Category order is the starting point, but the response
+process and the desired comparison determine which ordered model is
+useful [@agresti2010].
+
+## Appendix B: Residuals and Two-process Explanations {.unnumbered}
+
+### Residuals and one influential record {.unnumbered .unlisted}
+
+A Pearson residual divides the observed-minus-fitted difference by the
+model's fitted standard deviation. A deviance residual gives a signed
+contribution to discrepancy under the likelihood. Neither should be
+read as an ordinary Normal residual merely because it is called a
+residual. Discreteness and changing means shape both displays.
+
+
+```{r}
+#| label: fig-ch12-residuals
+#| fig-cap: "Residuals on each count model's own variance and likelihood scales."
+#| fig-alt: "Four panels show Pearson and deviance residuals against fitted means for Poisson and negative-binomial fits. The pupil with 81 absent days is identified; the Poisson scale exaggerates the spread relative to its assumed variance."
+#| fig-height: 6.0
+#| fig-width: 6.2
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
+for (model in list(mp, mn)) for (type in c("pearson", "deviance")) {
+  rr <- residuals(model, type = type)
+  plot(fitted(model), rr, pch = 16, col = "grey45", xlab = "Fitted days absent",
+       ylab = paste(tools::toTitleCase(type), "residual"))
+  abline(h = 0, lty = 2)
+  j <- which.max(absence$Days)
+  text(fitted(model)[j], rr[j], "81 days", pos = 2, cex = .8)
+  title(if (inherits(model, "negbin")) "Negative binomial" else "Poisson")
+}
+```
+
+
+The largest absence count is 81 days. Removing that record asks a
+sensitivity question; it does not establish that the record is an error.
+Refitting without it should report the changed dispersion parameter,
+the ethnicity interval and the continued need for a plausible variance
+model. Automatic deletion would conceal the very upper-tail behaviour
+the model is meant to explain.
+
+
+```{r}
+#| eval: false
+#| echo: true
+reduced <- subset(absence, Days < 81)
+check <- MASS::glm.nb(Days ~ Eth + Sex + Age + Lrn, data = reduced)
+check$theta
+exp(confint.default(check)["EthN", ])
+```
+
+
+### When zero has a separate mechanism {.unnumbered .unlisted}
+
+A pupil who was eligible to miss school but happened to attend every day
+and a record that could never register an absence can both show zero.
+The first belongs to the same count process as other pupils. The second
+suggests a separate eligibility or recording process. Many zeros alone
+do not distinguish them: an ordinary negative-binomial model can already
+produce more zeros than a Poisson model with the same mean.
+
+A **hurdle model** separates whether the count crosses zero from its
+positive magnitude; its positive-count component is truncated at zero.
+A **zero-inflated model** mixes a structural-zero component with an
+ordinary count component that can itself produce zero [@mullahy1986;
+@lambert1992]. These are different accounts of how records arise. An
+extra zero parameter should be motivated by that account and checked
+against its fitted consequences.
+
+Comparisons with an ordinary count model can put mixture probabilities
+on a boundary and can leave additional parameters unidentified under
+the null. The usual interior chi-square likelihood-ratio reference is
+therefore not automatic, nor is one universal half-and-half mixture
+formula adequate for every such comparison. Specialist model-specific
+methods or a carefully designed parametric bootstrap are needed before
+attaching a calibrated p-value.
+
+For further practice, explain why the quasi-Poisson fit cannot supply the
+band-probability table, and carry out the 81-day sensitivity comparison.
+In each case, distinguish what changes numerically from what still needs
+a study-design or measurement justification.
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

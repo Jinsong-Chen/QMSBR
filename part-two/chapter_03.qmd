@@ -228,7 +228,8 @@ pt2_heatmap <- function(M,title="",limit=max(abs(M)),digits=NULL,cex=.7) {
   axis(1,at=1:nc,labels=colnames(M),las=2,cex.axis=cex)
   axis(2,at=1:nr,labels=rev(rownames(M)),las=2,cex.axis=cex)
   if (!is.null(digits)) for (i in 1:nr) for (j in 1:nc) if(is.finite(M[i,j]))
-    text(j,nr+1-i,formatC(M[i,j],digits=digits,format="f"),
+    text(j,nr+1-i,if(abs(M[i,j])<10^-digits && M[i,j]!=0)
+      ifelse(M[i,j]>0,"<.001",">-.001") else formatC(M[i,j],digits=digits,format="f"),
          cex=cex*.8,col=if(abs(M[i,j])>limit*.6) "white" else "black")
   box()
 }
@@ -356,8 +357,8 @@ pt3_build <- function() {
   stopifnot(max(abs(scaled$Lambda %*% scaled$Phi %*% t(scaled$Lambda) +
     pop$Theta - pop$Sigma)) < 1e-12)
   registry <- pt3_donor()
-  donor <- pt3_fit(registry$models$D1, registry$x)
-  donor_marker <- pt3_fit(registry$models$D1, registry$x, std.lv = FALSE)
+  donor <- pt3_fit(registry$models$D3, registry$x)
+  donor_marker <- pt3_fit(registry$models$D3, registry$x, std.lv = FALSE)
   stopifnot(all(pt3_audit(donor)$checks), all(pt3_audit(donor_marker)$checks),
     max(abs(lavaan::fitted(donor$fit)$cov -
       lavaan::fitted(donor_marker$fit)$cov)) < 1e-4)
@@ -373,7 +374,7 @@ pt3_build <- function() {
     metadata = list(R = as.character(getRversion()),
       lavaan = as.character(packageVersion("lavaan")),
       sample = "B", role = "confirmation",
-      status = "Estimation only; this chapter does not assess model adequacy.",
+      status = "Specification, estimation and basic global/local evaluation of the fixed model.",
       sample_C = "Not used in any model fit or diagnostic in this chapter."))
 }
 
@@ -765,106 +766,151 @@ h <- pt3_build()
 pe <- h$audit$parameters
 pop <- h$microcase
 L <- pop$Lambda; Phi <- pop$Phi; Theta <- pop$Theta
+
+# A complementary empirical route: identical raw records and derived moments.
+hs0 <- lavaan::HolzingerSwineford1939
+hs <- hs0[paste0("x",1:9)]
+hs_model <- "Visual =~ x1+x2+x3\nTextual =~ x4+x5+x6\nSpeed =~ x7+x8+x9"
+hs_raw <- pt3_fit(hs_model,hs)
+hs_cov <- cov(hs)
+hs_summary <- lavaan::cfa(hs_model,sample.cov=hs_cov,sample.nobs=nrow(hs),
+  sample.cov.rescale=TRUE,estimator="ML",likelihood="normal",std.lv=TRUE,
+  meanstructure=FALSE,missing="listwise",se="standard",test="standard",
+  information="expected")
+hs_diff <- c(Coefficients=max(abs(lavaan::coef(hs_raw$fit)-lavaan::coef(hs_summary))),
+  SE=max(abs(sqrt(diag(lavaan::vcov(hs_raw$fit)))-sqrt(diag(lavaan::vcov(hs_summary))))),
+  Covariance=max(abs(lavaan::fitted(hs_raw$fit)$cov-lavaan::fitted(hs_summary)$cov)),
+  Loglikelihood=abs(as.numeric(lavaan::logLik(hs_raw$fit)-lavaan::logLik(hs_summary))),
+  Chisquare=abs(lavaan::fitMeasures(hs_raw$fit,"chisq")-lavaan::fitMeasures(hs_summary,"chisq")))
+stopifnot(all(pt3_audit(hs_raw)$checks),nrow(hs)==301L,!anyNA(hs),max(hs_diff)<1e-7)
+hs_pe <- lavaan::parameterEstimates(hs_raw$fit,standardized=TRUE)
+basic_profile <- function(fit,label) {
+  m <- lavaan::fitMeasures(fit,c("chisq","df","pvalue","rmsea","rmsea.ci.lower",
+    "rmsea.ci.upper","cfi","tli","srmr"))
+  data.frame(Model=label,Chi_square=unname(m[1]),df=unname(m[2]),
+    p=ifelse(m[3]<.001,"< .001",pt2_num(m[3])),RMSEA=unname(m[4]),
+    CI_90=paste0("[",pt2_num(m[5]),", ",pt2_num(m[6]),"]"),
+    CFI=unname(m[7]),TLI=unname(m[8]),SRMR=unname(m[9]))
+}
+scaled_residual <- function(fit) {
+  S <- lavaan::lavInspect(fit,"sampstat")$cov
+  (S-lavaan::fitted(fit)$cov)/sqrt(outer(diag(S),diag(S)))
+}
+sle_res <- scaled_residual(h$fit)
+hs_res <- scaled_residual(hs_raw$fit)
+stopifnot(abs(hs_res["x7","x8"]-.07497221)<1e-7,
+  abs(lavaan::fitMeasures(h$donor$fit,"chisq")-8.469)<.001)
 ```
 
 {{< pagebreak >}}
 
 ::: {.callout-note title="Chapter overview"}
-This chapter turns the candidate frozen at the end of the exploratory
-analysis into a model that can be estimated and read. We write one small
-model in words, in equations, in parameter matrices and as a diagram, and
-check the four against one another. We separate what is free, what is held
-at a value, what is tied to another parameter and what is merely defined.
-We give the latent variables a metric, by fixing a marker loading or a
-factor variance, and see what a change of metric does and does not alter.
-We trace a cross-loading and a residual covariance into the moments each one
-changes, count moments and free parameters, and then ask the separate
-question of whether those moments determine the parameters at all. We state
-what normal-theory maximum likelihood minimizes, estimate the inherited
-twelve-indicator candidate once on the confirmation sample, check
-convergence, admissibility, gradients and local rank before reading any
-coefficient, read the estimates in their stated units with their
-uncertainty, test one planned equality, and write down the record that
-evaluation will begin from. Three records keep their own identities: a
-neutral six-indicator model in which the algebra stays visible, a published
-four-factor topology read from its diagram, and the twelve-indicator course
-questionnaire. The preceding chapters supply the covariance decomposition,
-factor scale and orientation, and pattern coefficients. By the end you will
-be able to state one restricted model in agreeing representations, count and
-read its degrees of freedom, set and transform its latent metric, say what
-an estimated coefficient is expressed in, and say how far an admissible
-solution takes an argument. Overall adequacy is not assessed here and no fit
-index is interpreted; the software that fits each model is practised in the
-Computer Lab.
+A confirmatory factor model makes a measurement proposal precise enough to
+confront observations. This chapter starts with its general equations and a
+fully disclosed simulated population. We distinguish the population we
+propose, the sample we observe and the moments a fitted model reproduces.
+We then write a small model in words, equations, matrices and a diagram;
+identify free parameters and scale conventions; and ask whether the observed
+moments can determine those parameters. Estimation supplies coefficients and
+uncertainty, while global and local evaluation examine the model's observed
+implications. A twelve-item learning-experience questionnaire and nine
+historical ability tests provide two applications. The latter is fitted from
+both individual records and their summary covariance matrix. By the end,
+you should be able to explain what was assumed, what was estimated, what the
+fit evidence says and what remains unestablished. Comparison, revision and
+independent validation extend this basic analysis in the next chapter.
 :::
 
-A published study of teachers' technology use reports four correlated
-constructs -- self-efficacy, school support, privacy concerns and
-technostress -- each measured by four questionnaire items, and prints a
-diagram of arrows to show how they were modeled [@chou2021]. The diagram is
-easy to read and easy to over-read. It shows which items were assigned to
-which construct. It does not show which coefficients were estimated and which
-were held at a value, what supplied the units of the four latent variables,
-or whether the sixteen indicator variances, their covariances and the six
-construct relations were enough to determine those coefficients at all. Two
-analysts working from the same figure can fit two different models, report
-two different sets of numbers, and neither of them has made a mistake.
+Suppose a research team argues that several questionnaire responses reflect
+planning, study strategy and belonging. The claim concerns variables the
+team cannot observe directly. How does it become a statistical model, and
+which aspects of it can the recorded responses challenge?
 
-Our own problem is the same one, a step earlier. The exploratory chapter left
-a specific proposal: three factors behind twelve items of a learning
-experience questionnaire, with two secondary loadings retained. That proposal
-is a sentence, not yet a model.
+A factor model answers by specifying how the unobserved variables relate to
+the indicators and what remains outside those relations. It also imposes
+restrictions: an item may load on one factor but not another; two residuals
+may be assumed unrelated; two coefficients may be required to agree. These
+decisions determine both what can be learned from the data and which patterns
+the model can fail to reproduce. They should therefore be visible before a
+table of estimates or fit indices appears.
 
-> What has to be decided, written down and checked before an inherited factor
-> structure becomes a model that can be estimated on new records, and how far
-> does an admissible estimate take the argument?
+> How do a measurement proposal, its statistical restrictions and its observed
+> implications fit together in one defensible analysis?
 
-\Needspace{4\baselineskip}
+The examples below keep three kinds of evidence separate. Stipulated
+population values make an implication exact; a simulated sample shows how
+sampling changes the observed pattern; empirical records require an account
+of the actual measurements and design.
 
-Answering that takes four separable tasks -- declaring the restrictions,
-asking whether the parameters can be recovered, estimating them, and reading
-the result -- and stops before the fifth, evaluating the fit, which the next
-chapter owns.
+# Formulate a general confirmatory factor model
 
-# From exploratory structure to restricted CFA
+## The general measurement model
 
-## The change is in the restrictions
-
-The common-factor equation has not changed:
+Let $\mathbf y_i$ contain the $p$ recorded indicators for person $i$, and let
+$\boldsymbol\eta_i$ contain $m$ factors. A linear measurement model is
 
 $$
 \mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i
- +\boldsymbol\epsilon_i,
+ +\boldsymbol\epsilon_i.
+$$
+
+The intercept vector $\boldsymbol\nu$ sets indicator origins. Each row of the $p\times m$ loading matrix
+$\boldsymbol\Lambda$ describes one indicator's relations with the factors.
+The residual vector $\boldsymbol\epsilon_i$ contains influences left outside
+those relations. We assume $E(\boldsymbol\epsilon_i)=\mathbf0$ and
+$\operatorname{Cov}(\boldsymbol\eta_i,\boldsymbol\epsilon_i)=\mathbf0$.
+Writing $E(\boldsymbol\eta_i)=\boldsymbol\alpha$,
+$\boldsymbol\Phi=\operatorname{Var}(\boldsymbol\eta_i)$ and
+$\boldsymbol\Theta=\operatorname{Var}(\boldsymbol\epsilon_i)$ gives
+
+$$
+\boldsymbol\mu=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\alpha,
 \qquad
 \boldsymbol\Sigma(\boldsymbol\vartheta)
 =\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}
  +\boldsymbol\Theta.
 $$
 
-What changes in confirmatory factor analysis is how the parameters are
-restricted before estimation. A CFA might assign each indicator to one
-factor, allow a few specified secondary loadings, constrain selected
-loadings to equality, or specify a local residual covariance. The model
-then has testable implications beyond the number of factors alone.
+Here $\boldsymbol\Phi$ is $m\times m$ and $\boldsymbol\Theta$ is $p\times p$.
+The free-parameter vector $\boldsymbol\vartheta$ collects the entries we
+estimate under the restrictions; it is distinct from the residual covariance
+matrix $\boldsymbol\Theta$. The equations separate the proposed common
+sources of association from residual association. Their covariance implication
+requires finite second moments and the stated uncorrelatedness assumption;
+a Normal sampling distribution is an additional assumption used later for
+conventional likelihood inference.
 
-Here $\boldsymbol\vartheta$ denotes the vector of free parameters;
-$\boldsymbol\Theta$ denotes the residual covariance matrix. They are
-not two notations for the same object. For $p$ indicators and $m$ factors,
-$\boldsymbol\Lambda$ is $p\times m$, $\boldsymbol\Phi$ is $m\times m$,
-and $\boldsymbol\Theta$ is $p\times p$. As throughout Part Two,
-$\boldsymbol\Phi=\operatorname{Var}(\boldsymbol\eta)$.
+To read the equation as a conditional mean, assume additionally that
+$E(\boldsymbol\epsilon_i\mid\boldsymbol\eta_i)=\mathbf0$. Then
+$\boldsymbol\nu$ gives expected indicator levels at zero factor values and
+the loadings describe their linear change as factors vary. Joint Normality
+with zero factor--residual covariance supplies this conditional-mean property.
+
+In a path diagram, ellipses denote factors, rectangles denote recorded
+indicators, directed arrows denote loadings, and curved double-headed arrows
+denote covariances. A loading arrow represents a conditional linear relation:
+it does not by itself establish a causal measurement process. A diagram also
+needs a parameter ledger. An arrow may have a free coefficient, a value fixed
+to set units, or a value constrained to equal another coefficient; an absent
+arrow commonly denotes a fixed zero.
+
+The *confirmatory* specification declares these restrictions before the
+analysis being evaluated. It might assign each indicator to one factor,
+allow a prespecified secondary loading, constrain selected loadings to equality,
+or allow a justified residual covariance. Those restrictions, rather than the
+name of a fitting routine, give the model its testable implications.
 
 ```{=latex}
 \Needspace{14\baselineskip}
 ```
 
-| Question | EFA in Chapter 2 | CFA in this chapter |
+| Question | Exploratory factor model | Confirmatory factor model |
 |:--|:--|:--|
 | Which loadings are estimated? | All, before choosing an orientation | Only the declared free relations |
 | How is orientation handled? | Rotation and subsequent labels | Loading restrictions and factor metrics |
 | What determines the candidate? | Development evidence plus content | A fixed specification, with named rivals |
-| What data are being used? | Sample A for development | Sample B for estimation of that candidate |
-| What has not been established? | Unique substantive interpretation | Adequacy, validity, or causality |
+| What data role is being used? | Records used to develop the specification | Records used to evaluate an already declared specification |
+| What is not established by the model label? | Unique substantive interpretation | Adequacy, validity, or causality |
 
 “Confirmatory” describes restrictions and analytic history, not a
 guaranteed favorable conclusion. A CFA estimated after repeated same-data
@@ -878,8 +924,8 @@ simple structure.
 An absent loading arrow generally means a coefficient fixed to zero.
 It does not mean that the indicator and factor are uncorrelated. Under
 correlated factors, an indicator can correlate with a factor on which
-it has no direct loading. Chapter 2's pattern--structure distinction
-therefore remains essential.
+it has no direct loading. For example, if $Y_2=.8\eta_1+\epsilon_2$ and the factors correlate,
+$Y_2$ can covary with $\eta_2$ even though its loading on $\eta_2$ is zero.
 
 An absent residual covariance means that two residuals are uncorrelated
 under the model. That is a moment restriction. To assert conditional
@@ -892,6 +938,146 @@ A factor-to-indicator arrow specifies a loading relation. Interpreting
 the arrow causally requires design and substantive assumptions beyond
 the covariance equation. Good fit cannot supply temporal precedence or
 exclude every alternative explanation.
+
+Consider two indicators with loadings .8 and 1.2 on a factor of variance 4,
+and residual variances 3 and 4. Their common-factor covariance is
+$.8(1.2)(4)=3.84$. Now suppose the two questions share wording whose influence
+remains after holding the factor fixed. Represent that possibility by a
+residual covariance of .5, leaving every other parameter unchanged.
+
+::: {.callout-note title="Predict and explain"}
+Before inspecting the second case, predict whether the marginal indicator
+covariance, the covariance conditional on the true factor, or both will
+change. Would the absence of a residual arrow mean that the two recorded
+indicators are independent without conditioning?
+:::
+
+```{r}
+#| label: fig-cfa-local-dependence
+#| fig-width: 7
+#| fig-height: 3.2
+#| fig-cap: "Two stipulated measurement models differ only in a residual relation. The dotted covariance arc in the right panel joins the residuals, not the factor or the indicators' shared factor paths."
+#| fig-alt: "In both panels one factor predicts Y2 and Y3. Only the right panel has a double-headed residual covariance arc between their remaining influences."
+op <- par(mfrow=c(1,2),oma=c(0,0,1.5,0))
+pt2_groups_diagram(list(F1=c("Y2","Y3")),correlated=FALSE)
+pt2_groups_diagram(list(F1=c("Y2","Y3")),correlated=FALSE,
+ residual=data.frame(item1="Y2",item2="Y3"))
+mtext("Residual covariance 0",3,outer=TRUE,at=.25,line=.2,cex=.9)
+mtext("Residual covariance .5",3,outer=TRUE,at=.75,line=.2,cex=.9)
+par(op)
+```
+
+| Quantity for $Y_2,Y_3$ | Residual covariance 0 | Residual covariance .5 |
+|:--|--:|--:|
+| Marginal covariance | 3.84 | 4.340 |
+| Covariance conditional on the true factor | 0.00 | .500 |
+| Residual correlation | 0.00 | .144 |
+
+: Local dependence changes association remaining after the true factor is held fixed. {#tbl-cfa-local-dependence tbl-colwidths="[48,26,26]"}
+
+The residual correlation is $.5/\sqrt{3(4)}=.144$. In the jointly Normal
+model, the first case gives **local independence** conditional on the true
+factor. The indicators remain marginally associated because they share that
+factor. The second case retains an additional conditional association.
+Shared wording is one possible design explanation; the covariance alone
+cannot establish it. Conditioning on *estimated factor scores* is also a
+different operation: predictions of the factor are not the true factor
+values being held fixed in this calculation.
+
+## From a known population to one simulated sample
+
+A small known population lets us see the model-to-data link before fitting a
+substantive example. Introduce two zero-mean factors, measured by six indicators.
+Their generating loadings, factor covariance and residual variances are
+
+$$
+\boldsymbol\Lambda_0=
+\begin{bmatrix}1.00&0.00\\.80&0.00\\1.20&.25\\0.00&1.00\\0.00&1.10\\0.00&.90\end{bmatrix},
+\quad
+\boldsymbol\Phi_0=\begin{bmatrix}4&1.2\\1.2&9\end{bmatrix},
+\quad
+\boldsymbol\Theta_0=\operatorname{diag}(2,3,4,3,4,5).
+$$
+
+The indicator intercepts are $(10,12,11,15,14,13)$. Factors are jointly
+Normal; residuals are mutually independent Normal variables and independent
+of the factors. Each simulated person is independent of the others. The
+extra .25 loading allows $Y_3$ to reflect both factors. These are *declared
+population values*, not estimates selected because they fit a sample well.
+
+```{r}
+#| label: fig-cfa-generated-model
+#| fig-width: 6.8
+#| fig-height: 4
+#| fig-cap: "The disclosed generating model for the six-indicator simulation. Y3 has two loadings. The Y1 and Y4 loadings equal one, setting the factor units. Residual covariances and unshown loadings are zero."
+#| fig-alt: "F1 predicts Y1, Y2 and Y3; F2 predicts Y4, Y5 and Y6 plus a secondary path to Y3. Factors covary and each indicator has its own residual."
+pt2_groups_diagram(list(F1=paste0("Y",1:3),F2=paste0("Y",4:6)),marker=TRUE,
+ cross=data.frame(factor="F2",item="Y3"),factor_cov_labels="phi[12]")
+```
+
+When this structure is fitted, the two marker loadings stay fixed at one.
+The other displayed nonzero values become quantities to estimate. Treating
+every generating number as fixed would instead test a much narrower model.
+
+| Parameter family | Free covariance-model parameters |
+|:--|--:|
+| Nonmarker loadings, including $Y_3$'s second loading | 5 |
+| Two factor variances and their covariance | 3 |
+| Indicator residual variances | 6 |
+| Total | 14 |
+
+: A free-parameter ledger for the simulated model. {#tbl-cfa-generated-ledger}
+
+Six variances and fifteen distinct covariances supply $6(7)/2=21$ distinct
+moments, leaving $21-14=7$ degrees of freedom. These 21 moments are
+summaries of a distribution, not 21 people. Counting is a necessary check;
+Section 6 explains why it does not alone establish identification.
+
+```{r}
+#| label: tbl-cfa-generated-covariance
+#| tbl-cap: "Known population covariance for the disclosed six-indicator model. These moments follow exactly from the generating matrices, before any sample is drawn."
+pt2_table(h$donor_registry$population$Sigma,row.names=TRUE)
+```
+
+We generate 500 independent records from these declarations, using seed
+20260930 with the Mersenne-Twister generator, Normal inversion and the
+stated indicator order. The values and seed are held fixed. The resulting
+sample is separate from the later learning-experience samples; knowing this
+population supplies no advance knowledge about that other case.
+
+```{r}
+#| label: fig-cfa-population-sample
+#| fig-width: 7
+#| fig-height: 2.8
+#| fig-cap: "Known population, one sample and the correctly specified fitted covariance. All panels use the same indicator order and color scale; the selected entries below give the numerical comparisons. The third panel will be explained through estimation and evaluation."
+#| fig-alt: "Three six-by-six covariance heatmaps compare the known generating matrix, sample covariance with divisor N, and fitted matrix. Broad blocks remain similar but sample and fitted cells differ from their population targets."
+op <- par(mfrow=c(1,3))
+sim_cov <- lavaan::lavInspect(h$donor_marker$fit,"sampstat")$cov
+sim_fit <- lavaan::fitted(h$donor_marker$fit)$cov
+lim <- max(h$donor_registry$population$Sigma,sim_cov,sim_fit)
+pt2_heatmap(h$donor_registry$population$Sigma,"Population",limit=lim,cex=.8)
+pt2_heatmap(sim_cov,"Sample",limit=lim,cex=.8)
+pt2_heatmap(sim_fit,"Fitted",limit=lim,cex=.8)
+par(op)
+```
+
+```{r}
+#| label: tbl-cfa-population-sample
+#| tbl-cap: "Selected covariance entries from the three panels. The sample uses divisor N, matching the normal-likelihood fitted model."
+ix <- rbind(c(2,3),c(3,5),c(3,3),c(1,6))
+pt2_table(data.frame(Entry=c("Y2, Y3","Y3, Y5","Y3 variance","Y1, Y6"),
+ Population=h$donor_registry$population$Sigma[ix],Sample=sim_cov[ix],Fitted=sim_fit[ix]))
+```
+
+The population and sample panels answer different questions. The first is
+what the declared model generates on average; the second is what these 500
+people happened to produce. Estimation selects one member of the restricted
+model family, shown in the third panel. Even a correctly specified model
+need not reproduce the sample matrix exactly or recover each generating
+parameter exactly. We return to that distinction after developing estimation.
+For exact arithmetic in Sections 2--5, a simpler *controlled population*
+sets the extra loading to zero; it is explicitly distinguished from this
+sampled population.
 
 ```{r}
 #| label: fig-cfa-sequence
@@ -982,11 +1168,8 @@ pt2_groups_diagram(
   factor_cov_labels="phi[12]")
 ```
 
-In R these models are fitted with the `lavaan` package, whose model syntax
-names each factor with its indicators, fixes a marker loading at one, and
-states which variances and covariances are free. The syntax is written and
-run in the Computer Lab; what the book fixes is the object it has to
-reproduce, the free parameter vector
+The diagram and matrices together determine a free parameter vector.
+Under the stated marker constraints it is
 
 $$
 \boldsymbol\vartheta=(\lambda_{21},\lambda_{31},\lambda_{52},\lambda_{62},\;
@@ -1428,9 +1611,8 @@ $$
 The second expression, in the $\mathbf D_y$ notation of Section 4.3,
 changes covariance units to correlations; it does not re-estimate the model.
 In a fitted model, compare the implied covariance to the sample covariance
-using matching divisors and variable order. Computer Lab Round 2 assembles
-$\boldsymbol\Sigma$ from an estimated model, checks it against the fitted
-matrix, and rescales it to correlations.
+using matching divisors and variable order. Rescaling the fitted matrix to
+correlations makes the same implications readable without the original units.
 
 ## What the cross-loading adds
 
@@ -1459,14 +1641,11 @@ whereas $\sigma_{35}$ increases by $1.1\times.25\times9=2.475$.
 The unequal changes follow from the pathways and factor variances,
 not a software accident.
 
-The six-indicator example used for estimation below is simulated from
-exactly this population, with the additional $.25$ loading included and
-$n=500$. Its values are hypothetical: they are generated from the parameters
-stated above rather than collected from anyone, which is what allows the
-fitted results to be checked against known truth. It is a separate teaching
-example and has nothing to do with the twelve-indicator samples. The base
-six-indicator fit illustrates parameterization; whether that model is
-adequate is a separate question.
+The 500-record simulation introduced in Section 1.3 includes this $.25$
+secondary loading. The base model here holds it at zero to isolate the
+consequence of removing one relation. Fitting the complete generating
+specification later allows us to compare estimates with known truth. This
+six-indicator example remains separate from the twelve-indicator questionnaire.
 
 ## What a residual covariance adds
 
@@ -1707,6 +1886,68 @@ pt2_groups_diagram(list(F1=c("Y1","Y2"),F2=c("Y3","Y4")),correlated=TRUE,
   factor_cov_labels="phi[12]")
 ```
 
+[]{#sec-single-indicator-reliability}
+
+**One indicator needs external measurement information.** Suppose a study
+has one continuous score with variance 25. A centered measurement model
+writes $x=\eta+\epsilon$, with loading one and
+$\operatorname{Cov}(\eta,\epsilon)=0$. Its sole variance equation is
+$25=\phi+\theta$. Naming the factor and fixing its loading set a metric;
+they do not separate the two unknown variance components. Repeating the
+same score would add no observed information.
+
+```{r}
+#| label: fig-cfa-single-indicator
+#| fig-width: 6.4
+#| fig-height: 2.2
+#| fig-cap: "A one-indicator model needs a scale choice and substantive information about measurement error. The unit loading and externally specified residual variance are fixed; the factor variance is recovered from the observed variance."
+#| fig-alt: "A latent factor eta has a fixed loading of one on observed score x. Its residual epsilon has externally fixed variance (1 minus rho) times 25; the factor variance phi is the one free parameter."
+par(mar=c(.2,.2,.2,.2));plot.new();plot.window(xlim=c(0,8),ylim=c(0,2.5))
+symbols(1.4,1,circles=.32,inches=FALSE,add=TRUE,bg='#edf3f6')
+rect(4.55,.72,5.35,1.28,col='#f7f7f7');text(1.4,1,expression(eta));text(4.95,1,'x')
+arrows(1.85,1,4.5,1,length=.10);text(3.2,1.23,'1 (fixed)')
+text(1.4,.38,expression(phi~free));text(4.95,.38,'Observed variance 25')
+symbols(4.95,2.02,circles=.22,inches=FALSE,add=TRUE,bg='#edf3f6')
+text(4.95,2.02,expression(epsilon));arrows(4.95,1.75,4.95,1.31,length=.08)
+text(6.75,2.17,expression(Variance~(1-rho)*25),cex=.9)
+text(6.75,1.88,'fixed externally',cex=.9)
+```
+
+External reliability $\rho$ means the fraction of this score's variance
+attributable to $\eta$ under that decomposition. Fixing $\rho=.8$ fixes
+$\theta=(1-.8)25=5$, leaving $\phi=20$. One free variance now matches one
+observed variance; there is no remaining covariance restriction to test.
+The fixed error variance contributes measurement information. The fixed
+loading contributes the scale convention.
+
+**Predict and explain.** Keep the observed variance at 25 and assume higher
+reliability. Which component must grow, and which must shrink? Can the
+unchanged reproduction of 25 decide which assumption is credible?
+
+| Externally fixed reliability | Fixed residual variance | Recovered factor variance |
+|--:|--:|--:|
+| .7 | 7.5 | 17.5 |
+| .8 | 5.0 | 20.0 |
+| .9 | 2.5 | 22.5 |
+| 1.0 | 0.0 | 25.0 |
+
+: Exact one-indicator population-moment reconstructions. Every row reproduces observed variance 25; the final row assumes error-free measurement. {#tbl-single-indicator-reliability}
+
+The higher assumed reliability allocates more variance to the factor and
+less to error without changing the fit to the single available moment.
+The error-free row is a stronger measurement assumption, not a finding
+from the data. These are population-moment illustrations, with no empirical
+sample size or sampling interval.
+
+An external reliability study must concern the same score definition,
+relevant population and intended use. A borrowed value is an assumption
+to investigate, and an estimated reliability has its own uncertainty.
+The rows are an assumption-sensitivity analysis rather than a confidence
+interval. Fixing one estimated value in a larger model does not propagate
+that uncertainty. Cronbach's alpha is not automatically a known true
+reliability. The resulting model can represent an error-prone single score,
+but the restriction still requires a measurement justification [@kline2013].
+
 ## Restriction is what replaces rotation
 
 It is worth being explicit about why identification becomes a live question
@@ -1937,8 +2178,7 @@ maximum likelihood on the raw records, the normal likelihood scaling of the
 covariance discrepancy, unit factor variances rather than marker loadings, no
 mean structure, listwise deletion of incomplete cases, conventional standard
 errors and a conventional test statistic, and expected information for both.
-Section 7.3 records the divisor the normal scaling implies. Computer Lab
-Round 1 writes the same eight settings out as code on its own record.
+Section 7.3 records the divisor the normal scaling implies.
 
 Sample B is the confirmation record in the released
 `sle_continuous.csv`; the exploratory chapter's data appendix gives the
@@ -2003,13 +2243,14 @@ the intended separation of covariance restrictions from an unrestricted
 mean extension. It does not justify freely estimating latent origins
 without additional constraints.
 
-# Read an estimated model before its fit, and record what evaluation begins from
+# Read estimates and evaluate the model
 
 ## Convergence and admissibility first
 
 Convergence, admissibility, gradients, and local rank are checked before
-any coefficient or fit index is read. Nothing below that gate is an
-adequacy statement.
+any coefficient or fit index is read. These numerical checks establish that
+the solution can be interpreted; global and local evaluation follow in
+Section 8.8.
 
 The optimizer reports convergence for the inherited M1-cross model,
 with no captured fitting warnings. The maximum absolute gradient is
@@ -2175,8 +2416,8 @@ $$
 
 the $1$ and $-1$ standing in the positions of the two named Planning
 coefficients, so those two are the only parameters the test touches.
-Computer Lab Round 3 runs the same test on its own record and then imposes
-the equality.
+The equality can also be imposed and the restricted model refitted;
+that supplies a likelihood-ratio view of the same substantive restriction.
 
 Here $W=$ `r pt2_num(h$wald$stat)` on one df, with
 $p$ `r pt2_p(h$wald$p.value)`. Under the declared model and
@@ -2223,7 +2464,7 @@ pt2_groups_diagram(
 
 ## Save what another analyst needs
 
-| Record component | What the in-memory object carries |
+| Record component | What the reproducible record carries |
 |:--|:--|
 | Evidence identity | Sample B role, 360 rows, item order and case identifiers |
 | Measurement specification | Fixed syntax, active item list, factors and all rivals |
@@ -2236,16 +2477,13 @@ pt2_groups_diagram(
 | Evaluation fields | Conventional test, df, RMSEA/interval, CFI/TLI, SRMR, log likelihood, AIC/BIC |
 | Reproduction | R and package versions, and the model syntax |
 
-Nothing here is written to disk. The record is an in-memory object rebuilt
-from the declarations in this chapter every time it renders, and its baseline
-is the fitted `lavaan` object itself rather than a reconstruction from rounded
-coefficients. What the render guarantees is internal consistency -- the same
-declared population, sample role, syntax and settings produce the same fit each
-time -- not agreement with a separately stored file from an earlier session.
-
-Chapter 4 is this record's consumer: it rebuilds the record in memory from
-the same declarations and refits the exact specification, rather than
-reconstructing the fit from the rounded estimates printed here.
+Keep full-precision fitted results with the model declarations and analysis
+settings. Rounded tables make the study readable, but reconstructing a
+covariance matrix from those rounded coefficients can introduce avoidable
+differences. Another analyst should be able to refit the same observations
+under the same specification and recover the results within numerical
+tolerance. Later comparisons must preserve this analysis identity while
+making each changed restriction explicit.
 
 The numerical marker/fixed-factor comparison also succeeds for both
 records. For the SLE fit, the largest absolute difference in implied
@@ -2256,10 +2494,227 @@ for the six-indicator example fit it is
 The small numerical tolerances reflect separate optimization, not a
 theoretical discrepancy between valid scale choices.
 
-Saving evaluation fields is not interpreting them. They are checked for
-availability and matching conventions here so that evaluation can begin
-with an intact record. The validation sample has not been analyzed in
-building it.
+The record preserves both results and their conditions of interpretation.
+The following basic evaluation belongs to that record; it neither selects
+a revised model nor spends the independent validation sample.
+
+## Complete a basic global and local evaluation
+
+An estimate says which member of the specified model family best reproduces
+the records under the chosen discrepancy. Evaluation asks how that member
+relates to the observations and to the population claim. Start with the
+**exact-fit hypothesis**: some admissible parameter vector reproduces the
+population covariance,
+
+$$
+H_0:\ \boldsymbol\Sigma(\boldsymbol\vartheta)=\boldsymbol\Sigma_0.
+$$
+
+Under independent, jointly Normal observations and suitable identification
+and regularity conditions, $T=N\widehat F_{\mathrm{ML}}$ has an asymptotic
+chi-square reference with $df=u-t$. The tail probability describes evidence
+against this exact restriction. A large value can oppose exact fit without
+showing where the discrepancy lies or whether it is consequential for the
+intended use. Nonrejection indicates compatibility at the available precision;
+it does not accept the measurement model as true.
+
+The rest of the basic profile addresses related questions. **RMSEA** estimates
+discrepancy per degree of freedom, truncating negative estimates of the
+underlying noncentrality at zero. Its 90% interval reminds us that the point
+estimate is uncertain. **CFI** and **TLI** compare the model with a declared
+baseline, usually one that retains indicator variances while setting their
+covariances to zero. **SRMR** summarizes observed-minus-implied covariance
+residuals after scaling by observed indicator standard deviations. These
+measures do not supply interchangeable verdicts.
+
+| Evidence | Question it addresses | Limit of the answer |
+|:--|:--|:--|
+| Chi-square test and $p$ value | Are the exact population moment restrictions opposed? | Sensitive to sample size; does not locate or measure substantive importance |
+| RMSEA and 90% interval | How large is estimated discrepancy per df, with what uncertainty? | Depends on model size and df; zero can arise from truncation |
+| CFI and TLI | How much does the target improve over its baseline? | A poor baseline can make improvement look impressive |
+| SRMR | How large are scaled covariance residuals on average? | Many small cells can conceal a few consequential discrepancies |
+
+: A basic fit profile asks several questions about the same declared model. {#tbl-cfa-basic-fit-meanings tbl-colwidths="[24,38,38]"}
+
+```{r}
+#| label: tbl-cfa-basic-profiles
+#| tbl-cap: "Basic profiles for two separate examples. Each row evaluates its own declared model and evidence; it is not a likelihood comparison between rows. RMSEA brackets are 90 percent intervals."
+pt2_table(rbind(basic_profile(h$donor$fit,"Simulation"),
+ basic_profile(h$fit,"Questionnaire")))
+```
+
+For the correctly specified simulated model, $T=8.469$ on 7 df gives
+$p=.293$. The result is compatible with the generating structure, but the
+sample has not recovered population values without error. For example, the
+second loading of $Y_3$ was generated as .25; under the same marker metric
+its estimate is `r pt2_num(subset(lavaan::parameterEstimates(h$donor_marker$fit),lhs=="F2" & op=="=~" & rhs=="Y3")$est)`.
+The population/sample/fitted panels in @fig-cfa-population-sample now have
+separate roles: known truth for the simulation, realized evidence, and the
+model's best-fitting reproduction.
+
+The questionnaire's fixed candidate has a favorable global profile. Its zero
+RMSEA is a truncation, not an assertion that all residuals are zero. Its TLI
+is slightly above one before reporting precision; an incremental index need
+not be a proportion bounded by one. Neither fact licenses a universal
+acceptance rule. We still need to inspect where the covariance reproduction
+succeeds or strains.
+
+Define a covariance residual and its observed-SD-scaled form by
+
+$$
+e_{jk}=S_{N,jk}-\widehat\Sigma_{jk},
+\qquad
+e^{(s)}_{jk}=\frac{e_{jk}}{\sqrt{S_{N,jj}S_{N,kk}}}.
+$$
+
+The sign is informative: a positive entry means that the model reproduces
+less association than the sample contains. A raw residual uses the product
+of the indicators' units; the scaled value facilitates comparison across
+pairs. It is neither an estimated residual-covariance parameter in
+$\boldsymbol\Theta$ nor a discrepancy divided by its sampling standard error.
+Calling it a $z$ statistic would attach an unsupported reference distribution.
+
+```{r}
+#| label: fig-cfa-basic-local-residuals
+#| fig-width: 6.8
+#| fig-height: 4.5
+#| fig-cap: "Observed-SD-scaled covariance residuals for the fixed questionnaire model in Sample B. The lower triangle includes the diagonal; color limits are minus .1 and plus .1. Numeric signs identify over- and under-reproduction."
+#| fig-alt: "A twelve-indicator residual matrix has small average discrepancy but several negative residuals involving B4, including minus .093 with S3."
+rshow <- sle_res; rshow[upper.tri(rshow)] <- NA
+pt2_heatmap(rshow,limit=.1,digits=3,cex=.76)
+```
+
+For B4 and S3, the observed covariance is $-.371$ and the fitted covariance
+is $10.66$, giving a raw residual of $-11.031$ and a scaled residual of
+$-.093$. The model over-reproduces this particular cross-domain association.
+That localized discrepancy can coexist with SRMR .032 and a nonrejected
+exact-fit test. It raises a question about the representation without
+uniquely identifying a cause or justifying a new path. Selecting and testing
+a revision requires an explicit account of how the change was chosen and
+what fresh evidence can assess it.
+
+## An empirical model from raw and summary information
+
+The previous simulation tells us the generating structure because we supplied
+it. Historical measurements do not offer that privilege. Holzinger and
+Swineford's ability-test records, distributed with the `lavaan` package,
+provide 301 pupils from the Pasteur and Grant-White schools. The
+[documented nine-test example](https://lavaan.ugent.be/tutorial/cfa.html)
+uses three proposed domains: visual, textual and speed. The records come from
+seventh- and eighth-grade pupils; we pool the two schools for this illustration.
+Pooling is an analysis decision, not evidence that the measurement relations
+are invariant across schools.
+
+| Proposed domain | Indicators in this analysis |
+|:--|:--|
+| Visual | x1 visual perception; x2 cubes; x3 lozenges |
+| Textual | x4 paragraph comprehension; x5 sentence completion; x6 word meaning |
+| Speed | x7 speeded addition; x8 counting dots; x9 straight-curved capitals |
+
+: Nine recorded test scores and their proposed domains. {#tbl-cfa-empirical-indicators}
+
+Fit one correlated three-factor model with each indicator loading on its
+assigned factor only. Set factor variances to one, free the three factor
+covariances and nine residual variances, and set residual covariances to
+zero. All nine selected scores are observed for all 301 pupils. Keep the
+normal-theory ML convention, expected-information standard errors and
+covariance-only model. The ledger is $9(10)/2=45$ distinct moments minus
+$9+9+3=21$ free parameters, giving 24 df.
+
+```{r}
+#| label: fig-cfa-empirical-model
+#| fig-width: 6.5
+#| fig-height: 4.4
+#| fig-cap: "A declared three-factor model for the nine historical tests. Factor variances equal one, all three factor covariances are free, and unshown loadings and residual covariances are zero."
+#| fig-alt: "Visual predicts x1 to x3, Textual predicts x4 to x6 and Speed predicts x7 to x9. The three factors covary and each test has its own residual."
+pt2_groups_diagram(list(Visual=paste0("x",1:3),Textual=paste0("x",4:6),
+ Speed=paste0("x",7:9)),marker=FALSE)
+```
+
+```{r}
+#| label: tbl-cfa-empirical-loadings
+#| tbl-cap: "One selected loading from each domain, under unit-factor-variance scaling. Intervals and standard errors are on the raw indicator metric; the last column is a standardized point estimate."
+z <- subset(hs_pe,op=="=~" & rhs %in% c("x1","x4","x7"))
+pt2_table(data.frame(Domain=z$lhs,Indicator=z$rhs,Estimate=z$est,SE=z$se,
+ Lower=z$ci.lower,Upper=z$ci.upper,Standardized=z$std.all))
+```
+
+A visual-factor increase of one model SD corresponds to an expected x1
+increase of .9 test-score units, with a 95% interval [.741, 1.058]. This
+conditional measurement relation does not mean that manipulating an
+unobserved ability would necessarily change the test score by that amount.
+Before treating any loading as a satisfactory measurement relation, consider
+the model that makes its interpretation possible.
+
+```{r}
+#| label: tbl-cfa-empirical-fit
+#| tbl-cap: "The same empirical model fitted from individual records and their exact derived covariance matrix. The rows use identical likelihood, scaling, missing-data and uncertainty conventions."
+pt2_table(rbind(basic_profile(hs_raw$fit,"Raw"),basic_profile(hs_summary,"Summary")))
+```
+
+The exact-fit test rejects at $p<.001$: $T=85.306$ on 24 df. RMSEA .092 has
+90% interval [.071, .114], CFI is .931, TLI .896 and SRMR .065. The model
+summarizes substantial association, but its exact restrictions are opposed
+and its local discrepancies merit attention. The x7--x8 raw covariance
+residual is .082 and its observed-SD-scaled value is .075. A clear loading
+estimate and an imperfect covariance representation can occur together;
+neither finding should erase the other. This section evaluates the declared
+model without searching for a better-fitting replacement.
+
+```{r}
+#| label: fig-cfa-empirical-residuals
+#| fig-width: 6.5
+#| fig-height: 4
+#| fig-cap: "Local discrepancy in the empirical nine-test model. Cells show observed-SD-scaled covariance residuals, with a symmetric color scale centered at zero. Positive cells are under-reproduced associations; negative cells are over-reproduced. Bounds distinguish very small nonzero residuals from exact zeros."
+#| fig-alt: "A numbered lower triangle of nine-test covariance residuals. The x7--x8 residual is positive 0.075, and several other cells have larger absolute discrepancies, showing why a single selected residual does not describe the whole pattern."
+rshow_hs <- hs_res; rshow_hs[upper.tri(rshow_hs)] <- NA
+pt2_heatmap(rshow_hs,limit=.2,digits=3,cex=.85)
+```
+
+The .075 entry is one location in this pattern, not the largest residual or
+a decision threshold. Its positive sign says that the model leaves part of
+the association between speeded addition and counting dots unexplained.
+The whole pattern helps locate strain; substantive knowledge is needed to
+choose among explanations.
+
+The second row uses the lower-triangle covariance matrix in
+@tbl-cfa-empirical-summary and $N=301$. The matrix is **derived from these
+same raw records**, using divisor $N-1$. It is not transcribed from a
+published summary table or offered as an independent replication. Variable
+order, test-score units, sample size and divisor are part of the input.
+
+```{r}
+#| label: tbl-cfa-empirical-summary
+#| tbl-cap: "Derived sample covariance of the nine test scores, N = 301, divisor N minus 1. Display cells are rounded to three decimals; the raw/summary agreement check uses the unrounded matrix."
+hs_display <- hs_cov
+hs_display[upper.tri(hs_display)] <- NA
+hs_display <- apply(hs_display,2,function(x) ifelse(is.na(x),"",pt2_fmt(x)))
+pt2_table(hs_display,row.names=TRUE)
+```
+
+Normal ML rescales this unbiased covariance once to divisor $N$. With the
+same restrictions and conventions, the raw and summary fits agree in
+coefficients, conventional standard errors, fitted covariance, log likelihood
+and test statistic within $10^{-7}$. The largest fitted-covariance difference
+here is `r format(hs_diff["Covariance"],scientific=TRUE,digits=2)`.
+Refitting the rounded display matrix would be a different numerical input,
+so it need not reproduce these numbers to that tolerance. The models shown
+have no mean structure; a model for intercepts would additionally require
+sample means.
+
+| Information supplied | Analyses it supports here | Information still absent |
+|:--|:--|:--|
+| Covariance, $N$, order, units and divisor | Normal-theory covariance-model estimates, conventional uncertainty and fit | Which pupils contributed particular score patterns |
+| Individual records | The same fit, case inspection, individual factor-score prediction and case bootstrap | Design-based justification of causal measurement claims |
+
+: Raw records and summary moments support overlapping, not identical, investigations. {#tbl-cfa-raw-summary-information tbl-colwidths="[28,38,34]"}
+
+The three-factor form is a familiar teaching model, not a newly preregistered
+discovery in these records. Reusing the dataset therefore supplies an empirical
+illustration rather than fresh independent confirmation. This boundary differs
+from the published four-factor diagram in Section 2.5, which supplied topology
+only and no fitted empirical evidence, and from the simulation, whose truth
+was known by construction.
 
 # Summary and reading bridge
 
@@ -2279,18 +2734,20 @@ as factor scales.
 
 The Sample B candidate passes the stated estimation and admissibility
 checks. Its parameters can be read with explicit units and conventional
-uncertainty. That is the stopping point: **an identified, converged,
-admissible estimate is necessary for ordinary interpretation, but it is
-not evidence by itself of adequate model fit.**
+uncertainty. Their interpretation is then examined against the global
+profile and local covariance residuals. **An identified, converged, admissible
+estimate is necessary for ordinary interpretation; the evaluation adds
+evidence about observed implications, not a certificate of measurement
+validity.** The historical-test example completes this route from both raw
+and derived-summary inputs under the same assumptions.
 
 The technical route follows the CFA specification tradition developed
 in @joreskog1969, @bollen1989, and @brown2006. For software details,
 the [parameter-syntax tutorial](https://lavaan.ugent.be/tutorial/syntax2.html)
 and [output-extraction guide](https://lavaan.ugent.be/tutorial/inspect.html)
 help connect restrictions and fitted-object components. What follows
-examines the exact-fit test, fit profile, local residuals, planned
-comparisons, and the conditions under which a revision would need new
-evidence.
+develops the calibration of fit measures, compares planned rivals, and
+examines the conditions under which a revision needs new evidence.
 
 # Exercises {.unnumbered}
 
@@ -2319,7 +2776,11 @@ evidence.
    a two-indicator unit-variance factor with
    $\sigma_{11}=\sigma_{22}=1$ and $\sigma_{12}=.4$. Explain how
    an isolated copy of this block can remain unidentified inside a
-   positive-df whole model.
+   positive-df whole model. Then use the single-indicator sensitivity table
+   to explain why fixing the loading alone is insufficient. Predict how the
+   recovered latent variance changes when the externally fixed reliability
+   rises from .7 to .9, and explain why unchanged reproduction of the
+   observed variance cannot select the reliability assumption.
 6. <!-- prompt-id: PT2-CH03-E06 --> **Read uncertainty.** From the Sample B loading
    table, interpret P3's raw coefficient, SE, interval, and fully
    standardized coefficient. Explain why its raw coefficient above
@@ -2334,6 +2795,10 @@ evidence.
    equality, write its $\mathbf R$ row, and identify the covariance
    term required for the variance of the estimated difference. Why
    does this test not decide global fit or full parallel measurement?
+   The same fitted model has $T=48.475$ on 49 df, $p=.494$, and
+   a B4--S3 observed-SD-scaled covariance residual of $-.093$. Explain
+   how those results can coexist with the targeted equality test, and
+   identify what remains unestablished about the measurement claim.
 
 # Appendix: Structured means and parcels {.unnumbered}
 

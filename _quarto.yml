@@ -12,9 +12,9 @@
 # practice/ repeat the identical row with relative paths back here, so any
 # change to it has to be made in materials/webr/_quarto.yml too.
 # A navigation entry for a unit that is not out yet is an ordinary link whose
-# href ends in #part-three, #argument-a, #argument-b or #argument-c:
+# href ends in #part-three or #argument-c:
 # styles.scss mutes those links and assets/disabled-links.html marks them
-# disabled. The earlier #supplement-a and #supplement-b aliases stay disabled.
+# disabled. Earlier argument anchors remain live aliases on the approach page.
 
 project:
   type: website
@@ -23,9 +23,16 @@ project:
     - python tools/page_access.py
   resources:
     - practice
+    - LICENSE
     - part-one/realinho2022_students.csv
-    - part-one/chapter_03_special_practice.csv
+    - part-one/student_performance.csv
     - part-one/galton1886_sons.csv
+    - part-one/chapter_03_special_practice.csv
+    - part-one/background_sound.csv
+    - part-one/feedback_practice.csv
+    - part-one/feedback_practice_timing.csv
+    - part-two/sle_continuous.csv
+    - part-two/reliability_bootstrap.csv
   render:
     - index.qmd
     - about.qmd
@@ -41,6 +48,13 @@ project:
     - part-one/chapter_07.qmd
     - part-one/chapter_08.qmd
     - part-one/chapter_09.qmd
+    - part-one/chapter_10.qmd
+    - part-one/chapter_11.qmd
+    - part-one/chapter_12.qmd
+    - part-one/chapter_13.qmd
+    - part-one/chapter_14.qmd
+    - part-one/chapter_arg_a.qmd
+    - part-one/chapter_arg_b.qmd
     - part-two/part_two_introduction.qmd
     - part-two/part_two_concept_reference.qmd
     - part-two/chapter_01.qmd
@@ -71,10 +85,6 @@ website:
         text: Argument Approach
       - href: about.qmd
         text: About
-    right:
-      - icon: github
-        href: https://github.com/Jinsong-Chen/QMSBR
-        aria-label: GitHub repository
     search: true
   sidebar:
     - id: part-one
@@ -94,6 +104,11 @@ website:
         - part-one/chapter_07.qmd
         - part-one/chapter_08.qmd
         - part-one/chapter_09.qmd
+        - part-one/chapter_10.qmd
+        - part-one/chapter_11.qmd
+        - part-one/chapter_12.qmd
+        - part-one/chapter_13.qmd
+        - part-one/chapter_14.qmd
     - id: part-two
       title: "Part Two: Factor Analysis and Structural Equation Modeling"
       style: docked
@@ -112,9 +127,9 @@ website:
       contents:
         - href: argument-approach.qmd
           text: "The argument-based approach"
-        - href: argument-approach.qmd#argument-a
+        - href: part-one/chapter_arg_a.qmd
           text: "A. How to Read a Quantitative Study as an Argument"
-        - href: argument-approach.qmd#argument-b
+        - href: part-one/chapter_arg_b.qmd
           text: "B. Extending the Argument-Based Approach to Quantitative Studies"
         - href: argument-approach.qmd#argument-c
           text: "C. Arguments involving latent variables or an additional measurement layer"

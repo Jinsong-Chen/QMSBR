@@ -1065,13 +1065,41 @@ added_B <- subset(v$revised_B$parameters,lhs=="Planning" & op=="=~" & rhs=="B4")
 added_C <- subset(v$revised_C$parameters,lhs=="Planning" & op=="=~" & rhs=="B4")
 extensions <- pt4_analyze_extensions(b)
 population_audit <- pt4_population_audit(b)
+
+# Fixed declaration: Sample B, M1-cross, raw B1--B4 mean; all attempts retained.
+relboot <- read.csv("reliability_bootstrap.csv", stringsAsFactors=FALSE)
+rellevels <- c("fit_error_or_nonconvergence", "improper",
+               "undefined_functional", "usable")
+stopifnot(nrow(relboot)==2000L, identical(relboot$attempt,seq_len(2000)),
+  all(relboot$seed==2026101204L),
+  all(relboot$source_md5==unname(tools::md5sum("sle_continuous.csv"))),
+  all(relboot$outcome %in% rellevels),
+  all(relboot$converged[relboot$outcome!="fit_error_or_nonconvergence"]),
+  all(relboot$admissible[relboot$outcome %in% c("undefined_functional","usable")]))
+relcounts <- table(factor(relboot$outcome,levels=rellevels))
+reluse <- relboot$omega[relboot$outcome=="usable"]
+stopifnot(length(reluse)>=2L,all(is.finite(reluse)),
+          all(reluse>=-1e-8 & reluse<=1+1e-8))
+relci <- quantile(reluse,c(.025,.975),type=7)
+# Independent order-statistic reconstruction of type-7 interpolation.
+rank <- 1+(length(reluse)-1)*c(.025,.975)
+ordered <- sort(reluse)
+manual <- ordered[floor(rank)] + (rank-floor(rank))*
+          (ordered[ceiling(rank)]-ordered[floor(rank)])
+stopifnot(max(abs(manual-relci))<1e-12)
+relS <- cov(b$h$input$x[,9:12])
+relalpha <- 4/3*(1-sum(diag(relS))/sum(relS))
+relpoint <- pt4_omega(b$profiles$M1_cross,c(rep(0,8),rep(.25,4)))
+stopifnot(abs(relpoint-.791928059173)<1e-9,
+          abs(relalpha-.768647280063)<1e-9)
+
 ```
 
 {{< pagebreak >}}
 
 ::: {.callout-note title="Chapter overview"}
 This chapter asks what a fitted measurement model has actually earned. We
-begin from the converged, admissible estimate the previous chapter delivered
+begin with the general CFA model, state one questionnaire specification,
 and separate five questions that one summary cannot answer at once. We rebuild
 the discrepancy the estimator minimized, refer it to a reference distribution,
 and read the familiar global indices as a profile rather than a verdict. We
@@ -1079,7 +1107,8 @@ then locate where the model strains, reading residuals on three different
 scales, and compare planned rivals, saying which comparisons are eligible and
 which only look like comparisons. Two rival representations of the same twelve
 items, a higher-order factor and a bifactor model, show that equally good fit
-can leave the choice open. We read modification diagnostics as leads, freeze
+can leave the choice open. A separate four-factor population shows when a
+higher-order model imposes additional testable restrictions. We read modification diagnostics as leads, freeze
 one suggested change, and retest it on records that played no part in
 suggesting it; a look back at the known generating population then separates
 what the sample evidence could reveal from what it could not. The closing
@@ -1113,31 +1142,89 @@ Our question is therefore narrower than whether the model fits:
 > confirmation sample, what does the available evidence support saying about
 > that model and its intended uses, and what does it leave open?
 
-Chapter 2 developed a candidate on a development sample and froze it with its
-named rivals. Chapter 3 made that candidate identified and estimable, checked
-the solution, and stopped before any adequacy verdict. Here we supply the
-verdict machinery and its limits: what a fit profile answers, where discrepancy
-sits, which comparisons are eligible, which rival measurement structures the
-same indicators admit, how a change suggested by the data alters analytic
-status, and what a known population can show once the analysis is complete.
+The basic sequence is to formulate the model, establish identification,
+estimate its parameters, check the solution, and evaluate global and local
+discrepancy. Here we deepen that evaluation: how the indices are calibrated,
+which comparisons are eligible, which rival measurement structures the same
+indicators admit, and how a change suggested by the data alters analytic
+status. The questionnaire's development, confirmation and validation samples
+make those decisions visible. Its specification and sample roles are restated
+below, so this analysis can be followed as a complete case.
 
 # From an estimated model to an evaluation record
 
-## Begin with what is already fixed
+## Restate the model, then its declared application
 
-Chapter 3 supplied a converged, admissible estimate of M1-cross on
-Sample B. The candidate was fixed using Sample A: twelve continuous
-indicators, three correlated factors, P4 additionally loading on Strategy,
-and S4 additionally loading on Belonging. All other cross-loadings and
-all residual covariances are zero. Factor variances equal one, and
-the primary model is covariance-only. It has 29 free parameters and
-49 df.
+For person $i$, a linear confirmatory factor model is
 
-This chapter refits that exact specification to Sample B, taken from the
-released file. It does not reconstruct the baseline from rounded estimates,
-change the item order, or substitute a simple-structure model, so the refitted
-object carries the same parameter table, software settings, warnings and
-sample covariance under the normal-likelihood convention.
+$$
+\mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i+
+\boldsymbol\epsilon_i,\qquad
+E(\mathbf y_i)=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\alpha,
+\qquad
+\boldsymbol\Sigma=\boldsymbol\Lambda\boldsymbol\Phi
+\boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta.
+$$
+
+The $p$ observations in $\mathbf y_i$ are indicators; the $m$ variables in
+$\boldsymbol\eta_i$ are latent factors. The intercepts are
+$\boldsymbol\nu$, the factor means are $\boldsymbol\alpha$, and the
+$p\times m$ loading matrix $\boldsymbol\Lambda$ states which factors
+predict each indicator. Factor covariance $\boldsymbol\Phi$ and residual
+covariance $\boldsymbol\Theta$ are different parts of the model. The
+covariance equation assumes finite second moments and zero factor--residual
+covariances. Diagonal $\boldsymbol\Theta$ specifies residual uncorrelatedness;
+with jointly normal conditional residuals it also gives conditional
+independence. Normal-theory tests require further sampling and distributional
+conditions, beyond the covariance equation itself.
+
+Each factor needs a scale, set by a marker loading or a fixed variance.
+Only freely estimated distinct parameters enter $t$. A covariance-only model
+has $u=p(p+1)/2$ distinct observed moments and, when identified with independent
+regular restrictions, $df=u-t$. Nonnegative df is a count check rather than
+proof that every parameter is recoverable. Estimation seeks the admissible
+parameter values that best reproduce the observed moments under a declared
+criterion; fit evaluation then examines the discrepancy that remains.
+
+The application concerns twelve continuous learning-experience indicators:
+P1--P4 describe planning, S1--S4 strategy use, and B1--B4 belonging. Sample A
+was used to develop a candidate with three correlated factors and two
+secondary relations: P4 additionally loads on Strategy and S4 on Belonging.
+That fixed candidate, called M1-cross to keep its history traceable, is
+estimated on Sample B. All other cross-loadings and all residual covariances
+are zero. Factor variances equal one; the model is covariance-only.
+
+```{r}
+#| label: fig-cfa-evaluation-specification
+#| fig-width: 7
+#| fig-height: 5
+#| fig-cap: "The fixed questionnaire model to be evaluated. Ovals are factors, boxes indicators, one-headed arrows loadings, curved two-headed arrows factor covariances, and the small residual terms supply indicator-specific variance. The two secondary loadings are part of the original candidate."
+#| fig-alt: "Three correlated factors, Planning, Strategy and Belonging, each have four primary indicators. P4 additionally loads on Strategy and S4 on Belonging. Every indicator has a residual and no residual covariances are included."
+pt2_groups_diagram(list(Planning=paste0("P",1:4),Strategy=paste0("S",1:4),
+ Belonging=paste0("B",1:4)),correlated=TRUE,marker=FALSE,
+ cross=data.frame(factor=c("Strategy","Belonging"),item=c("P4","S4"),
+ stringsAsFactors=FALSE))
+```
+
+The paths are a measurement hypothesis. Neither their direction nor their
+estimated size proves that the named construct causes the responses.
+
+```{=latex}
+\Needspace{12\baselineskip}
+```
+
+| Parameter block | Free entries | Fixed restrictions |
+|:--|--:|:--|
+| Loadings | 14 | Other 22 loadings zero |
+| Factor covariance | 3 | Three factor variances equal one |
+| Indicator residuals | 12 variances | All 66 residual covariances zero |
+| Total | 29 | $78-29=49$ degrees of freedom |
+
+: Free and fixed parameters in the declared questionnaire model. {#tbl-cfa-evaluation-ledger}
+
+The fit uses the original full-precision Sample B records, with the same
+item order and conventions throughout. A comparison made after changing the
+observations, metric or estimator would answer a different question.
 
 Written as parameter matrices, the specification is a $12\times3$ loading
 matrix whose free entries follow the frozen pattern, a $3\times3$ factor
@@ -1184,13 +1271,10 @@ information, and the conventional standard errors and test statistic. Those
 settings are held fixed for every model in this chapter, which is what keeps
 the comparisons later in it eligible.
 
-Refitting is not a license to skip checking the result. Before any fit
-statistic below is used, the render
-confirms that the released records match the declared population, that the item
-order and free-parameter count are as specified, and that the solution
-converged and is admissible. The R and package versions are recorded alongside
-those checks so that a later reader can tell what produced the numbers; they
-are not themselves verified against a required version.
+Before interpreting a fit statistic, check the item order and free-parameter
+count, convergence, gradients and admissibility. These checks pass for the
+declared model. Retaining software versions alongside the data and model
+declarations makes the numerical results reproducible.
 
 ## Separate five questions
 
@@ -1231,8 +1315,9 @@ status.
 
 # From the ML discrepancy to a global fit profile
 
-This section asks one question: what the model statistic measures,
-and what the profile of global indices built from it says. The
+The basic fit profile combines an exact-fit test, approximate discrepancy,
+improvement over a reference model, and average standardized residual size.
+This section develops their calibration and their different limitations. The
 discrepancy comes first, because the statistic it produces is what
 the exact-fit test refers to a reference distribution and what the
 approximation and incremental indices rescale.
@@ -1809,7 +1894,7 @@ changes.
 pt2_higher_order_diagram(rep(1:3,each=4),
   factor_labels=c("Planning","Strategy","Belonging"),
   indicator_labels=c(paste0("P",1:4),paste0("S",1:4),paste0("B",1:4)),
-  gamma_labels=pt2_num(extensions$gamma,2),higher_label="General",
+  gamma_labels=pt2_num(extensions$gamma),higher_label="General",
   cross=data.frame(factor=c("Strategy","Belonging"),item=c("P4","S4"),
                    stringsAsFactors=FALSE))
 ```
@@ -1934,9 +2019,138 @@ equivalence of the two admissible model families or a general-factor cause.
 
 For $m=4$, six factor correlations are replaced by four higher-order
 loadings, introducing two generic covariance-equality restrictions in addition
-to the admissibility conditions. Chapter 3's four-factor model supplies that
-next case. More first-order factors create additional restrictions to evaluate,
-not an assurance that the model is correct.
+to the admissibility conditions. A separate constructed population makes
+these restrictions visible. It contains four first-order factors, each
+measured by three indicators, and one general factor. Its complete generating
+model is
+
+$$
+\eta_{ik}=\gamma_kG_i+\delta_{ik},\qquad
+Y_{ikj}=\lambda_j\eta_{ik}+\epsilon_{ikj},\quad
+k=1,\ldots,4,\quad j=1,2,3.
+$$
+
+Here $G$ is standard normal, $\boldsymbol\gamma=(.8,.7,.6,.5)^{\mathsf T}$,
+and the independent normal first-order disturbances have variances
+$(.36,.51,.64,.75)$. Thus every first-order factor has variance one.
+Each factor's three indicator loadings are $(1,.8,.6)$, the twelve independent
+normal indicator residuals have variance $.36$, and all means and intercepts
+are zero. Factors, first-order disturbances and indicator residuals are
+independent except for the relations explicitly stated. These are stipulated
+population values, not estimates from the questionnaire or a published study.
+
+```{r}
+#| label: four-factor-population-check
+#| include: false
+gamma4 <- c(.8,.7,.6,.5)
+psi4 <- 1-gamma4^2
+Phi4 <- tcrossprod(gamma4)+diag(psi4)
+dimnames(Phi4) <- list(paste0("F",1:4),paste0("F",1:4))
+Phi4_changed <- Phi4
+Phi4_changed[1,2] <- Phi4_changed[2,1] <- .61
+tetrads4 <- function(P) c(P[1,2]*P[3,4],P[1,3]*P[2,4],P[1,4]*P[2,3])
+L4 <- matrix(0,12,4)
+for(k in 1:4) L4[(3*k-2):(3*k),k] <- c(1,.8,.6)
+Sigma4 <- L4 %*% Phi4 %*% t(L4)+diag(.36,12)
+stopifnot(max(abs(tetrads4(Phi4)-.168))<1e-12,
+ max(abs(tetrads4(Phi4_changed)-c(.183,.168,.168)))<1e-12,
+ min(eigen(Phi4_changed,symmetric=TRUE)$values)>0,
+ min(eigen(Sigma4,symmetric=TRUE)$values)>0,
+ 78-(8+12+10)==48,78-(8+12+8)==50)
+```
+
+```{r}
+#| label: fig-cfa-four-factor-restrictions
+#| fig-width: 7
+#| fig-height: 3.7
+#| fig-cap: "Two structures for the same four first-order factors. Left: all six covariances are free. Right: a general factor produces them through four loadings, with independent first-order disturbances. Each factor retains the same three-indicator measurement block, omitted from this compact diagram."
+#| fig-alt: "Four first-order factors on the left have all six pairwise covariance arrows. On the right, a General factor predicts all four with loadings 0.8, 0.7, 0.6 and 0.5; four separate disturbances have variances 0.36, 0.51, 0.64 and 0.75."
+op <- par(mfrow=c(1,2),mar=c(.2,.2,1.7,.2),xpd=NA)
+xy <- rbind(c(1,3),c(3,3),c(1,1),c(3,1))
+plot.new(); plot.window(xlim=c(0,4),ylim=c(0,4),asp=1)
+for(a in 1:3) for(bb in (a+1):4) {
+ d <- xy[bb,]-xy[a,]; unit <- d/sqrt(sum(d*d))
+ from <- xy[a,]+.34*unit; to <- xy[bb,]-.34*unit
+ arrows(from[1],from[2],to[1],to[2],code=3,length=.055,col="#597482")
+}
+symbols(xy[,1],xy[,2],circles=rep(.33,4),inches=FALSE,add=TRUE,bg="white",fg="#234556")
+text(xy[,1],xy[,2],paste0("F",1:4),cex=.9)
+title("Freely correlated factors",cex.main=.95)
+plot.new(); plot.window(xlim=c(0,5.2),ylim=c(0,4.2))
+yy <- c(3.7,2.6,1.5,.4)
+for(k in 1:4) {
+ arrows(1.0,2.05,3.12,yy[k],length=.07,col="#234556")
+ text(2.5,.28*2.05+.72*yy[k]+.15,pt2_num(gamma4[k]),cex=.85)
+ arrows(4.55,yy[k],3.82,yy[k],length=.07,col="#666666")
+ text(4.68,yy[k]+.13,paste0("d",k),cex=.8)
+ text(4.68,yy[k]-.16,pt2_num(psi4[k]),cex=.75)
+}
+symbols(c(.65,rep(3.47,4)),c(2.05,yy),circles=rep(.35,5),inches=FALSE,
+ add=TRUE,bg="white",fg="#234556")
+text(.65,2.05,"G",cex=.9); text(3.47,yy,paste0("F",1:4),cex=.9)
+title("One higher-order factor",cex.main=.95)
+par(op)
+```
+
+The resulting first-order covariance is
+
+$$
+\boldsymbol\Phi_4=
+\begin{bmatrix}
+1&.56&.48&.40\\
+.56&1&.42&.35\\
+.48&.42&1&.30\\
+.40&.35&.30&1
+\end{bmatrix}.
+$$
+
+In a freely correlated model, its four variances and six covariances are ten
+free quantities. With $\operatorname{Var}(G)=1$, the higher-order form has
+four loadings and four disturbance variances, eight quantities. The difference
+is two restrictions. Equivalently, the products of disjoint covariances,
+called *tetrad products*, must agree:
+
+$$
+\phi_{12}\phi_{34}=\phi_{13}\phi_{24}=\phi_{14}\phi_{23}
+=\gamma_1\gamma_2\gamma_3\gamma_4=.168.
+$$
+
+The first equality and the second equality are two constraints among the
+six correlations. They express the idea that one common source accounts for
+all four factors' associations.
+
+| Component | Correlated first-order model | Higher-order model |
+|:--|--:|--:|
+| Free non-marker item loadings | 8 | 8 |
+| Free item residual variances | 12 | 12 |
+| Free factor-level parameters | 10 | 8 |
+| Total free parameters | 30 | 28 |
+| Unique observed covariances and variances | 78 | 78 |
+| Degrees of freedom | 48 | 50 |
+
+: Parameter counts for the same twelve indicators. Marker loadings equal one; the higher-order factor variance also equals one. Non-marker primary loadings, first-order disturbance variances and item residual variances are free in their respective model families. {#tbl-cfa-four-factor-ledger}
+
+The numerical generating values above define the population used for this
+illustration; they are not additional fixed constraints in this ledger.
+The measurement blocks, item order and residual restrictions stay the same
+between models. Only the factor covariance representation changes.
+
+::: {.callout-note title="Predict, then explain"}
+Suppose only $\phi_{12}$ changes from $.56$ to $.61$, while every other
+entry remains fixed. Can a different set of four higher-order loadings
+reproduce the changed covariance? Decide from the shared-source hypothesis
+before checking the products.
+:::
+
+The changed products are $.61(.3)=.183$, $.48(.35)=.168$, and
+$.4(.42)=.168$. They no longer agree. The altered matrix remains positive
+definite, with smallest eigenvalue $.381$, so it is a valid correlated-factor
+covariance. It is outside this one-general-factor family with diagonal
+first-order disturbances. Positive definiteness answers whether the
+covariance is admissible; the tetrads answer whether it obeys the proposed
+structural restrictions. In a sample, discrepancies among estimated
+products would require uncertainty assessment. Here the population is known,
+so no sample size, standard error or significance test is being invented.
 
 ## A bifactor model allocates item covariance directly {#sec-bifactor}
 
@@ -2017,9 +2231,10 @@ with $p=$ `r pt2_num(subset(bl,Factor=="Strategy_s" & Item=="S4")$p)`.
 That weak negative coefficient is not a numerical failure, but it strains a
 simple claim that every item carries a clear positive domain-specific signal.
 The bifactor also has higher AIC and BIC than M1-cross. Greater flexibility
-and a familiar name do not guarantee a more useful representation. The three-domain higher-order form adds no equality degrees of freedom
-at the admissible solution considered here; Chapter 3 introduces the
-four-factor case with additional covariance-equality restrictions.
+and a familiar name do not guarantee a more useful representation. The
+three-domain higher-order form adds no equality degrees of freedom at the
+admissible solution considered here; the four-factor case in Section 5.3
+shows how that changes when one more domain is present.
 
 ## The Schmid-Leiman transformation connects the two forms
 
@@ -2206,7 +2421,7 @@ $$
 
 An MI is not the exact LR change, a posterior probability of a missing
 path, or a guarantee that the proposed parameter is substantively real.
-Searching many MIs and reporting only the largest ordinary $p$ value
+Searching many MIs and reporting an unadjusted $p$ value for the selected path
 does not retain the interpretation of a single prespecified test.
 The [official modification-index guide](https://lavaan.ugent.be/tutorial/modindices.html)
 also distinguishes the different standardized EPC columns.
@@ -2310,14 +2525,14 @@ out-of-sample prediction question requiring its own objective and
 evaluation protocol.
 
 ```{=latex}
-\Needspace{22\baselineskip}
+\Needspace{24\baselineskip}
 ```
 
 | Stage | Decision | Evidence role |
 |:--|:--|:--|
 | A | Retain three factors and two secondary loadings | Development |
 | Before B | Fix M0--M4 and the M1 target | Specification settled |
-| B, Chapter 3 | Estimate M1 and check its solution | Confirmation-record estimation |
+| B, Chapter 3 | Estimate M1, check its solution and read basic fit | Confirmation-record estimation and evaluation |
 | B, Chapter 4 | Evaluate planned models; inspect local diagnostics | Planned evaluation plus labeled exploration |
 | Before C | Fix the tentative R1-B4 without further changes | Retest specification settled |
 | C | Evaluate M1 and R1; do not search again | Independent synthetic validation |
@@ -2459,63 +2674,163 @@ relations in the fixed-factor metric.
 
 ## Define a score before calculating reliability
 
-For a continuous composite
-
-$$
-c_i=\mathbf w^{\mathsf T}\mathbf y_i,
-$$
-
-its model-implied variance is
-$\mathbf w^{\mathsf T}\boldsymbol\Sigma\mathbf w$.
-The proportion attributed to all modeled common factors is
+Reliability concerns a particular score. Let the score for person $i$ be
+$c_i=\mathbf w^{\mathsf T}\mathbf y_i$, where $\mathbf w$ is a declared
+$12\times1$ weight vector. Its model-based common-variance proportion is
 
 $$
 \omega(\mathbf w)=
 \frac{\mathbf w^{\mathsf T}\boldsymbol\Lambda
 \boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}\mathbf w}
 {\mathbf w^{\mathsf T}\boldsymbol\Sigma\mathbf w}.
-$$
+$$ {#eq-score-omega}
 
-The numerator is the variance of the model's common part for that
-weighting rule. The denominator also includes
-$\mathbf w^{\mathsf T}\boldsymbol\Theta\mathbf w$.
-This expression retains cross-loadings, factor correlations, and any
-modeled residual covariances. A shortcut based only on selected
-loadings may omit essential terms.
+The numerator is the variance of the model's common part for that weighting
+rule. The denominator also includes
+$\mathbf w^{\mathsf T}\boldsymbol\Theta\mathbf w$. Cross-loadings, factor
+correlations and any modeled residual covariances remain in this calculation;
+a shortcut using only a few selected loadings may omit relevant contributions.
 
-For the course example, define four scores on the *raw process-index
-scale*: the mean of P1--P4, the mean of S1--S4, the mean of B1--B4,
-and the mean of all twelve indicators. Weights are .25 on the relevant
-four items and zero elsewhere for a subscale, or $1/12$ on all items
-for the total. A standardized-item mean would be a different weighting
-rule and requires a separately defined calculation.
+Define four scores on the *raw process-index scale*: the mean of P1--P4,
+the mean of S1--S4, the mean of B1--B4, and the mean of all twelve indicators.
+Each domain mean uses weights .25 on its four items and zero elsewhere;
+the all-item mean uses $1/12$ on every item. A standardized-item mean would
+have different weights and require a separately defined calculation.
 
 ```{r}
 #| label: tbl-cfa-reliability
 #| tbl-cap: "Model-conditional common-variance proportions for explicitly defined raw-item composites under M1 in Sample B. These are point estimates, not validation thresholds."
-pt2_table(data.frame(Composite=names(omega),Common_variance_proportion=unname(omega)))
+pt2_table(data.frame(Composite=names(omega),Omega=unname(omega)))
 ```
 
-The all-item mean has a larger common-variance proportion than the
-individual subscale means, but that does not make it unidimensional.
-Its numerator combines common variance from three correlated factors.
-Similarly, the Planning and Strategy means include their retained
-secondary-loading contributions. Their values are not proportions
-attributable exclusively to the intended named factor.
+The all-item mean has a larger common-variance proportion than the individual
+subscale means, but that does not make it unidimensional: its numerator
+combines common variance from three correlated factors. Similarly, the
+Planning and Strategy means include their retained secondary-loading
+contributions, so their values are not proportions attributable exclusively
+to the intended named factor. Reliability concerns a specified score under
+a specified model and population; it does not establish dimensionality,
+content coverage, fairness, predictive usefulness or invariance across groups.
 
-Reliability concerns a specified score under a specified model and
-population. It does not establish dimensionality, content coverage,
-fairness, predictive usefulness, or invariance across groups. The
-reported estimates also have sampling uncertainty. A bootstrap interval
-would require a declared resampling design, model-refitting checks,
-and an explicit treatment of failed or improper solutions; it would
-not account automatically for every earlier model-selection decision.
+Changing a mean to the sum of the same items multiplies every weight by
+one constant. Both quadratic variance terms multiply by its square, leaving
+the ratio unchanged. Changing relative weights, such as standardizing items
+whose variances differ, defines a different score and need not preserve it.
 
-Changing a mean to the sum of the same items multiplies every weight by the
-same constant. Both quadratic variance terms then multiply by that constant
-squared, leaving their ratio unchanged. Changing relative item weights, as
-when unequal-variance items are standardized separately, defines a different
-score and need not preserve the ratio.
+**Alpha uses an observed score variance.** Cronbach's alpha, denoted
+$\alpha_C$ here to distinguish it from a latent mean, is easily obtained
+from the raw-item covariance matrix $\mathbf S$. For a unit-weighted
+sum or mean of $k$ items,
+
+$$
+\alpha_C=\frac{k}{k-1}
+\left(1-\frac{\sum_j s_{jj}}
+{\mathbf 1^{\mathsf T}\mathbf S\mathbf 1}\right).
+$$ {#eq-score-alpha}
+
+The diagonal sum is the sum of the individual item variances; the
+quadratic form is the variance of their sum. Alpha compares these quantities,
+using the observed covariance, whereas omega above uses the fitted model's
+implied covariance. Both coefficients must refer to the same declared raw
+score for this comparison to be meaningful.
+
+Under a single common factor with equal loadings and uncorrelated residuals,
+alpha agrees with the unit-weighted score's common-variance proportion.
+Unequal loadings remove that equality. Correlated residuals can inflate
+alpha, so a large coefficient or an increase after an item change does
+not establish one factor or justify deletion. A standardized-item alpha
+would concern another score. Measurement assumptions, the score definition
+and uncertainty belong beside the coefficient, rather than a universal cutoff [@raykov2004].
+
+**Resample people while keeping the score and model fixed.** Consider the
+Belonging mean, with weights .25 on B1--B4 and zero on the other eight items.
+The original estimate is `r pt2_num(relpoint)` and raw alpha is
+`r pt2_num(relalpha)`. Resample the 360 Sample B rows with replacement,
+keeping every person's twelve indicators together, and refit the same
+joint M1-cross model each time. The loading pattern, scaling, residual
+restrictions, estimator and score weights remain fixed. Nothing is
+reselected on a resample, and factor scores do not replace the indicators.
+
+The 2,000 attempted refits below use a fixed random seed. Each starts from
+the ordinary fitting rule. The record distinguishes fitting error or
+nonconvergence, a converged improper solution, an admissible solution with
+an undefined score functional, and an admissible usable estimate. Variance,
+positive-definiteness and post-fit checks precede the score calculation;
+a negative residual variance is counted as improper rather than set to zero.
+
+```{r}
+#| label: tbl-cfa-reliability-interval
+#| tbl-cap: "The declared raw Belonging mean under fixed M1-cross, Sample B. The percentile interval uses admissible refits and conditions on the model and score weights."
+pt2_table(data.frame(Score='B1--B4 mean',Alpha=relalpha,Omega=relpoint,
+  Lower=unname(relci[1]),Upper=unname(relci[2]),
+  Admissible=sum(relboot$admissible),Attempted=nrow(relboot)))
+```
+
+There were `r unname(relcounts[1])` fitting errors or nonconvergences,
+`r unname(relcounts[2])` improper solutions, `r unname(relcounts[3])`
+undefined functionals and `r unname(relcounts[4])` usable estimates.
+These counts use all 2,000 attempts, even when a category is zero.
+The 2.5th and 97.5th percentiles of the usable estimates give the interval;
+failed fits would remain in the outcome record rather than being replaced
+by zero or additional successful draws.
+
+```{r}
+#| label: fig-cfa-reliability-bootstrap
+#| fig-width: 6.3
+#| fig-height: 3.2
+#| fig-cap: "Belonging omega across 2,000 attempted and 2,000 admissible refits of fixed M1-cross. The solid line is the original estimate; dashed lines mark the percentile 95% interval. Every resample retains whole twelve-indicator records."
+#| fig-alt: "A unimodal bootstrap histogram of Belonging omega centered near .792, with the original estimate marked and percentile endpoints near .752 and .825. All 2,000 attempted fits were admissible and usable."
+par(mar=c(4,4,1,1))
+hist(reluse,breaks=25,col='#dce9f0',border='white',main='',
+     xlab='Belonging mean: model-based omega',ylab='Admissible refits')
+abline(v=relpoint,col='#28658b',lwd=2)
+abline(v=relci,col='#925a2a',lty=2,lwd=2)
+legend('topleft',c('Original estimate','Percentile endpoints'),
+       col=c('#28658b','#925a2a'),lty=c(1,2),lwd=2,bty='n',cex=.85)
+```
+
+The distribution shows how the same score and working model vary across
+resampled people. The interval covers sampling uncertainty conditional on
+those choices; it does not incorporate every earlier item or model selection.
+Substantial failed-refit rates or boundary mass would require attention before
+reading its endpoints. Here all attempts were usable, but the population
+comparison has already exposed M1's omitted B1--B2 residual relation.
+A narrow interval does not repair that restriction or demonstrate correct
+coverage for the generating model's reliability.
+
+**Return to the measurement decision.** B4 represents connection to the
+university as a whole, broader content than the immediate peer and classroom
+items. Its comparatively weak common-factor representation raised a question
+in the development record. The tentative extra Planning loading did not
+receive support in the held-back retest; that result supports retaining the
+specified M1-cross as a working model, while preserving the unresolved
+content question.
+
+```{=latex}
+\Needspace{24\baselineskip}
+```
+
+| Question | Evidence available | What remains to be justified |
+|:--|:--|:--|
+| What does the score cover? | B1--B4 cover peer acceptance, participation, classroom voice and institutional connection | Whether these experiences cover the intended construct and use |
+| What restrictions are credible? | B/C fit, local residuals and the unsuccessful added-loading retest; the retrospective omitted residual relation | Whether the working restrictions suit a new setting |
+| How consistently does this score reflect the modeled common part? | Fixed-weight omega and its raw-record interval; alpha for the same score | Dependence on the model, population and score definition |
+| What supports later use? | A documented development and retest history | Independent content, response-process and use-specific evidence |
+
+: A reliability estimate addresses one part of a measurement decision. {#tbl-cfa-reliability-evidence}
+
+Retaining B4 preserves its institutional content while acknowledging imperfect
+measurement. Deleting it would save one item and remove that content; it
+would also change the observed system and score, so the current reliability
+estimate could not simply be carried over. Redesign requires newly collected
+responses and independent evaluation, not a relabeling or recoding of the
+existing column. The current evidence warrants a qualified working score,
+not an automatic deletion or a declaration that redesign is unnecessary.
+
+**Predict and explain.** Suppose another analysis reports a still narrower
+interval for the same score but supplies no new content or response-process
+evidence. Which row of the evidence table has improved, and which decisions
+remain unresolved?
 
 ## A small calculation exposes the assumptions
 
@@ -2546,6 +2861,22 @@ subscales do not satisfy that simple interpretation without qualification.
 Coefficient $H$ requires its own optimal-weighting conditions, and its
 bound is derived in the
 [appendix](#sec-app-coefficient-h).
+
+Before revealing the next row, predict what shared residual variation
+will do to each coefficient. It increases the observed sum variance without
+contributing to the common-factor numerator.
+
+| Residual relation | Observed sum variance | $\alpha_C$ | $\omega$ |
+|:--|--:|--:|--:|
+| Diagonal residuals | 5.92 | .740 | .745 |
+| Residual covariance .1 | 6.12 | .765 | .721 |
+
+: The same three unit-variance items and unit weights can give opposite changes in alpha and omega. These are exact constructed moments, with no sampling interval. {#tbl-cfa-alpha-omega}
+
+Here $\alpha_C=\tfrac32(1-3/5.92)$ in the first row and
+$\tfrac32(1-3/6.12)$ in the second. Alpha rises while the modeled common
+proportion falls. A coefficient's increase therefore needs an explanation
+of the covariance that produced it.
 
 ## Factor scores are predictions, not observed latent values
 
@@ -2742,7 +3073,7 @@ there.
 | Term and common alternatives | Meaning |
 |:--|:--|
 | Model chi-square (exact-fit test; likelihood-ratio model test) | $T_M=N\widehat F_{\mathrm{ML}}$ referred to $\chi^2_{df_M}$, testing whether some admissible parameter vector reproduces the population moment structure exactly. Nonrejection is not acceptance of the model, and rejection at large $N$ is evidence against exact fit rather than a measure of its magnitude. |
-| RMSEA (root mean square error of approximation) with its 90% interval | Estimated discrepancy per degree of freedom, $\sqrt{\max\{(T_M-df_M)/(N\,df_M),0\}}$, comparable across models of different size, with an interval obtained by inverting a noncentral chi-square reference. A zero estimate is a truncation, not zero residuals; the convention ($N$ or $N-1$) must be named. |
+| RMSEA (root mean square error of approximation) with its 90% interval | Estimated discrepancy per degree of freedom, $\sqrt{\max\{(T_M-df_M)/(N\,df_M),0\}}$, whose behavior also depends on model size and degrees of freedom, with an interval obtained by inverting a noncentral chi-square reference. A zero estimate is a truncation, not zero residuals; the convention ($N$ or $N-1$) must be named. |
 | Incremental fit index (CFI; TLI or NNFI) with its independence baseline | Improvement of the model relative to a stated reference rather than relative to exact fit. The usual baseline frees the observed variances and fixes all covariances to zero, so a high value depends on how poor that baseline is; TLI is not bounded by one. |
 | SRMR (standardized root mean square residual) | Root mean square of observed-SD-standardized covariance residuals over one triangle including the diagonal. Not a mean absolute residual; a small value can hide a few large cells among many near-zero ones. |
 | Covariance residual (raw; observed-SD-standardized; correlation residual) | Observed minus implied covariance, either in the product of the two indicators' units, divided by the product of observed SDs, or as a difference of separately formed correlations. None is a residual divided by its sampling standard error, so none is automatically a $z$ statistic. |
@@ -2755,6 +3086,7 @@ there.
 | Bifactor model (general plus orthogonal specific or group factors) | Every item loads directly on one general factor and one assigned specific factor, all factors mutually orthogonal. A specific factor is common variance among its items after the general factor is held constant, not an item residual, and the model is generally nonnested against a correlated-factor model of the same items. |
 | Schmid-Leiman transformation and the proportionality restriction | The algebraic rewriting of a higher-order model as an orthogonal general factor with loadings $\boldsymbol\Lambda_l\boldsymbol\gamma$ and specific factors with loadings $\boldsymbol\Lambda_l\boldsymbol\Psi_h^{1/2}$. Because both come from one loading matrix, each simple-structure item in a domain has the same general-to-specific loading ratio $\gamma_k/\psi_{h,k}^{1/2}$; a freely estimated bifactor model is not bound by that ratio. |
 | Method effect; testlet effect | Common variance among items sharing a format (reverse keying, response scale, informant) or a stimulus (passage, vignette, apparatus). Both are design-known groupings and the least controversial motivation for a specific factor, which generalizes a freed residual covariance to several items. |
+| Cronbach's alpha for a declared unit-weighted score, $\alpha_C$ | A coefficient computed from item variances and their total-score variance. Interpreting it as reliability requires additional measurement assumptions; it is not a universal lower bound when residual dependence is allowed. |
 | Model-based omega for a declared score, $\omega(\mathbf w)$ (composite reliability) | The proportion of a declared weighted composite's model-implied variance attributable to all modeled common factors. It retains cross-loadings, factor correlations, and modeled residual covariances, and is conditional on model, weights, and sample. |
 | Omega-hierarchical, $\omega_h(\mathbf w)$ | The share of a declared score's variance attributable specifically to a bifactor general factor. Its complement within total omega is modeled reliable specific-factor variance, not error, and a substantial value does not establish essential unidimensionality. |
 | Average variance extracted (AVE) and coefficient $H$ as bounded neighbours | AVE summarizes average communality for a simple fully-standardized single-factor item set; $H=a/(1+a)$ with $a=\boldsymbol\lambda^{\mathsf T}\boldsymbol\Theta^{-1}\boldsymbol\lambda$ is a maximum over optimally weighted composites. Neither is the reliability of a stated unit-weighted score, and neither applies unqualified to a cross-loading subscale. |
@@ -2766,46 +3098,61 @@ there.
 
 # Exercises {.unnumbered}
 
-1. <!-- prompt-id: PT2-CH04-E01 -->**Reconstruct ML.** For
+1. <!-- prompt-id: PT2-CH04-E01 --> **Reconstruct ML.** For
    $\mathbf S=\begin{bmatrix}1&.5\\.5&1\end{bmatrix}$ and
    $\boldsymbol\Sigma=\begin{bmatrix}1&.3\\.3&1\end{bmatrix}$,
    calculate $F_{\mathrm{ML}}$ and $NF_{\mathrm{ML}}$ for $N=200$.
    Explain why a chi-square reference still requires the model's df
    and regularity conditions, not only this arithmetic.
-2. <!-- prompt-id: PT2-CH04-E02 -->**RMSEA and uncertainty.** Compute RMSEA under the
+
+2. <!-- prompt-id: PT2-CH04-E02 --> **RMSEA and uncertainty.** Compute RMSEA under the
    $N$ convention for $T=60$, $df=40$, $N=400$, and for $T=35$ with
    the same df and $N$. Explain why the second result does not imply
    zero residuals. What does a wide 90% interval add to interpretation?
-3. <!-- prompt-id: PT2-CH04-E03 -->**Baseline dependence.** With $T_M=60$, $df_M=40$,
+
+3. <!-- prompt-id: PT2-CH04-E03 --> **Baseline dependence.** With $T_M=60$, $df_M=40$,
    compare CFI when $(T_B,df_B)=(500,60)$ versus $(100,60)$.
    Explain why the same target-model statistic can yield different
    incremental fit and why neither result establishes construct truth.
-4. <!-- prompt-id: PT2-CH04-E04 -->**Establish nesting.** Show the exact restrictions
+
+4. <!-- prompt-id: PT2-CH04-E04 --> **Establish nesting.** Show the exact restrictions
    producing D1, D2, and D4 from D3. Use the printed statistics to
    calculate D4 versus D3's LR difference and df. Explain why D1 and
    D2 cannot be compared by the same ordinary subtraction test.
-5. <!-- prompt-id: PT2-CH04-E05 -->**Evaluate the tentative revision.** Combine B4's
+
+5. <!-- prompt-id: PT2-CH04-E05 --> **Evaluate the tentative revision.** Combine B4's
    wording, residual pattern, MI/EPC, B refit, and C retest. Explain
    the decision to retain M1 without claiming that C proves the added
    loading is exactly zero. What would be lost by omitting R1 from
    the report?
-6. <!-- prompt-id: PT2-CH04-E06 -->**Invert three factor correlations.** Starting from
-    the fitted Sample B correlations in Section 5, recover the three
-    standardized higher-order loadings and disturbance variances. State
-    the sign, denominator, and admissibility conditions. Explain why the
-    higher-order form has the same df and fit as M1-cross, and why a
-    four-first-order-factor version would impose two restrictions.
-7. <!-- prompt-id: PT2-CH04-E07 -->**Compare a bifactor rival.** Count the 36 free
-    covariance parameters and 42 df in the displayed bifactor model.
-    Explain why it is not nested in M1-cross, interpret the weak
-    Strategy-specific S4 loading, and compare their fit profiles without
-    claiming that a general factor has been proved.
-8. <!-- prompt-id: PT2-CH04-E08 -->**Read the population comparison.** Use the displayed
-    tetrad and loading-displacement table to identify the omitted
-    restriction. Explain why the population RMSEA is nonzero while the
-    finite-$N$ sample formulas applied to the population covariance return
-    RMSEA .000 and CFI 1.000, and why neither result is a specification
-    certificate.
+
+6. <!-- prompt-id: PT2-CH04-E06 --> **Compare three- and four-factor restrictions.** Starting from
+   the fitted Sample B correlations in Section 5, recover the three
+   standardized higher-order loadings and disturbance variances. State
+   the sign, denominator, and admissibility conditions. Explain why the
+   higher-order form has the same df and fit as M1-cross, and why a
+   four-first-order-factor version would impose two restrictions. In the
+   supplied four-factor population, predict whether changing only
+   $\phi_{12}$ from .56 to .61 can preserve the higher-order model.
+   Then use the displayed tetrad products .168 and .183 to explain your
+   prediction, including why positive definiteness alone cannot decide it.
+
+7. <!-- prompt-id: PT2-CH04-E07 --> **Compare a bifactor rival.** Count the 36 free
+   covariance parameters and 42 df in the displayed bifactor model.
+   Explain why it is not nested in M1-cross, interpret the weak
+   Strategy-specific S4 loading, and compare their fit profiles without
+   claiming that a general factor has been proved.
+
+8. <!-- prompt-id: PT2-CH04-E08 --> **Read the population comparison.** Use the displayed
+   tetrad and loading-displacement table to identify the omitted
+   restriction. Explain why the population RMSEA is nonzero while the
+   finite-$N$ sample formulas applied to the population covariance return
+   RMSEA .000 and CFI 1.000, and why neither result is a specification
+   certificate. Then explain why a narrow bootstrap interval for the
+   Belonging mean under M1-cross would not resolve the omitted residual
+   relation. Use the reliability evidence table to distinguish uncertainty
+   conditional on a model from evidence that the model and score are suitable
+   for their intended use.
 
 # Appendix: Interval and score calculations {.unnumbered}
 
