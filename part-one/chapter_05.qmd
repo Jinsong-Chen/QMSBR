@@ -582,13 +582,6 @@ $$
 \bar x=\frac{\sum_g n_g\bar x_g}{\sum_g n_g}.
 $$
 
-
-```{r}
-#| label: ch05-weights
-#| eval: false
-weighted.mean(c(29.4444, 59.1154), c(9, 26))
-```
-
 The rule applied to the five monthly ozone
 means returns 42.1293 ppb, the mean of all 116 recorded days. For June
 and July alone, with 9 and 26 recorded days, the recorded-day mean is
@@ -1302,7 +1295,7 @@ across the stated repetitions. For independent observations from a
 common distribution with SD $\sigma$, the mean's model SE is
 
 $$
-SE(\bar Y)=\frac{\sigma}{\sqrt n},
+SE(\bar Y)=\frac{\sigma}{\sqrt n}.
 $$
 
 
@@ -1310,11 +1303,11 @@ $$
 #| label: ch05-means-view
 #| eval: false
 hist(means_5)
-10 / sqrt(c(5, 30, 120))
 ```
 
-The SD of simulated means estimates this model SE; we call that SD the
-*empirical SE*. A simulation has two sizes, and they do different
+For five waits the model SE is $10/\sqrt5=4.4721$ minutes, and the SD
+of the simulated means, 4.5395 minutes, estimates it; we call that SD
+the *empirical SE*. A simulation has two sizes, and they do different
 jobs: the study size $n$, the number of waits in each sample, and the
 number of repetitions $B$, the number of simulated samples.
 @fig-ch05-repetitions changes one at a time.
@@ -1594,15 +1587,8 @@ term. The special-practice summaries give
 
 $$
 \widehat{SE}(\bar y_1-\bar y_0)=\sqrt{\frac{6.0^2}{60}+\frac{6.4^2}{60}}
-=1.1325\text{ points},
+=1.1325\text{ points}.
 $$
-
-
-```{r}
-#| label: ch05-assignment-se
-#| eval: false
-sqrt(6^2 / 60 + 6.4^2 / 60)
-```
 
 With 60 participants in each group, this also equals the pooled SE.
 Its interpretation in this
@@ -1945,13 +1931,6 @@ $$
 \operatorname{MCSE}(\widehat p_{\mathrm{cover}})
 =\sqrt{\frac{.95(.05)}{2000}}=0.0049.
 $$
-
-
-```{r}
-#| label: ch05-mcse
-#| eval: false
-sqrt(.95 * .05 / 2000)
-```
 
 All three fractions lie within one MCSE of .95. Increasing $B$ reduces
 the simulation noise, quadrupling it halves the MCSE. Increasing $n$

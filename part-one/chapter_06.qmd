@@ -301,14 +301,6 @@ indicator_fit <- lm(score ~ sound, data = sound_data)
 coef(indicator_fit)
 ```
 
-```{r}
-#| label: ch06-show-fit-residual
-#| eval: false
-fitted(indicator_fit)
-round(resid(indicator_fit), 4)
-```
-
-
 `lm()` and `aov()` describe the same set of fitted means, so they give the
 same residuals and the same ANOVA table. The formula names the outcome and
 the explanatory variable; the study's design supplies the independence
@@ -486,14 +478,6 @@ contributes to the common error estimate and its 27 residual degrees of
 freedom. This matters when comparing these results with an analysis
 restricted to only two conditions.
 
-```{r}
-#| label: ch06-show-contrast
-#| eval: false
-sum(c(-1, 1, 0) * c(12, 10, 8))
-sqrt((178/27) * sum(c(-1, 1, 0)^2 / 10))
-```
-
-
 ### A declared family: Bonferroni
 
 An individual 95% interval uses a .05 error probability for that one
@@ -509,33 +493,10 @@ t_{1-.05/(2\times2),27}=2.3734.
 $$
 
 The estimates and SEs stay the same; the larger multiplier widens each
-interval. For the Instrumental-minus-Silence comparison, the calculation is
+interval to $\widehat C\pm2.3734\,SE(\widehat C)$, and
+@tbl-ch06-bonferroni reports both intervals.
 
 \Needspace{8\baselineskip}
-
-```{r}
-#| label: ch06-bonferroni
-#| include: false
-mse <- deviance(one_fit) / df.residual(one_fit)
-means <- with(sound_data, tapply(score, sound, mean))
-estimate <- c(Instrumental = unname(means[2] - means[1]),
-  Lyrics = unname(means[3] - means[1]))
-se <- sqrt(mse * (1/10 + 1/10))
-critical <- qt(1 - .05/(2*2), df.residual(one_fit))
-raw_p <- 2 * pt(-abs(estimate/se), df.residual(one_fit))
-cbind(estimate, SE = se, lower = estimate-critical*se,
-  upper = estimate+critical*se,
-  adjusted_p = p.adjust(raw_p, method = "bonferroni"))
-```
-
-
-```{r}
-#| label: ch06-show-bonferroni
-#| eval: false
-se <- sqrt((178/27) * (1/10 + 1/10))
-critical <- qt(1 - .05/4, 27)
--2 + c(-1, 1) * critical * se
-```
 
 | Comparison | Estimate | SE | Simultaneous interval | Adjusted p |
 |:--|--:|--:|:--|--:|
@@ -587,14 +548,6 @@ music minus Silence, under four calibrations. The fourth, Scheffé, protects eve
 of the three means.
 
 \Needspace{8\baselineskip}
-
-
-```{r}
-#| label: ch06-show-multipliers
-#| eval: false
-c(qt(.975, 27), qt(1 - .05/4, 27))
-c(qtukey(.95, 3, 27)/sqrt(2), sqrt(2*qf(.95, 2, 27)))
-```
 
 | Calibration | Family protected | Multiplier | 95% interval |
 |:--|:--|--:|:--|
@@ -762,14 +715,6 @@ cell_mean
 ```
 
 \Needspace{12\baselineskip}
-
-
-```{r}
-#| label: ch06-show-margins
-#| eval: false
-rowMeans(cell_mean)
-colMeans(cell_mean)
-```
 
 @tbl-ch06-cell-means adds the margins and the three practice changes to
 these cell means.
@@ -974,8 +919,9 @@ $$
 SE(\widehat{DD})=\sqrt{MS_E(1/4+1/4+1/4+1/4)}=1.8257.
 $$
 
-Declared as the one comparison in advance, it is a family of one, and its
-pointwise 95% interval, $[0.1643,7.8357]$, is the warranted statement.
+Declared as the one comparison in advance, it is a family of one: its
+pointwise 95% interval, with multiplier $t_{.975;18}=2.1009$, is
+$[0.1643,7.8357]$, the warranted statement.
 Had the same contrast been picked after inspecting the plot, the interval
 would need to cover every difference of differences the plot could have
 suggested, the two-dimensional interaction space. To see its two
@@ -990,31 +936,6 @@ Section 2.3's Scheffé method uses
 $\sqrt{2F_{.95;2,18}}=2.6663$ for this family. The same
 estimate and SE would then give $[-0.868,8.868]$.
 
-\Needspace{13\baselineskip}
-
-```{r}
-#| label: ch06-selected-interaction
-#| include: false
-dd <- (cell_mean["Answer feedback", "Spaced"] -
-  cell_mean["Answer feedback", "Massed"]) -
-  (cell_mean["Rereading", "Spaced"] -
-  cell_mean["Rereading", "Massed"])
-mse_two <- deviance(two_fit) / df.residual(two_fit)
-se_dd <- sqrt(mse_two * 4/4)
-c(estimate = dd, SE = se_dd)
-dd + c(-1, 1) * qt(.975, 18) * se_dd
-dd + c(-1, 1) * sqrt(2 * qf(.95, 2, 18)) * se_dd
-```
-
-```{r}
-#| label: ch06-show-dd
-#| eval: false
-dd <- (12 - 8) - (6 - 6)
-se_dd <- sqrt((60/18) * (1/4 + 1/4 + 1/4 + 1/4))
-dd + c(-1, 1) * qt(.975, 18) * se_dd
-dd + c(-1, 1) * sqrt(2*qf(.95, 2, 18)) * se_dd
-```
-
 The counterfactual Scheffé interval includes zero although the interaction
 F test rejects. The F test asks whether both interaction directions are
 zero jointly; the interval covers one direction with protection over all
@@ -1024,14 +945,6 @@ beside Answer feedback's simple practice effect, which happens to share
 its estimate, 4.
 
 \Needspace{12\baselineskip}
-
-
-```{r}
-#| label: ch06-show-simple-effect
-#| eval: false
-se_simple <- sqrt(2 * (60/18) / 4)
-4 + c(-1, 1) * qt(.975, 18) * se_simple
-```
 
 | Quantity | Estimate | SE | 95% interval | Calibration |
 |:--|--:|--:|:--|:--|
@@ -1043,7 +956,7 @@ se_simple <- sqrt(2 * (60/18) / 4)
 
 The two DD intervals differ only in their multiplier; the comparison's
 history decides which applies. Answer's simple effect compares two cell
-means, so its SE, $\sqrt{2MS_E/4}$, is smaller. It contains an overall
+means, so its SE, $\sqrt{2MS_E/4}=1.2910$, is smaller. It contains an overall
 practice component as well as an interaction component and therefore lies
 outside the interaction-only family; that family's Scheffé guarantee does
 not transfer to it. Choosing the narrower interval after seeing its
@@ -1183,14 +1096,6 @@ X^2=\sum_{j,k}\frac{(O_{jk}-E_{jk})^2}{E_{jk}}
 =4\left(\frac{7^2}{25}\right)=7.84.
 $$
 
-```{r}
-#| label: ch06-show-pearson
-#| eval: false
-expected <- 50 * 50 / 100
-sum((c(32, 18, 18, 32) - expected)^2 / expected)
-```
-
-
 For a $J$-by-$K$ table the usual independence reference has
 $(J-1)(K-1)$ degrees of freedom. Here $df=1$ and p .0051. The observed
 Pearson statistic $X^2$ is a number calculated from the table; $\chi^2_1$
@@ -1236,15 +1141,6 @@ gives the question that each one answers [@agresti2018].
 | Cramér's V | $\sqrt{\dfrac{X^2}{N\min(J-1,K-1)}}$ | .2800 | How strong the association is, from 0 to 1, for a table of any size; it carries no direction and names no cell comparison |
 
 : Four effect scales for the completion table, Online versus In person. {#tbl-ch06-effect-scales tbl-colwidths="[15,25,9,51]"}
-
-```{r}
-#| label: ch06-show-effect-scales
-#| eval: false
-p1 <- 32/50; p0 <- 18/50
-c(difference = p1-p0, risk_ratio = p1/p0,
-  odds_ratio = (p1/(1-p1))/(p0/(1-p0)), V = sqrt(7.84/100))
-```
-
 
 The same counts give a gap of 28 percentage points, a risk ratio of
 1.7778 and an odds ratio of 3.1605. The odds ratio lies farther from 1
@@ -1659,14 +1555,6 @@ $$
 MCSE(\widehat q)=\sqrt{\frac{\widehat q(1-\widehat q)}{B}}.
 $$
 
-```{r}
-#| label: ch06-show-mcse
-#| eval: false
-1309 / 2000
-sqrt(.6545 * (1 - .6545) / 2000)
-```
-
-
 For the estimated power .6545, it is $\sqrt{.6545(1-.6545)/2000}=0.0106$,
 and the table's MCSE columns apply the same formula to each rate. This
 value describes the numerical uncertainty from using 2,000 simulations:
@@ -1797,14 +1685,6 @@ $$
 =t_{.9875,\,3(n-1)}\,\sigma\sqrt{\frac{2}{n}}.
 $$
 
-```{r}
-#| label: ch06-show-width
-#| eval: false
-n <- c(34, 35)
-qt(1 - .05/4, 3*(n-1)) * sqrt((10/3) * 2/n)
-```
-
-
 This calculation substitutes the planning SD $\sigma$ for the error SD
 that the future study will estimate. The planned half-width is 1.0078
 points at 34 per group and 0.9929 at 35, so 35 per group, or 105 students
@@ -1837,16 +1717,6 @@ ggplot(planning, aes(n, value)) + geom_line() +
   facet_wrap(~ target, scales = "free_y") +
   labs(x = "Students per group", y = NULL) +
   theme_minimal(base_size = 11)
-```
-
-The table `planning` contains the proposed group size `n`, each calculated
-`value` and its `target` label. The same plotting structure gives
-
-```{r}
-#| label: ch06-show-planning
-#| eval: false
-ggplot(planning, aes(n, value)) + geom_line() +
-  facet_wrap(~ target, scales = "free_y")
 ```
 
 Finally, distinguish the desired number of available outcomes from the
@@ -1909,6 +1779,11 @@ local({
   near(prop.test(c(32,18),c(50,50),correct=FALSE)$conf.int,
     c(.0918,.4682))
   near(-dbinom(32,50,.64,log=TRUE),2.1465)
+  near(p.adjust(2*pt(-c(2,4)/sqrt((178/27)*2/10),27),"bonferroni"),
+    c(.1859,.0034))
+  near(4+c(-1,1)*qt(.975,18)*sqrt(2*(10/3)/4),c(1.2877,6.7123))
+  near(qt(1-.05/4,3*(c(34,35)-1))*sqrt((10/3)*2/c(34,35)),
+    c(1.0078,.9929))
 })
 ```
 
