@@ -163,6 +163,7 @@ format:
     include-in-header:
       - ../koma_heading_tags.tex
       - text: |
+          \AtBeginDocument{\QMSBRLinkedTOC}
           % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
           % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
           % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:

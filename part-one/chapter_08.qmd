@@ -70,7 +70,8 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
-          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\QMSBRLinkedTOC}
+          \AtBeginDocument{\hypersetup{linktoc=all,pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents
           \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
@@ -1150,7 +1151,7 @@ named mean models applies here with continuous predictors. Its null hypothesis i
 coefficient is zero, so that *m2*'s mean function suffices; the
 statistic sets the residual sum of squares that the added term removes
 against the larger fit's residual variance, on 1 and $98-7=91$ degrees
-of freedom. A small $p$-value says the term removes more variation than
+of freedom. A small p-value says the term removes more variation than
 the error scale would ordinarily produce under that null. It does not
 make the enlarged equation the correct mean function, and it is not a
 rule for choosing a model; Chapter 9 develops the general comparison.
@@ -1178,7 +1179,7 @@ formula to the other 97 records moves
 education from 0.1164 to 0.4372. We keep the full-data estimate and
 disclose the sensitivity: excluding a record needs evidence about its
 coding, measurement, or distinctiveness, never a more attractive
-$p$-value. @tbl-ch8-checks collects what each check shows and what
+p-value. @tbl-ch8-checks collects what each check shows and what
 follows for the answer.
 
 ```{=latex}
@@ -1621,15 +1622,16 @@ teaching record, not a statement by the source investigators.
 
 ### Functions and traces in the report
 
-Reading starts by locating what each passage does. In Chapter 1's
-terms, a component is a logical function, such as STAT-E or SUB-J, and
-the report's study-specific content serves it. One passage can serve
-several functions. R0, for example, identifies the records for STAT-E
-and supplies their historical context for SUB-E. It would become
-justification (J) content only if it offered a reason connecting those
-records to an inference; "we used R" offers none. @tbl-ch8-traces lists
-each function once, with the content shared by the three pairs and the
-content specific to each.
+Reading starts by locating what each passage does. The labels use
+STAT for the statistical layer and SUB for the substantive layer;
+E, J, I and C mean evidence, justification, inference and bounded
+claim. Thus STAT-E identifies the data supporting a statistical
+answer, while SUB-E identifies their substantive meaning and context.
+One passage can serve several functions: R0 identifies the records
+and supplies their historical context. A passage serves justification
+only when it offers a reason connecting evidence to an inference;
+"we used R" offers none. @tbl-ch8-traces records each function and
+where its shared or pair-specific content appears.
 
 | Function | Shared or pair-specific content | Trace in this teaching record |
 |:--|:--|:--|
@@ -1644,23 +1646,19 @@ content specific to each.
 
 : Reading the linked-layer functions without three duplicate maps. {#tbl-ch8-traces tbl-colwidths="[15,47,38]"}
 
-SUB-E situates the evidence, SUB-J **augments and contextualizes** the
-statistical justification, SUB-I interprets the inference, and SUB-C
-bounds the substantive answer. Sharing a dataset does not make Pair 2's
-independent-error model into Pair 3's validation procedure.
+The substantive layer also **augments and contextualizes** the
+statistical justification (SUB-J), interprets the inference (SUB-I),
+and bounds the substantive answer (SUB-C).
 
-For each supporting statement, record what the report says and where
-the reader finds it: in the report, the data documentation, or the
-executable calculations. Gaps and conflicts are stated in ordinary
-prose. R2 states the independence assumption, for example, but nothing in
+Read gaps and conflicts beside the statements they concern. R2 states
+the independence assumption, for example, but nothing in
 the record shows that independence holds under the original selection of
 occupations; a stated assumption and evidence for it are different
 information. The unit conversion, by contrast, makes reading 0.883
 thousand dollars as about 883 dollars traceable. This record contains no
 conflicting source, though a real study may contain incompatible
-descriptions to record and investigate. A reason's documentary status is
-simply what has been stated or located and which support is missing; it
-is not a quality score or a set of categories to learn.
+descriptions to record and investigate. Locating a reason and identifying
+missing support prepare the separate judgment of its adequacy.
 
 Professional knowledge helps identify a trace's function but does not
 license adding an unreported design feature. An invalid reason such as
@@ -2071,20 +2069,20 @@ Start with a model containing only the three-level type factor. With
 blue-collar as reference,
 
 $$
-\widehat y_g=\widehat\alpha+
+\widehat y_g=\widehat\beta_0+
 \widehat\delta_{\mathrm{prof}}D_{\mathrm{prof}}+
 \widehat\delta_{\mathrm{wc}}D_{\mathrm{wc}}.
 $$
 
-The fitted means are $\widehat\mu_{\mathrm{bc}}=\widehat\alpha$,
-$\widehat\mu_{\mathrm{prof}}=\widehat\alpha+\widehat\delta_{\mathrm{prof}}$,
-and $\widehat\mu_{\mathrm{wc}}=\widehat\alpha+\widehat\delta_{\mathrm{wc}}$.
+The fitted means are $\widehat\mu_{\mathrm{bc}}=\widehat\beta_0$,
+$\widehat\mu_{\mathrm{prof}}=\widehat\beta_0+\widehat\delta_{\mathrm{prof}}$,
+and $\widehat\mu_{\mathrm{wc}}=\widehat\beta_0+\widehat\delta_{\mathrm{wc}}$.
 OLS minimizes squared deviations separately within each group, so these
 equal the observed group means; the hats distinguish fitted summaries
 from hypothetical population means.
 
 @tbl-ch8a-group-means reads the fit on the 98 records. The group-only
-coefficients are $\widehat\alpha=5.3741$, $\widehat\delta_{\mathrm{prof}}=5.1853$
+coefficients are $\widehat\beta_0=5.3741$, $\widehat\delta_{\mathrm{prof}}=5.1853$
 and $\widehat\delta_{\mathrm{wc}}=-0.3218$; each fitted mean combines them
 as the indicator columns direct and equals the observed mean income of
 its type. Sums of the rounded coefficients can differ from the fitted
@@ -2094,9 +2092,9 @@ means in the last digit.
 
 | Type | $D_{\mathrm{prof}}$ | $D_{\mathrm{wc}}$ | Coefficients combined | Fitted mean | Observed mean |
 |:--|--:|--:|:--|--:|--:|
-| bc | 0 | 0 | $\widehat\alpha$ | 5.3741 | 5.3741 |
-| prof | 1 | 0 | $\widehat\alpha+\widehat\delta_{\mathrm{prof}}$ | 10.5595 | 10.5595 |
-| wc | 0 | 1 | $\widehat\alpha+\widehat\delta_{\mathrm{wc}}$ | 5.0523 | 5.0523 |
+| bc | 0 | 0 | $\widehat\beta_0$ | 5.3741 | 5.3741 |
+| prof | 1 | 0 | $\widehat\beta_0+\widehat\delta_{\mathrm{prof}}$ | 10.5595 | 10.5595 |
+| wc | 0 | 1 | $\widehat\beta_0+\widehat\delta_{\mathrm{wc}}$ | 5.0523 | 5.0523 |
 
 : The type-only regression reproduces the three observed group means. {#tbl-ch8a-group-means tbl-colwidths="[10,10,10,34,18,18]"}
 
@@ -2109,11 +2107,11 @@ reference-category coefficient.
 \Needspace{8\baselineskip}
 
 Releveling changes the intercept and indicator coefficients, not the
-fitted values, the residuals, or a fixed substantive contrast;
-releveling leaves the fitted values equal up to floating-point noise. No new question
-appears merely because the coordinates changed. Centering the continuous
-predictors likewise changes the intercept's reference profile without
-changing the fitted values, and it cannot create cross-type support.
+fitted values, the residuals, or a fixed substantive contrast
+(Section 3.3). No new question appears merely because the coordinates
+changed. Centering the continuous predictors likewise changes the
+intercept's reference profile without changing the fitted values, and
+it cannot create cross-type support.
 
 ## Appendix B: Formulas Behind the Checks and Criteria {.unnumbered #app-ch8-b}
 
@@ -2162,8 +2160,8 @@ General managers have the largest Cook's distance, approximately 0.4467,
 and Section 4.3 explains why the record is inspected and retained.
 Refitting without it moves education from 0.1164 to 0.4372, and the type
 coefficients move as well. The comparison records a diagnostic perturbation of the fit,
-not six new research questions or evidence that the reduced sample is
-preferable.
+not a new research question for each coefficient that moved or evidence
+that the reduced sample is preferable.
 
 \Needspace{9\baselineskip}
 

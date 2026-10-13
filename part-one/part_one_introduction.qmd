@@ -69,6 +69,7 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
+          \AtBeginDocument{\QMSBRLinkedTOC}
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents

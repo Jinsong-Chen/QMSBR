@@ -29,6 +29,7 @@ format:
     include-in-header:
       - ../koma_heading_tags.tex
       - text: |
+          \AtBeginDocument{\QMSBRLinkedTOC}
           % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
           % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
           % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
@@ -1595,9 +1596,9 @@ knitr::kable(k_print, booktabs = TRUE, row.names = FALSE,
                            "Model students"))
 ```
 
-The middle of the distribution agrees with the model: a share of .6987
-of the grades lies within one SD, against the model's .6827. The lower
-tail does not. Thirty-eight students have zero grades. The model expects
+The central share is close to the model's: the proportion of grades
+within one SD is .6987, against the model's .6827. The lower
+tail differs substantially. Thirty-eight students have zero grades. The model expects
 only 2.6173 grades in the zero bar of @fig-ch02-normal-check and 6.0136 in
 its whole lower tail at or below 0.5, a tail that includes probability
 .0115 below zero, where no grade can occur. The same cluster explains

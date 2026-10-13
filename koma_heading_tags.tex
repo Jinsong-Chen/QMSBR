@@ -48,3 +48,36 @@
   }
 \makeatother
 \ExplSyntaxOff
+
+% Give an unnumbered heading its destination after its tagged heading begins.
+% An earlier phantomsection still belongs to the preceding section, causing
+% the TOCI /Ref to identify that section even when the page link is correct.
+% This retains the existing line format and also supports unnumbered levels.
+\let\QMSBRsectionlinesformat\sectionlinesformat
+\renewcommand{\sectionlinesformat}[4]{%
+  \QMSBRsectionlinesformat{#1}{#2}{#3}{\IfUseNumber{}{\phantomsection}#4}}
+
+% Opt-in TOC support for the same pinned KOMA / tagged-LaTeX stack.
+% KOMA's tocline formatter omits the kernel's text/page hooks. Restore
+% those hooks so hyperref creates links inside the tagged TOC Reference.
+% Call once at begin-document only in documents with a reviewed TOC.
+\makeatletter
+\newcommand*{\QMSBRLinkedTOC}{%
+  \hypersetup{linktoc=all}%
+  \let\QMSBRtocline\scr@dte@tocline
+  \renewcommand*{\scr@dte@tocline}[3]{%
+    \QMSBRtocline{##1}{%
+      \UseHookWithArguments{contentsline/text/before}{4}%
+        {\csname toclevel@##1\endcsname}{##2}{##3}{\@contentsline@destination}%
+      ##2%
+      \UseHookWithArguments{contentsline/text/after}{4}%
+        {\csname toclevel@##1\endcsname}{##2}{##3}{\@contentsline@destination}%
+    }{%
+      \UseHookWithArguments{contentsline/page/before}{4}%
+        {\csname toclevel@##1\endcsname}{##2}{##3}{\@contentsline@destination}%
+      ##3%
+      \UseHookWithArguments{contentsline/page/after}{4}%
+        {\csname toclevel@##1\endcsname}{##2}{##3}{\@contentsline@destination}%
+    }}%
+}
+\makeatother

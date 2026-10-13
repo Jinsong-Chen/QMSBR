@@ -43,7 +43,7 @@ wording and order govern.
 - `styles.scss`, `assets/` — theme and favicon
 - `references.bib`, `apa.csl` — the site's own copies of the bibliography
   and citation style
-- `koma_heading_tags.tex` — the synchronized PDF heading support from
+- `koma_heading_tags.tex` — the synchronized PDF heading and linked-contents support from
   `materials/`, retained with the copied sources for reproducible PDF builds
 - `LICENSE` — the terms for everything the site ships
 

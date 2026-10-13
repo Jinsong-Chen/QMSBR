@@ -70,6 +70,7 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
+          \AtBeginDocument{\QMSBRLinkedTOC}
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \usepackage{caption}
           \captionsetup[table]{
@@ -1452,8 +1453,9 @@ contrasts, a different use of the word.
 
 The school-blocked design of [Section 2.3](#sec-ch03-school-pairs) is
 a paired design too: each school supplies one explanatory-minus-usual
-difference of class means, and the paired t test applied to the twelve
-differences gives $t(11)=3.6187$, $p=.004$ and the 95% interval
+difference of class means. The paired t procedure, using an approximate
+working-model calibration for the twelve differences, gives
+$t(11)=3.6187$, $p=.004$ and the 95% interval
 [0.9795, 4.0205] points. Here each pair is a school, and random
 assignment of the two classes within each school supports a causal
 reading for these participating schools, which the before-and-after
@@ -1548,11 +1550,11 @@ Welch's test is therefore not simply a more cautious version of the
 equal-variance test: it asks the same question under a weaker
 assumption, and how much the choice matters depends on the design.
 With equal group sizes the two SEs and t statistics coincide
-(Section 2.2), but the df differ unless the two SDs are equal too. With
-groups of moderate size that difference barely moves the p-value, and
-Welch's test gives up almost no power; with small groups and very
-unequal spreads it can change the conclusion. With five students per
-group, SDs 10 and 1, and $t=2.5$, the equal-variance test gives
+(Section 2.2), but the df differ unless the two SDs are equal too. As both
+groups grow the p-value difference usually diminishes, and Welch's
+test gives up little power; decisions near the cutoff can still
+differ. Small groups with very unequal spreads make the difference
+more pronounced. With five students per group, SDs 10 and 1, and $t=2.5$, the equal-variance test gives
 $p=.0369$ on 8 df and Welch's test $p=.0655$ on 4.08 df. With equal
 spreads but unequal sizes Welch's test gives up a little power. With
 unequal group sizes and unequal spreads, however, the pooled variance, a
@@ -2478,8 +2480,9 @@ with $n_1=n_0=60$ students.
 3. Treat each class mean as one observation. The SDs of the three
    class means are 2.0952 points for Special Practice and 2.4062 points
    for Usual Practice. Calculate the SE from the same formula with
-   $n_1=n_0=3$ classes and compare it with 1.1325 points. On a t
-   reference with 4 df, the 95% interval for the difference is
+   $n_1=n_0=3$ classes and compare it with 1.1325 points. Using the
+   equal-variance working model with an approximate t reference on
+   4 df, the 95% interval for the difference is
    $[-2.0145,\ 8.2145]$. Which conclusion about Special Practice
    remains supported?
 4. Which quantities describe variation among students' scores, which

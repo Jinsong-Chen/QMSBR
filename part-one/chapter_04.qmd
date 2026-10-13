@@ -28,6 +28,7 @@ format:
     include-in-header:
       - ../koma_heading_tags.tex
       - text: |
+          \AtBeginDocument{\QMSBRLinkedTOC}
           % QMSBR local compatibility backport for luatex.def 2025/09/29 v1.2f.
           % Adapted from latex3/graphics-def PR 48 (Joseph Wright), commit
           % edda2fc20708ead2b7c18ed4e4f66cae4d7b1ee7:
@@ -1150,8 +1151,8 @@ those levels.
 ### Main effects and interaction through graphs
 
 In a two-factor design either main effect, the interaction, or any
-combination of the three can be present. Six schematic two-by-two
-patterns make the whole range visible before we return to the full
+combination of the three can be present. Six useful schematic two-by-two
+patterns illustrate these possibilities before we return to the full
 three-by-two data. Each line in @fig-ch04-interaction-patterns is one
 level of a two-level feedback factor, Feedback 1 or Feedback 2; the
 horizontal positions are Massed and Spaced practice. These are
@@ -1160,7 +1161,7 @@ significance claim.
 
 ```{r}
 #| label: fig-ch04-interaction-patterns
-#| fig-cap: "Six schematic patterns of cell means, covering the whole range of main-effect and interaction combinations. The two lines are two levels of a feedback factor; the drawings illustrate averages and changing differences, without significance claims."
+#| fig-cap: "Six useful schematic patterns of cell means, illustrating main effects and interactions. The two lines are two levels of a feedback factor; the drawings illustrate averages and changing differences, without significance claims."
 #| fig-alt: "Six panels. No effects: Feedback 1 and Feedback 2 coincide as one flat line at 10. One main effect: two separated flat lines at 8 and 12. Two main effects: parallel rising lines. Interaction only: crossing lines with equal marginal means. Interaction qualifies: both lines rise from 8, Feedback 2 more steeply. Interaction reverses: Feedback 1 rises from 8 to 10 while Feedback 2 falls from 16 to 10."
 #| fig-width: 7
 #| fig-height: 3.9
@@ -1510,9 +1511,9 @@ explains the first distinction without changing these data.
     includes the interaction, so it does not assume additivity; reading
     a main effect as the effect at every level would.
   - *Choices and defaults:* the full model with interaction; equal cell
-    weights for the marginal means; a .05 level fixed in advance; with
-    four students in every cell, every sums-of-squares convention gives
-    the same table.
+    weights for the marginal means; a .05 level fixed in advance. The
+    supplied analyses test these equal-weight marginal hypotheses and
+    give the same table in this balanced layout.
 - **Check:** every cell has residuals $-2$, $-1$, 1 and 2, so the six
   spreads agree by construction; residuals fanning out as the fitted
   mean grows would question the common variance, and four scores per

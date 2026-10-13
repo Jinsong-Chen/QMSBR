@@ -72,6 +72,7 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
+          \AtBeginDocument{\QMSBRLinkedTOC}
           \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents
@@ -960,13 +961,27 @@ $$
 $$
 
 which needs no Normality; Normality enters the exact $t$ reference.
-Estimating $\sigma$ by $s_e$ gives the standard error and the 95%
-interval:
+
+\Needspace{7\baselineskip}
+
+Estimating $\sigma$ by $s_e$ gives the standard error:
 
 $$
 SE(\widehat\beta_1)=\frac{s_e}{\sqrt{S_{xx}}}
-=\frac{3.4834}{\sqrt{751.8852}}=0.127,
+=\frac{3.4834}{\sqrt{751.8852}}=0.127.
 $$
+
+The 95% confidence interval is
+
+$$
+\widehat\beta_1\ \pm\ t_{.975,n-2}SE(\widehat\beta_1)
+\approx0.8988\pm1.984(0.127)
+\approx[0.6468,\ 1.1508].
+$$
+
+Here 1.984 is the 97.5th percentile of $t$ with 100 degrees of freedom.
+More error variation raises the SE, and a wider predictor spread lowers
+it.
 
 The education values `x` defined in Section 2.4 give the same SE:
 
@@ -977,16 +992,7 @@ The education values `x` defined in Section 2.4 give the same SE:
 sigma(model) / sqrt(sum((x - mean(x))^2))
 ```
 
-
-$$
-\widehat\beta_1\ \pm\ t_{.975,n-2}SE(\widehat\beta_1)
-\approx0.8988\pm1.984(0.127)
-\approx[0.6468,\ 1.1508].
-$$
-
-Here 1.984 is the 97.5th percentile of $t$ with 100 degrees of freedom.
-More error variation raises the SE, and a wider predictor spread lowers
-it. The test of $H_0:\beta_1=0$ gives
+The test of $H_0:\beta_1=0$ gives
 $t=\widehat\beta_1/SE(\widehat\beta_1)\approx7.0753$ and a two-sided
 $p<.0001$: evidence against the zero-slope model under the stated
 procedure. It is not the probability that the null is true, evidence of
@@ -1040,14 +1046,47 @@ calculation.
 ### A binary predictor and the two-sample t test {#ch07-binary-predictor}
 
 A predictor need not be continuous. Chapter 4's invented feedback study
-gave each of its 24 pupils a score out of 20, twelve under massed and
+gave each of its 24 students a score out of 20, twelve under massed and
 twelve under spaced practice. Code the schedule $x_i=0$ for massed and
 $x_i=1$ for spaced, and fit the same kind of line. With only two
 predictor values, the least-squares line joins the two group means
-(@fig-ch7-binary), and its coefficients take the readings of panel (b)
-of @fig-ch7-model-parts: the intercept is the mean at $x=0$, the massed
-mean, and the slope the difference for a one-unit step in $x$, from
-massed to spaced,
+(@fig-ch7-binary).
+
+```{r}
+#| label: ch7-binary-prepare
+#| include: false
+score <- c(4, 5, 7, 8, 4, 5, 7, 8, 6, 7, 9, 10, 10, 11, 13, 14,
+           8, 9, 11, 12, 16, 17, 19, 20)
+spaced <- rep(rep(c(0, 1), each = 4), 3)
+two_groups <- lm(score ~ spaced)
+```
+
+```{r}
+#| label: fig-ch7-binary
+#| fig-cap: "With a 0/1 predictor, the least-squares line joins the two group means: the intercept is the massed mean and the slope the difference in means."
+#| fig-alt: "Twenty-four invented scores plotted at 0 for massed and 1 for spaced practice, massed scores from 4 to 12 and spaced from 4 to 20. A line joins the massed mean 8 to the spaced mean 12, both marked with filled diamonds."
+#| fig-width: 5.6
+#| fig-height: 3
+two_group_data <- data.frame(spaced, score)
+group_means <- data.frame(spaced = c(0, 1),
+  score = tapply(score, spaced, mean))
+ggplot(two_group_data, aes(spaced, score)) +
+  geom_point(shape = 1, size = 1.8,
+    position = position_jitter(width = .04, height = 0, seed = 12345)) +
+  geom_abline(intercept = coef(two_groups)[1],
+    slope = coef(two_groups)[2], linewidth = .8) +
+  geom_point(data = group_means, shape = 18, size = 4.5) +
+  scale_x_continuous(breaks = c(0, 1),
+    labels = c("0 (massed)", "1 (spaced)")) +
+  coord_cartesian(xlim = c(-.25, 1.25)) +
+  labs(x = "Practice schedule", y = "Score (out of 20)")
+```
+
+\Needspace{8\baselineskip}
+
+Its coefficients take the readings of panel (b) of @fig-ch7-model-parts:
+the intercept is the mean at $x=0$, the massed mean, and the slope the
+difference for a one-unit step in $x$, from massed to spaced,
 
 $$
 \widehat\beta_0=\bar y_0=8,\qquad
@@ -1067,32 +1106,12 @@ $F(1,22)=5.5579=t^2$.
 ```{r}
 #| label: ch7-binary-predictor
 #| echo: true
+#| eval: false
 score <- c(4, 5, 7, 8, 4, 5, 7, 8, 6, 7, 9, 10, 10, 11, 13, 14,
            8, 9, 11, 12, 16, 17, 19, 20)
 spaced <- rep(rep(c(0, 1), each = 4), 3)
 two_groups <- lm(score ~ spaced)
 coef(summary(two_groups))
-```
-
-```{r}
-#| label: fig-ch7-binary
-#| fig-cap: "With a 0/1 predictor, the least-squares line joins the two group means: the intercept is the massed mean and the slope the difference in means."
-#| fig-alt: "Twenty-four invented scores plotted at 0 for massed and 1 for spaced practice, massed scores from 4 to 12 and spaced from 7 to 20. A line joins the massed mean 8 to the spaced mean 12, both marked with filled diamonds."
-#| fig-width: 5.6
-#| fig-height: 3
-two_group_data <- data.frame(spaced, score)
-group_means <- data.frame(spaced = c(0, 1),
-  score = tapply(score, spaced, mean))
-ggplot(two_group_data, aes(spaced, score)) +
-  geom_point(shape = 1, size = 1.8,
-    position = position_jitter(width = .04, height = 0, seed = 12345)) +
-  geom_abline(intercept = coef(two_groups)[1],
-    slope = coef(two_groups)[2], linewidth = .8) +
-  geom_point(data = group_means, shape = 18, size = 4.5) +
-  scale_x_continuous(breaks = c(0, 1),
-    labels = c("0 (massed)", "1 (spaced)")) +
-  coord_cartesian(xlim = c(-.25, 1.25)) +
-  labs(x = "Practice schedule", y = "Score (out of 20)")
 ```
 
 Welch's test uses the separate group SDs, 2.3741 and 5.3767,
@@ -1143,7 +1162,7 @@ repetition_summary <- c(
 )
 ```
 
-\Needspace{9\baselineskip}
+\Needspace{13\baselineskip}
 
 ```{r}
 #| label: tbl-ch7-repeated-slopes
@@ -1481,8 +1500,9 @@ c(classical = coef(summary(model))["education", "Std. Error"],
 
 Later chapters go further: Chapter 8, Appendix B, builds the HC3 matrix
 from its parts; Chapter 9, Appendix A, defines what a least-squares line
-estimates when the conditional mean is not linear, and its Section 5.3
-shows that measurement error in the predictor attenuates a slope. Nothing
+estimates when the conditional mean is not linear; and Chapter 14,
+Section 5.1, illustrates attenuation under independent classical
+predictor error in a single-predictor model. Nothing
 here relies on them. @tbl-ch7-diagnostic-consequences collects the five
 checks and what each can change.
 
@@ -1582,7 +1602,7 @@ The fathers' SD is 2.5466 inches and the sons' 2.6475, and $r=.4269$.
 In inches the fitted slope is 0.4438 inch
 of son's height per inch of father's height; in standard units it is
 .4269, which is $r$. A father 1.6 SD above the fathers' mean
-has a son predicted $.4269\times1.6=0.6831$ SD above the sons' mean:
+has a son predicted $r(1.6)\approx0.6831$ SD above the sons' mean:
 taller than average, but less than half as far out.
 
 ```{r}
@@ -1646,7 +1666,7 @@ four bands of each block hold all 179 men.
 
 The 24 fathers more than 1 SD above their mean average $z=1.6072$, or
 73.1917 inches; their sons average 0.7029, or 71.0750 inches, close to
-the line's prediction $.4269\times1.6072=0.6862$. The 30 short fathers
+the line's prediction $r(1.6072)\approx0.6862$. The 30 short fathers
 mirror them, and in every row the other height's mean lies between zero
 and the selected mean, near $r$ times it. Selecting on the sons gives the
 same movement backward in time: the 31 sons more than 1 SD above their
@@ -1787,15 +1807,17 @@ which nothing happens between the exams: no true score changed, and no
 one was praised, tutored or discouraged [@gelman2020]. The boxes show
 the other half of the story: the class is as spread out on the final (SD
 10.0853) as on the midterm (SD 9.8406), because fresh luck carries other
-students into the extremes. Less measurement error therefore reduces
-the expected movement between measurements.
+students into the extremes.
 
 The stipulated Normal model makes the no-intervention prediction
 explicit: $E(F\mid M)=65+.64(M-65)$. A high midterm score combines an
 above-average true score with favorable luck; the next error has mean
 zero, while the true-score advantage remains. This known relationship
-comes from the generating rule. A correlation below one alone would not
-establish it for an actual intervention study.
+comes from the generating rule. With true-score variation held fixed,
+less independent measurement error raises the correlation between exams
+and reduces expected regression toward the mean. A correlation below
+one alone would not establish the no-intervention relationship for an
+actual intervention study.
 
 ### The regression fallacy
 

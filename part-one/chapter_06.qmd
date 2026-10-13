@@ -72,7 +72,8 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
-          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\hypersetup{linktoc=all,pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\QMSBRLinkedTOC}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents
           \renewcommand{\tableofcontents}{\begingroup\small\linespread{0.95}\selectfont\chapteroldtableofcontents\endgroup}
@@ -386,13 +387,6 @@ variation summary. It is neither a causal probability nor a replacement
 for an interval. Subtracting the fitted-means contribution expected from
 noise gives the bias-adjusted omega-squared, .2525.
 
-
-```{r}
-#| label: ch06-show-variation
-#| eval: false
-80 / 258
-(80 - 2*(178/27)) / (258 + 178/27)
-```
 
 ### Plotting: what does each mark represent? {#ch06-plotting}
 
@@ -984,8 +978,16 @@ Declared as the one comparison in advance, it is a family of one, and its
 pointwise 95% interval, $[0.1643,7.8357]$, is the warranted statement.
 Had the same contrast been picked after inspecting the plot, the interval
 would need to cover every difference of differences the plot could have
-suggested, the two-dimensional interaction space. Section 2.3's Scheffé
-method uses $\sqrt{2F_{.95;2,18}}=2.6663$ for that family. The same
+suggested, the two-dimensional interaction space. To see its two
+directions, start with the practice changes of 0, 4 and 8 points.
+Answer-minus-Rereading compares $4-0=4$; Explanatory-minus-Answer
+compares $8-4=4$. Explanatory-minus-Rereading, $8-0=8$, is their sum,
+so it supplies no third independent direction. The first two comparisons
+are linearly independent, but their estimates are statistically dependent:
+both use Answer feedback's estimated practice change.
+
+Section 2.3's Scheffé method uses
+$\sqrt{2F_{.95;2,18}}=2.6663$ for this family. The same
 estimate and SE would then give $[-0.868,8.868]$.
 
 \Needspace{13\baselineskip}
@@ -1066,8 +1068,8 @@ Section 5.2 also obtains by likelihood.
 ### One proportion
 
 A score model is not the appropriate starting point for every outcome.
-Consider the invented completion table in
-@tbl-ch06-completion-counts. It contains aggregate counts for 100 records,
+@tbl-ch06-completion-counts returns to Chapter 3's invented completion
+example. It contains aggregate counts for 100 records,
 classified by learning format and completion. These records have no
 linkage to either score dataset above. The counts themselves establish
 neither random allocation nor representative sampling.
@@ -1324,8 +1326,8 @@ value there, 66 squared points. The latter is a sum of squared
 deviations, Silence's contribution to $SS_W$ in Section 1, rather than an
 SE or an estimate of the mean. The search interval
 also belongs to the fitting instruction: excluding the best center
-would restrict which answer the search could return. Numerical stopping
-tolerance concerns the accuracy of that search; statistical uncertainty
+would restrict which answer the search could return. Numerical accuracy
+concerns how closely the search locates that answer; statistical uncertainty
 concerns what an estimate would do across the repetitions justified by
 the study.
 
@@ -1375,14 +1377,11 @@ Which center can it return, and have the scores changed? The right panel
 retains the same curve but permits only centers at least 13. Loss rises
 through that interval, so the exact constrained minimum is its left
 endpoint, 13, with loss 76. The unrestricted mean 12 is excluded.
-`optimize(loss, interval = c(13, 16))` returns about 13.0001 with loss
-76.0015: this numerical search approaches the endpoint from inside.
-Evaluating `loss(13)` checks the endpoint directly and gives 76. A
-successful search therefore needs a sensible parameter range as well as
-a correctly defined objective.
+The objective and the permitted parameter values jointly determine the
+answer, even though the observations stay fixed.
 
-A tighter numerical tolerance can bring the returned center closer to
-the permitted minimum. It cannot make ten students into a larger sample
+A more accurate numerical search can locate the permitted minimum more
+closely. It cannot make ten students into a larger sample
 or make their mean more representative of a population. These
 least-squares identities are arithmetic; an uncertainty statement for
 the fitted mean adds a model or design and its conditions.
@@ -1627,8 +1626,13 @@ of studies in the first bin, not the bars' physical heights.
 
 @tbl-ch06-simulation reports 2,000 studies for each of four conditions. The null conditions use means $(8,8,8)$; the
 alternative conditions use $(6,8,10)$. Each condition retains independent
-Normal observations and the same common SD; seed 60630 fixes the
-illustrated simulation sequence.
+Normal observations and the same common SD. To reproduce the results,
+restart at seed 60630 for the repeated studies, then generate 2,000 studies
+under each condition in this order: null and alternative at four students
+per group, then null and alternative at twelve. The doubled-SD null and
+alternative at four per group, discussed below, follow those four blocks
+without resetting the seed. The preceding one-study illustration is
+separate from this restart.
 
 \Needspace{9\baselineskip}
 
@@ -1687,7 +1691,7 @@ group, independence, Normality and .05 test rule stay the same. Under the
 null, both the between-group and within-group variation rise together;
 the F reference remains appropriate. Under the alternative, the mean
 differences are smaller relative to the noise, so we expect less power.
-Continuing the same simulation sequence gives a null rejection rate of
+The final two blocks in the sequence specified above give a null rejection rate of
 .0525, with MCSE 0.005, and power .2165, with MCSE 0.0092. Compare the
 latter with .6545 under the original SD. More repetitions would estimate
 this lower power more precisely; they would not restore the information

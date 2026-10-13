@@ -70,7 +70,8 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
-          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\QMSBRLinkedTOC}
+          \AtBeginDocument{\hypersetup{linktoc=all,pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents
           \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
@@ -141,7 +142,7 @@ Chapter 8 asked how income differs with education when prestige, the
 percentage of women, and occupational type are held fixed. A report on
 the same 98 records usually needs more. How do the three types compare?
 Does a group of predictors add anything once the others are in? Is a
-straight line in prestige adequate, and should income be analysed on its
+straight line in prestige adequate, and should income be analyzed on its
 own scale? How far can the standard errors be trusted when professional
 incomes spread much more widely? We answer these questions on the same
 records, with income in thousand 1971 Canadian dollars and the type
@@ -258,7 +259,7 @@ coef(group_fit)
 #| fig-width: 6.4
 #| fig-height: 3.1
 #| fig-cap: "Income of the 98 occupations by type. Bars mark the group means; the dashed line is the blue-collar mean, the intercept, and the arrows are the two indicator coefficients, 5.1853 and −0.3218."
-#| fig-alt: "Jittered open circles of income in thousand dollars for 44 blue-collar, 31 professional and 23 white-collar occupations, with a thick bar at each group mean, about 5.37, 10.56 and 5.05. A dashed horizontal line at the blue-collar mean runs across the plot. An upward arrow from the dashed line to the professional mean is labelled 5.1853 higher and a short downward arrow to the white-collar mean is labelled 0.3218 lower. Professional incomes spread from about 4.6 to 25.9 thousand dollars; the other two types stay below 9."
+#| fig-alt: "Jittered open circles of income in thousand dollars for 44 blue-collar, 31 professional and 23 white-collar occupations, with a thick bar at each group mean, about 5.37, 10.56 and 5.05. A dashed horizontal line at the blue-collar mean runs across the plot. An upward arrow from the dashed line to the professional mean is labeled 5.1853 higher and a short downward arrow to the white-collar mean is labeled 0.3218 lower. Professional incomes spread from about 4.6 to 25.9 thousand dollars; the other two types stay below 9."
 type_means <- data.frame(x = 1:3,
   mean = as.numeric(tapply(d$income_k, d$type, mean)))
 ggplot2::ggplot(d, ggplot2::aes(as.numeric(type), income_k)) +
@@ -423,7 +424,7 @@ $\mathbf c=(0,0,0,0,1,-1)^{\mathsf T}$: the estimate is 0.0889, its SE
 becomes 0.0889 when education, prestige, and the percentage of women are
 held fixed. This interval covers zero and leaves the adjusted comparison
 unresolved; it is a working-model calculation among types with thin
-joint support (Chapter 8). Exercise 2 practises its covariance-based
+joint support (Chapter 8). Exercise 2 practices its covariance-based
 variance.
 
 The vector $\mathbf c$ states the question. One entry set to 1 returns
@@ -444,12 +445,12 @@ The occupation types differ in many ways at once. A randomized study with
 a baseline score lets the group question be asked more sharply. Baumann
 and colleagues randomly assigned 68 fourth-grade pupils in one school to
 three reading-instruction conditions [@baumann1992]: DRA, a directed
-reading activity from the basal programme; DRTA, a directed
+reading activity from the basal program; DRTA, a directed
 reading-thinking activity; and think-aloud strategy instruction. Each
 pupil took an error-detection test of comprehension monitoring before
 and after the lessons. `carData::Baumann` holds the 66 pupils with a
 recorded first posttest, 22 per group. We use the first pretest and
-posttest, with DRA as the reference; the investigators also analysed
+posttest, with DRA as the reference; the investigators also analyzed
 further outcomes and both pretests.
 
 The **analysis of covariance** adds the pretest to the group comparison
@@ -470,7 +471,7 @@ from $\bar X$, the second equation.
 
 The working data `reading` hold these 66 pupils, all with recorded first
 pretests and posttests. The package's group codes `Basal`, `DRTA` and
-`Strat` are labelled DRA, DRTA and Think-aloud, with DRA as the reference.
+`Strat` are labeled DRA, DRTA and Think-aloud, with DRA as the reference.
 The prediction below evaluates each group's line at the grand pretest
 mean.
 
@@ -502,7 +503,7 @@ predict(ancova, interval = "confidence",
 #| fig-width: 6.4
 #| fig-height: 3.9
 #| fig-cap: "Posttest against pretest for the 66 Baumann pupils. The parallel lines are the common-slope fit over the common pretest support 6--14; each filled symbol marks a group's observed pretest and posttest means, and its arrow follows the group's line to the grand pretest mean 9.7879, where the open symbol marks the adjusted mean."
-#| fig-alt: "Grey points for DRA (circles), DRTA (triangles) and Think-aloud (squares) pupils, pretest from 4 to 16 and posttest from 1 to 15, slightly jittered. Three parallel fitted lines with slope about 0.69 run from pretest 6 to 14: DRTA highest, Think-aloud in the middle and DRA lowest. A vertical line marks the grand pretest mean 9.79, where open symbols mark the adjusted means. The DRA mean, a filled circle at pretest 10.5 and posttest 6.68, moves down its line to 6.19; the Think-aloud mean, at 9.14 and 7.77, moves up to 8.22; the DRTA mean, at 9.73 and 9.77, barely moves, to 9.81, so its filled and open triangles almost coincide."
+#| fig-alt: "Gray points for DRA (circles), DRTA (triangles) and Think-aloud (squares) pupils, pretest from 4 to 16 and posttest from 1 to 15, slightly jittered. Three parallel fitted lines with slope about 0.69 run from pretest 6 to 14: DRTA highest, Think-aloud in the middle and DRA lowest. A vertical line marks the grand pretest mean 9.79, where open symbols mark the adjusted means. The DRA mean, a filled circle at pretest 10.5 and posttest 6.68, moves down its line to 6.19; the Think-aloud mean, at 9.14 and 7.77, moves up to 8.22; the DRTA mean, at 9.73 and 9.77, barely moves, to 9.81, so its filled and open triangles almost coincide."
 grand_pretest <- mean(reading$pretest.1)
 line_grid <- expand.grid(pretest.1 = c(6, 14),
   group = levels(reading$group))
@@ -568,7 +569,7 @@ which is why the reference value is stated.
 
 ### Three analyses of a pretest--posttest study {#ch09-ancova-pretest}
 
-A randomized pretest--posttest study is often analysed in one of three
+A randomized pretest--posttest study is often analyzed in one of three
 ways: compare the posttest means, compare the gains (posttest minus
 pretest), or adjust for the pretest as above. The three are one
 regression that differs only in the pretest coefficient $\gamma$:
@@ -711,7 +712,7 @@ central $F$ reference with $q$ and $n-p$ degrees of freedom.
 #| fig-width: 6.4
 #| fig-height: 2.6
 #| fig-cap: "Residual sum of squares as columns are added to the occupation model on the same 98 records; each label gives the drop that the added column or block buys."
-#| fig-alt: "Horizontal bars of residual sum of squares for five nested models. The intercept-only bar is labelled RSS 1734.0792; adding education drops it by 571.5324, adding prestige by 294.8931, adding the percentage of women by 236.3266, and adding the two type columns by only 0.4375, so the last two bars look the same length."
+#| fig-alt: "Horizontal bars of residual sum of squares for five nested models. The intercept-only bar is labeled RSS 1734.0792; adding education drops it by 571.5324, adding prestige by 294.8931, adding the percentage of women by 236.3266, and adding the two type columns by only 0.4375, so the last two bars look the same length."
 rss_path <- data.frame(model = c("Intercept only", "+ education",
     "+ prestige", "+ women", "+ type (2 columns)"),
   rss = sapply(list(lm(income_k ~ 1, data = d), m0, m1,
@@ -828,7 +829,7 @@ contains the other, so no nested $F$ compares them. Both have $k=4$;
 the penalties cancel, and the criteria prefer prestige with women because
 it fits these records better.
 
-Set `m2` beside that pair: its AIC 474.604 and BIC 492.6988 are both
+Set `m2` beside that pair: its AIC 474.6040 and BIC 492.6988 are both
 higher than the prestige-and-women model's. Its three further
 coefficients, education and the two type indicators, do not buy enough
 fit to pay their penalty. Section 3.2's type block and Section 3.4's
@@ -875,7 +876,7 @@ A **drop-one $R^2$** asks how much of the full model's explained variation
 disappears when one predictor is removed. From the full $R^2=.6362$,
 the drops are .0007 for education, .0625 for prestige, and .1212 for
 women. Each is Section 3.2's one-column block comparison on a different
-scale: the corresponding $F(1,92)$ values are 0.179, 15.807, and
+scale: the corresponding $F(1,92)$ values are 0.1790, 15.8070, and
 30.6593, each the square of its coefficient's $t$. Education's near-zero
 drop describes the same limited unique contribution as its wide
 coefficient interval.
@@ -896,7 +897,7 @@ In every model so far, a continuous predictor's slope was the same at
 every value of that predictor. Chapter 8, Section 4.3, refitted the full
 model with a squared prestige term, and that refit is the worked example
 here. It was a check on functional form declared before it was run, not
-a search across candidate terms for the smallest $p$-value; a $p$-value
+a search across candidate terms for the smallest p-value; a p-value
 read after such a search would not mean what it appears to mean. A
 squared term is one kind of **polynomial term**, a power of a predictor
 entered as an ordinary extra column, here `I(prestige^2)`, and the model
@@ -928,7 +929,7 @@ anova(m2, m2q)
 #| fig-width: 6.4
 #| fig-height: 3.4
 #| fig-cap: "Component-plus-residual display for prestige in the model with a squared prestige term. The solid curve is the fitted quadratic component and the dashed line the linear component of the additive model; the labels give the curve's slope at prestige 30, 50 and 70."
-#| fig-alt: "Open grey circles for the 98 occupations, prestige from 17.3 to 87.2 on the horizontal axis and component plus residual from about −6 to 18 on the vertical axis. A solid curve rises slowly at low prestige and more steeply at high prestige; a dashed straight line crosses it twice. Black dots on the curve at prestige 30, 50 and 70 carry the labels slope 0.0697, slope 0.1665 and slope 0.2633."
+#| fig-alt: "Open gray circles for the 98 occupations, prestige from 17.3 to 87.2 on the horizontal axis and component plus residual from about −6 to 18 on the vertical axis. A solid curve rises slowly at low prestige and more steeply at high prestige; a dashed straight line crosses it twice. Black dots on the curve at prestige 30, 50 and 70 carry the labels slope 0.0697, slope 0.1665 and slope 0.2633."
 b_q <- coef(m2q)
 component <- function(x) b_q["prestige"] * x + b_q["I(prestige^2)"] * x^2
 centre <- mean(component(d$prestige))
@@ -1120,7 +1121,7 @@ cbind(classical = sqrt(diag(vcov(m2))),
       HC3 = sqrt(diag(V_hc3)))
 ```
 
-The professional coefficient's SE grows by about 40%, from 1.4631 to
+The professional coefficient's SE grows by about 43%, from 1.4631 to
 2.0928, while the white-collar SE grows by about 7%, from 0.9848 to
 1.0548. The education SE grows from 0.2752 to 0.3823, with robust 95%
 interval $[-0.6429,\ 0.8758]$: wider, with the same reading of an
@@ -1265,7 +1266,7 @@ ggplot(data.frame(slope = boot_education), aes(slope)) +
 #| fig-width: 6.4
 #| fig-height: 3
 #| fig-cap: "The 2,000 case-resampled education slopes (seed 90909). Solid lines mark the percentile interval; the dashed curve is the Normal distribution with the classical SE 0.2752."
-#| fig-alt: "Histogram of refitted education slopes from about −1.2 to 1.1, centred near 0.1 and slightly longer on the left, with solid vertical lines at −0.683 and 0.744. A dashed Normal curve centred at 0.1164 is narrower and taller than the histogram."
+#| fig-alt: "Histogram of refitted education slopes from about −1.2 to 1.1, centered near 0.1 and slightly longer on the left, with solid vertical lines at −0.683 and 0.744. A dashed Normal curve centered at 0.1164 is narrower and taller than the histogram."
 normal_curve <- data.frame(x = seq(-1.5, 1.5, length.out = 300))
 normal_curve$density <- dnorm(normal_curve$x, coef(m2)["education"],
   sqrt(vcov(m2)["education", "education"]))
@@ -1451,7 +1452,7 @@ $$
 
 On the 3,745 observed-reading records the slope reproduces the arm
 difference of 5.8151 reading points exactly, as Chapter 7's binary
-predictor did for 24 pupils. The identity is algebraic; randomization
+predictor did for 24 students. The identity is algebraic; randomization
 adds the reason to read the difference as an assignment comparison.
 
 Two cautions attach to the number. Treating the rows as independent with
@@ -1814,7 +1815,7 @@ records, with AIC 474.6040 and BIC 492.6988; the model with education and
 prestige only has AIC 499.8328 and BIC 510.1727. (1) The criteria count
 seven fitted parameters for the full model. Say what the seven are, and
 why BIC charges the full model more for them than AIC does
-($\log 98=4.585$). (2) Which model do the criteria favour, and on what
+($\log 98=4.585$). (2) Which model do the criteria favor, and on what
 condition is that comparison meaningful? (3) A log-income version of the
 full model has AIC 8.091. Explain why this number cannot be compared with
 474.604.
@@ -2116,9 +2117,10 @@ the professional coefficient the pattern is stronger: 1.9926, 1.4861,
 and 1.9767. When the schemes disagree, the disagreement is about the
 error model, and it is a reason to say which scheme was used.
 
-Section 6.3 defined the percentile interval, the middle 95% of the
-resampling distribution, and the normal-approximation interval, which
-uses that distribution only for its spread and so ignores its skewness.
+Section 6.2 defined the percentile interval, the middle 95% of the
+resampling distribution. Section 6.3 defined the normal-approximation
+interval, which uses that distribution only for its spread and so ignores
+its skewness.
 Two higher-order intervals are worth describing in words.
 
 - The **bootstrap-$t$ interval** resamples a studentized quantity, the

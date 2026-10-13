@@ -72,7 +72,8 @@ format:
           \ifdefined\pdfvariable
             \pdfvariable suppressoptionalinfo \numexpr1+2+4+8+16+32+64+128+256+512\relax
           \fi
-          \AtBeginDocument{\hypersetup{pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\hypersetup{linktoc=all,pdfcreator={},pdfproducer={},pdfcreationdate={},pdfmoddate={}}}
+          \AtBeginDocument{\QMSBRLinkedTOC}
           \addtokomafont{sectionentry}{\small}
           \let\chapteroldtableofcontents\tableofcontents
           \renewcommand{\tableofcontents}{\begingroup\small\chapteroldtableofcontents\endgroup}
@@ -1357,6 +1358,13 @@ par(oldpar)
 
 : Repetitions and study size change different things (seed 60203). {#tbl-ch05-repetitions tbl-colwidths="[10,16,16,20,19,19]"}
 
+Each run starts at seed 60203 and first generates the 5,000 means of
+five waits shown above. The next 5,000 samples contain 30 waits for
+panels (a)--(b), or 120 waits for panel (c); panel (a) uses the first
+200 of panel (b)'s means. The two study sizes therefore use the same
+starting random-number sequence after the five-wait draws. The seed
+and the order together identify the reported simulation.
+
 From panel (a) to panel (b) only the number of repetitions changes. The
 histogram becomes smoother and its empirical SE settles near the model
 SE $10/\sqrt{30}=1.8257$ minutes, which has not changed: more
@@ -1429,21 +1437,19 @@ curve(dexp(x, rate = 1 / 10), add = TRUE)
 ```{r}
 #| label: fig-ch05-waiting
 #| echo: false
-#| fig-cap: "Individual waits and averages answer different questions. The line in every panel is the same exponential density for a single wait, with mean and SD ten minutes. Histograms show 5,000 independent sample means at each sample size. The dashed line marks their common model mean."
-#| fig-alt: "Three panels on common axes compare means of 5, 30 and 100 waits. The density for one wait stays strongly right-skewed in every panel; the histograms of means become narrower and more symmetric around ten."
+#| fig-cap: "Individual waits and averages answer different questions. The line in every panel is the same exponential density for a single wait, with mean and SD ten minutes. Histograms reuse the 5,000 sample means at each study size from Section 4.2. The dashed line marks their common model mean."
+#| fig-alt: "Three panels on common axes compare means of 5, 30 and 120 waits. The density for one wait stays strongly right-skewed in every panel; the histograms of means become narrower and more symmetric around ten."
 #| fig-width: 6.5
 #| fig-height: 3
 local({
-  set.seed(60203)
-  means <- lapply(c(5, 30, 100), function(n)
-    replicate(5000, mean(rexp(n, rate = 1 / 10))))
+  means <- list(means_5, means_30, means_120)
   breaks <- seq(0, ceiling(max(unlist(means))), by = .5)
   op <- par(mfrow = c(1, 3), mar = c(3.6, 3.5, 2, .4),
             mgp = c(2.2, .7, 0))
   for (j in 1:3) {
     hist(means[[j]], breaks = breaks, probability = TRUE,
       ylim = c(0, .45), col = "grey85", xlab = "Minutes",
-      ylab = "Density", main = paste("n =", c(5, 30, 100)[j]))
+      ylab = "Density", main = paste("n =", c(5, 30, 120)[j]))
     curve(dexp(x, rate = 1 / 10), from = 0, to = max(breaks),
       add = TRUE, lwd = 2)
     abline(v = 10, lty = 2)
@@ -1452,7 +1458,9 @@ local({
 })
 ```
 
-The histograms of @fig-ch05-waiting change shape as well as width:
+This extends Chapter 2's waiting-time example using 5, 30 and 120 waits,
+so the larger study is the same one compared in Section 4.2. The
+histograms of @fig-ch05-waiting change shape as well as width:
 means of larger samples become more nearly symmetric, although
 individual waits keep their exponential distribution. Concentration describes closeness to
 the target; the central limit theorem describes the sampling shape
@@ -2324,10 +2332,9 @@ SE of 1.8257.
    explain the pattern.
 3. Say what changes, and what does not, if the number of repetitions is
    raised from 5,000 to 20,000.
-4. Rerun from the same seed with 120 waits in each sample, the
-   simulation gives an empirical SE of 0.9214 minutes. Compare it with
-   your model SE for $n=120$, and explain why the two need not agree
-   exactly.
+4. For samples of 120 waits, the table reports an empirical SE of
+   0.9214 minutes from 5,000 repetitions. Compare it with your model
+   SE for $n=120$, and explain why the two need not agree exactly.
 5. The running mean and the histograms of repeated sample means show
    different changes as sample size increases. Explain concentration
    toward a target and increasingly Normal standardized sampling shape,
@@ -2344,16 +2351,16 @@ the delayed-assessment means were 27.1 and 24.0 with SDs 6.0 and 6.4.
 
 1. State the estimand, the estimator, and the estimate in one sentence
    each, and name the repetition behind the uncertainty.
-2. Section 4.5 calculates the SE of the mean difference from these
-   summaries as 1.1325 points. Explain why its square estimates an
-   upper bound on the assignment variance rather than the variance
-   itself.
+2. Section 4.5 gives an SE of 1.1325 points. Its square estimates
+   assignment variance after omitting the unobservable subtraction for
+   variation in individual effects. Explain why this can overstate
+   uncertainty on average without doing so in every realized study.
 3. For the ten sleep differences (SD 1.23 hours), the SE of the mean
    difference is 0.389 hours. Using the two condition SDs, 1.7890 and
    2.0022, as if the two sets of condition measurements were independent
    gives 0.8491 hours instead. Explain why pairing gives the smaller SE
    for the same ten people.
-4. A separate simulation estimates a waiting-time variance of 100.
+4. A separate simulation draws waits whose model variance is 100.
    Across 5,000 samples of five waits, variances using the $n-1$
    denominator average 101.2241 and those using $n$ average 80.9793.
    Explain which rule is unbiased, why 101.2241 need not equal 100 in
