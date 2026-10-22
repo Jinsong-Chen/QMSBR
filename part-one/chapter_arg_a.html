@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>How to Read a Quantitative Study as an Argument – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../part-one/chapter_arg_b.html" rel="next">
+<link href="../argument-approach.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../part-one/part_one_introduction.html"> 
+<span class="menu-text">Part One</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../part-two/part_two_introduction.html"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../practice/index.html"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../argument-approach.html" aria-current="page"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../part-one/chapter_arg_a.html">A. How to Read a Quantitative Study as an Argument</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../argument-approach.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The argument-based approach</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_arg_a.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">A. How to Read a Quantitative Study as an Argument</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_arg_b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B. Extending the Argument-Based Approach to Quantitative Studies</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../argument-approach.html#argument-c" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C. Arguments involving latent variables or an additional measurement layer</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">How to Read a Quantitative Study as an Argument</h1>
+<p class="subtitle lead">Argument Chapter A</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+<p class="qmsbr-page-download"><a class="btn btn-outline-primary" href="chapter_arg_a.pdf" download>Download PDF</a></p>
+
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#from-a-research-question-to-a-traceable-argument" id="toc-from-a-research-question-to-a-traceable-argument">From a Research Question to a Traceable Argument</a>
+  <ul>
+  <li><a href="#start-with-what-the-study-asks-and-answers" id="toc-start-with-what-the-study-asks-and-answers">Start with what the study asks and answers</a></li>
+  <li><a href="#four-functions-in-two-linked-layers" id="toc-four-functions-in-two-linked-layers">Four functions in two linked layers</a></li>
+  <li><a href="#connect-a-function-to-an-inspectable-location" id="toc-connect-a-function-to-an-inspectable-location">Connect a function to an inspectable location</a></li>
+  </ul></li>
+  <li><a href="#tracing-information-through-e-j-i-and-c-in-both-layers" id="toc-tracing-information-through-e-j-i-and-c-in-both-layers">Tracing Information Through E, J, I, and C in Both Layers</a>
+  <ul>
+  <li><a href="#statistical-evidence-observations-and-their-production" id="toc-statistical-evidence-observations-and-their-production">Statistical Evidence: observations and their production</a></li>
+  <li><a href="#statistical-justification-invoked-reasons-and-conditions" id="toc-statistical-justification-invoked-reasons-and-conditions">Statistical Justification: invoked reasons and conditions</a></li>
+  <li><a href="#statistical-inference-analytical-work-and-its-consequences" id="toc-statistical-inference-analytical-work-and-its-consequences">Statistical Inference: analytical work and its consequences</a></li>
+  <li><a href="#statistical-claim-the-conclusion-and-its-scope" id="toc-statistical-claim-the-conclusion-and-its-scope">Statistical Claim: the conclusion and its scope</a></li>
+  <li><a href="#following-substantive-meaning-across-the-linked-layers" id="toc-following-substantive-meaning-across-the-linked-layers">Following substantive meaning across the linked layers</a></li>
+  </ul></li>
+  <li><a href="#reading-one-argument-across-a-paper-and-its-related-materials" id="toc-reading-one-argument-across-a-paper-and-its-related-materials">Reading One Argument Across a Paper and Its Related Materials</a>
+  <ul>
+  <li><a href="#the-complete-feedback-packet" id="toc-the-complete-feedback-packet">The complete feedback packet</a></li>
+  <li><a href="#follow-the-comparison-through-both-layers" id="toc-follow-the-comparison-through-both-layers">Follow the comparison through both layers</a></li>
+  <li><a href="#a-missing-explanation-and-a-conflicting-count" id="toc-a-missing-explanation-and-a-conflicting-count">A missing explanation and a conflicting count</a></li>
+  <li><a href="#a-shorter-transfer-predicting-recorded-student-outcomes" id="toc-a-shorter-transfer-predicting-recorded-student-outcomes">A shorter transfer: predicting recorded student outcomes</a></li>
+  <li><a href="#focused-passages-from-three-other-settings" id="toc-focused-passages-from-three-other-settings">Focused passages from three other settings</a></li>
+  <li><a href="#follow-the-organization-and-the-reporting" id="toc-follow-the-organization-and-the-reporting">Follow the organization and the reporting</a></li>
+  <li><a href="#read-a-reported-regression-argument" id="toc-read-a-reported-regression-argument">Read a reported regression argument</a></li>
+  </ul></li>
+  <li><a href="#evaluating-the-quality-of-the-question-level-argument" id="toc-evaluating-the-quality-of-the-question-level-argument">Evaluating the Quality of the Question-Level Argument</a>
+  <ul>
+  <li><a href="#six-questions-with-reasons-rather-than-scores" id="toc-six-questions-with-reasons-rather-than-scores">Six questions, with reasons rather than scores</a></li>
+  <li><a href="#evaluate-the-feedback-claim-and-its-variants" id="toc-evaluate-the-feedback-claim-and-its-variants">Evaluate the feedback claim and its variants</a></li>
+  <li><a href="#evaluate-the-prediction-promise" id="toc-evaluate-the-prediction-promise">Evaluate the prediction promise</a></li>
+  <li><a href="#evaluate-the-regression-answer-already-read" id="toc-evaluate-the-regression-answer-already-read">Evaluate the regression answer already read</a></li>
+  </ul></li>
+  <li><a href="#from-a-reading-to-a-documented-construction-cycle" id="toc-from-a-reading-to-a-documented-construction-cycle">From a Reading to a Documented Construction Cycle</a>
+  <ul>
+  <li><a href="#six-stages-organize-the-work" id="toc-six-stages-organize-the-work">Six stages organize the work</a></li>
+  <li><a href="#read-the-decision-history-not-just-the-final-order" id="toc-read-the-decision-history-not-just-the-final-order">Read the decision history, not just the final order</a></li>
+  <li><a href="#completion-repair-and-a-revised-question" id="toc-completion-repair-and-a-revised-question">Completion, repair and a revised question</a></li>
+  </ul></li>
+  <li><a href="#summary-and-reading-bridge" id="toc-summary-and-reading-bridge">Summary and Reading Bridge</a>
+  <ul>
+  <li><a href="#key-terms" id="toc-key-terms">Key terms</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises">Exercises</a>
+  <ul>
+  <li><a href="#ex-ch01-01" id="toc-ex-ch01-01">Exercise 1: Find the question and the reported answer (Foundational)</a></li>
+  <li><a href="#ex-ch01-02" id="toc-ex-ch01-02">Exercise 2: Distinguish a procedure, a reason and a result (Foundational)</a></li>
+  <li><a href="#ex-ch01-03" id="toc-ex-ch01-03">Exercise 3: Follow an interval into an answer (Integrative)</a></li>
+  <li><a href="#ex-ch01-04" id="toc-ex-ch01-04">Exercise 4: Read incomplete or conflicting materials (Integrative)</a></li>
+  <li><a href="#ex-ch01-05" id="toc-ex-ch01-05">Exercise 5: Predict the consequence of a changed design (Integrative)</a></li>
+  <li><a href="#ex-ch01-06" id="toc-ex-ch01-06">Exercise 6: Read a documented construction history (Integrative)</a></li>
+  <li><a href="#ex-ch01-07" id="toc-ex-ch01-07">Exercise 7: Locate the reasons, then judge the answers (Integrative)</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references">References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="chapter_arg_a.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div style="page-break-after: always;"></div>
+<div class="callout callout-style-default callout-note callout-titled" title="Chapter overview">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Chapter overview
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Read one research question and the answer a study offers. Follow the specific information supporting that answer across the paper, protocol, measurements and analytical materials. Distinguish a procedure from its rationale, an analysis from its claim, and identifying an argument from judging its quality. A documented construction history shows how researchers produce that support. The principal case is an invented feedback experiment; shorter prediction and regression reports show how the reading transfers. All necessary records are supplied here. This optional argument tutorial requires no programming and is not a prerequisite for the numbered methods chapters.</p>
+</div>
+</div>
+<p>A published study asks a question and offers an answer. Between them are observations, the circumstances in which they arose, reasons for trusting a comparison, analytical work, and an interpretation. Much of that support lies outside the sentence reporting the main result. A protocol may explain allocation, an instrument may reveal what an outcome measures, and a supplement may show what changed when an unusual observation was omitted. Learning to connect those records is part of understanding quantitative research.</p>
+<p>The invented feedback study will provide a complete example. Its reported assignment effect is 2.5 points, with a 95% interval from 1 to 4 points. Reading those numbers alone cannot tell us whether the study compared students or classes, what the score represents, or why the comparison could support an effect of assignment. The following sections make these connections explicit, then give less structured cases in which you must decide which connection matters.</p>
+<section id="from-a-research-question-to-a-traceable-argument" class="level2">
+<h2 class="anchored" data-anchor-id="from-a-research-question-to-a-traceable-argument">From a Research Question to a Traceable Argument</h2>
+<section id="start-with-what-the-study-asks-and-answers" class="level3">
+<h3 class="anchored" data-anchor-id="start-with-what-the-study-asks-and-answers">Start with what the study asks and answers</h3>
+<p>Consider two extracts from the invented study. Their labels are illustrative locations in the teaching record, not quotations from an actual publication.</p>
+<blockquote class="blockquote">
+<p><strong>Paper, aim:</strong> We examined whether assigning explanatory rather than usual feedback changes average delayed achievement for the 480 eligible students in 24 participating classes.</p>
+<p><strong>Protocol, allocation:</strong> Twelve classes were randomly assigned to each format across the full pool of 24 classes. The comparison uses equally weighted class means and an uncertainty procedure reflecting class assignment.</p>
+</blockquote>
+<p>The aim can be restated as a question: <em>What is the average effect of assigning explanatory rather than usual feedback on delayed achievement for these eligible students?</em> This is a reader’s formulation of the stated aim. It names a causal comparison, an outcome and a scope. An aim such as “improve education” would need these details before it could identify a quantitative question.</p>
+<p>The <strong>estimand</strong> is the target quantity, here the student-average assignment effect for the eligible cohort. The <strong>estimate</strong> is the reported 2.5-point result. The <strong>reported answer</strong> is the study’s conclusion about that question. It can be cautious or overstated; the reader first identifies the answer that was actually given. Replacing it with a more defensible statement is an evaluation and revision, not a discovery about what the original sentence said.</p>
+<p>A <strong>question-answer pair</strong> gives an argument its task. Evidence and methods are relevant through their contribution to this task. A well-computed coefficient can still concern the wrong outcome, follow-up time or unit. Conversely, a carefully supported answer can remain inconclusive. A research argument need not end with a positive result to succeed.</p>
+</section>
+<section id="four-functions-in-two-linked-layers" class="level3">
+<h3 class="anchored" data-anchor-id="four-functions-in-two-linked-layers">Four functions in two linked layers</h3>
+<p>An <strong>argument component</strong> names a function of information. Evidence supplies observations and their production record; Justification supplies invoked reasons and conditions; Inference connects those contributions through analysis and reasoning; a bounded Claim states the conclusion with its limits. The statistical and substantive layers are coordinated parts of one argument. The statistical layer follows the numerical target and analysis; the substantive layer keeps their meaning connected to the people, practices and question.</p>
+<div id="tbl-supa-components" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[13,31,31,25]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Four component functions and their linked meanings.
+</figcaption>
+<div aria-describedby="tbl-supa-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 31%">
+<col style="width: 31%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Statistical function</th>
+<th style="text-align: left;">Substantive function</th>
+<th style="text-align: left;">Connection</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Evidence (E)</strong></td>
+<td style="text-align: left;"><strong>STAT-E:</strong> information about the observations, variables, and procedures through which the analysis data were produced or acquired</td>
+<td style="text-align: left;"><strong>SUB-E:</strong> information about the people, setting, activities, and substantive meaning represented by those data</td>
+<td style="text-align: left;">SUB-E <strong>situates</strong> STAT-E</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Justification (J)</strong></td>
+<td style="text-align: left;"><strong>STAT-J:</strong> reasons and conditions invoked to support the intended statistical comparison and inference</td>
+<td style="text-align: left;"><strong>SUB-J:</strong> domain-based reasons supporting measurement meaning, implementation, explanation, and applicability</td>
+<td style="text-align: left;">SUB-J <strong>augments and contextualizes</strong> STAT-J</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Inference (I)</strong></td>
+<td style="text-align: left;"><strong>STAT-I:</strong> the analytical reasoning and work connecting evidence and justification to statistical conclusions, including estimates, uncertainty, comparisons, and checks</td>
+<td style="text-align: left;"><strong>SUB-I:</strong> interpretation of that statistical inference in substantive terms, retaining the relevant uncertainty and conditions</td>
+<td style="text-align: left;">SUB-I <strong>interprets</strong> STAT-I</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Bounded claim (C)</strong></td>
+<td style="text-align: left;"><strong>STAT-C:</strong> the reported statistical conclusion about the estimand, with uncertainty, conditions, and scope</td>
+<td style="text-align: left;"><strong>SUB-C:</strong> the reported question-facing answer, with its substantive scope, qualifications, and unresolved matters</td>
+<td style="text-align: left;">SUB-C <strong>bounds</strong> the substantive reach of STAT-C</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>In the feedback study, class assignments and assessment records contribute Evidence. The reason that random allocation supports the assigned-group comparison contributes Justification. Computing the mean contrast, its interval and influence checks contributes Inference. Saying that assignment increased average assessed performance in these classes contributes a bounded Claim. These functions are not section headings: Methods can contain both a procedure and its rationale, and Results can contain both a calculation and a conclusion.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-supa-functions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Substantive Evidence, Justification, Inference and Claim form the top row. The statistical functions form the bottom row. Downward links say situates, augments and contextualizes, interprets, and bounds substantive reach. Horizontal links show E plus J supporting I, and I supporting C. These are logical support links, not causal effects or a time sequence." data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-supa-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_arg_a_files/figure-html/fig-supa-functions-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Substantive Evidence, Justification, Inference and Claim form the top row. The statistical functions form the bottom row. Downward links say situates, augments and contextualizes, interprets, and bounds substantive reach. Horizontal links show E plus J supporting I, and I supporting C. These are logical support links, not causal effects or a time sequence." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-supa-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Four functions in two linked layers. Evidence plus Justification support Inference, which supports a bounded Claim; vertical links identify the substantive contribution.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The score’s content situates the statistical measurement. Reasons why the assessment represents the taught objectives augment its interpretation. Reading the interval in course terms interprets the numerical result. Limiting the answer to assessed performance in these classes bounds its substantive reach. Numerical statements can do substantive work: “one application task” is a domain interpretation of two score points. The layers are not numbers versus words, and substantive reasoning starts when the question and measures are chosen, not only after calculations finish.</p>
+</section>
+<section id="connect-a-function-to-an-inspectable-location" class="level3">
+<h3 class="anchored" data-anchor-id="connect-a-function-to-an-inspectable-location">Connect a function to an inspectable location</h3>
+<p><strong>Traceable information</strong> is specific study content through which a component’s function can be identified. A <strong>documentary location</strong> is where that content can be inspected: a paragraph, table, protocol item, codebook entry or analysis file. “Research design” names a topic. “Twelve classes were randomly assigned to each format across the full class pool” identifies a particular procedure.</p>
+<p>The useful connection is <strong>question-answer pair → component function → specific information → documentary location</strong>. You can follow it in either direction. Starting from Evidence, look for how groups arose; starting from an allocation paragraph, identify its contribution to evidence production. Keep enough of the location for another reader to find the same information.</p>
+<p>Professional knowledge helps recognize the contribution. Knowing what a confidence interval concerns helps identify which estimate’s uncertainty is reported. Recognizing a reason does not certify its quality. “Our software estimates causal effects” is still a reason the authors offered, although running software cannot supply a causal design. Reading records the offered reason; evaluation judges it.</p>
+<p>When information remains unclear, explain the particular gap. “The article reports 480 scores but the participant-flow table reports 460; neither explains the difference” is more informative than an overall label. A missing account in accessible materials does not establish that the action never occurred. Do not fill the gap with a procedure you would have preferred. These habits make a reading useful without turning every paper into a compulsory checklist.</p>
+</section>
+</section>
+<section id="tracing-information-through-e-j-i-and-c-in-both-layers" class="level2">
+<h2 class="anchored" data-anchor-id="tracing-information-through-e-j-i-and-c-in-both-layers">Tracing Information Through E, J, I, and C in Both Layers</h2>
+<p>The following tables collect fifteen recurring information types: four for Evidence, four for Justification, five for Inference and two for Claim. They are reference aids, not an exhaustive list to memorize. The information in an actual reading is the particular study’s account. Return to a row when a statistical term or an unfamiliar analysis makes its function difficult to see.</p>
+<section id="statistical-evidence-observations-and-their-production" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-evidence-observations-and-their-production">Statistical Evidence: observations and their production</h3>
+<p>STAT-E includes observations and the record of their production. <a href="#tbl-supa-stat-e" class="quarto-xref">Table&nbsp;2</a> distinguishes the structure of the records, measurement, selection and implementation, and the observations actually analyzed.</p>
+<p>An <em>observed variable</em> is a characteristic recorded for study units. In the feedback-format example, each student has an assessment score and a recorded feedback format. The score is numerical, so a mean and a measure of variation can help describe it. Practice format is categorical, so counts or percentages show how students are distributed across the categories. The recorded values contribute to STAT-E; calculations that summarize them contribute to STAT-I.</p>
+<p>A variable’s <em>role</em> concerns how it enters a particular analysis. An <em>outcome</em> (or dependent variable) is what the analysis describes, explains, or predicts. If the question asks how assessment scores differ between formats, score is the outcome and feedback format identifies the comparison groups. A predictor, such as a prior assessment score, can help model the outcome. Papers may use “independent variable” for a predictor or an experimentally manipulated condition. Identify the role from the question and analysis, then follow the design and justification to understand whether the relationship receives a causal interpretation. The same variable can serve a different role in another analysis.</p>
+<div id="tbl-supa-stat-e" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,27,30,19]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-stat-e-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Statistical Evidence: Traceable Information
+</figcaption>
+<div aria-describedby="tbl-supa-stat-e-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 30%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Traceable information</th>
+<th style="text-align: left;">What to identify</th>
+<th style="text-align: left;">Common cases</th>
+<th style="text-align: left;">Likely documentary location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Data structure, units, and variable roles</td>
+<td style="text-align: left;">What a record represents; repeated or grouped observations; outcome and predictor roles.</td>
+<td style="text-align: left;">Students are recorded within classes; assessment score is the outcome and assigned format is the grouping variable.</td>
+<td style="text-align: left;">Data description; Measures; dictionary</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Measurement scales, instruments, and procedures</td>
+<td style="text-align: left;">The response scale, instrument, scoring, and administration actually reported.</td>
+<td style="text-align: left;">Responses use ordered categories; an assessment is scored from 0 to 40 and administered two weeks after instruction.</td>
+<td style="text-align: left;">Measures; instrument; scoring guide; Procedures</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Design and implementation information</td>
+<td style="text-align: left;">Whom the study concerns; sample selection or recruitment; assignment or exposure; comparison structure and timing.</td>
+<td style="text-align: left;">Classes are recruited from schools and randomly assigned to formats; another study observes existing exposures without assigning them.</td>
+<td style="text-align: left;">Participants; Design; Procedures; protocol</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analysis sample, exclusions, and missing data</td>
+<td style="text-align: left;">Which units and observations entered each analysis, their counts, and reported omissions or exclusions.</td>
+<td style="text-align: left;">Some recruited participants lack follow-up scores; an analysis uses the records meeting a stated inclusion rule.</td>
+<td style="text-align: left;">Participant flow; Results; data-processing record</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><em>Note.</em> Identify both the number entering the study and the number included in each analysis. A participant may contribute several observations, so distinguish participant counts from observation counts.</p>
+<p><strong>Measurement information is classified by its use.</strong> The instrument, scoring, and administration record contribute to STAT-E. Reasons for using those measurements in a statistical procedure belong in STAT-J. What the scores mean substantively belongs in SUB-E, while reasons supporting that meaning belong in SUB-J. To identify Justification, look for the reasons given for using or interpreting the instrument.</p>
+</section>
+<section id="statistical-justification-invoked-reasons-and-conditions" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-justification-invoked-reasons-and-conditions">Statistical Justification: invoked reasons and conditions</h3>
+<p>STAT-J identifies the reasons and conditions the study invokes for its statistical reasoning. <a href="#tbl-supa-stat-j" class="quarto-xref">Table&nbsp;3</a> separates support from the design, sample-size planning, method choice, and assumptions.</p>
+<div id="tbl-supa-stat-j" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,27,30,19]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-stat-j-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Statistical Justification: Traceable Information
+</figcaption>
+<div aria-describedby="tbl-supa-stat-j-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 30%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Traceable information</th>
+<th style="text-align: left;">What to identify</th>
+<th style="text-align: left;">Common cases</th>
+<th style="text-align: left;">Likely documentary location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Design-based support for inference</td>
+<td style="text-align: left;">How sampling, assignment, or comparison design is invoked to support the intended inference.</td>
+<td style="text-align: left;">Probability sampling is invoked for population inference; random assignment is invoked to support an assigned-group comparison.</td>
+<td style="text-align: left;">Design rationale; sampling plan; protocol</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sample-size, power, and precision rationale</td>
+<td style="text-align: left;">Why the amount of evidence was planned in relation to an inferential goal.</td>
+<td style="text-align: left;">Planned sample size aims at a stated confidence-interval width or power for a specified effect.</td>
+<td style="text-align: left;">Sample-size calculation; protocol; planning supplement</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Rationale for selecting statistical methods and models</td>
+<td style="text-align: left;">Reasons connecting the chosen procedure to the estimand, measurement scale, or data structure.</td>
+<td style="text-align: left;">Welch’s method is chosen because it allows unequal group variances; within-class dependence is allowed because students share classes.</td>
+<td style="text-align: left;">Statistical Analysis; analysis plan</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Statistical assumptions invoked</td>
+<td style="text-align: left;">Conditions the study relies on for its comparison, model, or uncertainty calculation.</td>
+<td style="text-align: left;">Independence between observations is assumed for a standard-error calculation; a model assumes a linear relationship.</td>
+<td style="text-align: left;">Statistical Analysis; assumptions statement; technical supplement</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><em>Note.</em> Alongside the named plan or method, identify the reasons invoked for its use. Evaluate those reasons’ adequacy separately.</p>
+<p><strong>Sampling and assignment are distinct parts of study design.</strong> Sampling concerns which units enter a study; assignment concerns which conditions they receive. Random sampling provides a basis for population inference under the sampling design, contributing to generalizability or external validity. Random assignment supports a causal comparison of assigned conditions, contributing to internal validity. Both forms of support depend on the relevant implementation and analysis conditions. A study may use either form of randomization or both. To trace assignment, look for the allocation procedure used to form the groups. A protocol documents the planned procedure; implementation records document what was carried out.</p>
+<p><strong>A procedure and its rationale do different work.</strong> “Students were randomly assigned” records a production procedure in STAT-E. “Random assignment provides the basis for estimating the effect of assignment from the comparison” identifies the reason invoked in STAT-J. Locate this connection in an explicit rationale or by following the documented links among design, estimand, and analysis.</p>
+<p>Likewise, “100 participants were analyzed” records the analysis sample. “The sample size was planned to achieve the desired precision” supplies a planning rationale. <em>Precision</em> concerns estimation uncertainty; <em>power</em> concerns the probability of rejecting a null hypothesis under a specified alternative and procedure. The reader identifies the stated goal before considering whether the planning was adequate.</p>
+<p>A statistical <em>model</em> represents selected relationships or variation mathematically. When a study invokes an assumption as a condition supporting inference, that contribution belongs in STAT-J. The specification actually fitted, and the reported analytical checks, contribute to STAT-I. A passage can describe the fitted model and invoke its assumptions as support; identify what each contribution does. “We used SPSS” helps identify the software used for computation. Look for the method-selection rationale to identify the reasons for the analytical choice.</p>
+</section>
+<section id="statistical-inference-analytical-work-and-its-consequences" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-inference-analytical-work-and-its-consequences">Statistical Inference: analytical work and its consequences</h3>
+<p>STAT-I is often the most demanding component to understand, both technically and in its statistical reasoning, especially in large-scale, complex studies. It traces the central statistical information of the argument: how evidence, analyzed under the study’s stated conditions and justification, supports a statistical conclusion. Understanding this transition requires reasoning about variation, uncertainty, models, and alternative analyses. Some of these ideas challenge everyday intuition, so learning to follow the reasoning is as important as learning the procedures. Much of the statistical reasoning developed in later chapters therefore relates directly to STAT-I. Its contribution becomes clear through its connections with evidence production, justification, substantive interpretation, and the bounded answer.</p>
+<p>STAT-I connects the estimand with the analysis performed, its results, uncertainty, and relevant checks. <em>Model building</em> specifies the statistical relationships to be estimated. <em>Diagnostics</em> examine how the fitted model and estimation procedure behave; <em>sensitivity analysis</em> examines how results change under alternative analytical choices. A <em>statistical hypothesis</em> expresses a proposition to be examined, such as a zero mean difference. <a href="#tbl-supa-stat-i" class="quarto-xref">Table&nbsp;4</a> connects these activities to their traceable information and reported results.</p>
+<div id="tbl-supa-stat-i" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,27,30,19]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-stat-i-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Statistical Inference: Traceable Information
+</figcaption>
+<div aria-describedby="tbl-supa-stat-i-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 30%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Traceable information</th>
+<th style="text-align: left;">What to identify</th>
+<th style="text-align: left;">Common cases</th>
+<th style="text-align: left;">Likely documentary location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Describing data and relationships</td>
+<td style="text-align: left;">How observations and associations are summarized.</td>
+<td style="text-align: left;">Means and standard deviations describe scores; a correlation describes a linear association between two numerical variables.</td>
+<td style="text-align: left;">Descriptive tables; Results; figures</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Model building and estimation</td>
+<td style="text-align: left;">Model specification in equations, diagrams, or syntax; connection to declared estimands; estimation procedure, computational implementation, and point estimates.</td>
+<td style="text-align: left;">A regression equation specifies score differences by feedback format; software estimates its coefficients and the declared contrast.</td>
+<td style="text-align: left;">Statistical Analysis; model diagram; Results; syntax or code</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Model diagnostics, modification, and sensitivity analysis</td>
+<td style="text-align: left;">Fit and computational checks; model or analysis changes; sensitivity to choices or priors; independent assessment of model structure; predictive validation.</td>
+<td style="text-align: left;">Residuals suggest curvature; another prior changes estimates; new observations assess a prespecified structure or a fitted prediction rule.</td>
+<td style="text-align: left;">Diagnostic figures; analytical supplement; validation results; code</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Statistical uncertainty and interval estimates</td>
+<td style="text-align: left;">The reported uncertainty for an estimate or prediction, including its procedure and stated level.</td>
+<td style="text-align: left;">A standard error and confidence interval accompany a mean difference; a prediction interval accompanies a new-case prediction.</td>
+<td style="text-align: left;">Results; interval tables; figures</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Statistical hypotheses, testing, and comparison</td>
+<td style="text-align: left;">Hypotheses or restrictions examined; tests and comparison criteria; competing models where relevant; test statistics, p-values, or other comparison results.</td>
+<td style="text-align: left;">A test examines a zero mean difference or equal coefficients; competing models are compared by a test or predictive performance.</td>
+<td style="text-align: left;">Hypothesis statement; Statistical Analysis; Results; model-comparison table</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><em>Note.</em> Some descriptive questions are answered by summaries alone. For analyses and modifications, record whether they were prospectively specified, exploratory, or revised when known. “Primary” describes priority. Separately describe when and how the analysis was specified or changed, and whether relevant outcomes had already been examined.</p>
+<p><strong>Connect a calculation to the question it addresses.</strong> A group mean difference may estimate the declared contrast between feedback formats. For a question about how two numerical variables vary together, a correlation summarizes their linear association. Regression describes an outcome in relation to one or more predictors; the coefficients address particular relationships in the fitted model. The reported calculation and its role in answering the question belong together when you read STAT-I.</p>
+<p><strong>Follow model building through to the estimates.</strong> An equation or a statistical path diagram might represent assessment score as an outcome related to feedback format and prior score. Identify how the model represents the declared estimand, which could be a coefficient or a contrast calculated from several coefficients. Then follow the estimation procedure to its point estimates. Computational information may appear in R scripts, software syntax, menu settings, or a Methods description; each can help identify what was implemented.</p>
+<p>Specifying the model and fitting it contribute to STAT-I. Reasons for choosing that specification or estimation method contribute to STAT-J. Likewise, a diagram expressing the fitted statistical relationships helps trace STAT-I, while a diagram explaining a substantive mechanism may contribute to SUB-J. The diagram’s contribution depends on what it represents in this study.</p>
+<p><strong>Distinguish variation in the observations from estimation uncertainty.</strong> Students’ assessment scores vary, and a standard deviation describes that variation. An estimated mean difference also has uncertainty: its standard error describes how the estimate would vary under the specified sampling, assignment, or model conditions. A confidence interval concerns the mean difference. For example, an interval from 1 to 5 points expresses uncertainty about the difference between means, rather than the range of individual students’ scores.</p>
+<p>A p-value addresses a null hypothesis under the test’s assumptions; it is not the probability that the null is true. These concepts receive fuller statistical treatment later. For now, identify what each output concerns and follow the reported uncertainty into the substantive interpretation and the study’s conclusions.</p>
+<p><strong>Follow the checks, changes, and their consequences.</strong> Diagnostics can examine model fit, unusual observations, or whether the estimation algorithm reached a stable solution. A modification changes the model or analysis, for example by adding a curved relationship after examining residuals. Record what changed, why the study says it changed, and the result. A stated reason for the change may also contribute to STAT-J.</p>
+<p>Sensitivity analysis asks how estimates or conclusions change under alternative choices or assumptions. In a Bayesian analysis, a <em>prior distribution</em> expresses information or assumptions about model parameters before incorporating the current data. Repeating an analysis with alternative priors can show how sensitive its findings are to those choices. The prior used is part of the model specification; reasons invoked for choosing it can contribute to STAT-J.</p>
+<p>Independent observations can assess a model’s structure as well as its predictions. For example, researchers might retain the prespecified predictors and straight-line form of a regression, re-estimate its coefficients in a new sample, and examine whether that structure adequately describes the new data. Predictive validation instead assesses an already fitted rule on observations not used to develop it, keeping that rule fixed for the assessment. Identify what was held fixed, what was re-estimated, and whether the reported assessment concerns structure or prediction.</p>
+<p>Checks, modifications, and sensitivity analyses can inform one another. During reading, identify the study’s reported checks and assessments; quality evaluation then considers whether they provide adequate support.</p>
+<p><strong>Distinguish specifying a restriction from examining it.</strong> A model <em>constraint</em> restricts the values parameters may take, for example by setting a coefficient to zero or requiring two coefficients to be equal. Using such a constraint to specify a model belongs with model building. Examining the restriction through a test or comparison belongs with statistical hypotheses, testing, and comparison. Some constraints instead serve to define a model’s scale or make its parameters estimable; identify the role of each constraint from the study’s account.</p>
+<p>Model comparisons can also use criteria other than hypothesis tests, such as prediction error on held-out observations. Record which models were compared, by what criterion, and with what result. The same analysis may contribute both predictive validation and a comparison; identify these connected uses without treating them as separate analyses.</p>
+</section>
+<section id="statistical-claim-the-conclusion-and-its-scope" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-claim-the-conclusion-and-its-scope">Statistical Claim: the conclusion and its scope</h3>
+<p>STAT-C records the statistical proposition the study concludes, together with its stated qualifications. <a href="#tbl-supa-stat-c" class="quarto-xref">Table&nbsp;5</a> uses familiar ideas from the analysis in the different function of stating an answer.</p>
+<div id="tbl-supa-stat-c" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,27,30,19]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-stat-c-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Statistical Claim: Traceable Information
+</figcaption>
+<div aria-describedby="tbl-supa-stat-c-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 30%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Traceable information</th>
+<th style="text-align: left;">What to identify</th>
+<th style="text-align: left;">Common cases</th>
+<th style="text-align: left;">Likely documentary location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Reported statistical conclusion</td>
+<td style="text-align: left;">What is concluded about direction, magnitude, or pattern, including a testing conclusion when reported.</td>
+<td style="text-align: left;">The study concludes that mean scores are higher in one group; it describes an association as negative.</td>
+<td style="text-align: left;">Results summary; Abstract; Discussion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Remaining uncertainty and scope of the conclusion</td>
+<td style="text-align: left;">What remains unresolved and which units, comparisons, conditions, or periods the conclusion covers.</td>
+<td style="text-align: left;">Whether an effect reaches a stated size remains unresolved; the conclusion is restricted to participating units.</td>
+<td style="text-align: left;">Results interpretation; limitations; Conclusion</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Connect analytical outputs to the statistical conclusion.</strong> A calculated mean difference with its interval contributes to STAT-I. “The comparison indicates a positive mean difference for the participating students” states a conclusion in STAT-C. A reported claim of statistical significance may be part of C; the p-value producing that claim remains an analytical result in I. Include a significance claim when the study makes one, and record the answer with its reported bounds. Keep any reader-proposed revisions separate. “We investigated whether the groups differ” identifies the question; look for the reported finding to identify its answer.</p>
+</section>
+<section id="following-substantive-meaning-across-the-linked-layers" class="level3">
+<h3 class="anchored" data-anchor-id="following-substantive-meaning-across-the-linked-layers">Following substantive meaning across the linked layers</h3>
+<p>The substantive layer builds on the statistical layer and connects it to the people, measures, practices, and settings named by the question. Its information is more domain-dependent and can be directly documented: look for what an assessment covers or what an intervention involved. <a href="#tbl-supa-sub" class="quarto-xref">Table&nbsp;6</a> retains four component rows; the cases illustrate different possible studies.</p>
+<div id="tbl-supa-sub" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[12,21,24,26,17]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-sub-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Substantive Components: Traceable Information
+</figcaption>
+<div aria-describedby="tbl-supa-sub-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 21%">
+<col style="width: 24%">
+<col style="width: 26%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Traceable information</th>
+<th style="text-align: left;">What to identify</th>
+<th style="text-align: left;">Common cases</th>
+<th style="text-align: left;">Likely documentary location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>SUB-E</strong></td>
+<td style="text-align: left;">People and setting, measure meanings, and implemented practices</td>
+<td style="text-align: left;">What the recorded units, scores, conditions, or exposures represent in the substantive domain.</td>
+<td style="text-align: left;">A course assessment covers application tasks; guided practice consists of worked examples and feedback.</td>
+<td style="text-align: left;">Participants; Measures; instrument; intervention description</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SUB-J</strong></td>
+<td style="text-align: left;">Theory, mechanisms, and reasons supporting interpretation</td>
+<td style="text-align: left;">Reasons invoked about measurement, implementation, comparability, alternatives, practical benchmarks, or applicability elsewhere.</td>
+<td style="text-align: left;">Assessment coverage supports the score interpretation; an importance benchmark is linked to expected benefits and effort.</td>
+<td style="text-align: left;">Introduction; measurement rationale; protocol; Discussion</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SUB-I</strong></td>
+<td style="text-align: left;">Contextual interpretation of statistical inference and uncertainty</td>
+<td style="text-align: left;">How findings and uncertainty relate to substantive meanings, expectations, benchmarks, or proposed explanations.</td>
+<td style="text-align: left;">An interval spans gains below and above a practical benchmark; the reported pattern is related to a proposed mechanism.</td>
+<td style="text-align: left;">Results interpretation; Discussion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SUB-C</strong></td>
+<td style="text-align: left;">Question-facing answer, scope, and qualifications</td>
+<td style="text-align: left;">The reported answer to the substantive question or answerable aim, with its stated limits and unresolved matters.</td>
+<td style="text-align: left;">A practice improved delayed course performance in the studied setting, while the importance of the gain remains unresolved.</td>
+<td style="text-align: left;">Abstract; Discussion; Conclusion</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><em>Note.</em> A numerical statement can perform a substantive function when it expresses domain meaning. Identify the interpretation during reading and assess its support during quality evaluation.</p>
+<p><strong>Identify what a measure means and the reasons offered for that meaning.</strong> A description of an assessment’s application tasks tells you what the assessment covers, contributing to SUB-E. An explanation that these tasks cover the course objectives offers a reason for interpreting the score as course performance, contributing to SUB-J. Follow the instrument name to its description and the reasons given for interpreting its scores.</p>
+<p>The same distinction helps with theory and mechanisms. A paper might describe a theory in its Introduction and later invoke one of its predictions to explain why feedback could improve performance. Identify the particular connection offered as substantive support. This makes the theory’s role in SUB-J visible, beyond simply recording that the paper mentions it. Apply the same reasoning to implementation, alternative explanations, and applicability elsewhere.</p>
+<p><strong>SUB-I retains the statistical uncertainty.</strong> When interpreting an interval against a practical benchmark, retain its full range and the possibilities it leaves open. Distinguish a pattern described as consistent with a proposed mechanism from evidence establishing that mechanism. SUB-C then states the study’s question-facing answer and its qualifications. Readers identify these interpretations and claims; quality evaluation asks whether the support warrants them.</p>
+<p>A condition may be invoked even though the study has not checked it, and a check may later be invoked as support for another inference. Identify the use made of the information. Assuming independent classrooms is Justification for an uncertainty calculation. Examining dependence indicators and reporting the result is Inference. Using that result as a reason for a subsequent comparison gives it an additional justificatory role.</p>
+<p>For missing outcomes, the number absent is Evidence; the assumption used to analyze incomplete records is Justification; imputation or a sensitivity analysis and its results are Inference. A method’s name alone does not settle what missingness mechanism would make its use defensible <span class="citation" data-cites="littlerubin2019">(<a href="#ref-littlerubin2019" role="doc-biblioref">Little &amp; Rubin, 2019</a>)</span>. Sensitivity analysis can make the conclusion’s dependence on an unverifiable assumption visible <span class="citation" data-cites="nrc2010">(<a href="#ref-nrc2010" role="doc-biblioref">National Research Council, 2010</a>)</span>. It need not remove that dependence.</p>
+</section>
+</section>
+<section id="reading-one-argument-across-a-paper-and-its-related-materials" class="level2">
+<h2 class="anchored" data-anchor-id="reading-one-argument-across-a-paper-and-its-related-materials">Reading One Argument Across a Paper and Its Related Materials</h2>
+<section id="the-complete-feedback-packet" class="level3">
+<h3 class="anchored" data-anchor-id="the-complete-feedback-packet">The complete feedback packet</h3>
+<p>The following invented packet expands the same supplied feedback result. It adds documentary detail without generating a second experiment. The estimate and interval are stipulated teaching results; no set of student records is claimed to reproduce them. The class allocation is across the whole pool, not one class of each format forced within every school.</p>
+<blockquote class="blockquote">
+<p><strong>F1 – Abstract.</strong> We asked whether assignment to explanatory feedback changes average delayed achievement for eligible students in participating classes. Assignment increased average assessed course-topic performance under these conditions; the practical size remains uncertain.</p>
+<p><strong>F2 – Methods.</strong> Twelve schools contributed two classes each, with 20 eligible students per class. Before a six-week program, 12 of the 24 classes were randomly assigned to explanatory feedback and 12 to usual feedback across the full class pool. All 480 students supplied the common 0–40 assessment two weeks after the program and were analyzed by class assignment.</p>
+<p><strong>F3 – Protocol.</strong> Random allocation supplies the basis for the assignment comparison. Equally weighted class means give students equal weight because all classes have 20 eligible students. The uncertainty procedure reflects assignment of classes. The inference assumes implementation of allocation, a common outcome definition, complete follow-up and no influence of one class’s assignment on another class’s outcomes.</p>
+<p><strong>F4 – Assessment and implementation supplement.</strong> Both formats used the same topics and scheduled time. Explanatory feedback added explanations of errors; usual feedback supplied correctness feedback. Delivery logs documented the activities and separate materials. The assessment blueprint linked tasks to taught topics, and scorers worked without knowledge of format. The curriculum team judged two points, full credit on one application task, worth considering against the additional preparation.</p>
+<p><strong>F5 – Results and analytical supplement.</strong> The estimated student-average assignment effect was 2.5 points, approximate 95% CI [1, 4], with uncertainty reflecting class assignment. Checks confirmed score ranges, allocation, denominators and complete outcomes. Recalculating the contrast with each school omitted in turn left its point estimate positive. These are influence checks; the full eligible cohort remains the basis of the primary answer.</p>
+<p><strong>F6 – Discussion.</strong> Assignment improved average assessed performance on the taught topics in these classes and conditions. The compatible magnitudes include gains below and above the local two-point benchmark. Broader learning, durable effects beyond this follow-up and effects for every individual remain unresolved.</p>
+</blockquote>
+<p>The claim in F1 is brief. F5 supplies its uncertainty, and F6 explains its scope. Reading these together preserves what the abstract alone leaves implicit. The protocol’s conditions also matter: the words “random assignment” cannot substitute for the allocation actually used or a matching uncertainty procedure.</p>
+</section>
+<section id="follow-the-comparison-through-both-layers" class="level3">
+<h3 class="anchored" data-anchor-id="follow-the-comparison-through-both-layers">Follow the comparison through both layers</h3>
+<div id="tbl-supa-feedback-results" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[29,23,48]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-feedback-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: The result and the information needed to interpret it.
+</figcaption>
+<div aria-describedby="tbl-supa-feedback-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 23%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity or feature</th>
+<th style="text-align: left;">Supplied result</th>
+<th style="text-align: left;">Meaning in the argument</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Eligible students / assigned classes</td>
+<td style="text-align: left;">480 / 24</td>
+<td style="text-align: left;">Students define the target; classes receive assignment</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Explanatory-minus-usual estimate</td>
+<td style="text-align: left;">2.5 points</td>
+<td style="text-align: left;">Estimated student-average assignment effect</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Approximate 95% interval</td>
+<td style="text-align: left;">[1, 4] points</td>
+<td style="text-align: left;">Uncertainty reflecting class assignment</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Local importance benchmark</td>
+<td style="text-align: left;">2 points</td>
+<td style="text-align: left;">One application task, considered against preparation effort</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Assessment occasion</td>
+<td style="text-align: left;">Two weeks after a six-week program</td>
+<td style="text-align: left;">Delayed course-topic performance at the specified follow-up</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The distinction between students and classes connects several components. The recorded score belongs to a student; allocation belongs to a class; the estimand weights students equally; and equal class sizes make equally weighted class means compatible with that target. Treating all 480 rows as independently assigned would change the inferential justification. The number of records in a file does not determine the number of independent assignments.</p>
+<div id="tbl-supa-feedback-traces" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[15,63,22]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-feedback-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: A completed reading of the feedback argument.
+</figcaption>
+<div aria-describedby="tbl-supa-feedback-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 63%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Particular contribution</th>
+<th style="text-align: left;">Location</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">STAT-E</td>
+<td style="text-align: left;">Class allocation, eligible records, scoring occasion and complete analysis sample</td>
+<td style="text-align: left;">F2, with implementation in F4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">STAT-J</td>
+<td style="text-align: left;">Allocation rationale, equal-size weighting and conditions of the class-based uncertainty procedure</td>
+<td style="text-align: left;">F3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">STAT-I</td>
+<td style="text-align: left;">Estimated contrast and interval; coding, denominator and influence checks</td>
+<td style="text-align: left;">F5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">STAT-C</td>
+<td style="text-align: left;">Positive eligible-cohort average assignment-effect conclusion, with uncertainty</td>
+<td style="text-align: left;">F1, F5–F6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SUB-E</td>
+<td style="text-align: left;">Students, course topics, feedback activities and delayed assessment</td>
+<td style="text-align: left;">F2 and F4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SUB-J</td>
+<td style="text-align: left;">Blueprint, common conditions, delivery records and the local benchmark’s rationale</td>
+<td style="text-align: left;">F4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SUB-I</td>
+<td style="text-align: left;">Interval read against the application-task benchmark at this follow-up</td>
+<td style="text-align: left;">F5–F6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SUB-C</td>
+<td style="text-align: left;">Bounded answer about assessed course-topic performance, with broader claims unresolved</td>
+<td style="text-align: left;">F6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>One document can contribute to several functions, but locating it twice does not create two independent pieces of evidence. The blueprint’s description of tasks helps situate the outcome; its alignment with course objectives is also invoked as a reason for interpreting it. The statistical result supports a mean effect; it does not show that every student’s score increased by 2.5.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Predict, then explain: keep the numbers, change the design">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Predict, then explain: keep the numbers, change the design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose the same reported estimate and interval appear in a different study where teachers selected their preferred feedback format. Before reading on, predict which part of the argument would change first and whether the same causal answer would remain warranted.</p>
+</div>
+</div>
+<p>The allocation account changes Evidence and removes the random-assignment reason in Justification. Selection could be related to prior achievement, teacher resources or other causes of outcomes. The numerical table can remain the same while its causal warrant changes. Its interval also needs a stated uncertainty justification for the new design; copying the numbers does not carry the old calibration with them. A descriptive difference remains reportable, but it answers a different question from an assignment effect.</p>
+</section>
+<section id="a-missing-explanation-and-a-conflicting-count" class="level3">
+<h3 class="anchored" data-anchor-id="a-missing-explanation-and-a-conflicting-count">A missing explanation and a conflicting count</h3>
+<p>Two variants of the packet show why identification and judgment remain distinct. In the first, F3 is omitted from the paper but available in its protocol. The rationale is accessible: state that the protocol explains weighting and assignment-based uncertainty. Publication outside the article does not by itself weaken the reason, although readers need a way to find it.</p>
+<p>In the second variant, F2 says all 480 students were analyzed, while a supplied flow table says 460 completed follow-up. The discrepancy is unresolved; the packet gives no reconciliation. State both accounts and their locations. Do not silently choose the number that makes the result easier to interpret. The target still concerns 480 eligible students, while the actual analysis membership and handling of missing outcomes need clarification. This may limit Evidence integrity and the ability to judge the whole answer.</p>
+<p>The task is specific: which students are absent from which calculation, why, and how were their outcomes handled? Neither “the report has a supplement” nor “missing data were handled statistically” answers it. A useful reading identifies what further information could resolve the question.</p>
+</section>
+<section id="a-shorter-transfer-predicting-recorded-student-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="a-shorter-transfer-predicting-recorded-student-outcomes">A shorter transfer: predicting recorded student outcomes</h3>
+<p>The real data of Realinho and colleagues contain 4,424 students from the Polytechnic Institute of Portalegre, Portugal <span class="citation" data-cites="realinho2022 uci697">(<a href="#ref-uci697" role="doc-biblioref">Realinho et al., 2021</a>; <a href="#ref-realinho2022" role="doc-biblioref">Realinho et al., 2022</a>)</span>. Outcomes were recorded at the normal degree duration. Dropout can include changing course or institution; Enrolled means still enrolled at that endpoint; Graduate means completed. The binary teaching analysis compares recorded Dropout with the other categories combined, while preserving all three labels in the data.</p>
+<p>The question is whether admission grade and age at enrollment improve prediction of that recorded outcome for held-out students from the same source. Both predictors are available at enrollment. Semester results would be too late for this intended prediction time. The teaching analysis uses a fixed, stratified approximately 70% training split and fits a logistic rule; this is a simplified analysis, not a reproduction of the source authors’ classifiers.</p>
+<div id="tbl-supa-prediction-records" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-prediction-records-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Counts supporting the prediction comparison.
+</figcaption>
+<div aria-describedby="tbl-supa-prediction-records-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Records</th>
+<th style="text-align: right;">Dropout</th>
+<th style="text-align: right;">Enrolled</th>
+<th style="text-align: right;">Graduate</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Full release</td>
+<td style="text-align: right;">1,421</td>
+<td style="text-align: right;">794</td>
+<td style="text-align: right;">2,209</td>
+<td style="text-align: right;">4,424</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Training</td>
+<td style="text-align: right;">994</td>
+<td style="text-align: right;">562</td>
+<td style="text-align: right;">1,540</td>
+<td style="text-align: right;">3,096</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Held out</td>
+<td style="text-align: right;">427</td>
+<td style="text-align: right;">232</td>
+<td style="text-align: right;">669</td>
+<td style="text-align: right;">1,328</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The fitted rule assigns a probability to each held-out student’s recorded Dropout status. Average squared probability error is 0.2000, against 0.2182 for assigning everyone the training-data dropout proportion; lower is better. These errors compare probability predictions, rather than count correct alerts. At a probability cutoff of 0.5, the fitted rule flags 73 of the 427 held-out Dropout records, or 17.096%. A better average probability score therefore coexists with missing most eventual Dropout records at this threshold.</p>
+<p>Outcome definitions, predictors, split and denominators are Evidence. Their availability at the intended time and separation of fitting from assessment supply reasons in Justification. The fit, probabilities, error comparison and threshold calculation are Inference. The reported Claim is that this simple rule improves average probability prediction on the internal held-out records, while this cutoff identifies only a small fraction of recorded Dropout.</p>
+<p>In substantive terms, an alert is about this administrative outcome, not necessarily departure from higher education. The released data have no cohort-year field for an independent later-cohort assessment. Predicting well within this split neither establishes performance for a future cohort nor shows that an intervention prompted by an alert would help. Those are separately owed questions with different evidence requirements.</p>
+</section>
+<section id="focused-passages-from-three-other-settings" class="level3">
+<h3 class="anchored" data-anchor-id="focused-passages-from-three-other-settings">Focused passages from three other settings</h3>
+<p><strong>Working from home.</strong> Bloom and colleagues’ experiment randomly assigned eligible volunteer employees, 131 to home work and 118 to office work (Appendix Table A.2, p.&nbsp;214). The nine-month arrangement and four home-working days per week are described on p.&nbsp;169. Table II, column 4, p.&nbsp;187 reports a weekly log-call analysis for 134 order takers, using employee and week effects and uncertainty clustered by employee; the authors interpret the result on p.&nbsp;188 as about 13% more weekly calls <span class="citation" data-cites="bloom2015wfh">(<a href="#ref-bloom2015wfh" role="doc-biblioref">Bloom et al., 2015</a>)</span>. These are the paper’s rounded reporting choices. The 134 analysis employees are not a contradictory count of all 249 assigned employees: follow the outcome and employee group for the selected analysis. Allocation documents production; its invoked causal reason belongs to Justification; a regression and its reported comparison belong to Inference. The <a href="https://nbloom.people.stanford.edu/research">author’s materials</a> allow a reader to inspect the underlying reports. Repeated weekly outcomes also explain why counting weeks as independent employees would be a mistake.</p>
+<p><strong>Confidence and belonging.</strong> In an invented study, three 0–100 confidence indicators ask about explaining, applying and checking learning tasks; three belonging indicators concern acceptance, inclusion and participation. The questions, scoring and administration supply measurement records. Their content situates the scores in a substantive domain. Reasons why these items represent the intended constructs provide substantive Justification. A scoring rule alone cannot establish that interpretation. Reading these contributions requires no factor analysis in this chapter.</p>
+<p><strong>Language progress.</strong> An invented student scores 58, 65, 68 and 76 at equally spaced occasions; another scores 62, 63, 67 and 68. Their average gains per interval are 6 and 2, but successive observed gains are 7, 3, 8 and 1, 4, 1. A constant average is not a constant observed trajectory. Student and occasion identifiers document the repeated structure. A reason for modeling within-student dependence is distinct from the data layout. A missing assessment is also different from a student who was never observed or eligible for this study.</p>
+</section>
+<section id="follow-the-organization-and-the-reporting" class="level3">
+<h3 class="anchored" data-anchor-id="follow-the-organization-and-the-reporting">Follow the organization and the reporting</h3>
+<p>Two auxiliary tasks help when a reading becomes difficult. <strong>Identifying organization</strong> asks which result belongs to which question, what information is shared, and which results support rather than replace the focal answer. The feedback influence checks support the one assignment-effect argument; each omitted-school calculation does not create a new substantive question. A separate question about preparation burden would need its own stated answer unless it had been defined as a strand required for one integrated decision.</p>
+<p><strong>Following reporting</strong> connects an abstract’s conclusion to a Results table’s interval and a Discussion’s scope. F1, F5 and F6 form that chain. The task adds no new component: it follows how the existing contributions are expressed and located. A concise abstract and a qualified Discussion need to be read together, but the fuller passage does not excuse a plainly contradictory headline. Argument B develops these tasks when several answers depend on one another. Here they organize a reading without adding another taxonomy.</p>
+</section>
+<section id="read-a-reported-regression-argument" class="level3">
+<h3 class="anchored" data-anchor-id="read-a-reported-regression-argument">Read a reported regression argument</h3>
+<p>The following teaching report concerns 102 historical occupation records from <code>carData::Prestige</code> <span class="citation" data-cites="carData2022">(<a href="#ref-carData2022" role="doc-biblioref">Fox et al., 2022</a>)</span>. It is written for this tutorial. R1–R4 are locations within the teaching report, not quotations from the dataset’s authors. A slope describes how fitted occupation-average income changes with education; <span class="math inline">\(R^2\)</span> describes the fraction of recorded income variation accounted for by the line, and residual SD describes remaining vertical scatter in income units. These local reminders support the reading; no regression calculation is required.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Teaching report: an occupation-level description">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Teaching report: an occupation-level description
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>R1 – Question and evidence.</strong> We described the education–income relationship in the 102 <em>carData::Prestige</em> occupation records. Income was expressed in thousand 1971 Canadian dollars. All records had both modeled measurements. Each occupation was weighted equally; the observed education range was 6.38–15.97 years.</p>
+<p><strong>R2 – Offered reasons.</strong> The upward scatterplot motivated a straight-line summary. OLS was chosen because it minimizes squared vertical discrepancies. The aim was a summary of these records, not a constant causal effect or an individual-level comparison. The source documentation identifies the measurements as historical occupational averages. No probability-sampling justification was available in the record consulted.</p>
+<p><strong>R3 – Analysis and interpretation.</strong> The fitted slope was 0.8988 thousand dollars per education year, with <span class="math inline">\(R^2=.3336\)</span> and residual SD 3.4834 thousand dollars. The residual pattern and a curved-fit sensitivity qualified the line as an incomplete description. The fit and sensitivities were exploratory. The descriptive result itself was not assigned sampling uncertainty.</p>
+<p><strong>R4 – Reported answer.</strong> Across these 102 recorded occupations, higher average education accompanied higher average income overall. The least-squares line summarized that pattern by about 899 additional 1971 dollars of fitted occupation-average income per education year over the observed range. It did not describe every occupation closely or establish an individual or causal return to education.</p>
+</blockquote>
+</div>
+</div>
+<div id="tbl-supa-regression-traces" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[12,42,46]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-regression-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Reading one regression argument with linked statistical and substantive layers.
+</figcaption>
+<div aria-describedby="tbl-supa-regression-traces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 42%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Content read in this report</th>
+<th style="text-align: left;">Where the information is found</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">STAT-E</td>
+<td style="text-align: left;">Records, measurements, scaling, and complete sample</td>
+<td style="text-align: left;">R1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">STAT-J</td>
+<td style="text-align: left;">Reasons for OLS as a descriptive, noncausal summary</td>
+<td style="text-align: left;">R2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">STAT-I</td>
+<td style="text-align: left;">Slope, fit, sensitivity, and exploratory status</td>
+<td style="text-align: left;">R3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">STAT-C</td>
+<td style="text-align: left;">Positive but incomplete description over recorded support</td>
+<td style="text-align: left;">R4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SUB-E</td>
+<td style="text-align: left;">Historical occupation averages, not individual measurements</td>
+<td style="text-align: left;">R1 and the dataset documentation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SUB-J</td>
+<td style="text-align: left;">Measurement meanings supporting an occupation-level reading</td>
+<td style="text-align: left;">R2 and the dataset documentation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SUB-I</td>
+<td style="text-align: left;">Meaning of about 899 dollars per education year</td>
+<td style="text-align: left;">R3–R4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SUB-C</td>
+<td style="text-align: left;">Bounded historical answer, without a causal or individual return</td>
+<td style="text-align: left;">R4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>R4 names the 102 recorded occupations and the descriptive line. It does not claim a population slope, so the reader attaches no confidence interval to that answer. The fitted slope is one statistical strand; fit summaries and checks support its interpretation rather than supply separately owed substantive answers.</p>
+<p>Now replace R2’s reason with “We used R, so our slope is an unbiased causal effect.” The offered reason is identifiable STAT-J content even though it is inadequate. Reading records it as given. The next section judges whether it supports the claim. A reader does not silently supply random assignment or replace the report’s question with a better one.</p>
+</section>
+</section>
+<section id="evaluating-the-quality-of-the-question-level-argument" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-the-quality-of-the-question-level-argument">Evaluating the Quality of the Question-Level Argument</h2>
+<section id="six-questions-with-reasons-rather-than-scores" class="level3">
+<h3 class="anchored" data-anchor-id="six-questions-with-reasons-rather-than-scores">Six questions, with reasons rather than scores</h3>
+<p>Evaluation depends on the argument that has been read. Its six questions focus attention on a particular weakness or strength; they are not six new components and their judgments are not a total quality score. Some questions overlap in the consequence they reveal. Name where a problem first arises, then explain what it changes later in the argument.</p>
+<div id="tbl-supa-evaluation" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[17,28,55]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: Six questions for evaluating one question-level argument.
+</figcaption>
+<div aria-describedby="tbl-supa-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 28%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Evaluation question</th>
+<th style="text-align: left;">What to consider</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Alignment</strong></td>
+<td style="text-align: left;"><strong>Question alignment</strong></td>
+<td style="text-align: left;">Whether the question, estimand, design, evidence, analysis, and answer remain directed at the same aim</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Support</strong></td>
+<td style="text-align: left;"><strong>Evidence integrity</strong></td>
+<td style="text-align: left;">Whether the observations and contextual records, their production, and their representation are trustworthy, traceable, and appropriate</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Support</strong></td>
+<td style="text-align: left;"><strong>Justification adequacy</strong></td>
+<td style="text-align: left;">Whether the statistical, design, measurement, and contextual reasons warrant the proposed moves</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Support</strong></td>
+<td style="text-align: left;"><strong>Inferential adequacy</strong></td>
+<td style="text-align: left;">Whether reasoning within both layers is adequate, including estimation, uncertainty, checks, sensitivity, and substantive interpretation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Translation</strong></td>
+<td style="text-align: left;"><strong>Transition fidelity</strong></td>
+<td style="text-align: left;">Whether the links between layers retain meaning, uncertainty, design status, and scope</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Translation</strong></td>
+<td style="text-align: left;"><strong>Claim calibration</strong></td>
+<td style="text-align: left;">Whether the reported answer’s strength and breadth match its support</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A local judgment is <strong>adequate for this purpose</strong>, <strong>needs revision</strong>, <strong>insufficient information to judge</strong>, or <strong>not applicable</strong>. Accompany it with a reason: “the complete cohort supports the stated denominator” is informative; “Evidence integrity: adequate” alone does not show what was inspected.</p>
+<p>The whole question-answer pair can be <strong>supported as stated</strong>, <strong>supported only after narrowing or revision</strong>, <strong>not supported</strong>, or <strong>not assessable from the accessible record</strong>. These outcomes distinguish a warranted answer from an unwarranted one and an unresolved documentary gap from a demonstrated failure. An inconclusive answer can be supported as stated. A study need not discover a benefit to provide a defensible answer to its question.</p>
+</section>
+<section id="evaluate-the-feedback-claim-and-its-variants" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-the-feedback-claim-and-its-variants">Evaluate the feedback claim and its variants</h3>
+<p>The baseline feedback answer retains the eligible cohort, assigned classes, assessment meaning and follow-up. Its interval is above zero but crosses the two-point benchmark. Within the supplied conditions, the positive average assignment-effect conclusion is supported as stated, with practical size uncertain. That judgment is about this bounded answer, not a certificate that the study has answered every educational question.</p>
+<div id="tbl-supa-feedback-quality" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-feedback-quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: Applying evaluation to the supplied feedback answer.
+</figcaption>
+<div aria-describedby="tbl-supa-feedback-quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Evaluation question</th>
+<th style="text-align: left;">Application to the feedback packet</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Question alignment</td>
+<td style="text-align: left;">The answer remains about the eligible-cohort assignment effect at the stated occasion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evidence integrity</td>
+<td style="text-align: left;">Allocation, common scoring, denominators and complete follow-up are documented</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Justification adequacy</td>
+<td style="text-align: left;">The class-assignment comparison and equal-size weighting address the target, under the stated implementation and no-between-class-influence conditions</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Inferential adequacy</td>
+<td style="text-align: left;">The stated uncertainty reflects assignment; checks inform the calculation without establishing every assumption</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transition fidelity</td>
+<td style="text-align: left;">Two score points retain their course-specific meaning; a cohort-average effect does not become each student’s gain</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Claim calibration</td>
+<td style="text-align: left;">A positive delayed-assessment conclusion retains an unresolved practical magnitude and limited reach</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Now consider “the format produces substantial, lasting improvements in all forms of learning for every student.” The result has not changed. Transition fidelity needs revision because an assessment of taught topics has become all learning and an average has become every individual. Claim calibration needs revision because the two-week follow-up has become indefinitely lasting and practical importance has been settled despite the interval crossing the benchmark. Narrowing that overstatement back to the declared cohort-average question preserves a supported answer. Claiming an individual response instead would introduce a different estimand requiring different evidence.</p>
+<p>For the conflicting-count variant, Evidence integrity is unresolved. If the missing outcomes could change the comparison and their handling is unknown, the whole answer may be not assessable from the accessible record. This differs from a documented coding error that demonstrably changes the result: then the calculation and answer need revision. Different concerns call for different remedies, not a common penalty score.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Predict, then explain: the estimate stays the same">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Predict, then explain: the estimate stays the same
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A separate invented study reports the same 2.5-point estimate but an interval from <span class="math inline">\(-1\)</span> to 6 points. Its local benchmark is still two points. What changes in the conclusion about direction and importance, and what stays unchanged?</p>
+</div>
+</div>
+<p>The point estimate stays positive, but the interval now includes a negative effect, zero and gains both below and above the benchmark. The study cannot settle direction or practical size at the stated level. Reporting that uncertainty can be a supported answer. “No effect” would discard compatible positive and negative values; “2.5 points proves a meaningful benefit” would discard the uncertainty. The interval concerns an average effect, not the range of individual student effects.</p>
+</section>
+<section id="evaluate-the-prediction-promise" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-the-prediction-promise">Evaluate the prediction promise</h3>
+<p>The student prediction comparison supports a limited promise: lower average squared probability error than the training-prevalence rule on this internal held-out set. Evidence integrity concerns the outcome coding and disjoint fit and assessment records. Justification adequacy concerns predictor availability at enrollment and an assessment population relevant to the intended use. Inferential adequacy concerns the specified error measure and any uncertainty or stability needed for a stronger comparative claim.</p>
+<p>The 0.5 cutoff identifies 73 of 427 Dropout records. Claim calibration therefore requires a distinction between improved probability predictions and useful screening. A threshold could be changed, but deciding its value requires the consequences of missed cases and false alerts. An appropriate future evaluation would preserve the chosen rule and threshold before measuring performance in the new setting. Trying thresholds on the same assessment set and reporting only the best would spend that set on selection.</p>
+<p>A future-cohort promise remains unassessed because the released record does not permit a later-cohort split. A causal claim that acting on alerts prevents dropout is also unassessed by this prediction analysis. More elaborate software cannot replace the missing time information or evidence about intervention consequences. The way forward is to identify the additional question and obtain evidence suited to it, rather than make the same error score carry it.</p>
+</section>
+<section id="evaluate-the-regression-answer-already-read" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-the-regression-answer-already-read">Evaluate the regression answer already read</h3>
+<div id="tbl-supa-regression-quality" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[30,70]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-regression-quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13: Evaluating the regression argument already read.
+</figcaption>
+<div aria-describedby="tbl-supa-regression-quality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quality-evaluation question</th>
+<th style="text-align: left;">Application to the reported descriptive argument</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Question alignment</td>
+<td style="text-align: left;">Does the answer remain about the 102 occupations and the declared straight-line summary?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evidence integrity</td>
+<td style="text-align: left;">Are the source, aggregate unit, scaling, exclusions, and unusual records traceable?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Justification adequacy</td>
+<td style="text-align: left;">Are the offered reasons adequate for a descriptive line, rather than stretched into random sampling or causal identification?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Inferential adequacy</td>
+<td style="text-align: left;">Do the calculation and substantive reasoning support the reported pattern while retaining curvature and scatter?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transition fidelity</td>
+<td style="text-align: left;">Does the interpretation preserve occupation-level measurements, units, and exploratory status?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Claim calibration</td>
+<td style="text-align: left;">Does the answer retain historical scope, supported range, and the limits of a linear summary?</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>R4 is supported as stated: it reports a checkable summary of named records and retains their unit and historical scope. Missing information about national sampling does not invalidate arithmetic on those named records. It would matter for a proposed national generalization. No fit summary establishes that the line describes every occupation closely; R3 acknowledges substantial scatter and a curved-fit sensitivity.</p>
+<p>A model-based extension is a separate commitment. An interval for a process slope needs an appropriate mean model and uncertainty assumptions. The residual pattern and curvature qualify that extension. Changing only the covariance estimator might address a variance condition; it cannot make a straight conditional-mean relationship true or provide random sampling.</p>
+<p>The news claim “another year of education increases income by about 900 dollars” is not supported by these records <span class="citation" data-cites="robinson1950">(<a href="#ref-robinson1950" role="doc-biblioref">Robinson, 1950</a>)</span>. It moves from occupation averages to individuals and from description to causation. Replacing it with R4 changes the question-answer pair, not merely the tone of the conclusion. A causal comparison needs a design or identification argument. In Project STAR, for example, the within-school random assignment supplies a reason for causal comparison; the fact that a binary-regression slope equals a group-mean difference does not itself supply that reason <span class="citation" data-cites="finn1990 mosteller1995">(<a href="#ref-finn1990" role="doc-biblioref">Finn &amp; Achilles, 1990</a>; <a href="#ref-mosteller1995" role="doc-biblioref">Mosteller, 1995</a>)</span>.</p>
+</section>
+</section>
+<section id="from-a-reading-to-a-documented-construction-cycle" class="level2">
+<h2 class="anchored" data-anchor-id="from-a-reading-to-a-documented-construction-cycle">From a Reading to a Documented Construction Cycle</h2>
+<section id="six-stages-organize-the-work" class="level3">
+<h3 class="anchored" data-anchor-id="six-stages-organize-the-work">Six stages organize the work</h3>
+<p>A finished article is organized for communication. Its polished order does not prove when researchers made their decisions. A <strong>construction workflow</strong> describes how an argument is produced, whereas the component map describes how its support functions. A Methods paragraph may report a plan, a later repair or a post-inspection choice; dated records help distinguish them.</p>
+<p>The six-stage cycle has two phases. <strong>Understand and plan</strong> develops a question and a coherent way to answer it. <strong>Produce and complete</strong> obtains the question-specific evidence, analyzes it and completes a bounded answer. Substantive reasons belong in both phases: measurement meaning and practical benchmarks should not be invented after the preferred result appears.</p>
+<div id="tbl-supa-cycle-stages" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[45,55]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-cycle-stages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;14: A six-stage construction cycle for the feedback question.
+</figcaption>
+<div aria-describedby="tbl-supa-cycle-stages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 45%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase and stage</th>
+<th style="text-align: left;">Feedback construction example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Understand and plan: 1. Review the problem, setting, and relevant literature</td>
+<td style="text-align: left;">Review what feedback activities could support learning and what earlier assessments measured</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2. Frame the question and, where useful, a candidate answer</td>
+<td style="text-align: left;">Ask about the eligible-cohort average assignment effect on delayed course-topic performance</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3. Align design, measurement, estimand, evidence-production or acquisition plan, and inferential plan</td>
+<td style="text-align: left;">Commit to class allocation, equal student weighting, a common delayed assessment, complete follow-up and matching uncertainty; document the two-point rationale</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Produce and complete: 4. Produce or acquire, and document, empirical and contextual evidence</td>
+<td style="text-align: left;">Preserve allocation, delivery, scoring, follow-up and analysis-membership records</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5. Estimate, check, and analyse</td>
+<td style="text-align: left;">Estimate the contrast and interval; check coding, denominators and influential schools</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6. Contextualize, interpret, and complete the bounded answer</td>
+<td style="text-align: left;">Interpret the interval against its course benchmark and retain scope and unresolved practical size</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-supa-cycle" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Review, Frame and Align form the first phase, Understand and plan. Produce or acquire and document, Estimate check and analyse, and Contextualize interpret and complete form the second phase, Produce and complete. A one-way arrow links Align to Produce. Iteration is allowed within a phase; no return arrow crosses phases within this cycle." data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-supa-cycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_arg_a_files/figure-html/fig-supa-cycle-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Review, Frame and Align form the first phase, Understand and plan. Produce or acquire and document, Estimate check and analyse, and Contextualize interpret and complete form the second phase, Produce and complete. A one-way arrow links Align to Produce. Iteration is allowed within a phase; no return arrow crosses phases within this cycle." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-supa-cycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The six-stage cycle has one forward handoff between planning and production. Iteration stays within each phase; changing anchored commitments starts a revised or additional cycle.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="read-the-decision-history-not-just-the-final-order" class="level3">
+<h3 class="anchored" data-anchor-id="read-the-decision-history-not-just-the-final-order">Read the decision history, not just the final order</h3>
+<p>The following chronology is an invented extension of the feedback protocol. It teaches how timing contributes to interpretation; it adds no new results.</p>
+<div id="tbl-supa-history" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[19,41,40]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-history-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;15: A decision history distinguishes refinement, repair and a new question.
+</figcaption>
+<div aria-describedby="tbl-supa-history-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 41%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Decision time</th>
+<th style="text-align: left;">Documented action</th>
+<th style="text-align: left;">What the record allows a reader to conclude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Before recruitment</td>
+<td style="text-align: left;">The team specifies the eligible-cohort question, assessment occasion and two-point benchmark</td>
+<td style="text-align: left;">These commitments precede relevant outcomes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">During planning</td>
+<td style="text-align: left;">A pilot reveals ambiguous delivery instructions; the team clarifies them and realigns the plan</td>
+<td style="text-align: left;">A refinement within Phase 1, before production for this question</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">At production</td>
+<td style="text-align: left;">The allocation list, class membership and scoring records are preserved</td>
+<td style="text-align: left;">The plan can be compared with implementation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">During analysis</td>
+<td style="text-align: left;">A duplicated score entry is found; the original record is checked and the affected calculation corrected</td>
+<td style="text-align: left;">A Phase 2 repair, retaining the original estimand and commitments</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">After inspecting outcomes</td>
+<td style="text-align: left;">The team adds a question about baseline-score subgroups</td>
+<td style="text-align: left;">An additional exploratory question and cycle, not a retrospectively planned primary question</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">At completion</td>
+<td style="text-align: left;">The original answer retains the 2.5-point estimate and [1, 4] interval with practical size uncertain</td>
+<td style="text-align: left;">Normal completion can preserve an unresolved practical judgment</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The <strong>Phase 1 anchor</strong> records the question and mode, estimand, design, measurement, evidence-production or acquisition plan, inferential plan and, where relevant, a stopping rule. The one-way handoff makes changes to those commitments visible. It is a convention for documenting research, not a claim that investigators can never learn from outcomes and redesign a study.</p>
+<p>For existing data, Stage 4 can mean obtaining or designating the records for this question, rather than the first time anyone has opened the original file. A decision is prospective with respect to relevant evidence only if its timing supports that claim. Calling a later reanalysis “Phase 1” does not erase prior outcome access. Conversely, a documented revision before relevant outcome access need not be called exploratory merely because it is a revision.</p>
+</section>
+<section id="completion-repair-and-a-revised-question" class="level3">
+<h3 class="anchored" data-anchor-id="completion-repair-and-a-revised-question">Completion, repair and a revised question</h3>
+<p>Three endings make the record honest. <strong>Normal completion</strong> answers the planned question, possibly inconclusively or against an expectation. <strong>Phase 2 repair</strong> corrects work while retaining its anchored question and commitments. An <strong>additional or revised cycle</strong> makes a changed question, estimand or inferential commitment explicit and gives the earlier cycle a visible outcome. If the intended delayed assessment was administered immediately, the original delayed-performance question is not answerable as planned. The immediate scores can support another question with its own scope.</p>
+<p>Changing a score-coding error is a repair; replacing the planned outcome after seeing a disappointing result is a revised question and must preserve that timing. A prespecified sensitivity can be run within the planned cycle. A new sensitivity motivated by a surprising diagnostic can also be documented as such; it does not acquire prospective status by being sensible. If it changes a prior inferential commitment, record a revised cycle rather than overwrite the original.</p>
+<p>A new cycle can reuse literature, records, measures and code. Reuse saves work, but does not transfer a causal warrant, population scope or prospective status automatically. For the occupation report, planning would declare historical occupation units, a finite-record slope and checks. Completion would preserve the records, estimate and examine the line, and report the bounded description. Changing to an individual causal return would require a different question and evidence, rather than a different coefficient label.</p>
+<p>Researchers can use the six evaluation questions during construction to judge what a stage produces. The questions do not become workflow stages. Reading identifies support; evaluation judges its adequacy; construction documents how support is developed. Keeping these tasks distinct makes room for judgment without requiring a ritual sequence every time a paper is opened.</p>
+</section>
+</section>
+<section id="summary-and-reading-bridge" class="level2">
+<h2 class="anchored" data-anchor-id="summary-and-reading-bridge">Summary and Reading Bridge</h2>
+<p>A useful reading connects the question and reported answer to particular information at inspectable locations. Procedures, invoked reasons, analysis and conclusions can appear in the same paragraph while doing different work. The substantive layer follows what those contributions mean for the study’s people, measures and setting. An inadequate offered reason is still part of the argument to be read; its adequacy is a separate judgment.</p>
+<p>The feedback packet showed how allocation, weighting, assessment meaning and uncertainty support one bounded answer. The student example distinguished an internal probability comparison from a useful alert or future-cohort promise. The occupation report separated a finite-record description from individual causal claims. In each case, changing one fact can change the support even when the numerical output stays the same.</p>
+<p>This approach is a teaching synthesis, informed by Toulmin’s warrants and qualifications <span class="citation" data-cites="toulmin2003">(<a href="#ref-toulmin2003" role="doc-biblioref">Toulmin, 2003</a>)</span>, LeMire’s connection between statistical testing and substantive reasoning <span class="citation" data-cites="lemire2010">(<a href="#ref-lemire2010" role="doc-biblioref">LeMire, 2010</a>)</span>, and Kane’s argument-based account of interpretations and uses <span class="citation" data-cites="kane2013">(<a href="#ref-kane2013" role="doc-biblioref">Kane, 2013</a>)</span>. Work on estimands <span class="citation" data-cites="lundberg2021">(<a href="#ref-lundberg2021" role="doc-biblioref">Lundberg et al., 2021</a>)</span> and quantitative reporting <span class="citation" data-cites="appelbaum2018">(<a href="#ref-appelbaum2018" role="doc-biblioref">Appelbaum et al., 2018</a>)</span> develops the link between a target and the inspectable record. These sources complement statistical method knowledge; the component labels cannot replace that knowledge.</p>
+<p>Argument B extends the reading to several statistical strands required for one answer and to separate questions whose support depends on one another. Each argument chapter supplies its own local recap and cases. Courses can select one without requiring a running case carried through every chapter.</p>
+<section id="key-terms" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="key-terms">Key terms</h3>
+<p>The Part One Concept Reference brings the shared terms together. This table selects the terms developed in this argument chapter.</p>
+<div id="tbl-supa-key-terms" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[18,21,44,17]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-supa-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16: Selected terms introduced in Argument Chapter A.
+</figcaption>
+<div aria-describedby="tbl-supa-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 21%">
+<col style="width: 44%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Concept group</th>
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning or essential distinction</th>
+<th style="text-align: left;">Main explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Argument-based reading</td>
+<td style="text-align: left;">Argument component</td>
+<td style="text-align: left;">One of the four functions, evidence, justification, inference, and bounded claim, that a piece of study information performs in the statistical or the substantive layer. A reader identifies the function before judging its adequacy.</td>
+<td style="text-align: left;">Arg. A, Sec. 2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Argument-based reading</td>
+<td style="text-align: left;">Documentary location</td>
+<td style="text-align: left;">The place in a report or its related materials, such as Methods, a protocol, a codebook, or an analytical supplement, where the traceable information for a component is found.</td>
+<td style="text-align: left;">Arg. A, Sec. 1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Argument-based reading</td>
+<td style="text-align: left;">Evaluation question</td>
+<td style="text-align: left;">One of the six questions on alignment, support, and translation used to judge the quality of a question-level argument after it has been read. Each receives a reasoned judgment, not a score.</td>
+<td style="text-align: left;">Arg. A, Sec. 4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<p>Each prompt supplies its own record. Explain the consequential connection; a complete component map is needed only when the question asks for one.</p>
+<!-- prompt-id: CH01-E01 -->
+<section id="ex-ch01-01" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-01">Exercise 1: Find the question and the reported answer (Foundational)</h3>
+<p>An invented abstract states: “We examined whether assigning weekly planning messages rather than usual course messages changes the average final-assessment score for 100 consenting students in one course. The planning group averaged 78 and the usual group 73 on a 100-point assessment. We conclude that planning messages improve achievement for every university student.” The excerpt gives no allocation procedure or interval.</p>
+<ol type="1">
+<li>Formulate the research question from the aim, identifying your wording as a reader’s formulation. Locate the numerical result and reported answer.</li>
+<li>Identify the question’s mode and estimand. Distinguish the five-point estimate from that target.</li>
+<li>Name one specific piece of supporting information to seek and a plausible documentary location. State one way the reported answer exceeds the record.</li>
+</ol>
+<!-- END EX01-01 PROMPT -->
+<!-- prompt-id: CH01-E02 -->
+</section>
+<section id="ex-ch01-02" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-02">Exercise 2: Distinguish a procedure, a reason and a result (Foundational)</h3>
+<p>An invented report contains these passages:</p>
+<ul>
+<li><strong>M1:</strong> Twelve of 24 classes were randomly allocated to each feedback format.</li>
+<li><strong>P1:</strong> Random allocation supports comparing the assigned formats for the participating classes; uncertainty must reflect class assignment.</li>
+<li><strong>R1:</strong> The estimated eligible-cohort average assignment effect is 2.5 points, approximate 95% CI [1, 4].</li>
+<li><strong>D1:</strong> Assignment increased average assessed performance in these classes; practical magnitude remains uncertain against the two-point benchmark.</li>
+</ul>
+<ol type="1">
+<li>Identify the main statistical function of each passage and its location.</li>
+<li>Explain why locating P1 in a protocol rather than the paper does not change its function. Is its location itself a judgment of adequacy?</li>
+<li>In a variant, P1 says “Random assignment makes these classes representative of all schools.” Identify its function first, then explain the problem with the offered reason.</li>
+</ol>
+<!-- END EX01-02 PROMPT -->
+<!-- prompt-id: CH01-E03 -->
+</section>
+<section id="ex-ch01-03" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-03">Exercise 3: Follow an interval into an answer (Integrative)</h3>
+<p>A separate invented workshop study randomly assigns 80 participants equally to two feedback formats. Everyone completes the same immediate 20-point quiz. The estimated assigned-group mean difference is 1.1 points, 95% CI [-0.2, 2.4]. The documented uncertainty procedure matches assignment. Before outcomes were examined, a 1.5-point difference was identified as potentially important.</p>
+<ol type="1">
+<li>State the estimate, uncertainty and substantive benchmark, explaining what each contributes. Does the interval describe individual participants’ gains?</li>
+<li>Which directions and practical-size conclusions remain compatible with the interval? Write a bounded answer of no more than two sentences.</li>
+<li>Explain what additional evidence would be needed to turn this answer about an immediate quiz into a claim about durable professional learning.</li>
+</ol>
+<!-- END EX01-03 PROMPT -->
+<!-- prompt-id: CH01-E04 -->
+</section>
+<section id="ex-ch01-04" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-04">Exercise 4: Read incomplete or conflicting materials (Integrative)</h3>
+<p>In an invented feedback report, Methods says all 480 eligible students were included. A linked flow table says 460 supplied follow-up scores. The analysis code is unavailable. The protocol explains class allocation and equal-size weighting, but does not explain missing outcomes.</p>
+<ol type="1">
+<li>State what each source contributes and the specific unresolved difference. Which information would you seek next, and why?</li>
+<li>Explain why the protocol is useful support even though it does not resolve this discrepancy. Do two references to the protocol create independent evidence?</li>
+<li>Give a reasoned local evaluation and explain when “not assessable from the accessible record” is preferable to declaring the whole answer unsupported.</li>
+</ol>
+<!-- END EX01-04 PROMPT -->
+<!-- prompt-id: CH01-E05 -->
+</section>
+<section id="ex-ch01-05" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-05">Exercise 5: Predict the consequence of a changed design (Integrative)</h3>
+<p>A supplied invented report gives a 2.5-point mean difference and 95% interval [1, 4] for 480 students in 24 classes, and concludes that assigning explanatory feedback improved average delayed performance in those classes. In Version A, classes were randomly assigned and uncertainty reflects that allocation. In Version B, teachers chose their preferred format; the numerical table is identical, and no adjustment or identification argument is supplied.</p>
+<ol type="1">
+<li>Predict whether the same causal answer remains supported in Version B. Explain which changed fact matters before referring to the interval.</li>
+<li>Apply Justification adequacy and Claim calibration selectively. Distinguish a numerical difference from the support for its causal interpretation and its uncertainty calculation.</li>
+<li>If you replace the causal answer with a description of the observed groups, are you only narrowing the same answer or answering a different question?</li>
+<li>For Version A, change only the interval to [-1, 6]. Explain what changes in the conclusion about direction and the two-point importance benchmark.</li>
+</ol>
+<!-- END EX01-05 PROMPT -->
+<!-- prompt-id: CH01-E06 -->
+</section>
+<section id="ex-ch01-06" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-06">Exercise 6: Read a documented construction history (Integrative)</h3>
+<p>An invented team makes these decisions about its planned delayed-assessment feedback study:</p>
+<p>A. Before recruitment, a pilot reveals ambiguous instructions; the team clarifies delivery and realigns its plan.</p>
+<p>B. During analysis, a verified duplicated score is corrected and the declared comparison is recalculated.</p>
+<p>C. After viewing outcomes, the team chooses an immediate quiz instead of its planned delayed assessment because the result looks more favorable.</p>
+<p>D. The declared analysis is completed, but its interval leaves meaningful benefit and harm compatible; the team reports that uncertainty.</p>
+<ol type="1">
+<li>Classify each decision as refinement within Phase 1, repair within Phase 2, a revised/additional cycle, or normal completion. Give a reason.</li>
+<li>State what the record of C must preserve. Name one useful resource that can be reused and one status that does not transfer automatically.</li>
+<li>If the delayed assessment was never administered, what should be recorded about the original question? Explain why an orderly final Methods section cannot establish that decisions were prospective.</li>
+</ol>
+<!-- END EX01-06 PROMPT -->
+<!-- prompt-id: CH01-E07 -->
+</section>
+<section id="ex-ch01-07" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch01-07">Exercise 7: Locate the reasons, then judge the answers (Integrative)</h3>
+<p>The report below is invented for this exercise. It is the whole report; no assignment or sampling documentation accompanies it.</p>
+<p><strong>S1.</strong> We describe how average weekly study time relates to average test score in 60 secondary schools, using each school’s recorded averages for one term. School-average study time ranged from 2 to 6 hours a week, and every school had both averages.</p>
+<p><strong>S2.</strong> A scatterplot of the 60 schools showed a roughly straight upward pattern, so we summarized it with a least-squares line. We used a regression program, so the coefficient is a causal effect.</p>
+<p><strong>S3.</strong> The fitted slope was 4 test-score points per additional hour of school-average weekly study time.</p>
+<p><strong>S4.</strong> Across these 60 schools, schools with more average study time had higher average scores: the least-squares line summarized the pattern by about 4 points of fitted school-average score per additional hour over the observed 2–6 hours.</p>
+<p><strong>S5.</strong> Each additional hour a student studies raises that student’s score by 4 points.</p>
+<ol type="1">
+<li>Locate the reasons the report offers and its reported answers. Name the function each performs and the paragraph where you find it.</li>
+<li>Before judging it, say what function the sentence “We used a regression program, so the coefficient is a causal effect” performs. Then apply Justification adequacy to it.</li>
+<li>Judge S4 as the answer to a descriptive question about these 60 schools. Is it supported as stated? Does it need an interval?</li>
+<li>Apply Transition fidelity and Claim calibration to S5. Is it supported? Explain whether replacing S5 with S4 narrows the same answer or answers a different question.</li>
+</ol>
+<!-- END EX01-07 PROMPT -->
+</section>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-appelbaum2018" class="csl-entry" role="listitem">
+Appelbaum, M., Cooper, H., Kline, R. B., Mayo-Wilson, E., Nezu, A. M., &amp; Rao, S. M. (2018). Journal article reporting standards for quantitative research in psychology: The <span>APA</span> publications and communications board task force report. <em>American Psychologist</em>, <em>73</em>(1), 3–25. <a href="https://doi.org/10.1037/amp0000191">https://doi.org/10.1037/amp0000191</a>
+</div>
+<div id="ref-bloom2015wfh" class="csl-entry" role="listitem">
+Bloom, N., Liang, J., Roberts, J., &amp; Ying, Z. J. (2015). Does working from home work? Evidence from a Chinese experiment. <em>The Quarterly Journal of Economics</em>, <em>130</em>(1), 165–218. <a href="https://doi.org/10.1093/qje/qju032">https://doi.org/10.1093/qje/qju032</a>
+</div>
+<div id="ref-finn1990" class="csl-entry" role="listitem">
+Finn, J. D., &amp; Achilles, C. M. (1990). Answers and questions about class size: A statewide experiment. <em>American Educational Research Journal</em>, <em>27</em>(3), 557–577.
+</div>
+<div id="ref-carData2022" class="csl-entry" role="listitem">
+Fox, J., Weisberg, S., &amp; Price, B. (2022). <em><span class="nocase">carData</span>: Companion to applied regression data sets</em> (Versions 3.0-5). <span>Comprehensive R Archive Network</span>. <a href="https://doi.org/10.32614/CRAN.package.carData">https://doi.org/10.32614/CRAN.package.carData</a>
+</div>
+<div id="ref-kane2013" class="csl-entry" role="listitem">
+Kane, M. T. (2013). Validating the interpretations and uses of test scores. <em>Journal of Educational Measurement</em>, <em>50</em>(1), 1–73. <a href="https://doi.org/10.1111/jedm.12000">https://doi.org/10.1111/jedm.12000</a>
+</div>
+<div id="ref-lemire2010" class="csl-entry" role="listitem">
+LeMire, S. D. (2010). An argument framework for the application of null hypothesis statistical testing in support of research. <em>Journal of Statistics Education</em>, <em>18</em>(2), 1–23. <a href="https://doi.org/10.1080/10691898.2010.11889492">https://doi.org/10.1080/10691898.2010.11889492</a>
+</div>
+<div id="ref-littlerubin2019" class="csl-entry" role="listitem">
+Little, R. J. A., &amp; Rubin, D. B. (2019). <em>Statistical analysis with missing data</em> (3rd ed.). <span>John Wiley &amp; Sons</span>. <a href="https://doi.org/10.1002/9781119482260">https://doi.org/10.1002/9781119482260</a>
+</div>
+<div id="ref-lundberg2021" class="csl-entry" role="listitem">
+Lundberg, I., Johnson, R., &amp; Stewart, B. M. (2021). What is your estimand? Defining the target quantity connects statistical evidence to theory. <em>American Sociological Review</em>, <em>86</em>(3), 532–565. <a href="https://doi.org/10.1177/00031224211004187">https://doi.org/10.1177/00031224211004187</a>
+</div>
+<div id="ref-mosteller1995" class="csl-entry" role="listitem">
+Mosteller, F. (1995). The <span>Tennessee</span> study of class size in the early school grades. <em>The Future of Children</em>, <em>5</em>(2), 113–127.
+</div>
+<div id="ref-nrc2010" class="csl-entry" role="listitem">
+National Research Council. (2010). <em>The prevention and treatment of missing data in clinical trials</em>. National Academies Press. <a href="https://doi.org/10.17226/12955">https://doi.org/10.17226/12955</a>
+</div>
+<div id="ref-realinho2022" class="csl-entry" role="listitem">
+Realinho, V., Machado, J., Baptista, L., &amp; Martins, M. V. (2022). Predicting student dropout and academic success. <em>Data</em>, <em>7</em>(11), 146. <a href="https://doi.org/10.3390/data7110146">https://doi.org/10.3390/data7110146</a>
+</div>
+<div id="ref-uci697" class="csl-entry" role="listitem">
+Realinho, V., Vieira Martins, M., Machado, J., &amp; Baptista, L. (2021). <em>Predict students’ dropout and academic success</em> [Dataset]. UCI Machine Learning Repository. <a href="https://doi.org/10.24432/C5MC89">https://doi.org/10.24432/C5MC89</a>
+</div>
+<div id="ref-robinson1950" class="csl-entry" role="listitem">
+Robinson, W. S. (1950). Ecological correlations and the behavior of individuals. <em>American Sociological Review</em>, <em>15</em>(3), 351–357. <a href="https://doi.org/10.2307/2087176">https://doi.org/10.2307/2087176</a>
+</div>
+<div id="ref-toulmin2003" class="csl-entry" role="listitem">
+Toulmin, S. E. (2003). <em>The uses of argument</em> (Updated). Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511840005">https://doi.org/10.1017/CBO9780511840005</a>
+</div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in an unavailable-unit anchor. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#argument-c"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../argument-approach.html" class="pagination-link" aria-label="The argument-based approach">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">The argument-based approach</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../part-one/chapter_arg_b.html" class="pagination-link" aria-label="B. Extending the Argument-Based Approach to Quantitative Studies">
+        <span class="nav-page-text">B. Extending the Argument-Based Approach to Quantitative Studies</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · CC BY 4.0</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#citation">
+<p>Cite</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#licences">
+<p>Licence</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

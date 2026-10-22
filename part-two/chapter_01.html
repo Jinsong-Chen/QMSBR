@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>From Latent-Variable Modeling to Factor Analysis – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../part-two/chapter_02.html" rel="next">
+<link href="../part-two/part_two_concept_reference.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../part-one/part_one_introduction.html"> 
+<span class="menu-text">Part One</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../part-two/part_two_introduction.html" aria-current="page"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../practice/index.html"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../argument-approach.html"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../part-two/chapter_01.html">From Latent-Variable Modeling to Factor Analysis</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/part_two_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/part_two_concept_reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Concept reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_01.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">From Latent-Variable Modeling to Factor Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exploratory Factor Analysis and Model Development</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Specifying and Estimating Confirmatory Factor Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Evaluating and Comparing Confirmatory Factor Models</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">From Latent-Variable Modeling to Factor Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+<p class="qmsbr-page-download"><a class="btn btn-outline-primary" href="chapter_01.pdf" download>Download PDF</a></p>
+
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-lvm" id="toc-sec-lvm">Latent variables and what they model</a>
+  <ul>
+  <li><a href="#sec-what-is-latent" id="toc-sec-what-is-latent">Observed responses, an unobserved account</a></li>
+  <li><a href="#sec-ctt" id="toc-sec-ctt">Classical test theory and the common-factor model</a></li>
+  <li><a href="#sec-map" id="toc-sec-map">A map of latent-variable models</a></li>
+  <li><a href="#sec-orientations" id="toc-sec-orientations">Exploratory and confirmatory orientations</a></li>
+  </ul></li>
+  <li><a href="#sec-model" id="toc-sec-model">The common-factor model</a>
+  <ul>
+  <li><a href="#sec-scalar" id="toc-sec-scalar">One indicator at a time</a></li>
+  <li><a href="#sec-matrix" id="toc-sec-matrix">From equations to matrices</a></li>
+  <li><a href="#sec-residual" id="toc-sec-residual">What a residual contains</a></li>
+  </ul></li>
+  <li><a href="#sec-four-ways" id="toc-sec-four-ways">One model, four representations</a>
+  <ul>
+  <li><a href="#sec-simple" id="toc-sec-simple">Restricting the pattern</a></li>
+  <li><a href="#sec-families" id="toc-sec-families">Reading a parameter family</a></li>
+  </ul></li>
+  <li><a href="#sec-factor-scale" id="toc-sec-factor-scale">The factor scale</a>
+  <ul>
+  <li><a href="#sec-scale" id="toc-sec-scale">The factor scale is indeterminate</a></li>
+  <li><a href="#sec-sign-location" id="toc-sec-sign-location">Sign and location</a></li>
+  <li><a href="#sec-units" id="toc-sec-units">Changing the units of the indicators</a></li>
+  </ul></li>
+  <li><a href="#sec-implied" id="toc-sec-implied">The model-implied covariance structure</a>
+  <ul>
+  <li><a href="#sec-communality" id="toc-sec-communality">Communality and uniqueness</a></li>
+  <li><a href="#sec-moments" id="toc-sec-moments">A moment structure, not only a covariance structure</a></li>
+  <li><a href="#sec-counting" id="toc-sec-counting">What a restriction buys</a></li>
+  </ul></li>
+  <li><a href="#sec-numbers" id="toc-sec-numbers">Reading the numbers</a>
+  <ul>
+  <li><a href="#sec-scenario-one" id="toc-sec-scenario-one">One common factor</a></li>
+  <li><a href="#sec-scenario-two" id="toc-sec-scenario-two">Two orthogonal factors</a></li>
+  <li><a href="#sec-tetrad" id="toc-sec-tetrad">Why one factor will not do</a></li>
+  <li><a href="#sec-correlated" id="toc-sec-correlated">Letting the factors correlate</a></li>
+  <li><a href="#sec-objects" id="toc-sec-objects">Neighboring objects</a></li>
+  <li><a href="#sec-approaches" id="toc-sec-approaches">Exploratory, confirmatory and hybrid uses</a></li>
+  <li><a href="#sec-workflow" id="toc-sec-workflow">The exploratory-to-confirmatory workflow</a></li>
+  <li><a href="#sec-response" id="toc-sec-response">A note on response scales</a></li>
+  </ul></li>
+  <li><a href="#sec-argument" id="toc-sec-argument">Applying the argument-based approach to latent variables (Optional)</a>
+  <ul>
+  <li><a href="#can-covariance-select-a-unique-set-of-factor-axes" id="toc-can-covariance-select-a-unique-set-of-factor-axes">Can covariance select a unique set of factor axes?</a></li>
+  <li><a href="#does-exact-reproduction-confirm-two-constructs" id="toc-does-exact-reproduction-confirm-two-constructs">Does exact reproduction confirm two constructs?</a></li>
+  <li><a href="#evaluate-the-claim" id="toc-evaluate-the-claim">Evaluate the claim</a></li>
+  <li><a href="#repair-the-claim" id="toc-repair-the-claim">Repair the claim</a></li>
+  </ul></li>
+  <li><a href="#sec-summary" id="toc-sec-summary">Summary and reading bridge</a></li>
+  <li><a href="#exercises" id="toc-exercises">Exercises</a></li>
+  <li><a href="#references" id="toc-references">References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="chapter_01.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div style="page-break-after: always;"></div>
+<div class="callout callout-style-default callout-note callout-titled" title="Chapter overview">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Chapter overview
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This chapter builds the common-factor model and marks the edge of what it can show. We first separate four things a study easily confuses: the construct in the research question, the unobserved variable the model introduces, the parameters that connect it to the recorded answers, and the residual. We then write one two-factor, six-indicator system four times over, as scalar equations, as parameter matrices, as a path diagram and as a sentence, and check the four against one another. A factor arrives with no units, no origin and no direction of its own, so we ask next what a scaling convention supplies and what it cannot decide. Expanding the model gives the covariance it implies, which splits observed covariance into a common part and a residual part and lets us count the information a set of indicators supplies against the parameters a model spends. Numbers arrive late: two constructed correlation records, one that a single factor reproduces exactly and one that no single factor can, and a tetrad that shows how a matrix refutes a one-factor account. A short optional closing section audits a published-style sentence that reads exact reproduction as evidence for two named constructs. By the end you will be able to state a common-factor model in any of its four representations, derive and reconstruct the covariance it implies with its communalities and uniquenesses, count free parameters and degrees of freedom, and say what exact reproduction does and does not establish. The chapter asks for variance, covariance, correlation, random variables and regression notation and nothing further: it estimates no data and uses no software, its indicators are continuous throughout, and the collection’s argument vocabulary is needed only in the optional section.</p>
+</div>
+</div>
+<p>Suppose a study of study skills reports that its six-item questionnaire “measures two distinct constructs, Planning and Strategy”, and supports the sentence with a correlation table whose items fall into two clean blocks. Sentences of that shape are written constantly, about reading tests, symptom checklists, job-satisfaction scales and course evaluations alike.</p>
+<p>The table is real. The two constructs are not in it. No column of the records holds a student’s planning ability and none holds their strategy use; what the study has is a pattern among six recorded answers and a proposal about what produced it. Whether that proposal is a useful statistical account of the pattern, and whether it licenses the words “two distinct constructs”, are separate questions with separate answers, and a report that runs them together can be exactly right about its arithmetic and quite wrong about its conclusion.</p>
+<p>So this chapter asks:</p>
+<blockquote class="blockquote">
+<p>When several indicators covary, when is a latent factor a useful statistical account of that covariance, and when may it be interpreted as the construct named in a study?</p>
+</blockquote>
+<p>Part One asked what a set of records supports about variables that were recorded. Here the variable of primary interest was not recorded at all, so the first half of the answer is a model explicit enough to say what an unrecorded variable would imply for the recorded ones, and the second half is a limit on how far that implication reaches.</p>
+<section id="sec-lvm" class="level1">
+<h1>Latent variables and what they model</h1>
+<section id="sec-what-is-latent" class="level2">
+<h2 class="anchored" data-anchor-id="sec-what-is-latent">Observed responses, an unobserved account</h2>
+<p><strong>Provisional answer.</strong> When several indicators covary, a common-factor model can represent their covariance through unobserved factors and residuals. Compatibility with that covariance supports the statistical representation. Interpreting a factor as a construct additionally requires a defensible account of the indicator domain, response process, population, and intended use. Naming a factor, obtaining a simple pattern, or even reproducing covariance exactly is not enough.</p>
+<p>Behavioral and social research often concerns attributes that are not recorded directly. A dataset may contain responses to several planning items, but no column contains planning ability itself. A test records item scores, not error-free proficiency. Symptoms may be observed while the syndrome proposed to organize them remains a theoretical and statistical construction.</p>
+<p>A latent-variable model does not turn the proposed attribute into an observation. Instead, it introduces one or more unobserved random variables and states how they are related to the variables that were recorded. The useful question is therefore not simply whether a factor can be named. It is whether the proposed model has observable consequences, and what conclusions those consequences support.</p>
+<p>Answering that pair takes both halves: a covariance representation that can be checked, and a conclusion that stays within what such a check can establish. The first task is to distinguish the quantities that enter the representation.</p>
+<p><a href="#tbl-quantities" class="quarto-xref">Table&nbsp;1</a> keeps four kinds of quantity apart.</p>
+<div id="tbl-quantities" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-quantities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: <em>Four kinds of quantity in a factor model.</em>
+</figcaption>
+<div aria-describedby="tbl-quantities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Observed variable</strong></td>
+<td style="text-align: left;">Recorded for each unit</td>
+<td style="text-align: left;">An item response <span class="math inline">\(Y_j\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Latent random variable</strong></td>
+<td style="text-align: left;">Introduced by the model; not recorded</td>
+<td style="text-align: left;">A common factor <span class="math inline">\(\eta_k\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Unknown fixed parameter</strong></td>
+<td style="text-align: left;">A population quantity to be estimated</td>
+<td style="text-align: left;">A loading <span class="math inline">\(\lambda_{jk}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Residual random variable</strong></td>
+<td style="text-align: left;">The part of an indicator the declared factors do not represent</td>
+<td style="text-align: left;"><span class="math inline">\(\epsilon_j\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A factor is not merely a parameter; it is a random variable in the model, with a distribution over units. A loading is not a hidden score attached to a person; it is a parameter describing how the model relates an indicator to a factor. A residual is unobserved too, but that does not make it a substantive construct: it collects whatever the declared common factors leave out.</p>
+<p><a href="#fig-lvm" class="quarto-xref">Figure&nbsp;1</a> shows the smallest interesting case. Three observed indicators are drawn as rectangles, one unobserved variable as a circle, and the single-headed arrows run from the unobserved variable to the observed ones.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-lvm" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lvm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-lvm-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" alt="One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lvm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: A latent variable with three indicators. Rectangles are recorded variables, the circle is a variable introduced by the model, and single-headed arrows denote loading relations.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For three indicators, the picture summarizes equations of the form</p>
+<p><span class="math display">\[
+Y_{ij} = \nu_j + \lambda_j\eta_i + \epsilon_{ij},
+\qquad j = 1,2,3 .
+\]</span></p>
+<p>The indicator <span class="math inline">\(Y_{ij}\)</span> is observed. The factor <span class="math inline">\(\eta_i\)</span> and residual <span class="math inline">\(\epsilon_{ij}\)</span> are random variables introduced by the model. The intercept <span class="math inline">\(\nu_j\)</span> and loading <span class="math inline">\(\lambda_j\)</span> are fixed but unknown population parameters.</p>
+<p>The arrows deserve care. They state a <em>direction of representation</em>: the model writes each indicator as a function of the factor plus a residual, not the reverse. That is a modeling choice with real consequences, and it is the foundational common-factor representation developed here. It is not, by itself, evidence that the factor causes the responses. A diagram is a compact statement of a model; establishing that a latent attribute produces observed behavior requires theory about the response process and a design capable of supporting the claim. Model fit does not supply either.</p>
+<p>Two inferential links are easy to conflate. First, relations among predictors, exposures and outcomes require a design capable of supporting causal interpretation; sampling units from a target population bears mainly on population generalization. Second, relating a proposed construct to a set of indicators requires defensible coverage of the construct’s content or behavioral domain. This second task is often called <strong>domain sampling</strong>, although indicator selection is commonly systematic and theory-guided rather than a literal probability sample.</p>
+<p>Domain coverage supports a broad construct interpretation, but it is not sufficient by itself: the response process, dimensionality, population and intended use still matter. Without such a warrant, a factor may remain useful as a statistical device - for example, as a method factor - without being interpreted as the construct itself. Likewise, drawing an arrow from a factor to an indicator states the model’s reflective direction; neither domain coverage nor the arrow alone establishes a causal effect.</p>
+<p>Two matters here remain genuinely contested, and it is worth knowing that before the algebra makes them invisible. The first is what a latent variable <em>is</em>: whether it should be treated as a real attribute that produces the responses, as a summary construction with no existence beyond the model, or as shorthand for the measuring operations themselves <span class="citation" data-cites="borsboom2003">(<a href="#ref-borsboom2003" role="doc-biblioref"><span class="nocase">Borsboom et al.</span>, 2003</a>)</span>. The algebra below is compatible with all three readings and settles none of them. The second is the direction just described. For some constructs - socioeconomic status is the standard example - the indicators arguably <em>produce</em> the construct rather than express it, and under that formative reading internal consistency stops being a virtue and the common-factor model no longer applies <span class="citation" data-cites="bollenLennox1991 edwardsBagozzi2000">(<a href="#ref-bollenLennox1991" role="doc-biblioref">Bollen &amp; Lennox, 1991</a>; <a href="#ref-edwardsBagozzi2000" role="doc-biblioref">Edwards &amp; Bagozzi, 2000</a>)</span>. This chapter takes the reflective direction as its common-factor representation, a choice rather than a discovery. Chapter 7 also considers causal indicators and the assumptions needed to identify that different representation.</p>
+<p>Why introduce something that is not observed? Because the model has consequences for quantities that are. Under assumptions developed below, two indicators connected to the same factor have the common covariance contribution</p>
+<p><span class="math display">\[
+\lambda_j\operatorname{Var}(\eta)\lambda_k .
+\]</span></p>
+<p>When their residual covariance is zero, this is their entire model-implied covariance. <a href="#sec-implied" class="quarto-xref">Section&nbsp;5</a> derives the complete result rather than asking the reader to accept this preview.</p>
+<p>Only after the model and its terms are clear will we ask it to reproduce particular numerical patterns. The two six-indicator matrices in <a href="#sec-numbers" class="quarto-xref">Section&nbsp;6</a> are constructed, known-value teaching matrices. They are not sample correlations or evidence that particular constructs exist.</p>
+</section>
+<section id="sec-ctt" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ctt">Classical test theory and the common-factor model</h2>
+<p>Readers arriving from measurement courses will know classical test theory, which decomposes an observed score into a true score and an error:</p>
+<p><span class="math display">\[
+X_{ir} = T_i + E_{ir},
+\qquad
+T_i = E_r\!\left(X_{ir} \mid i\right),
+\qquad
+E_r\!\left(E_{ir} \mid i\right) = 0 .
+\]</span></p>
+<p>Here <span class="math inline">\(X_{ir}\)</span> is the score of person <span class="math inline">\(i\)</span> on a hypothetical repetition <span class="math inline">\(r\)</span> of a specified measurement procedure, <span class="math inline">\(T_i\)</span> is its expected value over those repetitions, and <span class="math inline">\(E_{ir}\)</span> is the deviation. The expectation holds the person fixed and averages over measurement conditions; it does not average over people. The true score is therefore a property of a person <em>and a procedure</em>, not automatically a pure measure of the intended attribute: an influence that is stable across repetitions stays inside <span class="math inline">\(T_i\)</span> whether or not it belongs to the construct <span class="citation" data-cites="livingston2018">(<a href="#ref-livingston2018" role="doc-biblioref">Livingston, 2018</a>)</span>.</p>
+<p>The two frameworks overlap, but neither is simply a relabeling of the other. Under additional assumptions, a classical true-score decomposition can be represented as a one-factor model by identifying the common factor with true-score variation and fixing the relevant loadings at one. A common-factor model need not impose that restriction: it can let indicators relate to one or more factors with different strengths and can examine the resulting covariance restrictions. The connection is useful precisely because its assumptions must be stated; classical test theory does not in general assert that every set of item responses follows a one-factor model.</p>
+<p>That is a difference in scope, not a ranking. Classical test theory answers questions about a score and its replication conditions with very few assumptions, and it remains the right tool for many of them. Common-factor models, item-response models and the neighboring families add structure to the joint distribution of responses, and buy item-level and multidimensional statements at the price of stronger assumptions and larger samples. A residual in a factor model is also not automatically classical error: stable item-specific content sits in the residual without being error under the declared repetition procedure. Reliability connects the two decompositions and needs conditions from both; it is not derivable from a loading pattern alone.</p>
+</section>
+<section id="sec-map" class="level2">
+<h2 class="anchored" data-anchor-id="sec-map">A map of latent-variable models</h2>
+<p><a href="#tbl-map" class="quarto-xref">Table&nbsp;2</a> crosses the form of the latent variable with the form of the observed indicators to give a serviceable orientation.</p>
+<div id="tbl-map" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: <em>A qualified map of latent-variable model families.</em>
+</figcaption>
+<div aria-describedby="tbl-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Latent variable</th>
+<th style="text-align: left;">Observed indicators</th>
+<th style="text-align: left;">Common model families</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Continuous</td>
+<td style="text-align: left;">Continuous</td>
+<td style="text-align: left;">Common-factor models, confirmatory factor analysis, many structural equation models</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Continuous</td>
+<td style="text-align: left;">Binary or ordered</td>
+<td style="text-align: left;">Item-response models, categorical factor models</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">Continuous</td>
+<td style="text-align: left;">Latent-profile and finite-mixture models</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">Latent-class models, cognitive diagnosis models</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The map is an orientation, not a set of sealed boxes. Factor models can be fitted to ordered indicators through underlying-response formulations; item-response theory and categorical factor analysis share deep mathematical connections while using different parameterizations and traditions; mixture models combine continuous and categorical latent structure. Structural equation modeling is broader still, and can contain a factor measurement portion, regressions among variables, or both.</p>
+<p>This chapter takes the first row: continuous factors and continuous indicators. Part Two as a whole stays there. That narrowing is what allows the algebra to be seen plainly before estimation choices and software output accumulate. Responses are treated as continuous throughout Part Two.</p>
+</section>
+<section id="sec-orientations" class="level2">
+<h2 class="anchored" data-anchor-id="sec-orientations">Exploratory and confirmatory orientations</h2>
+<p>The same common-factor equation can be used with very different amounts declared in advance.</p>
+<p>An <strong>exploratory</strong> analysis ordinarily lets every indicator relate to every retained factor and uses rotation or equivalent constraints to choose an interpretable orientation. It suits situations where a construct exists conceptually but its dimensionality is unsettled. A <strong>confirmatory</strong> analysis fixes or constrains loadings and residual relations according to a specification stated before the focal analysis, and asks what follows.</p>
+<p>The words describe orientations, not two unrelated models. Both use the same covariance decomposition. Theory can inform an exploratory analysis, and a confirmatory model can be revised after data are inspected. What separates them is the <em>restrictions</em> and the <em>history of the decisions</em> — not the name of the procedure. Practice usually falls somewhere along the continuum rather than at either end. <a href="#sec-approaches" class="quarto-xref">Section&nbsp;6.6</a> returns to the distinction once the shared model is in hand.</p>
+</section>
+</section>
+<section id="sec-model" class="level1">
+<h1>The common-factor model</h1>
+<section id="sec-scalar" class="level2">
+<h2 class="anchored" data-anchor-id="sec-scalar">One indicator at a time</h2>
+<p>Write <span class="math inline">\(y_{ij}\)</span> for the response of unit <span class="math inline">\(i\)</span> on indicator <span class="math inline">\(j\)</span>. The common-factor model expresses it as</p>
+<p><span id="eq-scalar"><span class="math display">\[
+y_{ij} = \nu_j + \boldsymbol{\lambda}_j^{\mathsf T}\boldsymbol{\eta}_i
+         + \epsilon_{ij},
+\tag{1}\]</span></span></p>
+<p>where <span class="math inline">\(i = 1,\ldots,n\)</span> indexes units, <span class="math inline">\(j = 1,\ldots,p\)</span> indexes indicators, <span class="math inline">\(\nu_j\)</span> is an intercept, <span class="math inline">\(\boldsymbol{\lambda}_j\)</span> is an <span class="math inline">\(m \times 1\)</span> vector of loadings, <span class="math inline">\(\boldsymbol{\eta}_i\)</span> is the <span class="math inline">\(m \times 1\)</span> vector of common factors for unit <span class="math inline">\(i\)</span>, and <span class="math inline">\(\epsilon_{ij}\)</span> is the residual. With two factors this reads</p>
+<p><span class="math display">\[
+y_{ij} = \nu_j + \lambda_{j1}\eta_{i1} + \lambda_{j2}\eta_{i2}
+         + \epsilon_{ij} .
+\]</span></p>
+<p>The resemblance to multiple regression is useful and has one decisive limit: the predictors <span class="math inline">\(\eta_{i1}\)</span> and <span class="math inline">\(\eta_{i2}\)</span> are not columns in the dataset. Their scale and orientation must be supplied by model constraints, and the parameters are learned from the joint pattern among all <span class="math inline">\(p\)</span> indicators rather than from a single outcome at a time.</p>
+</section>
+<section id="sec-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="sec-matrix">From equations to matrices</h2>
+<p>Collecting the <span class="math inline">\(p\)</span> indicators for unit <span class="math inline">\(i\)</span> into <span class="math inline">\(\mathbf{y}_i\)</span>,</p>
+<p><span id="eq-matrix"><span class="math display">\[
+\mathbf{y}_i = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta}_i
+               + \boldsymbol{\epsilon}_i ,
+\tag{2}\]</span></span></p>
+<p>with <span class="math inline">\(\mathbf{y}_i\)</span>, <span class="math inline">\(\boldsymbol{\nu}\)</span> and <span class="math inline">\(\boldsymbol{\epsilon}_i\)</span> in <span class="math inline">\(\mathbb{R}^{p}\)</span>, <span class="math inline">\(\boldsymbol{\eta}_i\)</span> in <span class="math inline">\(\mathbb{R}^{m}\)</span>, and <span class="math inline">\(\boldsymbol{\Lambda}\)</span> a <span class="math inline">\(p \times m\)</span> loading matrix. The multiplication conforms because a <span class="math inline">\(p \times m\)</span> matrix times an <span class="math inline">\(m \times 1\)</span> vector returns a <span class="math inline">\(p \times 1\)</span> vector: one common-factor contribution for each indicator. Row <span class="math inline">\(j\)</span> of <span class="math inline">\(\boldsymbol{\Lambda}\)</span> is <span class="math inline">\(\boldsymbol{\lambda}_j^{\mathsf T}\)</span>.</p>
+<p>The model’s moment assumptions are</p>
+<p><span id="eq-assumptions"><span class="math display">\[
+\begin{aligned}
+E(\boldsymbol{\eta}_i) &amp;= \boldsymbol{\alpha}, &amp;
+\operatorname{Var}(\boldsymbol{\eta}_i) &amp;= \boldsymbol{\Phi}, \\
+E(\boldsymbol{\epsilon}_i) &amp;= \mathbf{0}, &amp;
+\operatorname{Var}(\boldsymbol{\epsilon}_i) &amp;= \boldsymbol{\Theta}, \\
+\operatorname{Cov}(\boldsymbol{\eta}_i, \boldsymbol{\epsilon}_i)
+  &amp;= \mathbf{0}. &amp; &amp;
+\end{aligned}
+\tag{3}\]</span></span></p>
+<p><span class="math inline">\(\boldsymbol{\Phi}\)</span> is the <span class="math inline">\(m \times m\)</span> matrix of factor variances and covariances; <span class="math inline">\(\boldsymbol{\Theta}\)</span> is the <span class="math inline">\(p \times p\)</span> matrix of residual variances and any residual covariances the model permits. Both are symmetric and positive semidefinite. The zero matrix in the last line is <span class="math inline">\(m \times p\)</span>.</p>
+<p>The notation <span class="math inline">\(\boldsymbol{\alpha}\)</span> is chosen deliberately. It is the latent intercept vector. In this chapter there are no regressions among latent variables, so <span class="math inline">\(\boldsymbol{\alpha}=E(\boldsymbol{\eta}_i)\)</span>. Once a structural coefficient matrix <span class="math inline">\(\mathbf B\)</span> is introduced later, the marginal mean becomes <span class="math inline">\(E(\boldsymbol{\eta}_i)=(\mathbf I-\mathbf B)^{-1}
+\boldsymbol{\alpha}\)</span>. We will therefore call <span class="math inline">\(\boldsymbol{\alpha}\)</span> the factor mean only in the present measurement-only setting.</p>
+<p>Each assumption does a specific job, and it is worth naming them separately rather than accepting them as a block. The factor–residual condition is what will let the covariance decomposition split cleanly into two parts in <a href="#sec-implied" class="quarto-xref">Section&nbsp;5</a>. The mean conditions are what let the model say anything about <span class="math inline">\(E(\mathbf{y}_i)\)</span>. Note also what has <em>not</em> been assumed: zero covariance between factors and residuals is a moment restriction, not a statement that they are statistically independent, and <span class="math inline">\(\boldsymbol{\Theta}\)</span> has not been required to be diagonal.</p>
+</section>
+<section id="sec-residual" class="level2">
+<h2 class="anchored" data-anchor-id="sec-residual">What a residual contains</h2>
+<p>It is tempting to read every <span class="math inline">\(\epsilon_{ij}\)</span> as measurement error. That is too narrow. Residual variation can include random response fluctuation, but also stable item-specific content, wording or method effects, occasion effects, an omitted common factor, or a misspecification of the model. A residual <em>covariance</em> <span class="math inline">\(\theta_{jk}\)</span> represents a relation between two indicators that the declared common factors do not account for. Whether such a relation is substantively defensible is a modeling question, not something a large diagnostic statistic settles on its own.</p>
+<p>A diagonal <span class="math inline">\(\boldsymbol{\Theta}\)</span> has a precise but limited meaning, and three claims are worth keeping apart. Under the moment assumptions of <a href="#eq-assumptions" class="quarto-xref">Equation&nbsp;3</a>, a diagonal <span class="math inline">\(\boldsymbol{\Theta}\)</span> says that distinct residual components have zero <strong>unconditional</strong> covariance. If we add the conditional moment assumptions <span class="math inline">\(E(\boldsymbol{\epsilon}_i \mid \boldsymbol{\eta}_i) = \mathbf{0}\)</span> and <span class="math inline">\(\operatorname{Var}(\boldsymbol{\epsilon}_i \mid \boldsymbol{\eta}_i)
+= \boldsymbol{\Theta}\)</span>, it also gives zero <strong>conditional</strong> residual covariance. Full <strong>local independence</strong> — the indicators being conditionally independent given the factors — is stronger still, and needs a distributional statement or an explicit factorization of the conditional response distribution. Zero covariance is not independence: two variables can have zero correlation and remain functionally related. None of the three claims says that the observed items are unrelated; that is the whole point of the model.</p>
+<p>Consider a pair of indicators generated from a single common factor. Let <span class="math inline">\(\eta,u,e_1,e_2\)</span> be independent standard Normal variables, and first set</p>
+<p><span class="math display">\[
+Y_1=.7\eta+\sqrt{.51}e_1,\qquad
+Y_2=.7\eta+\sqrt{.51}e_2.
+\]</span></p>
+<p>Panel A of <a href="#fig-local-independence" class="quarto-xref">Figure&nbsp;2</a> pools people with different factor values. Higher <span class="math inline">\(\eta\)</span> tends to raise both indicators, producing their positive association. In Panel B we remove each person’s <strong>known simulated</strong> common contribution, <span class="math inline">\(.7\eta\)</span>. What remains is <span class="math inline">\(\sqrt{.51}e_1\)</span> and <span class="math inline">\(\sqrt{.51}e_2\)</span>. These independent Normal responses have no remaining association. At any fixed value of the factor, the same independence holds: this construction supplies local independence, while the pooled indicators still covary.</p>
+<p><strong>Predict and explain.</strong> Suppose both indicators also respond to the same wording influence <span class="math inline">\(u\)</span>, independently of the focal factor. Change only the residual construction to</p>
+<p><span class="math display">\[
+Y_1=.7\eta+.4u+\sqrt{.35}e_1,\qquad
+Y_2=.7\eta+.4u+\sqrt{.35}e_2.
+\]</span></p>
+<p>Before inspecting Panel C, predict whether removing <span class="math inline">\(.7\eta\)</span> will remove all association. Each indicator still has variance <span class="math inline">\(1\)</span>, and its residual variance remains <span class="math inline">\(.4^2+.35=.51\)</span>. However, the shared component <span class="math inline">\(.4u\)</span> remains in both residuals, so their conditional covariance is <span class="math inline">\(.4^2=.16\)</span>. The focal factor alone no longer supplies local independence.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-local-independence" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-local-independence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-local-independence-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence." width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-local-independence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Illustrative simulated responses before and after removing a known common contribution. A and B use independent residuals; C adds shared wording while preserving each indicator’s total and residual variance. The two residual panels share axis limits.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="tbl-local-independence" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-local-independence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Population covariances implied by the two stipulated constructions. Both have unit indicator variances and residual variances .51.
+</figcaption>
+<div aria-describedby="tbl-local-independence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Construction</th>
+<th style="text-align: right;">Pooled covariance</th>
+<th style="text-align: right;">Conditional covariance given <span class="math inline">\(\eta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Independent residuals</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Shared wording influence</td>
+<td style="text-align: right;">.65</td>
+<td style="text-align: right;">.16</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The table gives population implications, not correlations estimated from these 600 illustrative points. A finite cloud need not reproduce its population covariance exactly. Shared wording raises pooled covariance from <span class="math inline">\(.49\)</span> to <span class="math inline">\(.49+.16=.65\)</span>, although neither loading nor residual variance changes. The source of covariance matters as well as its magnitude.</p>
+<p>In an empirical study the factor values are unobserved. An estimated factor score is an uncertain function of the indicators, so subtracting a contribution based on that score is a different operation. A score-residual plot cannot stand in for the known-factor comparison or establish local independence. Here the stronger conclusion follows from the declared Normal construction; a moment model with zero covariances alone would not provide it.</p>
+</section>
+</section>
+<section id="sec-four-ways" class="level1">
+<h1>One model, four representations</h1>
+<p>We now fix a single system and keep it in view for the rest of the chapter: six observed indicators and two common factors. Allowing every indicator to relate to both factors gives six equations,</p>
+<p><span id="eq-six"><span class="math display">\[
+\begin{aligned}
+y_{i1} &amp;= \nu_1 + \lambda_{11}\eta_{i1} + \lambda_{12}\eta_{i2} + \epsilon_{i1},\\
+y_{i2} &amp;= \nu_2 + \lambda_{21}\eta_{i1} + \lambda_{22}\eta_{i2} + \epsilon_{i2},\\
+y_{i3} &amp;= \nu_3 + \lambda_{31}\eta_{i1} + \lambda_{32}\eta_{i2} + \epsilon_{i3},\\
+y_{i4} &amp;= \nu_4 + \lambda_{41}\eta_{i1} + \lambda_{42}\eta_{i2} + \epsilon_{i4},\\
+y_{i5} &amp;= \nu_5 + \lambda_{51}\eta_{i1} + \lambda_{52}\eta_{i2} + \epsilon_{i5},\\
+y_{i6} &amp;= \nu_6 + \lambda_{61}\eta_{i1} + \lambda_{62}\eta_{i2} + \epsilon_{i6},
+\end{aligned}
+\tag{4}\]</span></span></p>
+<p>which collect into the loading matrix</p>
+<p><span id="eq-general-loading"><span class="math display">\[
+\boldsymbol{\Lambda} =
+\begin{bmatrix}
+\lambda_{11} &amp; \lambda_{12}\\
+\lambda_{21} &amp; \lambda_{22}\\
+\lambda_{31} &amp; \lambda_{32}\\
+\lambda_{41} &amp; \lambda_{42}\\
+\lambda_{51} &amp; \lambda_{52}\\
+\lambda_{61} &amp; \lambda_{62}
+\end{bmatrix},
+\qquad
+\boldsymbol{\Phi} =
+\begin{bmatrix}
+\phi_{11} &amp; \phi_{12}\\
+\phi_{12} &amp; \phi_{22}
+\end{bmatrix} .
+\tag{5}\]</span></span></p>
+<p>Rows of <span class="math inline">\(\boldsymbol{\Lambda}\)</span> belong to indicators and columns to factors, so <span class="math inline">\(\lambda_{42}\)</span> relates <span class="math inline">\(Y_4\)</span> to the second factor. Reading the subscripts in that order is the quickest way to catch a path diagram that disagrees with its matrix. The residual covariance matrix is symmetric and <span class="math inline">\(6 \times 6\)</span>; a diagonal working version is <span class="math inline">\(\boldsymbol{\Theta} = \operatorname{diag}(\theta_{11},\ldots,\theta_{66})\)</span>.</p>
+<p><a href="#fig-general" class="quarto-xref">Figure&nbsp;3</a> draws the same system. Every indicator receives an arrow from both factors, and the double-headed arrow between the factors is the covariance <span class="math inline">\(\phi_{12}\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-general" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Both correlated factors point to all six indicators; cross-loading paths are dashed, and each indicator has a residual." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-general-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-general-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:88.0%" alt="Both correlated factors point to all six indicators; cross-loading paths are dashed, and each indicator has a residual.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-general-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The two-factor, six-indicator system with every loading present. Single-headed arrows denote loading relations; the double-headed arrow denotes the factor covariance.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="sec-simple" class="level2">
+<h2 class="anchored" data-anchor-id="sec-simple">Restricting the pattern</h2>
+<p>Setting the cross-loadings to zero, so the first three indicators relate only to <span class="math inline">\(\eta_1\)</span> and the last three only to <span class="math inline">\(\eta_2\)</span>, gives</p>
+<p><span id="eq-simple-loading"><span class="math display">\[
+\boldsymbol{\Lambda}_{\text{simple}} =
+\begin{bmatrix}
+\lambda_{11} &amp; 0\\
+\lambda_{21} &amp; 0\\
+\lambda_{31} &amp; 0\\
+0 &amp; \lambda_{42}\\
+0 &amp; \lambda_{52}\\
+0 &amp; \lambda_{62}
+\end{bmatrix} .
+\tag{6}\]</span></span></p>
+<p><a href="#fig-simple" class="quarto-xref">Figure&nbsp;4</a> redraws the same system after the cross-loadings are fixed at zero.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-simple" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Eta 1 points only to Y1 through Y3 and eta 2 only to Y4 through Y6; the factors covary and every indicator has a residual." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-simple-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:88.0%" alt="Eta 1 points only to Y1 through Y3 and eta 2 only to Y4 through Y6; the factors covary and every indicator has a residual.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The same system restricted to a simple structure. Each indicator has one loading and one residual; the six cross-loadings are fixed at zero.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Each zero is a restriction, not a drawing convenience. It says that, according to this model, the second factor makes no direct contribution to <span class="math inline">\(Y_1\)</span>. Restrictions of this kind are the substance of a confirmatory specification, and they are what make a model capable of being wrong: a model in which everything is free forbids nothing.</p>
+<p>The four representations must agree, and it is worth checking that they do. For the restricted model: the path from <span class="math inline">\(\eta_1\)</span> to <span class="math inline">\(Y_4\)</span> is absent in the diagram; <span class="math inline">\(\lambda_{41} = 0\)</span> in the equations; row 4, column 1 of <span class="math inline">\(\boldsymbol{\Lambda}\)</span> is zero; and any common covariance between <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_4\)</span> must therefore travel through <span class="math inline">\(\phi_{12}\)</span>, unless a residual covariance is also permitted. The fourth representation is the sentence: <em>six indicators are represented by two possibly correlated factors; each indicator has one loading and one residual; cross-loadings and residual covariances are fixed at zero.</em> That sentence should be recoverable from any of the other three without guessing.</p>
+</section>
+<section id="sec-families" class="level2">
+<h2 class="anchored" data-anchor-id="sec-families">Reading a parameter family</h2>
+<p>Counting arrows in a diagram is not a reliable way to know what a model contains, because the same picture can represent different models. What matters is the status of each element. <a href="#tbl-families" class="quarto-xref">Table&nbsp;4</a> turns that status into four sets of questions that should be answered for every specification.</p>
+<div id="tbl-families" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: <em>Parameter families and what must be declared about each.</em>
+</figcaption>
+<div aria-describedby="tbl-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Family</th>
+<th style="text-align: left;">Matrix</th>
+<th style="text-align: left;">Questions to settle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercepts</td>
+<td style="text-align: left;"><span class="math inline">\(\boldsymbol{\nu}\)</span></td>
+<td style="text-align: left;">Are means modeled, or is the analysis covariance-only?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Loadings</td>
+<td style="text-align: left;"><span class="math inline">\(\boldsymbol{\Lambda}\)</span></td>
+<td style="text-align: left;">Which entries are fixed at zero, fixed for scale, constrained equal, or free?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Factor variances and covariances</td>
+<td style="text-align: left;"><span class="math inline">\(\boldsymbol{\Phi}\)</span></td>
+<td style="text-align: left;">Are variances fixed to set a scale? Is the covariance free?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual variances and covariances</td>
+<td style="text-align: left;"><span class="math inline">\(\boldsymbol{\Theta}\)</span></td>
+<td style="text-align: left;">Is the matrix diagonal? Are any residual covariances justified and free?</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A loading can also be fixed at a value other than zero or one. That possibility looks like a technicality here and becomes central later: growth models fix a whole column of <span class="math inline">\(\boldsymbol{\Lambda}\)</span> to values such as <span class="math inline">\(0, 1, 2, 3\)</span> so that the corresponding factor expresses change per unit of time. The point is that fixed, free and constrained are three different things, and a diagram alone does not distinguish them.</p>
+</section>
+</section>
+<section id="sec-factor-scale" class="level1">
+<h1>The factor scale</h1>
+<p>An observed variable arrives with a scale: if height is recorded in centimetres, a one-unit change means something definite. An unobserved factor arrives with nothing. This section works through the consequences, which are less an inconvenience than a permanent feature of latent-variable models.</p>
+<section id="sec-scale" class="level2">
+<h2 class="anchored" data-anchor-id="sec-scale">The factor scale is indeterminate</h2>
+<p>Take a one-factor model and any nonzero constant <span class="math inline">\(a\)</span>. Define</p>
+<p><span id="eq-rescale"><span class="math display">\[
+\eta_i^{*} = a\,\eta_i, \qquad
+\alpha^{*} = a\,\alpha, \qquad
+\lambda_j^{*} = \lambda_j / a, \qquad
+\phi^{*} = a^{2}\phi .
+\tag{7}\]</span></span></p>
+<p>The factor’s contribution to an indicator’s mean is unchanged, since <span class="math inline">\(\lambda_j^{*}\alpha^{*} = (\lambda_j/a)(a\alpha) = \lambda_j\alpha\)</span>, and its contribution to a covariance is unchanged too:</p>
+<p><span class="math display">\[
+\lambda_j^{*}\phi^{*}\lambda_k^{*}
+= \frac{\lambda_j}{a}\,\bigl(a^{2}\phi\bigr)\,\frac{\lambda_k}{a}
+= \lambda_j\phi\lambda_k .
+\]</span></p>
+<p>Concretely, with <span class="math inline">\(\lambda_j = .8\)</span> and <span class="math inline">\(\phi = 1\)</span>, setting <span class="math inline">\(a = 2\)</span> gives a loading of <span class="math inline">\(.4\)</span> and a factor variance of <span class="math inline">\(4\)</span>; the common contribution to the indicator’s variance is <span class="math inline">\(.4^{2}(4) = .64\)</span> either way. Everything else — <span class="math inline">\(\nu_j\)</span>, <span class="math inline">\(\epsilon_{ij}\)</span>, <span class="math inline">\(\theta_{jk}\)</span> — is untouched, because the transformation acts only on the factor’s own metric. The observed data cannot choose between these descriptions, because they imply exactly the same observed moments.</p>
+<p><a href="#tbl-scaling" class="quarto-xref">Table&nbsp;5</a> contrasts two conventions in general use. Both simply fix a metric.</p>
+<div id="tbl-scaling" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: <em>Two ways to give a factor a scale.</em>
+</figcaption>
+<div aria-describedby="tbl-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Convention</th>
+<th style="text-align: left;">What is fixed</th>
+<th style="text-align: left;">What is estimated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Marker variable</strong></td>
+<td style="text-align: left;">One loading per factor, usually at 1</td>
+<td style="text-align: left;">The factor variance and the remaining loadings</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Fixed factor</strong></td>
+<td style="text-align: left;">The factor variance, usually at 1</td>
+<td style="text-align: left;">All permitted loadings</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Neither is superior. Unstandardized loadings and factor variances differ between them; the implied covariance among the indicators does not.</p>
+<p>With several factors, the freedom is wider than changing one scale at a time. A nonsingular transformation can mix or rotate the factor axes while corresponding changes to the loading and factor-covariance matrices leave the observed covariance unchanged. The new loadings can look quite different even though they represent the same common covariance. <a href="#sec-argument" class="quarto-xref">Section&nbsp;7</a> works one orthogonal example numerically; the general transformation belongs with rotation, where the freedom is used deliberately for interpretation.</p>
+</section>
+<section id="sec-sign-location" class="level2">
+<h2 class="anchored" data-anchor-id="sec-sign-location">Sign and location</h2>
+<p>Setting <span class="math inline">\(a = -1\)</span> in <a href="#eq-rescale" class="quarto-xref">Equation&nbsp;7</a> reverses the sign of every factor value and every loading while leaving each product, and therefore the implied covariance, unchanged. A factor with loadings <span class="math inline">\((.8, .7, .6)\)</span> and one with <span class="math inline">\((-.8, -.7, -.6)\)</span> describe the same observed correlations. The direction is fixed by convention and by what the items say, not by the data; a negative sign is not by itself a problem, and a sign flip between two equivalent solutions is not evidence that anything changed.</p>
+<p>Location behaves the same way once means are in the model. For any fixed <span class="math inline">\(m \times 1\)</span> vector <span class="math inline">\(\mathbf{c}\)</span>,</p>
+<p><span id="eq-location"><span class="math display">\[
+\boldsymbol{\eta}_i^{*} = \boldsymbol{\eta}_i + \mathbf{c},
+\qquad
+\boldsymbol{\alpha}^{*} = \boldsymbol{\alpha} + \mathbf{c},
+\qquad
+\boldsymbol{\nu}^{*} = \boldsymbol{\nu} - \boldsymbol{\Lambda}\mathbf{c},
+\tag{8}\]</span></span></p>
+<p>leaves the implied mean untouched: <span class="math inline">\(\boldsymbol{\nu}^{*} + \boldsymbol{\Lambda}\boldsymbol{\alpha}^{*}
+= \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\alpha}\)</span>. So the observed means alone cannot determine both unrestricted factor means and unrestricted intercepts. In a single-group model the usual convention fixes the factor means at zero and estimates the intercepts. Comparing latent means across groups or occasions requires additional equality restrictions and a reference group; that is the subject of measurement invariance, later in Part Two, and it is worth noticing now that the question is one of <em>identification</em>, not of finding a better estimator.</p>
+</section>
+<section id="sec-units" class="level2">
+<h2 class="anchored" data-anchor-id="sec-units">Changing the units of the indicators</h2>
+<p>A different operation is to rescale the observed variables themselves — recording a test in percentages rather than raw points, say. This also produces a model that fits equally well, but for an entirely different reason: the loadings, residual variances and implied covariances all change in step with the new units, coherently and predictably. Nothing is indeterminate here; the information is the same information in a different metric.</p>
+<p>The distinction matters because the two are easy to conflate. Choosing a factor’s scale is supplying a metric to something that has none. Changing an indicator’s units is re-expressing something that already had them. The same distinction governs the relationship between analysing a covariance matrix and analysing a correlation matrix. Chapter 3 treats that relationship directly: it carries out the algebra of a change of observed units and the reparameterization that turns a covariance structure into a correlation structure, which is what lets one say exactly which parameters move, and by how much, when the metric changes.</p>
+</section>
+</section>
+<section id="sec-implied" class="level1">
+<h1>The model-implied covariance structure</h1>
+<p>The common-factor model earns its keep because it implies a specific covariance structure among the observed indicators. That structure is what the estimators in this book are fitted to, which is why factor analysis and structural equation modeling are together known as <strong>covariance structure analysis</strong>. The name describes the usual target rather than a restriction: raw-data likelihoods are also used, especially with incomplete data; under complete multivariate-normal sampling, the sample mean vector and covariance matrix are sufficient statistics. We derive the structure rather than quote it.</p>
+<p>For indicators <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span>, subtract the means and use <a href="#eq-scalar" class="quarto-xref">Equation&nbsp;1</a>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} - E(y_{ij}) &amp;=
+  \boldsymbol{\lambda}_j^{\mathsf T}
+  (\boldsymbol{\eta}_i - \boldsymbol{\alpha}) + \epsilon_{ij}, \\
+y_{ik} - E(y_{ik}) &amp;=
+  \boldsymbol{\lambda}_k^{\mathsf T}
+  (\boldsymbol{\eta}_i - \boldsymbol{\alpha}) + \epsilon_{ik} .
+\end{aligned}
+\]</span></p>
+<p>Expanding the covariance shows all four contributions:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\operatorname{Cov}(y_{ij},y_{ik})
+={}&amp;
+\boldsymbol{\lambda}_j^{\mathsf T}\boldsymbol{\Phi}
+  \boldsymbol{\lambda}_k \\
+&amp;+\operatorname{Cov}\!\left[
+  \boldsymbol{\lambda}_j^{\mathsf T}
+  (\boldsymbol{\eta}_i-\boldsymbol{\alpha}),\epsilon_{ik}\right] \\
+&amp;+\operatorname{Cov}\!\left[
+  \epsilon_{ij},
+  \boldsymbol{\lambda}_k^{\mathsf T}
+  (\boldsymbol{\eta}_i-\boldsymbol{\alpha})\right]
+  +\theta_{jk}.
+\end{aligned}
+\]</span></p>
+<p>The first term is the common-factor contribution, the middle two are factor–residual cross terms, and the last is the residual covariance. The factor–residual assumption in <a href="#eq-assumptions" class="quarto-xref">Equation&nbsp;3</a> sets both middle terms to zero, leaving</p>
+<p><span id="eq-cov"><span class="math display">\[
+\boxed{\;
+\operatorname{Cov}(y_{ij}, y_{ik})
+= \boldsymbol{\lambda}_j^{\mathsf T}\boldsymbol{\Phi}
+  \boldsymbol{\lambda}_k + \theta_{jk} \; }
+\tag{9}\]</span></span></p>
+<p>and, for <span class="math inline">\(j = k\)</span>,</p>
+<p><span id="eq-var"><span class="math display">\[
+\operatorname{Var}(y_{ij})
+= \boldsymbol{\lambda}_j^{\mathsf T}\boldsymbol{\Phi}
+  \boldsymbol{\lambda}_j + \theta_{jj} .
+\tag{10}\]</span></span></p>
+<p>Stacking over all pairs gives the matrix form:</p>
+<p><span id="eq-implied"><span class="math display">\[
+\boxed{\;
+\boldsymbol{\Sigma}(\boldsymbol{\vartheta})
+= \boldsymbol{\Lambda}\boldsymbol{\Phi}\boldsymbol{\Lambda}^{\mathsf T}
+  + \boldsymbol{\Theta} \; }
+\tag{11}\]</span></span></p>
+<p>where <span class="math inline">\(\boldsymbol{\vartheta}\)</span> collects the free parameters and <span class="math inline">\(\theta_{jk}\)</span> remains an entry of <span class="math inline">\(\boldsymbol{\Theta}\)</span>. Every observed covariance is thus split into a <strong>common</strong> part, carried by the factors, and a <strong>residual</strong> part. If <span class="math inline">\(\theta_{jk}=0\)</span>, a strong covariance requires the two indicators to receive a sufficiently strong joint contribution from shared factors. If <span class="math inline">\(\theta_{jk}\ne0\)</span>, residual association can also contribute; the decomposition prevents that association from being silently attributed to the factors.</p>
+<p>This identity needs finite second moments and the stated moment restrictions. It does not need normality. Distributional assumptions enter separately, through particular estimators, standard errors and test statistics; that boundary is worth keeping explicit.</p>
+<p>The same assumptions give a second useful matrix:</p>
+<p><span class="math display">\[
+\operatorname{Cov}(\mathbf y_i,\boldsymbol{\eta}_i)
+=\boldsymbol{\Lambda}\boldsymbol{\Phi}.
+\]</span></p>
+<p><span class="math inline">\(\boldsymbol{\Lambda}\)</span> is the <strong>pattern matrix</strong>: its entries are the coefficients in the equations for the indicators. <span class="math inline">\(\boldsymbol{\Lambda}\boldsymbol{\Phi}\)</span> is the <strong>structure matrix</strong>: its entries are indicator–factor covariances. They are indicator–factor correlations only when both sides have been standardized. When factors are orthogonal and have unit variance, pattern and structure coincide; when factors correlate, they need not. The two matrices have to be read side by side whenever an oblique solution is interpreted.</p>
+<section id="sec-communality" class="level2">
+<h2 class="anchored" data-anchor-id="sec-communality">Communality and uniqueness</h2>
+<p>The common part of an indicator’s variance,</p>
+<p><span id="eq-communality"><span class="math display">\[
+h_j^{2}
+= \boldsymbol{\lambda}_j^{\mathsf T}\boldsymbol{\Phi}
+  \boldsymbol{\lambda}_j ,
+\tag{12}\]</span></span></p>
+<p>is its <strong>communality under the declared model</strong>. The qualifier matters: changing the number of factors, the loading pattern, or the factor covariances changes <span class="math inline">\(h_j^{2}\)</span>. For a standardized indicator whose variance decomposes into just these two parts, <span class="math inline">\(1 = h_j^{2} + \theta_{jj}\)</span>, so the residual variance <span class="math inline">\(\theta_{jj}\)</span> — often called the <strong>uniqueness</strong> — is <span class="math inline">\(1 - h_j^{2}\)</span>. The larger the share the factors account for, the smaller the remainder.</p>
+<p>In raw units, common variance is an amount rather than a proportion; its share of total indicator variance is <span class="math inline">\(h_j^2/\operatorname{Var}(Y_j)\)</span>. Hold the loadings and factor covariances fixed and increase only the residual variance. The common variance stays the same, but total indicator variance increases, so its common share falls. This changes a component of the model; it is a different operation from expressing an unchanged indicator in new units.</p>
+<p>If a standardized indicator has one nonzero loading on a unit-variance factor, this reduces to <span class="math inline">\(h_j^{2} = \lambda_j^{2}\)</span>. That shortcut is used constantly and is not the general definition. With two correlated factors the communality expands to</p>
+<p><span id="eq-communality-two"><span class="math display">\[
+h_j^{2} = \lambda_{j1}^{2}\phi_{11}
+        + 2\lambda_{j1}\lambda_{j2}\phi_{12}
+        + \lambda_{j2}^{2}\phi_{22},
+\tag{13}\]</span></span></p>
+<p>and the middle term is why squared loadings cannot simply be added when factors correlate. In an admissible standardized solution the communality lies between zero and one; an estimated <span class="math inline">\(\theta_{jj} &lt; 0\)</span> is an improper, or <strong>Heywood</strong>, solution and signals a problem to investigate rather than a discovery that an indicator has more than 100% common variance.</p>
+<p>Uniqueness means variance the declared common factors do not represent. It does not mean that all of that variance is random error, for the reasons given in <a href="#sec-residual" class="quarto-xref">Section&nbsp;2.3</a>.</p>
+</section>
+<section id="sec-moments" class="level2">
+<h2 class="anchored" data-anchor-id="sec-moments">A moment structure, not only a covariance structure</h2>
+<p>The same assumptions also imply a mean structure:</p>
+<p><span id="eq-mean"><span class="math display">\[
+E(\mathbf{y}_i)
+= \boldsymbol{\mu}(\boldsymbol{\vartheta})
+= \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\alpha} .
+\tag{14}\]</span></span></p>
+<p>Most of Part Two analyzes covariances alone, holding the mean structure aside, and that is a legitimate and common choice. It is worth being clear that it is a <em>choice</em>. Means are part of the model even when they are set aside, and two of Part Two’s later destinations depend on them entirely: measurement invariance compares intercepts and factor means across groups, and latent growth models place a whole trajectory in <span class="math inline">\(\boldsymbol{\alpha}\)</span> while fixing <span class="math inline">\(\boldsymbol{\Lambda}\)</span> to a time basis.</p>
+<p>A brief look at the second of those makes the point concrete. Suppose four measurements are taken on the same people at equally spaced occasions, with</p>
+<p><span class="math display">\[
+\boldsymbol{\Lambda} =
+\begin{bmatrix}
+1 &amp; 0\\ 1 &amp; 1\\ 1 &amp; 2\\ 1 &amp; 3
+\end{bmatrix},
+\qquad
+\boldsymbol{\alpha} = (\alpha_1, \alpha_2)^{\mathsf T} .
+\]</span></p>
+<p>Every loading is fixed. The column of ones makes the first factor contribute equally at every occasion, so <span class="math inline">\(\alpha_1\)</span> is an average starting level; the column <span class="math inline">\(0, 1, 2, 3\)</span> is a time basis, so <span class="math inline">\(\alpha_2\)</span> is an average change per occasion. With intercepts fixed at zero, the implied means <span class="math inline">\(\boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\alpha}\)</span> trace the average trajectory. The variances and covariances in <span class="math inline">\(\boldsymbol{\Phi}\)</span> then describe how much individuals differ in where they start and how fast they change, which is usually the substantive point. We are not fitting this model here, and its full assumptions come much later. It is shown because it uses only <a href="#eq-matrix" class="quarto-xref">Equation&nbsp;2</a> and <a href="#eq-mean" class="quarto-xref">Equation&nbsp;14</a>, with the loadings fixed to substantively chosen values rather than estimated — a possibility <a href="#tbl-families" class="quarto-xref">Table&nbsp;4</a> raised and this makes real.</p>
+</section>
+<section id="sec-counting" class="level2">
+<h2 class="anchored" data-anchor-id="sec-counting">What a restriction buys</h2>
+<p>A model that could not be wrong is not worth testing, so it is worth asking what a set of restrictions actually commits us to. The question is settled by counting, and the count has three ingredients.</p>
+<p>The first is how much distinct information the observed variables supply. For <span class="math inline">\(p\)</span> indicators the covariance matrix is symmetric, so its distinct entries number</p>
+<p><span id="eq-moments"><span class="math display">\[
+u=\frac{p(p+1)}{2},
+\tag{15}\]</span></span></p>
+<p>which is <span class="math inline">\(21\)</span> for the six indicators used here. These are the <em>distinct moments</em>: 21 numbers, not 21 observations. Collecting more respondents estimates the same 21 quantities more precisely; it never creates a twenty-second.</p>
+<p>The second is how many quantities the model leaves free. Here <a href="#sec-factor-scale" class="quarto-xref">Section&nbsp;4</a> matters directly. A factor has no scale of its own, so a model that left both the loadings and the factor variance free would be asking the data to determine something they cannot: infinitely many pairs give identical implied moments. A scaling convention removes that indeterminacy, and in doing so removes a parameter from the free count. Restrictions of every kind - a cross-loading fixed at zero, a residual covariance forbidden, two loadings constrained equal - do the same arithmetic.</p>
+<p>The third is the difference between them,</p>
+<p><span id="eq-df"><span class="math display">\[
+df=u-t,
+\tag{16}\]</span></span></p>
+<p>with <span class="math inline">\(t\)</span> the number of free parameters. For the two-factor simple-structure model of <a href="#sec-simple" class="quarto-xref">Section&nbsp;3.1</a>, with the factor variances fixed at one and <span class="math inline">\(\phi_{12}\)</span> free, <span class="math inline">\(t\)</span> counts six loadings, one factor correlation and six residual variances: <span class="math inline">\(t=13\)</span> and <span class="math inline">\(df=21-13=8\)</span>. The one-factor model of <a href="#sec-scenario-one" class="quarto-xref">Section&nbsp;6.1</a> has six loadings and six residual variances, so <span class="math inline">\(t=12\)</span> and <span class="math inline">\(df=9\)</span>, and the orthogonal record of <a href="#sec-scenario-two" class="quarto-xref">Section&nbsp;6.2</a>, which fixes <span class="math inline">\(\phi_{12}\)</span> at zero rather than estimating it, has the same count, <span class="math inline">\(t=12\)</span> and <span class="math inline">\(df=9\)</span>.</p>
+<p>Those nine degrees of freedom are the sense in which the one-factor model <em>forbids</em> something, and <a href="#sec-tetrad" class="quarto-xref">Section&nbsp;6.3</a> makes one of the prohibitions visible: a single factor with uncorrelated residuals requires every tetrad to vanish, and a matrix in which one does not cannot be reproduced. A model with <span class="math inline">\(df&lt;0\)</span> asks the data for more than they contain. A model with <span class="math inline">\(df=0\)</span> has used up its budget without spending any on restrictions, so it cannot be contradicted by the <em>count</em>; whether it can reproduce a given matrix is a further question about that particular parameterization, since equality constraints, fixed values and the requirement that variances stay nonnegative can all keep a just-identified model from reaching every covariance matrix of its size.</p>
+<p>Two cautions belong with the count, because it is easy to ask more of it than it can deliver. A nonnegative <span class="math inline">\(df\)</span> does not establish that the parameters can be recovered at all: whether the moments determine the parameters uniquely is a separate question - <strong>identification</strong> - which counting can rule out but never confirm. And a positive <span class="math inline">\(df\)</span> says the model is refutable, not that it is true. Both questions are taken up systematically once models are estimated, where the count becomes a routine check rather than a passing observation.</p>
+</section>
+</section>
+<section id="sec-numbers" class="level1">
+<h1>Reading the numbers</h1>
+<p>We can now put numbers into the representation. Both correlation matrices in this section are constructed: the parameters came first and the correlations were computed from them. That is deliberate. Because the values are exact, any disagreement is an arithmetic error rather than sampling variation. They are ideal for learning the algebra and useless as evidence about any real population.</p>
+<section id="sec-scenario-one" class="level2">
+<h2 class="anchored" data-anchor-id="sec-scenario-one">One common factor</h2>
+<p>The first matrix, shown in <a href="#tbl-record-one" class="quarto-xref">Table&nbsp;6</a>, has the same <span class="math inline">\(.49\)</span> correlation for every distinct pair.</p>
+<div id="tbl-record-one" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-record-one-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: <em>A constructed one-factor correlation matrix.</em>
+</figcaption>
+<div aria-describedby="tbl-record-one-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;"><span class="math inline">\(Y_1\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_2\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_3\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_4\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_5\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_6\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_1\)</span></td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_2\)</span></td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_3\)</span></td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_4\)</span></td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_5\)</span></td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_6\)</span></td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">.49</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The repeated value suggests a single common contribution shared evenly across all six indicators. Let us check that representation rather than infer it from appearance alone.</p>
+<p>Let all six standardized indicators relate to a single unit-variance factor with loading <span class="math inline">\(.7\)</span>:</p>
+<p><span class="math display">\[
+\boldsymbol{\Lambda}_1 = (.7,\,.7,\,.7,\,.7,\,.7,\,.7)^{\mathsf T},
+\qquad
+\boldsymbol{\Phi}_1 = [1],
+\qquad
+\boldsymbol{\Theta}_1 = .51\,\mathbf{I}_6 .
+\]</span></p>
+<p><a href="#fig-onefactor" class="quarto-xref">Figure&nbsp;5</a> draws this parameterization before the entrywise check.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-onefactor" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator." data-fig-pos="!htb" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-onefactor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-onefactor-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%" data-fig-pos="!htb" alt="One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-onefactor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The one-factor model that reproduces the first record. Every loading is .7.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Apply <a href="#eq-cov" class="quarto-xref">Equation&nbsp;9</a> and <a href="#eq-var" class="quarto-xref">Equation&nbsp;10</a>. Each diagonal entry is <span class="math inline">\(.7^{2} + .51 = .49 + .51 = 1\)</span>, as a correlation matrix requires. Each off-diagonal entry is <span class="math inline">\(.7 \times 1 \times .7 = .49\)</span>. That reproduces <a href="#tbl-record-one" class="quarto-xref">Table&nbsp;6</a> exactly. Every communality is <span class="math inline">\(.7^{2} = .49\)</span> and every uniqueness is <span class="math inline">\(1 - .7^{2} = .51\)</span>.</p>
+<p>The column sum of squared loadings is <span class="math inline">\(6(.7^{2}) = 2.94\)</span>. This quantity is often called the factor’s eigenvalue, and the label is safe only under specific conditions. Here it is the sum of squares of a loading column — an <strong>SS loading</strong>. It happens to equal the single nonzero eigenvalue of the common part <span class="math inline">\(\boldsymbol{\Lambda}_1\boldsymbol{\Lambda}_1^{\mathsf T}\)</span>, but it is <em>not</em> an eigenvalue of the correlation matrix in <a href="#tbl-record-one" class="quarto-xref">Table&nbsp;6</a>, whose eigenvalues are <span class="math inline">\(3.45\)</span> and five values of <span class="math inline">\(.51\)</span>. Adding <span class="math inline">\(.51\)</span> to the diagonal shifts every eigenvalue by <span class="math inline">\(.51\)</span>. Wherever eigenvalues do real work in deciding how many factors to retain, the matrix being decomposed has to be named; the habit starts here.</p>
+</section>
+<section id="sec-scenario-two" class="level2">
+<h2 class="anchored" data-anchor-id="sec-scenario-two">Two orthogonal factors</h2>
+<p>The second matrix in <a href="#tbl-record-two" class="quarto-xref">Table&nbsp;7</a> has two blocks: correlations are <span class="math inline">\(.64\)</span> within the first three indicators, <span class="math inline">\(.36\)</span> within the last three, and zero across blocks.</p>
+<div id="tbl-record-two" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-record-two-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: <em>A constructed two-factor correlation matrix.</em>
+</figcaption>
+<div aria-describedby="tbl-record-two-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;"><span class="math inline">\(Y_1\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_2\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_3\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_4\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_5\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(Y_6\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_1\)</span></td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_2\)</span></td>
+<td style="text-align: right;">.64</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_3\)</span></td>
+<td style="text-align: right;">.64</td>
+<td style="text-align: right;">.64</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_4\)</span></td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(Y_5\)</span></td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.36</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(Y_6\)</span></td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.00</td>
+<td style="text-align: right;">.36</td>
+<td style="text-align: right;">.36</td>
+<td style="text-align: right;">1.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>For the second matrix, let the first three indicators relate to <span class="math inline">\(\eta_1\)</span> with loading <span class="math inline">\(.8\)</span> and the last three to <span class="math inline">\(\eta_2\)</span> with loading <span class="math inline">\(.6\)</span>, with the factors uncorrelated:</p>
+<p><span class="math display">\[
+\boldsymbol{\Lambda}_2 =
+\begin{bmatrix}
+.8 &amp; 0\\ .8 &amp; 0\\ .8 &amp; 0\\
+0 &amp; .6\\ 0 &amp; .6\\ 0 &amp; .6
+\end{bmatrix},
+\qquad
+\boldsymbol{\Phi}_2 = \mathbf{I}_2,
+\qquad
+\boldsymbol{\Theta}_2 = \operatorname{diag}(.36,.36,.36,.64,.64,.64).
+\]</span></p>
+<p><a href="#fig-orthogonal" class="quarto-xref">Figure&nbsp;6</a> draws the corresponding two-factor parameterization.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-orthogonal" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero." data-fig-pos="!htb" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-orthogonal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-orthogonal-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%" data-fig-pos="!htb" alt="Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-orthogonal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: The orthogonal two-factor model that reproduces the second record.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Within the first block, <span class="math inline">\(\operatorname{Cov}(Y_1, Y_2) = .8 \times 1 \times .8 = .64\)</span>. Within the second, <span class="math inline">\(.6 \times 1 \times .6 = .36\)</span>. Across the blocks,</p>
+<p><span class="math display">\[
+\operatorname{Cov}(Y_1, Y_4) =
+\begin{bmatrix} .8 &amp; 0 \end{bmatrix}
+\begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix} 0 \\ .6 \end{bmatrix} = 0 ,
+\]</span></p>
+<p>which reproduces <a href="#tbl-record-two" class="quarto-xref">Table&nbsp;7</a>. The first three communalities are <span class="math inline">\(.64\)</span> with uniquenesses <span class="math inline">\(.36\)</span>; the last three are <span class="math inline">\(.36\)</span> with uniquenesses <span class="math inline">\(.64\)</span>. The SS loadings are <span class="math inline">\(3(.8^{2}) = 1.92\)</span> and <span class="math inline">\(3(.6^{2}) = 1.08\)</span>.</p>
+<p>The exact zeros between blocks follow from three restrictions acting together: the simple-structure loading pattern, the orthogonality of the factors, and the absence of cross-block residual covariances. They are not a general property of two-factor models.</p>
+</section>
+<section id="sec-tetrad" class="level2">
+<h2 class="anchored" data-anchor-id="sec-tetrad">Why one factor will not do</h2>
+<p>The first matrix yielded to a single factor; the second did not. It is worth seeing that this is a fact about the numbers, not an impression from the layout.</p>
+<p>Under a one-factor model with uncorrelated residuals, any covariance is <span class="math inline">\(\sigma_{jk} = \lambda_j \phi \lambda_k\)</span>. Take any four indicators and form two products of two covariances each:</p>
+<p><span id="eq-tetrad"><span class="math display">\[
+\sigma_{12}\sigma_{45} - \sigma_{14}\sigma_{25}
+= \lambda_1\lambda_2\lambda_4\lambda_5\phi^{2}
+- \lambda_1\lambda_4\lambda_2\lambda_5\phi^{2}
+= 0 .
+\tag{17}\]</span></span></p>
+<p>The two products contain the same four loadings and must cancel. This <strong>tetrad</strong> restriction is a testable consequence: a single factor predicts it for every set of four indicators, whatever the loadings are.</p>
+<p>In <a href="#tbl-record-one" class="quarto-xref">Table&nbsp;6</a> the restriction holds, as it must. In <a href="#tbl-record-two" class="quarto-xref">Table&nbsp;7</a>, taking <span class="math inline">\(Y_1, Y_2, Y_4, Y_5\)</span>,</p>
+<p><span class="math display">\[
+\sigma_{12}\sigma_{45} - \sigma_{14}\sigma_{25}
+= (.64)(.36) - (0)(0) = .2304 \ne 0 ,
+\]</span></p>
+<p>so no one-factor model with uncorrelated residuals can reproduce that matrix exactly, whatever values its loadings take.</p>
+<p>Both the quadruple and its pairing are chosen rather than arbitrary: of the 15 four-indicator subsets of this record, each of the 9 that take two indicators from each block has one pairing — the block-matching one — whose product is <span class="math inline">\(.2304\)</span> and two whose products are <span class="math inline">\(0\)</span>, so two of its three tetrads equal <span class="math inline">\(\pm.2304\)</span> and the third is <span class="math inline">\(0\)</span>, while every tetrad of the 6 three-and-one subsets is <span class="math inline">\(0\)</span>; one nonzero tetrad anywhere refutes the one-factor representation.</p>
+<p>The result concerns exact reproduction of this known-value matrix; approximate fit to a sample covariance matrix is a different question. This is the first genuine model comparison in the book: a restriction with observable consequences, and a set of numbers that violates it. Degrees of freedom are a systematic count of restrictions of exactly this kind.</p>
+</section>
+<section id="sec-correlated" class="level2">
+<h2 class="anchored" data-anchor-id="sec-correlated">Letting the factors correlate</h2>
+<p>Orthogonality was an assumption, not a finding. Replacing <span class="math inline">\(\boldsymbol{\Phi}_2 = \mathbf{I}_2\)</span> with</p>
+<p><span class="math display">\[
+\boldsymbol{\Phi}_{2\rho} =
+\begin{bmatrix} 1 &amp; \rho \\ \rho &amp; 1 \end{bmatrix},
+\qquad -1 \leq \rho \leq 1 ,
+\]</span></p>
+<p>with strict <span class="math inline">\(|\rho|&lt;1\)</span> when a nonsingular factor covariance matrix is required, and keeping the residuals diagonal gives a cross-block covariance of</p>
+<p><span id="eq-cross"><span class="math display">\[
+\operatorname{Cov}(Y_1, Y_4) = .8\,\rho\,(.6) = .48\rho .
+\tag{18}\]</span></span></p>
+<p>At <span class="math inline">\(\rho = .4\)</span> this is <span class="math inline">\(.192\)</span>, and every one of the nine cross-block pairs becomes nonzero. The calculation shows exactly what the orthogonality restriction had been doing, and it also sets a ceiling: because the common part of a covariance is bounded by the product of the two communality square roots, no factor correlation can push <span class="math inline">\(\operatorname{Cov}(Y_1, Y_4)\)</span> beyond <span class="math inline">\(.48\)</span> under this loading pattern. If two such indicators correlated at <span class="math inline">\(.6\)</span>, no two-factor model of this shape could account for it.</p>
+<p>Real sample covariance matrices do not usually repeat these clean values or contain exact structural zeros. Their deviations combine population discrepancy with sampling variation, so arithmetic reconstruction gives way to estimation, uncertainty, and model evaluation. No empirical result is smuggled into the present known-value demonstration.</p>
+</section>
+<section id="sec-objects" class="level2">
+<h2 class="anchored" data-anchor-id="sec-objects">Neighboring objects</h2>
+<p>Several things get loosely called a dimension or a score, and none of them is interchangeable with another. <a href="#tbl-objects" class="quarto-xref">Table&nbsp;8</a> separates them before we compare factor-score estimates and principal components more closely.</p>
+<div id="tbl-objects" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-objects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: <em>Five objects that are easy to conflate.</em>
+</figcaption>
+<div aria-describedby="tbl-objects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Object</th>
+<th style="text-align: left;">What it is</th>
+<th style="text-align: left;">Recorded for unit <span class="math inline">\(i\)</span>?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Construct</strong></td>
+<td style="text-align: left;">A concept in the research question, such as planning; its meaning comes from theory, item content, response processes, population and intended use</td>
+<td style="text-align: left;">Not made observable by naming a factor</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Common factor</strong> <span class="math inline">\(\eta_{ik}\)</span></td>
+<td style="text-align: left;">An unobserved random variable in the model</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Factor-score estimate</strong> <span class="math inline">\(\widehat{\eta}_{ik}\)</span></td>
+<td style="text-align: left;">A prediction from observed responses, a fitted model and a scoring rule</td>
+<td style="text-align: left;">Computed, but not the factor itself</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Principal component</strong></td>
+<td style="text-align: left;">A weighted composite of observed variables chosen to summarize variance</td>
+<td style="text-align: left;">Computed from the data</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prespecified composite</strong></td>
+<td style="text-align: left;">A declared rule such as a sum or mean of items</td>
+<td style="text-align: left;">Computed from the data</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A factor-score estimate depends on the fitted parameters, the items included, their coding and the scoring rule; different rules give different numbers from the same fitted model. Because the factor itself is never observed, no scoring rule turns an estimate into an error-free measurement of it.</p>
+<p>Principal component analysis deserves a sentence of its own, because it is often reached for in the same situations. A principal component is a weighted composite of the observed variables, with weights chosen to capture as much observed variance as possible. The common-factor model proposes something different in kind: a decomposition of the covariance into a common part and a residual part, as in <a href="#eq-implied" class="quarto-xref">Equation&nbsp;11</a>. The two can produce similar-looking numbers and answer different questions. Substituting one for the other changes what is being claimed; neither is generally superior.</p>
+</section>
+<section id="sec-approaches" class="level2">
+<h2 class="anchored" data-anchor-id="sec-approaches">Exploratory, confirmatory and hybrid uses</h2>
+<p>With the model in hand, the orientations of <a href="#sec-orientations" class="quarto-xref">Section&nbsp;1.4</a> can be stated more precisely. <a href="#tbl-approaches" class="quarto-xref">Table&nbsp;9</a> summarizes what each orientation declares in advance and what it asks the analysis to choose.</p>
+<div id="tbl-approaches" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-approaches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: <em>What each orientation fixes and what it leaves open.</em>
+</figcaption>
+<div aria-describedby="tbl-approaches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Approach</th>
+<th style="text-align: left;">What is declared in advance</th>
+<th style="text-align: left;">What the analysis chooses</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Exploratory</strong></td>
+<td style="text-align: left;">The items, the range of factor counts considered, and the estimation and rotation choices</td>
+<td style="text-align: left;">The number of factors, and the loading pattern within an equivalent family of orientations</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Confirmatory</strong></td>
+<td style="text-align: left;">The number of factors, the loading pattern, factor relations and residual structure</td>
+<td style="text-align: left;">Parameter values, and whether the declared restrictions are compatible with the evidence</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Hybrid or partial</strong></td>
+<td style="text-align: left;">Some relations prespecified, others left free</td>
+<td style="text-align: left;">Depends on the exact parameterization, which must be stated</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Exploratory analysis is not mechanical discovery: the items entered, the association matrix, the number of factors considered, the extraction criterion, the rotation family and the interpretation are all decisions. Confirmatory analysis is not automatic confirmation: it evaluates the consequences of a specification and can expose strain, equivalent alternatives, or evidence too weak to distinguish anything.</p>
+<p>The two are often combined, and there is a real hazard in doing so carelessly. A pattern discovered in one body of evidence and then “confirmed” on the same evidence has not been confirmed; the second analysis is a restatement of the first. The remedy is not to avoid combining them but to keep the <em>analytic status</em> of each decision visible: what was specified in advance, what was chosen after looking, and what evidence has been used already. A structure chosen using one body of evidence receives a genuinely new confirmatory test only from evidence not used to choose it - for example, a prespecified split or a new sample. If evidence is reused, the resulting analysis should be described as exploratory or revised rather than independently confirmed.</p>
+</section>
+<section id="sec-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="sec-workflow">The exploratory-to-confirmatory workflow</h2>
+<p>The two orientations are most often used in sequence, and the sequence has a structural requirement that is easy to state and easy to violate. An exploratory analysis chooses a factor count, a loading pattern and a set of interpretations <em>by consulting the data</em>. A confirmatory analysis asks whether a stated pattern is compatible with the data. If both consult the same data, the second analysis can still fail - it imposes exact zeros and other restrictions the exploratory solution never contained, and those can be contradicted. What it cannot do is provide <em>independent</em> support, because the restrictions were selected for their agreement with these very numbers. The result is a test whose apparent evidential value has been inflated by the selection that preceded it, not a test that is guaranteed to pass.</p>
+<p>The remedy is to give the two stages different evidence. In practice this means splitting the available data into at least two parts before the exploratory work begins - one part to develop on, one held back - or collecting a second sample. The split must be declared in advance and made without reference to the outcome; a split chosen after seeing which half behaves better is not a split at all.</p>
+<p>Splitting is not free. Two halves of <span class="math inline">\(n\)</span> each carry less information than one sample of <span class="math inline">\(2n\)</span>, and factor recovery degrades in small samples with modest loadings, so a study too small to split may be too small for the sequence <span class="citation" data-cites="fabrigar1999">(<a href="#ref-fabrigar1999" role="doc-biblioref">Fabrigar et al., 1999</a>)</span>. The honest alternatives are to collect more data, to report the analysis as exploratory and leave confirmation to later work, or to declare the model in advance and skip the exploratory stage entirely. What is not an alternative is to run both stages on one sample and describe the second as confirmation.</p>
+<p>Passing a model from one stage to the other requires more than a factor count. <a href="#tbl-transition" class="quarto-xref">Table&nbsp;10</a> lists what has to be fixed in writing before the held-back data are opened, because each of these is a decision the exploratory stage made and the confirmatory stage must not remake.</p>
+<div id="tbl-transition" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: <em>What the transition from exploratory to confirmatory work has to declare.</em>
+</figcaption>
+<div aria-describedby="tbl-transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">What is transferred</th>
+<th style="text-align: left;">Why it must be fixed in advance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">The item set and its order</td>
+<td style="text-align: left;">Dropping a poorly behaved item after seeing the second sample makes that sample exploratory too</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">The number of factors</td>
+<td style="text-align: left;">The count is the exploratory stage’s principal finding, and the claim under test</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Which loadings are free and which are fixed at zero</td>
+<td style="text-align: left;">The zeros are the restrictions being tested; adding one back is a new model</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Factor variances, covariances and the scaling convention</td>
+<td style="text-align: left;">These determine the metric in which every coefficient is read</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">The residual structure</td>
+<td style="text-align: left;">A residual covariance freed after inspecting fit is a revision, not a confirmation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Named rival models</td>
+<td style="text-align: left;">Comparisons decided in advance are interpretable; comparisons invented afterwards are selected on the same evidence</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>A revision discovered while examining the held-back sample is a legitimate and often necessary thing to do. It simply changes the status of that sample: it has now been used to develop, and the revised model needs evidence of its own. Analyses can move down this ladder freely and never move back up.</p>
+<p>A third option refuses the sequence. Exploratory structural equation modeling estimates a measurement model with rotational freedom retained inside a larger structural model, rather than forcing every cross-loading to zero <span class="citation" data-cites="asparouhovMuthen2009 marsh2014">(<a href="#ref-asparouhovMuthen2009" role="doc-biblioref">Asparouhov &amp; Muthén, 2009</a>; <a href="#ref-marsh2014" role="doc-biblioref">Marsh et al., 2014</a>)</span>. It trades the sharpness of exact zero restrictions for a specification that does not pretend to a precision the evidence never supplied. Chapter 7 develops this ESEM extension and its consequences for structural interpretation.</p>
+</section>
+<section id="sec-response" class="level2">
+<h2 class="anchored" data-anchor-id="sec-response">A note on response scales</h2>
+<p>The indicators here are treated as continuous, and Part Two keeps that treatment throughout. Many questionnaire items are recorded on ordered categories, and treating such responses as continuous is a modeling decision with a literature behind it <span class="citation" data-cites="rhemtulla2012">(<a href="#ref-rhemtulla2012" role="doc-biblioref">Rhemtulla et al., 2012</a>)</span> — generally defensible with enough categories and reasonably symmetric distributions, and less so with few categories or strong floor and ceiling effects. The alternative is to model an underlying continuous response together with thresholds, which changes the estimator and the interpretation of the parameters. That route belongs to a different course. What matters here is that the choice be made deliberately and stated, not made by default.</p>
+</section>
+</section>
+<section id="sec-argument" class="level1">
+<h1>Applying the argument-based approach to latent variables (Optional)</h1>
+<p>This optional section returns to the chapter’s guiding question using the argument vocabulary of Part One Chapter 1. It may be skipped without loss.</p>
+<section id="can-covariance-select-a-unique-set-of-factor-axes" class="level2">
+<h2 class="anchored" data-anchor-id="can-covariance-select-a-unique-set-of-factor-axes">Can covariance select a unique set of factor axes?</h2>
+<p>Sections 2 to 6 established the statistical account. Here we ask whether covariance selects a unique set of latent axes.</p>
+<blockquote class="blockquote">
+<p><strong>Operational question.</strong> Do the original and a rotated two-factor description imply the same six-indicator covariance, and which parts of their interpretation survive the change of axes?</p>
+</blockquote>
+<p>Using the constructed record in <a href="#tbl-record-two" class="quarto-xref">Table&nbsp;7</a>, begin with <span class="math inline">\(\boldsymbol{\Lambda}_2\)</span> and <span class="math inline">\(\boldsymbol{\Phi}_2=\mathbf I_2\)</span> from <a href="#sec-scenario-two" class="quarto-xref">Section&nbsp;6.2</a> and define the orthogonal matrix</p>
+<p><span class="math display">\[
+\mathbf Q=\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1&amp;-1\\
+1&amp; 1
+\end{bmatrix},
+\qquad
+\boldsymbol{\eta}_i^*=\mathbf Q^{\mathsf T}\boldsymbol{\eta}_i,
+\qquad
+\boldsymbol{\Lambda}_2^*=\boldsymbol{\Lambda}_2\mathbf Q .
+\]</span></p>
+<p>Because <span class="math inline">\(\mathbf Q^{\mathsf T}\mathbf Q=\mathbf I_2\)</span>, the rotated factor covariance remains <span class="math inline">\(\boldsymbol{\Phi}_2^*=\mathbf I_2\)</span>. The loading matrix becomes</p>
+<p><span class="math display">\[
+\boldsymbol{\Lambda}_2^*=
+\begin{bmatrix}
+.8/\sqrt{2}&amp;-.8/\sqrt{2}\\
+.8/\sqrt{2}&amp;-.8/\sqrt{2}\\
+.8/\sqrt{2}&amp;-.8/\sqrt{2}\\
+.6/\sqrt{2}&amp; .6/\sqrt{2}\\
+.6/\sqrt{2}&amp; .6/\sqrt{2}\\
+.6/\sqrt{2}&amp; .6/\sqrt{2}
+\end{bmatrix}.
+\]</span></p>
+<p>The simple zeros have disappeared, yet the implied covariance has not. For example, the common covariance of <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_4\)</span> is now</p>
+<p><span class="math display">\[
+\frac{.8}{\sqrt{2}}\frac{.6}{\sqrt{2}}
++
+\frac{-.8}{\sqrt{2}}\frac{.6}{\sqrt{2}}
+=.24-.24=0.
+\]</span></p>
+<p>Every other entry is preserved by the same matrix identity, <span class="math inline">\(\boldsymbol{\Lambda}_2^*\boldsymbol{\Phi}_2^*
+\boldsymbol{\Lambda}_2^{*\mathsf T}
+=\boldsymbol{\Lambda}_2\boldsymbol{\Phi}_2
+\boldsymbol{\Lambda}_2^{\mathsf T}\)</span>. Indicator communalities therefore stay at <span class="math inline">\(.64\)</span> for <span class="math inline">\(Y_1\)</span> to <span class="math inline">\(Y_3\)</span> and <span class="math inline">\(.36\)</span> for <span class="math inline">\(Y_4\)</span> to <span class="math inline">\(Y_6\)</span>. What changes is the allocation to the two columns, as <a href="#tbl-axis-ss" class="quarto-xref">Table&nbsp;11</a> shows:</p>
+<div id="tbl-axis-ss" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-axis-ss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: <em>Factor-specific allocations change while their total is invariant.</em>
+</figcaption>
+<div aria-describedby="tbl-axis-ss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Axes</th>
+<th style="text-align: right;">SS loading 1</th>
+<th style="text-align: right;">SS loading 2</th>
+<th style="text-align: right;">Total common variance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Original</td>
+<td style="text-align: right;">1.92</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Rotated</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="does-exact-reproduction-confirm-two-constructs" class="level2">
+<h2 class="anchored" data-anchor-id="does-exact-reproduction-confirm-two-constructs">Does exact reproduction confirm two constructs?</h2>
+<p>Suppose a results section uses the original simple axes and states:</p>
+<blockquote class="blockquote">
+<p>“Because the two-factor model reproduces the six-indicator matrix exactly, the analysis confirms that Planning and Strategy are two distinct psychological constructs.”</p>
+</blockquote>
+<p>The arithmetic in the first clause is correct. The conclusion is not. The same covariance matrix admits the rotated description, whose columns no longer preserve the proposed Planning and Strategy partition. The four argument roles make the break visible.</p>
+<p><strong>Evidence.</strong> The evidence is the declared correlation matrix together with the original and rotated numerical representations. Its provenance matters: the matrix was constructed from parameters, not estimated from respondents. Exact arithmetic is therefore available, but sampling and generalization claims are not.</p>
+<p><strong>Justification.</strong> The common-factor covariance equation <a href="#eq-implied" class="quarto-xref">Equation&nbsp;11</a>, the unchanged residual covariance matrix, and the orthogonality of <span class="math inline">\(\mathbf Q\)</span> connect the two loading matrices to the same observable covariance. The choice of axes belongs here as a convention; it is not an observed finding.</p>
+<p><strong>Inference.</strong> Substitution gives the same implied covariance, communalities, and total common variance of <span class="math inline">\(3\)</span>. The displayed cancellation <span class="math inline">\(.24-.24=0\)</span> verifies a cross-block entry, while the SS loading calculation shows that factor-specific allocations change from <span class="math inline">\(1.92\)</span> and <span class="math inline">\(1.08\)</span> to <span class="math inline">\(1.50\)</span> and <span class="math inline">\(1.50\)</span>.</p>
+<p><strong>Claim.</strong> The quoted claim moves from exact reproduction to distinct psychological constructs. That transition requires a substantive warrant about indicator content and response processes which the constructed matrix does not provide.</p>
+</section>
+<section id="evaluate-the-claim" class="level2">
+<h2 class="anchored" data-anchor-id="evaluate-the-claim">Evaluate the claim</h2>
+<p><a href="#tbl-transition-verdicts" class="quarto-xref">Table&nbsp;12</a> applies the six evaluation questions to the quoted claim. The mixed verdicts matter: correct arithmetic at one stage does not repair an unsupported transition at a later one.</p>
+<div id="tbl-transition-verdicts" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-transition-verdicts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: <em>Six applied evaluation verdicts for an overclaim based on the comparison of axes.</em>
+</figcaption>
+<div aria-describedby="tbl-transition-verdicts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Evaluation question</th>
+<th style="text-align: left;">Verdict</th>
+<th style="text-align: left;">Reason in these numbers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Question alignment</td>
+<td style="text-align: left;">Satisfied</td>
+<td style="text-align: left;">The sentence addresses whether the proposed factors may be interpreted as distinct constructs.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evidence integrity</td>
+<td style="text-align: left;">Satisfied within the declared matrix</td>
+<td style="text-align: left;">All numbers come from the two stated parameterizations of one constructed matrix.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Justification adequacy</td>
+<td style="text-align: left;">Partly satisfied</td>
+<td style="text-align: left;">Orthogonality and <a href="#eq-implied" class="quarto-xref">Equation&nbsp;11</a> license covariance reproduction and equivalence, not the construct labels.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Inferential adequacy</td>
+<td style="text-align: left;">Not satisfied</td>
+<td style="text-align: left;">The equivalent rotation prevents these numbers from selecting the original pair of axes uniquely.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transition fidelity</td>
+<td style="text-align: left;">Not satisfied</td>
+<td style="text-align: left;">The sentence moves from a statistical representation to psychological entities without a domain or response-process warrant.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Claim calibration</td>
+<td style="text-align: left;"><strong>Not satisfied</strong></td>
+<td style="text-align: left;">Exact reproduction cannot by itself confirm that Planning and Strategy are distinct psychological constructs.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="repair-the-claim" class="level2">
+<h2 class="anchored" data-anchor-id="repair-the-claim">Repair the claim</h2>
+<p>A calibrated replacement is:</p>
+<blockquote class="blockquote">
+<p>“The matrix is compatible with the displayed two-factor parameterization, but the equivalent rotated description shows that covariance reproduction does not uniquely identify Planning and Strategy axes. Interpreting those axes as distinct constructs requires theory, defensible domain coverage, response-process evidence, and relevant empirical checks.”</p>
+</blockquote>
+<p><strong>Answer returned to the opening pair.</strong> The two descriptions imply the same indicator covariance, communalities, and total common variance of <span class="math inline">\(3\)</span>. Their loadings and factor-specific SS allocations differ. Thus the covariance representation survives the change of axes, whereas the convenience and factor-specific allocation of the original simple axes do not. The rotated description is outside the original fixed-zero CFA class: equivalence in the broader factor representation does not imply that an identified restricted CFA lacks a unique fitted solution.</p>
+<p>As an optional transfer exercise, rewrite the quoted overclaim as four sentences - one each for evidence, justification, inference and claim - and identify every phrase you changed to keep covariance compatibility separate from construct interpretation.</p>
+</section>
+</section>
+<section id="sec-summary" class="level1">
+<h1>Summary and reading bridge</h1>
+<p><a href="#fig-chapter-route" class="quarto-xref">Figure&nbsp;7</a> retraces the chapter’s route from observed covariance to a bounded interpretation.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-chapter-route" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chapter-route-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_01_files/figure-html/fig-chapter-route-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:78.0%" alt="A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chapter-route-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: The chapter’s route from observed covariance to a calibrated conclusion.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The model is</p>
+<p><span class="math display">\[
+\mathbf{y}_i = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta}_i
+               + \boldsymbol{\epsilon}_i ,
+\qquad
+\boldsymbol{\Sigma}
+= \boldsymbol{\Lambda}\boldsymbol{\Phi}\boldsymbol{\Lambda}^{\mathsf T}
+  + \boldsymbol{\Theta} ,
+\qquad
+\boldsymbol{\mu}
+= \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\alpha} .
+\]</span></p>
+<p>Its loadings, factor covariances and residual covariances jointly determine the observed moments. Its factors have no inherited scale, sign or location, and several metrics describe the same observed covariance. Communality and uniqueness are conditional on the declared model. A diagonal residual covariance matrix does not by itself establish local independence.</p>
+<p>What this chapter could not do is the point of the next one. Every number here was exact by construction. Given a sample correlation matrix that no simple model reproduces exactly, how many factors should be retained, how should the axes be chosen, and how much residual discrepancy is tolerable? Chapter 2 takes those questions up as an exploratory analysis, with the retention decision — the one this chapter supplied by construction — treated as the consequential judgment it is.</p>
+<p>For fuller treatments of latent-variable representation and covariance-structure modeling, see <span class="citation" data-cites="bartholomewKnott1999">Bartholomew &amp; Knott (<a href="#ref-bartholomewKnott1999" role="doc-biblioref">1999</a>)</span>, <span class="citation" data-cites="mulaik2010">Mulaik (<a href="#ref-mulaik2010" role="doc-biblioref">2010</a>)</span>, <span class="citation" data-cites="joreskog1969">Jöreskog (<a href="#ref-joreskog1969" role="doc-biblioref">1969</a>)</span>, <span class="citation" data-cites="bollen1989">Bollen (<a href="#ref-bollen1989" role="doc-biblioref">1989</a>)</span> and <span class="citation" data-cites="brown2006">Brown (<a href="#ref-brown2006" role="doc-biblioref">2006</a>)</span>. This chapter uses their shared vocabulary selectively. Chapter 3 develops specification, identification, estimation and a basic global and local evaluation; Chapter 4 develops comparisons, revision and the evidence needed for a qualified measurement conclusion.</p>
+</section>
+<section id="exercises" class="level1 unnumbered">
+<h1 class="unnumbered">Exercises</h1>
+<p>Show your assumptions and arithmetic, and end every numerical answer with a sentence of interpretation. None of these requires software.</p>
+<!-- prompt-id: PT2-CH01-E01 -->
+<section id="exercise-1---classify-the-quantities" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="exercise-1---classify-the-quantities">Exercise 1 - Classify the quantities</h2>
+<p>For each item below, say whether it is an observed variable, a latent random variable, an unknown fixed parameter, or a residual random variable. Then explain, in one or two sentences, what distinction is lost if every unobserved quantity is simply called “latent”.</p>
+<ol type="1">
+<li>A respondent’s answer to Item 4.</li>
+<li>The loading relating Item 4 to the second factor.</li>
+<li>The value of the second factor for that respondent.</li>
+<li>The part of Item 4 not represented by the declared factors.</li>
+<li>The population covariance between the two factors.</li>
+</ol>
+<!-- prompt-id: PT2-CH01-E02 -->
+</section>
+<section id="exercise-2---place-the-model" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="exercise-2---place-the-model">Exercise 2 - Place the model</h2>
+<ol type="1">
+<li>Using <a href="#tbl-map" class="quarto-xref">Table&nbsp;2</a>, say which family fits each of: a five-category attitude scale analyzed with a continuous latent trait; a set of continuous school-performance measures thought to identify unobserved groups of schools; six continuous items thought to reflect two continuous attributes.</li>
+<li>Under what additional interpretation can a classical true-score decomposition be represented as a one-factor model? State the equal-loading restriction, then explain why the two frameworks are not generally interchangeable.</li>
+<li>Give one question about a six-item scale that an exploratory orientation suits, and one that a confirmatory orientation suits. Explain what makes each appropriate.</li>
+</ol>
+<!-- prompt-id: PT2-CH01-E03 -->
+</section>
+<section id="exercise-3---translate-between-representations" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="exercise-3---translate-between-representations">Exercise 3 - Translate between representations</h2>
+<p>Consider a two-factor model in which <span class="math inline">\(Y_1, Y_2, Y_3\)</span> relate only to <span class="math inline">\(\eta_1\)</span>, <span class="math inline">\(Y_4, Y_5, Y_6\)</span> relate only to <span class="math inline">\(\eta_2\)</span>, the factors may correlate, and all residual covariances are zero.</p>
+<ol type="1">
+<li>Write the six scalar equations.</li>
+<li>Write <span class="math inline">\(\boldsymbol{\Lambda}\)</span>, <span class="math inline">\(\boldsymbol{\Phi}\)</span> and <span class="math inline">\(\boldsymbol{\Theta}\)</span>, marking which elements are fixed and which are free.</li>
+<li>Sketch the path diagram.</li>
+<li>Describe the model in one paragraph, then check that every statement in your paragraph is visible in all three of the other representations.</li>
+</ol>
+<!-- prompt-id: PT2-CH01-E04 -->
+</section>
+<section id="exercise-4---reconstruct-and-perturb" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="exercise-4---reconstruct-and-perturb">Exercise 4 - Reconstruct and perturb</h2>
+<ol type="1">
+<li>For the model of <a href="#sec-scenario-one" class="quarto-xref">Section&nbsp;6.1</a>, recompute one diagonal and one off-diagonal entry of the implied correlation matrix, the communality and uniqueness of any indicator, and the SS loading. State which quantity in your answer is <em>not</em> an eigenvalue of <a href="#tbl-record-one" class="quarto-xref">Table&nbsp;6</a>, and why.</li>
+<li>For the model of <a href="#sec-scenario-two" class="quarto-xref">Section&nbsp;6.2</a>, recompute one within-block entry from each block and one cross-block entry.</li>
+<li>Now suppose <span class="math inline">\(Y_1\)</span> also relates to <span class="math inline">\(\eta_2\)</span> with a loading of <span class="math inline">\(.25\)</span>, the factors still uncorrelated and <strong>every other parameter left at its stated value</strong>. Which entries of the implied matrix change, and which do not? Recompute <span class="math inline">\(\operatorname{Cov}(Y_1, Y_4)\)</span>.</li>
+<li>Instead of the cross-loading, suppose a residual covariance <span class="math inline">\(\theta_{14} = .05\)</span> is permitted, again <strong>holding all other parameters fixed</strong>. Which entries change now? Explain why these two modifications are not interchangeable. (In a refitted model the remaining estimates would also move; the point here is the direct algebraic consequence.)</li>
+<li>In the local-independence figure, predict whether removing the known factor contribution removes the relation between the two indicators when they share a wording influence. Explain your prediction and why replacing the known factor by an estimated factor score would change what this demonstration establishes.</li>
+</ol>
+<!-- prompt-id: PT2-CH01-E05 -->
+</section>
+<section id="exercise-5---scale-and-conventions" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="exercise-5---scale-and-conventions">Exercise 5 - Scale and conventions</h2>
+<p>Begin with a standardized one-factor indicator having <span class="math inline">\(\lambda = .8\)</span>, <span class="math inline">\(\phi = 1\)</span> and <span class="math inline">\(\theta = .36\)</span>.</p>
+<ol type="1">
+<li>Rescale the factor by <span class="math inline">\(a = 2\)</span>. Give the new loading and factor variance, and verify that the implied indicator variance is unchanged.</li>
+<li>Set <span class="math inline">\(a = -1\)</span>. What changes, and what does not? Would you be able to tell the two solutions apart from the correlations alone?</li>
+<li>State the difference between fixing a factor’s scale and changing the units in which an indicator is recorded. Give an example of each.</li>
+<li>In a single-group model the factor mean is usually fixed at zero. Using <a href="#eq-location" class="quarto-xref">Equation&nbsp;8</a>, explain why some such convention is unavoidable.</li>
+</ol>
+</section>
+</section>
+<section id="references" class="level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-asparouhovMuthen2009" class="csl-entry" role="listitem">
+Asparouhov, T., &amp; Muthén, B. (2009). Exploratory structural equation modeling. <em>Structural Equation Modeling</em>, <em>16</em>(3), 397–438. <a href="https://doi.org/10.1080/10705510903008204">https://doi.org/10.1080/10705510903008204</a>
+</div>
+<div id="ref-bartholomewKnott1999" class="csl-entry" role="listitem">
+Bartholomew, D. J., &amp; Knott, M. (1999). <em>Latent variable models and factor analysis</em> (2nd ed.). Oxford University Press.
+</div>
+<div id="ref-bollen1989" class="csl-entry" role="listitem">
+Bollen, K. A. (1989). <em>Structural equations with latent variables</em>. Wiley.
+</div>
+<div id="ref-bollenLennox1991" class="csl-entry" role="listitem">
+Bollen, K. A., &amp; Lennox, R. (1991). Conventional wisdom on measurement: A structural equation perspective. <em>Psychological Bulletin</em>, <em>110</em>(2), 305–314. <a href="https://doi.org/10.1037/0033-2909.110.2.305">https://doi.org/10.1037/0033-2909.110.2.305</a>
+</div>
+<div id="ref-borsboom2003" class="csl-entry" role="listitem">
+<span class="nocase">Borsboom, D., Mellenbergh, G. J., &amp; van Heerden, J.</span> (2003). The theoretical status of latent variables. <em>Psychological Review</em>, <em>110</em>(2), 203–219. <a href="https://doi.org/10.1037/0033-295X.110.2.203">https://doi.org/10.1037/0033-295X.110.2.203</a>
+</div>
+<div id="ref-brown2006" class="csl-entry" role="listitem">
+Brown, T. A. (2006). <em>Confirmatory factor analysis for applied research</em>. Guilford Press.
+</div>
+<div id="ref-edwardsBagozzi2000" class="csl-entry" role="listitem">
+Edwards, J. R., &amp; Bagozzi, R. P. (2000). On the nature and direction of relationships between constructs and measures. <em>Psychological Methods</em>, <em>5</em>(2), 155–174. <a href="https://doi.org/10.1037/1082-989X.5.2.155">https://doi.org/10.1037/1082-989X.5.2.155</a>
+</div>
+<div id="ref-fabrigar1999" class="csl-entry" role="listitem">
+Fabrigar, L. R., Wegener, D. T., MacCallum, R. C., &amp; Strahan, E. J. (1999). Evaluating the use of exploratory factor analysis in psychological research. <em>Psychological Methods</em>, <em>4</em>(3), 272–299. <a href="https://doi.org/10.1037/1082-989X.4.3.272">https://doi.org/10.1037/1082-989X.4.3.272</a>
+</div>
+<div id="ref-joreskog1969" class="csl-entry" role="listitem">
+Jöreskog, K. G. (1969). A general approach to confirmatory maximum likelihood factor analysis. <em>Psychometrika</em>, <em>34</em>, 183–202. <a href="https://doi.org/10.1007/BF02289343">https://doi.org/10.1007/BF02289343</a>
+</div>
+<div id="ref-livingston2018" class="csl-entry" role="listitem">
+Livingston, S. A. (2018). <em>Test reliability—basic concepts</em> (Research Memorandum RM-18-01). Educational Testing Service. <a href="https://www.ets.org/Media/Research/pdf/RM-18-01.pdf">https://www.ets.org/Media/Research/pdf/RM-18-01.pdf</a>
+</div>
+<div id="ref-marsh2014" class="csl-entry" role="listitem">
+Marsh, H. W., Morin, A. J. S., Parker, P. D., &amp; Kaur, G. (2014). Exploratory structural equation modeling: An integration of the best features of exploratory and confirmatory factor analysis. <em>Annual Review of Clinical Psychology</em>, <em>10</em>, 85–110. <a href="https://doi.org/10.1146/annurev-clinpsy-032813-153700">https://doi.org/10.1146/annurev-clinpsy-032813-153700</a>
+</div>
+<div id="ref-mulaik2010" class="csl-entry" role="listitem">
+Mulaik, S. A. (2010). <em>Foundations of factor analysis</em> (2nd ed.). Chapman; Hall/CRC.
+</div>
+<div id="ref-rhemtulla2012" class="csl-entry" role="listitem">
+Rhemtulla, M., Brosseau-Liard, P. É., &amp; Savalei, V. (2012). When can categorical variables be treated as continuous? A comparison of robust continuous and categorical <span>SEM</span> estimation methods under suboptimal conditions. <em>Psychological Methods</em>, <em>17</em>(3), 354–373. <a href="https://doi.org/10.1037/a0029315">https://doi.org/10.1037/a0029315</a>
+</div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in an unavailable-unit anchor. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#argument-c"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../part-two/part_two_concept_reference.html" class="pagination-link" aria-label="Concept reference">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Concept reference</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../part-two/chapter_02.html" class="pagination-link" aria-label="Exploratory Factor Analysis and Model Development">
+        <span class="nav-page-text">Exploratory Factor Analysis and Model Development</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · CC BY 4.0</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#citation">
+<p>Cite</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#licences">
+<p>Licence</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

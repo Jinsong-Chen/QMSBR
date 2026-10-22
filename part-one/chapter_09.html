@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../part-one/chapter_08.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../part-one/part_one_introduction.html" aria-current="page"> 
+<span class="menu-text">Part One</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../part-two/part_two_introduction.html"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../practice/index.html"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../argument-approach.html"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../part-one/chapter_09.html">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/part_one_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/part_one_concept_reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Concept reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Quantitative Research Journey</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data, Distributions, and Variation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimates, Uncertainty, and Statistical Tests</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Group Comparisons with Analysis of Variance</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Description and Basic Inference with R</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Group Comparisons and Statistical Modelling with R</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+<p class="qmsbr-page-download"><a class="btn btn-outline-primary" href="chapter_09.pdf" download>Download PDF</a></p>
+
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-ch9-factors" id="toc-sec-ch9-factors">Predictors That Are Categories</a>
+  <ul>
+  <li><a href="#one-indicator-then-several" id="toc-one-indicator-then-several">One indicator, then several</a></li>
+  <li><a href="#what-the-indicator-coefficients-mean" id="toc-what-the-indicator-coefficients-mean">What the indicator coefficients mean</a></li>
+  <li><a href="#changing-the-reference-level" id="toc-changing-the-reference-level">Changing the reference level</a></li>
+  <li><a href="#one-way-analysis-of-variance-as-a-regression" id="toc-one-way-analysis-of-variance-as-a-regression">One-way analysis of variance as a regression</a></li>
+  <li><a href="#a-contrast-and-its-standard-error" id="toc-a-contrast-and-its-standard-error">A contrast and its standard error</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-contrasts" id="toc-sec-ch9-contrasts">Adjusted Group Comparisons: The Analysis of Covariance</a>
+  <ul>
+  <li><a href="#ch09-ancova" id="toc-ch09-ancova">A regression with one common slope</a></li>
+  <li><a href="#ch09-ancova-pretest" id="toc-ch09-ancova-pretest">Three analyses of a pretest–posttest study</a></li>
+  <li><a href="#ch09-ancova-limits" id="toc-ch09-ancova-limits">Parallel slopes and the limits of adjustment</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-comparison" id="toc-sec-ch9-comparison">Comparing Models and Predictors</a>
+  <ul>
+  <li><a href="#comparing-residual-sums-of-squares" id="toc-comparing-residual-sums-of-squares">Comparing residual sums of squares</a></li>
+  <li><a href="#testing-a-block-of-coefficients" id="toc-testing-a-block-of-coefficients">Testing a block of coefficients</a></li>
+  <li><a href="#information-criteria-aic-and-bic" id="toc-information-criteria-aic-and-bic">Information criteria: AIC and BIC</a></li>
+  <li><a href="#what-each-predictor-adds" id="toc-what-each-predictor-adds">What each predictor adds</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-forms" id="toc-sec-ch9-forms">Changing a Predictor’s Form or the Outcome’s Scale</a>
+  <ul>
+  <li><a href="#adding-a-squared-term" id="toc-adding-a-squared-term">Adding a squared term</a></li>
+  <li><a href="#a-log-transformed-outcome" id="toc-a-log-transformed-outcome">A log-transformed outcome</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-hc3" id="toc-sec-ch9-hc3">Robust Standard Errors for Unequal Spread</a>
+  <ul>
+  <li><a href="#unequal-spread-and-hc3-standard-errors" id="toc-unequal-spread-and-hc3-standard-errors">Unequal spread and HC3 standard errors</a></li>
+  <li><a href="#a-robust-block-test" id="toc-a-robust-block-test">A robust block test</a></li>
+  <li><a href="#limits-of-robust-standard-errors" id="toc-limits-of-robust-standard-errors">Limits of robust standard errors</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-bootstrap" id="toc-sec-ch9-bootstrap">Resampling the Records</a>
+  <ul>
+  <li><a href="#choosing-what-to-resample" id="toc-choosing-what-to-resample">Choosing what to resample</a></li>
+  <li><a href="#case-resampling-for-the-full-model" id="toc-case-resampling-for-the-full-model">Case resampling for the full model</a></li>
+  <li><a href="#bootstrap-intervals-and-their-limits" id="toc-bootstrap-intervals-and-their-limits">Bootstrap intervals and their limits</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-star" id="toc-sec-ch9-star">Clustered Data: Project STAR</a>
+  <ul>
+  <li><a href="#the-study-and-its-question" id="toc-the-study-and-its-question">The study and its question</a></li>
+  <li><a href="#which-records-enter-the-analysis" id="toc-which-records-enter-the-analysis">Which records enter the analysis</a></li>
+  <li><a href="#the-arm-difference-unadjusted-and-adjusted" id="toc-the-arm-difference-unadjusted-and-adjusted">The arm difference, unadjusted and adjusted</a></li>
+  <li><a href="#clustered-standard-errors" id="toc-clustered-standard-errors">Clustered standard errors</a></li>
+  <li><a href="#reporting-the-result-and-its-limits" id="toc-reporting-the-result-and-its-limits">Reporting the result and its limits</a></li>
+  </ul></li>
+  <li><a href="#sec-ch9-summary" id="toc-sec-ch9-summary">Reading Bridge</a>
+  <ul>
+  <li><a href="#key-terms" id="toc-key-terms">Key terms</a></li>
+  <li><a href="#further-reading" id="toc-further-reading">Further reading</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises">Exercises</a>
+  <ul>
+  <li><a href="#ex-ch09-01" id="toc-ex-ch09-01">Exercise 1: Read indicator coefficients (Foundational)</a></li>
+  <li><a href="#ex-ch09-02" id="toc-ex-ch09-02">Exercise 2: A contrast needs covariance (Foundational)</a></li>
+  <li><a href="#ex-ch09-03" id="toc-ex-ch09-03">Exercise 3: A nested comparison from residual sums of squares (Foundational)</a></li>
+  <li><a href="#ex-ch09-04" id="toc-ex-ch09-04">Exercise 4: What information criteria compare (Foundational)</a></li>
+  <li><a href="#ex-ch09-05" id="toc-ex-ch09-05">Exercise 5: Percent and curvature (Integrative)</a></li>
+  <li><a href="#ex-ch09-06" id="toc-ex-ch09-06">Exercise 6: Choose the uncertainty calculation (Integrative)</a></li>
+  <li><a href="#ex-ch09-07" id="toc-ex-ch09-07">Exercise 7: One randomized study, three analyses (Integrative)</a></li>
+  </ul></li>
+  <li><a href="#app-ch9-a" id="toc-app-ch9-a">Appendix A: Matrix Geometry, Restrictions, and Sandwich Constructions</a>
+  <ul>
+  <li><a href="#projection-and-the-normal-equations" id="toc-projection-and-the-normal-equations">Projection and the normal equations</a></li>
+  <li><a href="#general-linear-restrictions" id="toc-general-linear-restrictions">General linear restrictions</a></li>
+  <li><a href="#the-hc3-sandwich" id="toc-the-hc3-sandwich">The HC3 sandwich</a></li>
+  <li><a href="#the-cr1-cluster-sandwich" id="toc-the-cr1-cluster-sandwich">The CR1 cluster sandwich</a></li>
+  <li><a href="#app-ch09-projection-target" id="toc-app-ch09-projection-target">What least squares estimates when the mean is not linear</a></li>
+  </ul></li>
+  <li><a href="#app-ch9-b" id="toc-app-ch9-b">Appendix B: Bootstrap Schemes and Intervals</a></li>
+  <li><a href="#references" id="toc-references">References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="chapter_09.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div class="callout callout-style-default callout-note callout-titled" title="Chapter overview">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Chapter overview
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chapter 8 wrote one regression model for the occupation records. This chapter extends it in two directions: Sections 1–4 change or compare the mean part; Sections 5–7 recompute uncertainty when spread differs or pupils share a school. By the end, you will be able to read indicator coefficients and a declared contrast, explain covariance adjustment, compare models and predictors, interpret curvature and a logged outcome, and choose an uncertainty calculation for a stated reason. The occupation records, a randomized reading study, and Project STAR connect each method with the question it answers and the conditions it needs.</p>
+</div>
+</div>
+<p>Chapter 8 asked how income differs with education when prestige, the percentage of women, and occupational type are held fixed. A report on the same 98 records usually needs more. How do the three types compare? Does a group of predictors add anything once the others are in? Is a straight line in prestige adequate, and should income be analyzed on its own scale? How far can the standard errors be trusted when professional incomes spread much more widely? We answer these questions on the same records, with income in thousand 1971 Canadian dollars and the type levels <em>bc</em>, <em>prof</em>, and <em>wc</em>. Two further studies join where these records cannot serve: a randomized reading study with a pretest (Section 2) and Project STAR (Section 7).</p>
+<p>Recall Chapter 8’s model, with the conditions Chapter 7, Section 1.1, first stated for one predictor:</p>
+<p><span class="math display">\[
+Y_i=\beta_0+\sum_j\beta_jx_{ij}+\varepsilon_i,\qquad
+E(\varepsilon_i\mid\mathbf x_i)=0,\qquad
+\operatorname{Var}(\varepsilon_i\mid\mathbf x_i)=\sigma^2.
+\]</span></p>
+<p>Its <strong>mean part</strong> gives the expected outcome at stated predictor values. Its <strong>error part</strong> says that errors average zero at every predictor profile, share one variance, and are independent across records; Normal errors additionally supply the exact <span class="math inline">\(t\)</span> and <span class="math inline">\(F\)</span> references. For the occupation model <code>m2</code>, with blue-collar as reference, the mean part is</p>
+<p><span class="math display">\[
+E(\mathrm{income}_k\mid e,p,w,\mathrm{type})=\beta_0+\beta_Ee+\beta_Pp
++\beta_Ww+\delta_{\mathrm{prof}}D_{\mathrm{prof}}
++\delta_{\mathrm{wc}}D_{\mathrm{wc}}.
+\]</span></p>
+<p>Here <span class="math inline">\(e\)</span>, <span class="math inline">\(p\)</span>, and <span class="math inline">\(w\)</span> are education, prestige, and the percentage of women; the two <span class="math inline">\(D\)</span> columns indicate professional and white-collar types.</p>
+<p>We work on these two parts in turn: indicators, covariance adjustment, model comparisons and transformations first; unequal spread and school-level dependence second. Short R demonstrations connect the model to its fitted comparisons and uncertainty.</p>
+<section id="sec-ch9-factors" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-factors">Predictors That Are Categories</h2>
+<section id="one-indicator-then-several" class="level3">
+<h3 class="anchored" data-anchor-id="one-indicator-then-several">One indicator, then several</h3>
+<p>Chapter 7, Section 3.3, fitted a single 0/1 predictor to 24 invented feedback-by-practice scores. The fitted line passed through the two group means, its slope was their difference, 4 with SE 1.6967 and <span class="math inline">\(t=2.3575\)</span> on 22 df, and that test was the equal-variance two-sample test written as a regression. The same idea extends to more than two groups.</p>
+<p>A factor with <span class="math inline">\(J\)</span> levels enters a regression as <span class="math inline">\(J-1\)</span> indicator columns. One level is omitted and becomes the <strong>reference</strong>: the intercept is its fitted mean, and each indicator coefficient is a difference from it. With three occupation types and blue-collar as the reference,</p>
+<p><span class="math display">\[
+\widehat y_g=\widehat\beta_0+\widehat\delta_{\mathrm{prof}}D_{\mathrm{prof}}
++\widehat\delta_{\mathrm{wc}}D_{\mathrm{wc}},\qquad
+\widehat\mu_{\mathrm{bc}}=\widehat\beta_0,\quad
+\widehat\mu_{\mathrm{prof}}=\widehat\beta_0+\widehat\delta_{\mathrm{prof}},\quad
+\widehat\mu_{\mathrm{wc}}=\widehat\beta_0+\widehat\delta_{\mathrm{wc}}.
+\]</span></p>
+<p>Two indicators, not three, carry three means. A third column would equal the intercept column minus the other two, so the design matrix would lose full rank and no coefficient would be separately estimable. Which level is omitted is a choice of coordinates, not a choice of model.</p>
+<p>The working data <code>d</code> retain the 98 occupations in <code>carData::Prestige</code> with a recorded type. Income divided by 1,000 gives <code>income_k</code> in thousand 1971 Canadian dollars, and the factor order is blue-collar, professional, then white-collar, so blue-collar is the reference. On these same rows, <code>m0</code>, <code>m1</code>, and <code>m2</code> name the education-only, the education-and-prestige, and the full additive models:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>m0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education, <span class="at">data =</span> d)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> prestige, <span class="at">data =</span> d)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> prestige <span class="sc">+</span> women <span class="sc">+</span> type, <span class="at">data =</span> d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The 98 records hold 44 blue-collar, 31 professional, and 23 white-collar occupations, and the full model fits six coefficients, leaving 92 residual degrees of freedom. The rows were chosen because their records are complete, not sampled at random from a labour market <span class="citation" data-cites="carData2022 fox2019">(<a href="#ref-carData2022" role="doc-biblioref">Fox et al., 2022</a>; <a href="#ref-fox2019" role="doc-biblioref">Fox &amp; Weisberg, 2019</a>)</span>.</p>
+</section>
+<section id="what-the-indicator-coefficients-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-the-indicator-coefficients-mean">What the indicator coefficients mean</h3>
+<p>Fit income on type alone and read the coefficients against <a href="#fig-ch9-indicators" class="quarto-xref">Figure&nbsp;1</a>. A blue-collar occupation carries 0 in both indicator columns, a professional one a 1 in the first, and a white-collar one a 1 in the second, so each type’s fitted value is the intercept plus that type’s coefficient.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>group_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> type, <span class="at">data =</span> d)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(group_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)    typeprof      typewc 
+   5.374136    5.185315   -0.321832 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-indicators" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Jittered open circles of income in thousand dollars for 44 blue-collar, 31 professional and 23 white-collar occupations, with a thick bar at each group mean, about 5.37, 10.56 and 5.05. A dashed horizontal line at the blue-collar mean runs across the plot. An upward arrow from the dashed line to the professional mean is labeled 5.1853 higher and a short downward arrow to the white-collar mean is labeled 0.3218 lower. Professional incomes spread from about 4.6 to 25.9 thousand dollars; the other two types stay below 9." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-indicators-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Jittered open circles of income in thousand dollars for 44 blue-collar, 31 professional and 23 white-collar occupations, with a thick bar at each group mean, about 5.37, 10.56 and 5.05. A dashed horizontal line at the blue-collar mean runs across the plot. An upward arrow from the dashed line to the professional mean is labeled 5.1853 higher and a short downward arrow to the white-collar mean is labeled 0.3218 lower. Professional incomes spread from about 4.6 to 25.9 thousand dollars; the other two types stay below 9." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-indicators-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Income of the 98 occupations by type. Bars mark the group means; the dashed line is the blue-collar mean, the intercept, and the arrows are the two indicator coefficients, 5.1853 and −0.3218.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The coefficients are 5.3741, 5.1853, and <span class="math inline">\(-0.3218\)</span>. The intercept is the blue-collar mean, the dashed line in the figure, and each coefficient is an arrow from that line to another type’s mean: professional occupations average 5.1853 thousand dollars more, white-collar occupations 0.3218 less. The fitted means, 5.3741, 10.5595, and 5.0523, are exactly the observed means, for the reason Chapter 8, Appendix A, gave: with one free parameter per group, least squares returns each group’s own mean. A group-only regression is therefore a description of three means, with no adjustment in it. The figure also shows the wide spread of professional incomes, from about 4.6 to 25.9 thousand dollars, which Section 5 takes up.</p>
+<p>Keep this description apart from the full model. In <code>m2</code> the professional and white-collar coefficients are 0.3242 and 0.2353: they compare fitted incomes at the <em>same</em> education, prestige, and percentage of women. The raw professional advantage of 5.1853 and the adjusted 0.3242 answer different questions, and neither is “the effect of occupational type”.</p>
+</section>
+<section id="changing-the-reference-level" class="level3">
+<h3 class="anchored" data-anchor-id="changing-the-reference-level">Changing the reference level</h3>
+<p><strong>Releveling</strong> makes a different level the reference. Refit the group-only model with white-collar as the reference:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>group_fit_wc <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> <span class="fu">relevel</span>(type, <span class="at">ref =</span> <span class="st">"wc"</span>), <span class="at">data =</span> d)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(group_fit_wc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  (Intercept)   relevel(type, ref = "wc")bc 
+                     5.052304                      0.321832 
+relevel(type, ref = "wc")prof 
+                     5.507147 </code></pre>
+</div>
+</div>
+<p>The coefficients are now 5.0523, 0.3218, and 5.5071: the intercept is the white-collar mean, and the two coefficients measure the blue-collar and professional means from it. The fitted values and residuals are unchanged (Chapter 8, Appendix A); the same three means are reported in new coordinates. Releveling <code>m2</code> in the same way gives intercept 0.6559, blue-collar <span class="math inline">\(-0.2353\)</span>, and professional 0.0889, while the education, prestige, and women coefficients stay exactly as they were.</p>
+<p>Centering a continuous predictor (Chapter 7, Section 2.5, and Chapter 8, Appendix A), subtracting a constant such as its mean, is the same kind of change: it moves the profile the intercept describes and leaves every fitted value, residual, and substantive contrast alone. Neither operation adds information, such as the cross-type support the records lack, and “the professional coefficient” always means professional minus whichever level is currently the reference.</p>
+</section>
+<section id="one-way-analysis-of-variance-as-a-regression" class="level3">
+<h3 class="anchored" data-anchor-id="one-way-analysis-of-variance-as-a-regression">One-way analysis of variance as a regression</h3>
+<p>Chapter 4, Sections 2.2–2.4, compared one common mean with separate group means through between-group and within-group variation. In the group-only regression, equal means says that both indicator coefficients are zero. The between-group sum of squares is <span class="math inline">\(SS_B=595.9562\)</span> on <span class="math inline">\(J-1=2\)</span> degrees of freedom. The within-group sum of squares is the group-only model’s residual sum of squares, <span class="math inline">\(SS_W=1138.123\)</span> on <span class="math inline">\(N-J=95\)</span> degrees of freedom. The familiar calculation is</p>
+<p><span class="math display">\[
+F=\frac{MS_B}{MS_W}=\frac{SS_B/(J-1)}{SS_W/(N-J)}
+=\frac{595.9562/2}{1138.123/95}=24.8725,\qquad
+\eta^2=\frac{SS_B}{SS_T}=.3437.
+\]</span></p>
+<p>The regression and ANOVA describe the same fitted means, so eta squared is also the group-only regression’s <span class="math inline">\(R^2\)</span>. Chapter 6, Sections 1.3 and 3.2, fitted and compared these kinds of models in R. Here the reduced model has only an intercept and the fuller one has two indicators; Section 3.1 generalizes their comparison.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(<span class="fu">lm</span>(income_k <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d), group_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Res.Df</th>
+<th style="text-align: right;">RSS</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Sum of Sq</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">1734.079</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">95</td>
+<td style="text-align: right;">1138.123</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">595.9562</td>
+<td style="text-align: right;">24.87246</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p><code>aov()</code> returns the same statistic from the same fitted means, residual sum of squares, and degrees of freedom. The equality is algebraic: it holds whether or not group membership was randomized, so it supplies no causal warrant of its own. As in Chapter 4, the omnibus <span class="math inline">\(F\)</span> says that the three means are not all equal but not which differ, and a comparison chosen after seeing it needs Chapter 4’s family calibration. A declared comparison needs no significant omnibus result first; the next subsection gives its calculation.</p>
+</section>
+<section id="a-contrast-and-its-standard-error" class="level3">
+<h3 class="anchored" data-anchor-id="a-contrast-and-its-standard-error">A contrast and its standard error</h3>
+<p>A <strong>linear contrast</strong> writes a comparison as a linear combination of coefficients, <span class="math inline">\(C=\mathbf c^{\mathsf T}\boldsymbol\beta\)</span>. For a comparison declared before the results are read, the estimate is that same combination of the fitted coefficients, and its variance uses the whole coefficient covariance matrix <span class="math inline">\(\widehat{\mathbf V}\)</span>:</p>
+<p><span class="math display">\[
+\widehat C=\mathbf c^{\mathsf T}\widehat{\boldsymbol\beta},\qquad
+\widehat{\operatorname{Var}}(\widehat C)=\mathbf c^{\mathsf T}\widehat{\mathbf V}\mathbf c,\qquad
+SE(\widehat C)=\sqrt{\mathbf c^{\mathsf T}\widehat{\mathbf V}\mathbf c}.
+\]</span></p>
+<p>For a difference of two coefficients, the variance is the sum of their two variances minus twice their covariance. The group-only comparison makes the covariance visible. Professional minus white-collar is <span class="math inline">\(\widehat\delta_{\mathrm{prof}}-\widehat\delta_{\mathrm{wc}}=5.5071\)</span>, with <span class="math inline">\(\mathbf c=(0,1,-1)^{\mathsf T}\)</span>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>c_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> <span class="fu">vcov</span>(group_fit)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> <span class="fu">sum</span>(c_vec <span class="sc">*</span> <span class="fu">coef</span>(group_fit)),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE =</span> <span class="fu">sqrt</span>(<span class="fu">drop</span>(c_vec <span class="sc">%*%</span> V <span class="sc">%*%</span> c_vec)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> estimate        SE 
+5.5071473 0.9525437 </code></pre>
+</div>
+</div>
+<p>Both coefficients measure a group mean from the <em>same blue-collar mean</em>. If a sample overstates that reference mean, both coefficients fall together. Their covariance, 0.2723, is the variance of the shared mean, <span class="math inline">\(MS_W/44\)</span>. It drops out when the two coefficients are subtracted:</p>
+<p><span class="math display">\[
+\widehat{\operatorname{Var}}(\widehat C)
+=0.6587+0.7932-2(0.2723)=0.9073
+=MS_W\left(\frac1{31}+\frac1{23}\right).
+\]</span></p>
+<p>Thus the SE is 0.9525 and, with <span class="math inline">\(t_{.975,95}=1.9853\)</span>, the pointwise 95% interval is <span class="math inline">\([3.6161,\ 7.3982]\)</span>. Omitting the covariance gives an SE of 1.2049; adding the two SEs gives 1.7022, which is not the SE of this contrast. The covariance is part of the comparison, not a correction added after it.</p>
+<p>The same formula applies to <code>m2</code> with <span class="math inline">\(\mathbf c=(0,0,0,0,1,-1)^{\mathsf T}\)</span>: the estimate is 0.0889, its SE 1.08, and its pointwise 95% interval <span class="math inline">\([-2.0561,\ 2.2338]\)</span> (<span class="math inline">\(t_{.975,92}=1.9861\)</span>). Sections 1.2–1.3 explain why the raw 5.5071 becomes 0.0889 when education, prestige, and the percentage of women are held fixed. This interval covers zero and leaves the adjusted comparison unresolved; it is a working-model calculation among types with thin joint support (Chapter 8). Exercise 2 practices its covariance-based variance.</p>
+<p>The vector <span class="math inline">\(\mathbf c\)</span> states the question. One entry set to 1 returns an ordinary coefficient; weights on type coefficients with intercept weight zero express contrasts between group means in Chapter 4’s sense. The vector changes with the reference coding, but a named comparison does not: the releveled <code>m2</code> in Section 1.3 gave 0.0889 directly. Declaring a comparison before reading its result governs the calibration, not whether it is a contrast. A comparison selected after inspecting the output needs the family calibration of Chapter 4, Section 3.3, whose R calculations appear in Chapter 6, Section 2.</p>
+</section>
+</section>
+<section id="sec-ch9-contrasts" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-contrasts">Adjusted Group Comparisons: The Analysis of Covariance</h2>
+<section id="ch09-ancova" class="level3">
+<h3 class="anchored" data-anchor-id="ch09-ancova">A regression with one common slope</h3>
+<p>The occupation types differ in many ways at once. A randomized study with a baseline score lets the group question be asked more sharply. Baumann and colleagues randomly assigned 68 fourth-grade pupils in one school to three reading-instruction conditions <span class="citation" data-cites="baumann1992">(<a href="#ref-baumann1992" role="doc-biblioref">Baumann et al., 1992</a>)</span>: DRA, a directed reading activity from the basal program; DRTA, a directed reading-thinking activity; and think-aloud strategy instruction. Each pupil took an error-detection test of comprehension monitoring before and after the lessons. <code>carData::Baumann</code> holds the 66 pupils with a recorded first posttest, 22 per group. We use the first pretest and posttest, with DRA as the reference; the investigators also analyzed further outcomes and both pretests.</p>
+<p>The <strong>analysis of covariance</strong> adds the pretest to the group comparison as one more predictor with a single slope:</p>
+<p><span class="math display">\[
+Y_{ij}=\mu_j+\beta(X_{ij}-\bar X)+\varepsilon_{ij},\qquad
+\bar Y_j^{\,\mathrm{adj}}=\bar Y_j-\widehat\beta(\bar X_j-\bar X).
+\]</span></p>
+<p>Here <span class="math inline">\(Y_{ij}\)</span> and <span class="math inline">\(X_{ij}\)</span> are the posttest and pretest of pupil <span class="math inline">\(i\)</span> in group <span class="math inline">\(j\)</span>. The group terms <span class="math inline">\(\mu_j\)</span> shift the line up or down, and the pretest enters once, so every group’s line has the same slope <span class="math inline">\(\beta\)</span>. An <strong>adjusted mean</strong> is a group’s fitted mean at a stated pretest value. At the grand pretest mean <span class="math inline">\(\bar X\)</span> it is the observed posttest mean <span class="math inline">\(\bar Y_j\)</span> moved along the common slope by the group’s pretest departure from <span class="math inline">\(\bar X\)</span>, the second equation.</p>
+<p>The working data <code>reading</code> hold these 66 pupils, all with recorded first pretests and posttests. The package’s group codes <code>Basal</code>, <code>DRTA</code> and <code>Strat</code> are labeled DRA, DRTA and Think-aloud, with DRA as the reference. The prediction below evaluates each group’s line at the grand pretest mean.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ancova <span class="ot">&lt;-</span> <span class="fu">lm</span>(post.test<span class="fl">.1</span> <span class="sc">~</span> group <span class="sc">+</span> pretest<span class="fl">.1</span>, <span class="at">data =</span> reading)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(ancova)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     (Intercept)        groupDRTA groupThink-aloud        pretest.1 
+      -0.5966478        3.6265538        2.0361644        0.6931872 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>grand <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">group =</span> <span class="fu">levels</span>(reading<span class="sc">$</span>group),</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">pretest.1 =</span> <span class="fu">mean</span>(reading<span class="sc">$</span>pretest<span class="fl">.1</span>))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(ancova, <span class="at">newdata =</span> grand, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit      lwr       upr
+1 6.188185 5.143481  7.232889
+2 9.814739 8.779995 10.849482
+3 8.224349 7.181274  9.267425</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-ancova" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Gray points for DRA (circles), DRTA (triangles) and Think-aloud (squares) pupils, pretest from 4 to 16 and posttest from 1 to 15, slightly jittered. Three parallel fitted lines with slope about 0.69 run from pretest 6 to 14: DRTA highest, Think-aloud in the middle and DRA lowest. A vertical line marks the grand pretest mean 9.79, where open symbols mark the adjusted means. The DRA mean, a filled circle at pretest 10.5 and posttest 6.68, moves down its line to 6.19; the Think-aloud mean, at 9.14 and 7.77, moves up to 8.22; the DRTA mean, at 9.73 and 9.77, barely moves, to 9.81, so its filled and open triangles almost coincide." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-ancova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-ancova-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Gray points for DRA (circles), DRTA (triangles) and Think-aloud (squares) pupils, pretest from 4 to 16 and posttest from 1 to 15, slightly jittered. Three parallel fitted lines with slope about 0.69 run from pretest 6 to 14: DRTA highest, Think-aloud in the middle and DRA lowest. A vertical line marks the grand pretest mean 9.79, where open symbols mark the adjusted means. The DRA mean, a filled circle at pretest 10.5 and posttest 6.68, moves down its line to 6.19; the Think-aloud mean, at 9.14 and 7.77, moves up to 8.22; the DRTA mean, at 9.73 and 9.77, barely moves, to 9.81, so its filled and open triangles almost coincide." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-ancova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Posttest against pretest for the 66 Baumann pupils. The parallel lines are the common-slope fit over the common pretest support 6–14; each filled symbol marks a group’s observed pretest and posttest means, and its arrow follows the group’s line to the grand pretest mean 9.7879, where the open symbol marks the adjusted mean.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Read <a href="#fig-ch9-ancova" class="quarto-xref">Figure&nbsp;2</a> from each filled symbol, a group’s observed pretest and posttest means, to the open symbol on the vertical line, its adjusted mean. DRA happened to start highest, 0.7121 points above the grand pretest mean of 9.7879, so following its line to the grand mean lowers its posttest mean by <span class="math inline">\(0.6932\times0.7121\)</span>, from 6.6818 to 6.1882. Think-aloud started 0.6515 points below and rises from 7.7727 to 8.2243, while DRTA, almost at the grand mean, barely moves, from 9.7727 to 9.8147. The fit gives the common slope 0.6932 (SE 0.1015), differences from DRA of 3.6266 (SE 0.7362) for DRTA and 2.0362 (SE 0.7450) for Think-aloud, and a residual mean square of 5.894 on 62 degrees of freedom. Tested together after the pretest, the two group coefficients give <span class="math inline">\(F(2,62)=12.1689\)</span>, <span class="math inline">\(p&lt;.0001\)</span>, a comparison of named models as in Chapter 6, Section 3.2, whose statistic Section 3.1 below develops. The adjusted means have 95% intervals <span class="math inline">\([5.1435,\ 7.2329]\)</span>, <span class="math inline">\([8.7800,\ 10.8495]\)</span>, and <span class="math inline">\([7.1813,\ 9.2674]\)</span>.</p>
+<p>Three conditions carry that reading. The adjusted means need a <strong>common reference</strong>, here the grand pretest mean. The reference must lie inside every group’s observed pretest range, the <strong>common support</strong>: the pretests run from 4 to 16, 6 to 16, and 4 to 14, so the lines are drawn over 6 to 14, and a comparison read outside that band would rest on extrapolation. And the comparison needs a stated <strong>averaging population</strong>: for this additive model, predicting every group at the grand pretest mean gives the same values as predicting every group at each of the 66 pupils’ pretests and averaging. Because the lines are parallel, the adjusted differences, 3.6266 and 2.0362, are the same at any pretest value inside the common support; the adjusted means are not, which is why the reference value is stated.</p>
+</section>
+<section id="ch09-ancova-pretest" class="level3">
+<h3 class="anchored" data-anchor-id="ch09-ancova-pretest">Three analyses of a pretest–posttest study</h3>
+<p>A randomized pretest–posttest study is often analyzed in one of three ways: compare the posttest means, compare the gains (posttest minus pretest), or adjust for the pretest as above. The three are one regression that differs only in the pretest coefficient <span class="math inline">\(\gamma\)</span>:</p>
+<p><span class="math display">\[
+Y_i-\gamma X_i=\beta_0+\delta_{\mathrm{DRTA}}D_{\mathrm{DRTA},i}
++\delta_{\mathrm{TA}}D_{\mathrm{TA},i}+\varepsilon_i,\qquad
+\gamma=0,\ 1,\ \text{or estimated}.
+\]</span></p>
+<p>With <span class="math inline">\(\gamma=0\)</span> the model compares posttest means, with <span class="math inline">\(\gamma=1\)</span> it compares gains, and with <span class="math inline">\(\gamma\)</span> estimated it is the analysis of covariance. In R, <code>offset()</code> enters the pretest with its coefficient fixed at 1:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>post_only <span class="ot">&lt;-</span> <span class="fu">lm</span>(post.test<span class="fl">.1</span> <span class="sc">~</span> group, <span class="at">data =</span> reading)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>gain <span class="ot">&lt;-</span> <span class="fu">lm</span>(post.test<span class="fl">.1</span> <span class="sc">~</span> group <span class="sc">+</span> <span class="fu">offset</span>(pretest<span class="fl">.1</span>), <span class="at">data =</span> reading)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Under random assignment the expected pretest difference between groups is zero. Subtracting a fixed multiple of the pretest therefore preserves the average group-comparison target. Under the common-slope working model, covariance adjustment estimates that same comparison while estimating the pretest slope from the records. Random assignment covered the 68 pupils assigned, while the analyses use the 66 with a recorded first posttest, so the argument also needs a complete-record condition, for example that the two posttests went missing for reasons unrelated to what those pupils would have scored, which the design does not guarantee and the records cannot check.</p>
+<div id="tbl-ch09-three-analyses" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,18,20,20,18]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-three-analyses-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Three analyses of the Baumann records as one regression.
+</figcaption>
+<div aria-describedby="tbl-ch09-three-analyses-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 18%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Analysis</th>
+<th style="text-align: left;">Pretest coefficient</th>
+<th style="text-align: left;">DRTA minus DRA (SE)</th>
+<th style="text-align: left;">Think-aloud minus DRA (SE)</th>
+<th style="text-align: left;">Residual SD (df)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Posttest only</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">3.0909 (0.9614)</td>
+<td style="text-align: left;">1.0909 (0.9614)</td>
+<td style="text-align: left;">3.1885 (63)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gain score</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3.8636 (0.7779)</td>
+<td style="text-align: left;">2.4545 (0.7779)</td>
+<td style="text-align: left;">2.5799 (63)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Analysis of covariance</td>
+<td style="text-align: left;">0.6932, estimated</td>
+<td style="text-align: left;">3.6266 (0.7362)</td>
+<td style="text-align: left;">2.0362 (0.7450)</td>
+<td style="text-align: left;">2.4278 (62)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The three analyses differ in precision and in how this sample’s chance pretest imbalance enters. The pretest means are 10.5000, 9.7273, and 9.1364, so DRA had a head start of 0.7727 points over DRTA, about a quarter of the pretest SD of 3.0205 across all 66 pupils. The size of that gap is what matters. A significance test of it would add nothing: random assignment already makes any baseline gap a chance gap, so the test would examine a null hypothesis known to be true. The gap accounts exactly for the spread of the estimates in <a href="#tbl-ch09-three-analyses" class="quarto-xref">Table&nbsp;1</a>: each DRTA estimate is the posttest-only difference plus <span class="math inline">\(\gamma\)</span> times DRA’s head start, <span class="math inline">\(3.0909+\gamma(10.5-9.7273)\)</span>, which gives 3.0909, 3.8636, and 3.6266 (3.6265 from the rounded inputs).</p>
+<p>Estimating the coefficient leaves the smallest residual SD, 2.4278 against 3.1885 and 2.5799, and the smallest standard errors, because the pretest predicts the posttest with a slope near 0.7 rather than 0 or 1. The choice belongs in the analysis plan, made before the outcomes are seen, not after comparing the three estimates.</p>
+</section>
+<section id="ch09-ancova-limits" class="level3">
+<h3 class="anchored" data-anchor-id="ch09-ancova-limits">Parallel slopes and the limits of adjustment</h3>
+<p>A common slope is a condition, not a finding. The check adds the group-by-pretest product block, which lets each group have its own slope, and compares the two named models on the same records (Chapter 6, Section 3.2; Section 3.1 below develops the general statistic):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>varying_slopes <span class="ot">&lt;-</span> <span class="fu">lm</span>(post.test<span class="fl">.1</span> <span class="sc">~</span> group <span class="sc">*</span> pretest<span class="fl">.1</span>, <span class="at">data =</span> reading)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(ancova, varying_slopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Res.Df</th>
+<th style="text-align: right;">RSS</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Sum of Sq</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">365.4307</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">347.9697</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">17.46099</td>
+<td style="text-align: right;">1.505389</td>
+<td style="text-align: right;">0.2301931</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The product block gives <span class="math inline">\(F(2,60)=1.5054\)</span>, <span class="math inline">\(p=.2302\)</span>, with group slopes of 0.4663 (DRA), 0.6868 (DRTA), and 0.8768 (Think-aloud). These 66 records do not distinguish the two models, which is not the same as showing that the slopes are equal. When slopes do differ, an adjusted difference depends on the pretest value at which it is read; Chapter 10 develops that varying-slope model as an interaction.</p>
+<p>What adjustment supplies depends on how the groups were formed. In groups formed by random assignment, the pretest only sharpens a comparison that the design already warrants. In observational groups, a fitted comparison at a common covariate value cannot balance what was not measured. In Section 1.2 the professional advantage fell from 5.1853 to 0.3242 at fixed education, prestige, and percentage of women, but neither number was an effect of type. A covariate measured with error can leave part of the baseline difference unadjusted (Chapter 14, Section 5.1); and a covariate recorded after the groups formed can remove part of the effect being estimated.</p>
+<p><strong>Lord’s paradox</strong> makes the point with intact groups that differ at baseline <span class="citation" data-cites="lord1967">(<a href="#ref-lord1967" role="doc-biblioref">Lord, 1967</a>)</span>. The gain-score analysis asks whether the groups changed by different amounts; the covariance analysis asks whether pupils with the same pretest ended differently. The two can reach opposite conclusions from the same records, partly through the regression toward the mean of Chapter 7, Section 7.2: groups that start apart each regress toward their own mean. Neither analysis says which question is the causal one; the design does, and Chapter 14 returns to what a design supplies that adjustment cannot.</p>
+</section>
+</section>
+<section id="sec-ch9-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-comparison">Comparing Models and Predictors</h2>
+<section id="comparing-residual-sums-of-squares" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-residual-sums-of-squares">Comparing residual sums of squares</h3>
+<p>Chapter 4 compared one common mean with group means (Sections 2.2–2.3) and additive with interaction models (Section 4.4); Chapter 6 fitted those comparisons in R (Sections 1.3 and 3.2). This section develops the general question on the occupation records: what does each mean part permit, and what restrictions distinguish them? Two models are <strong>nested</strong> when the reduced model is the fuller model with some coefficients set to zero, and both are fitted to the same records and outcome. Extra coefficients never raise the residual sum of squares; the question is whether they lower it by more than noise alone would. The <strong>extra-sum-of-squares</strong> statistic compares the two residual sums of squares:</p>
+<p><span class="math display">\[
+F=\frac{(RSS_{R}-RSS_{F})/q}{RSS_{F}/(n-p)}.
+\]</span></p>
+<p>The numerator is the drop that the <span class="math inline">\(q\)</span> extra coefficients buy, per coefficient. The denominator is the fuller model’s residual mean square, with <span class="math inline">\(p\)</span> its number of coefficients: the same <span class="math inline">\(s^2\)</span> that appears in every classical standard error. When the reduced-model restrictions hold, under the Normal linear model with independent common-variance errors, the ratio has an exact central <span class="math inline">\(F\)</span> reference with <span class="math inline">\(q\)</span> and <span class="math inline">\(n-p\)</span> degrees of freedom.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-rss" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Horizontal bars of residual sum of squares for five nested models. The intercept-only bar is labeled RSS 1734.0792; adding education drops it by 571.5324, adding prestige by 294.8931, adding the percentage of women by 236.3266, and adding the two type columns by only 0.4375, so the last two bars look the same length." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-rss-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Horizontal bars of residual sum of squares for five nested models. The intercept-only bar is labeled RSS 1734.0792; adding education drops it by 571.5324, adding prestige by 294.8931, adding the percentage of women by 236.3266, and adding the two type columns by only 0.4375, so the last two bars look the same length." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Residual sum of squares as columns are added to the occupation model on the same 98 records; each label gives the drop that the added column or block buys.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-ch9-rss" class="quarto-xref">Figure&nbsp;3</a> shows what each addition buys in the occupation models. Education buys 571.5324 of the total 1734.0792, and prestige a further 294.8931. The percentage of women then buys 236.3266 for one coefficient, while the two type columns buy only 0.4375 for two. Against the full model’s residual mean square of 6.8575, the type block’s 0.4375 over two coefficients gives <span class="math inline">\(F(2,92)=0.0319\)</span>. Section 3.2 sets this beside the women-and-type comparison in <a href="#tbl-ch09-blocks" class="quarto-xref">Table&nbsp;2</a>. The subtraction means something only when both models use the same rows and the same outcome, which is why every comparison in this chapter runs on the same 98 records.</p>
+<p>The <strong>overall</strong> regression test is the special case whose reduced model is the intercept alone, with all <span class="math inline">\(p-1\)</span> non-intercept coefficients set to zero. Chapter 8, Section 3.3, gave its formula and read it from <code>summary(m2)$fstatistic</code>: <span class="math inline">\(F(5,92)=32.1747\)</span> for the full model and <span class="math inline">\(F(1,96)=47.1956\)</span> for the education-only model on the same records. The larger value is not evidence that <code>m0</code> is better, because the two statistics test different restrictions. Neither checks the mean function, and neither says how a fitted rule would predict new records (Chapter 13). The same statistic can also test any <span class="math inline">\(q\)</span> linear restrictions on one fitted model without fitting the reduced model; Appendix A develops that form.</p>
+</section>
+<section id="testing-a-block-of-coefficients" class="level3">
+<h3 class="anchored" data-anchor-id="testing-a-block-of-coefficients">Testing a block of coefficients</h3>
+<p>A <strong>block test</strong> applies the preceding statistic to a declared set of coefficients jointly. Two blocks ask different questions on these same 98 records: do women and type add to education and prestige, and does type add once women is already present?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>no_type <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> prestige <span class="sc">+</span> women, <span class="at">data =</span> d)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(m1, m2)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(no_type, m2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Adding the percentage of women and the two type indicators to <code>m1</code> tests three restrictions against the full model’s 92 residual degrees of freedom; dropping type from the full model tests two restrictions against the same denominator.</p>
+<div id="tbl-ch09-blocks" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[40,15,20,25]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-blocks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Two declared adjusted block comparisons.
+</figcaption>
+<div aria-describedby="tbl-ch09-blocks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 15%">
+<col style="width: 20%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Added</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;"><span class="math inline">\(F\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(p\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Women and type</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">11.5088</td>
+<td style="text-align: right;"><span class="math inline">\(&lt;.0001\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Type after women</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.0319</td>
+<td style="text-align: right;">.9686</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The first block is strongly supported: <span class="math inline">\(F(3,92)=11.5088\)</span> against a 5% critical value of 2.7036. The second is not: <span class="math inline">\(F(2,92)=0.0319\)</span>, <span class="math inline">\(p=.9686\)</span>, against 3.0954. Joint evidence for the first block does not show that each added column contributes; the percentage of women could carry the whole block. The second result does not show that occupational type is irrelevant: once education, prestige, and the percentage of women are in the equation, the two type indicators reduce the residual sum of squares by almost nothing <em>on these 98 records</em>, where the types barely overlap on the other predictors.</p>
+<p>A single <code>anova(m2)</code> answers a different question. It gives <strong>sequential</strong> sums of squares: each line tests a term given only the terms above it in the formula, so the answers depend on the order of the formula, and only the last line matches a block test. Section 5.2 gives the robust version of the type block.</p>
+</section>
+<section id="information-criteria-aic-and-bic" class="level3">
+<h3 class="anchored" data-anchor-id="information-criteria-aic-and-bic">Information criteria: AIC and BIC</h3>
+<p>A nested <span class="math inline">\(F\)</span> test compares two models when one contains the other. Information criteria can also rank models that are not nested, using a different quantity: the maximized likelihood, penalized for the number of fitted parameters.</p>
+<p>Chapter 8, Appendix B, built that likelihood for these models from independent Normal outcomes around the regression. Maximizing it over the coefficients reproduces least squares. Its scale estimate divides the residual sum of squares by <span class="math inline">\(n\)</span>, <span class="math inline">\(\sqrt{RSS/n}=2.5373\)</span>, where the residual SD reported by <code>lm()</code> divides by the residual degrees of freedom, <span class="math inline">\(\sqrt{RSS/(n-p)}=2.6187\)</span>. AIC adds <span class="math inline">\(2k\)</span> to <span class="math inline">\(-2\log\widehat L\)</span> and BIC adds <span class="math inline">\(k\log n\)</span>, where <span class="math inline">\(k\)</span> counts the fitted coefficients <strong>and</strong> the residual variance, so <code>m2</code> has <span class="math inline">\(k=7\)</span>, not 6. One call returns all three quantities:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">logLik =</span> <span class="fu">logLik</span>(m2), <span class="at">AIC =</span> <span class="fu">AIC</span>(m2), <span class="at">BIC =</span> <span class="fu">BIC</span>(m2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   logLik       AIC       BIC 
+-230.3020  474.6040  492.6988 </code></pre>
+</div>
+</div>
+<p>For <code>m2</code> the call returns <span class="math inline">\(-230.3020\)</span>, 474.6040, and 492.6988. Chapter 8, Appendix B, tabulates <code>m0</code>, <code>m1</code>, and <code>m2</code>. The new use here compares candidates that are <strong>not nested</strong>: income on education and the percentage of women (AIC 486.3288, BIC 496.6687), and income on prestige and the percentage of women (AIC 469.3428, BIC 479.6827). Neither model contains the other, so no nested <span class="math inline">\(F\)</span> compares them. Both have <span class="math inline">\(k=4\)</span>; the penalties cancel, and the criteria prefer prestige with women because it fits these records better.</p>
+<p>Set <code>m2</code> beside that pair: its AIC 474.6040 and BIC 492.6988 are both higher than the prestige-and-women model’s. Its three further coefficients, education and the two type indicators, do not buy enough fit to pay their penalty. Section 3.2’s type block and Section 3.4’s education comparison show why. Adjusted <span class="math inline">\(R^2\)</span> gives the same order: .5549, .6257, and .6164 for education with women, prestige with women, and <code>m2</code>. A ranking is always relative to the candidates offered.</p>
+<p>The two criteria charge differently for parameters. For the seven parameters of <code>m2</code>, BIC charges <span class="math inline">\(7\log 98=32.0948\)</span> instead of AIC’s 14, because at <span class="math inline">\(n=98\)</span> the factor <span class="math inline">\(\log n=4.585\)</span> exceeds 2, so the criteria can disagree; a disagreement shows how strongly the extra parameters are charged, not a tie to break by preference. The criteria are comparable only among models fitted to the same records, with the same outcome on the same scale, under one likelihood convention; Section 4.2 shows a change of scale breaking the comparison. Both are calculated on the records that fitted the models, so neither is a held-out error, and both are comparative: a smaller AIC says one candidate is preferred to another, not that either describes the records well <span class="citation" data-cites="akaike1974 schwarz1978">(<a href="#ref-akaike1974" role="doc-biblioref">Akaike, 1974</a>; <a href="#ref-schwarz1978" role="doc-biblioref">Schwarz, 1978</a>)</span>. Chapter 11 develops likelihood fully.</p>
+</section>
+<section id="what-each-predictor-adds" class="level3">
+<h3 class="anchored" data-anchor-id="what-each-predictor-adds">What each predictor adds</h3>
+<p>Raw slopes use different units. The education slope, 0.1164 thousand dollars per year, looks similar to the prestige slope, 0.1406 per rating point, but a year and a point are different changes. Their predictor SDs are 2.7489 years and 17.0949 points; the percentage of women’s SD is 31.382 percentage points and income’s is 4.2281 thousand dollars. Two summaries answer different questions:</p>
+<p><span class="math display">\[
+\beta_j^{*}=\widehat\beta_j\frac{s_{x_j}}{s_y},\qquad
+\Delta R^2_j=R^2_{\mathrm{full}}-R^2_{\mathrm{without}\ j}.
+\]</span></p>
+<p>A <strong>standardized coefficient</strong>, or beta weight, rescales a partial slope into outcome-SD units per predictor SD. The values are 0.0757 for education, 0.5685 for prestige, and <span class="math inline">\(-0.3971\)</span> for women. This differs from Chapter 8’s standardization over named profiles: that operation averages fitted outcomes over a stated population, while these beta weights change the units of slopes. Their values depend on the spread of the predictors in these particular records.</p>
+<p>A <strong>drop-one <span class="math inline">\(R^2\)</span></strong> asks how much of the full model’s explained variation disappears when one predictor is removed. From the full <span class="math inline">\(R^2=.6362\)</span>, the drops are .0007 for education, .0625 for prestige, and .1212 for women. Each is Section 3.2’s one-column block comparison on a different scale: the corresponding <span class="math inline">\(F(1,92)\)</span> values are 0.1790, 15.8070, and 30.6593, each the square of its coefficient’s <span class="math inline">\(t\)</span>. Education’s near-zero drop describes the same limited unique contribution as its wide coefficient interval.</p>
+<p>Neither summary measures importance. Restricted predictor ranges can shrink standardized coefficients. Overlapping predictor information means that the drop-one values need not sum to the joint <span class="math inline">\(R^2\)</span>; a predictor that duplicates another can contribute almost nothing uniquely while still being substantively relevant. Neither summary establishes a causal ranking or held-out value. Name the comparison before reading the number.</p>
+</section>
+</section>
+<section id="sec-ch9-forms" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-forms">Changing a Predictor’s Form or the Outcome’s Scale</h2>
+<section id="adding-a-squared-term" class="level3">
+<h3 class="anchored" data-anchor-id="adding-a-squared-term">Adding a squared term</h3>
+<p>In every model so far, a continuous predictor’s slope was the same at every value of that predictor. Chapter 8, Section 4.3, refitted the full model with a squared prestige term, and that refit is the worked example here. It was a check on functional form declared before it was run, not a search across candidate terms for the smallest p-value; a p-value read after such a search would not mean what it appears to mean. A squared term is one kind of <strong>polynomial term</strong>, a power of a predictor entered as an ordinary extra column, here <code>I(prestige^2)</code>, and the model is still linear in its coefficients. What changes is the reading:</p>
+<p><span class="math display">\[
+E(Y\mid x,\ldots)=\beta_0+\beta_1x+\beta_2x^2+\cdots,\qquad
+\frac{\partial E(Y)}{\partial x}=\beta_1+2\beta_2x,\qquad
+x^{*}=-\frac{\beta_1}{2\beta_2}.
+\]</span></p>
+<p>The predictor’s slope now depends on its own value, <span class="math inline">\(\beta_1+2\beta_2x\)</span>, and is zero at the turning point <span class="math inline">\(x^{*}\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>m2q <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> prestige <span class="sc">+</span> <span class="fu">I</span>(prestige<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> women <span class="sc">+</span> type,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(m2, m2q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Res.Df</th>
+<th style="text-align: right;">RSS</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Sum of Sq</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">630.8897</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">587.4085</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">43.48117</td>
+<td style="text-align: right;">6.736004</td>
+<td style="text-align: right;">0.0110146</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-quadratic" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Open gray circles for the 98 occupations, prestige from 17.3 to 87.2 on the horizontal axis and component plus residual from about −6 to 18 on the vertical axis. A solid curve rises slowly at low prestige and more steeply at high prestige; a dashed straight line crosses it twice. Black dots on the curve at prestige 30, 50 and 70 carry the labels slope 0.0697, slope 0.1665 and slope 0.2633." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-quadratic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-quadratic-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Open gray circles for the 98 occupations, prestige from 17.3 to 87.2 on the horizontal axis and component plus residual from about −6 to 18 on the vertical axis. A solid curve rises slowly at low prestige and more steeply at high prestige; a dashed straight line crosses it twice. Black dots on the curve at prestige 30, 50 and 70 carry the labels slope 0.0697, slope 0.1665 and slope 0.2633." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-quadratic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Component-plus-residual display for prestige in the model with a squared prestige term. The solid curve is the fitted quadratic component and the dashed line the linear component of the additive model; the labels give the curve’s slope at prestige 30, 50 and 70.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The quadratic coefficient is 0.0024 with SE 0.0009 and <span class="math inline">\(t=2.5954\)</span>; the one-restriction block test gives <span class="math inline">\(F(1,91)=6.736\)</span> with <span class="math inline">\(p=.011\)</span>; and the criteria move from 474.6040 and 492.6988 to 469.6058 and 490.2855. The education coefficient changes from 0.1164 to <span class="math inline">\(-0.0298\)</span>, a reminder that each coefficient is defined relative to the other columns present.</p>
+<p><a href="#fig-ch9-quadratic" class="quarto-xref">Figure&nbsp;4</a>, Chapter 8’s component-plus-residual display with the fitted curve added, shows what the squared term claims. With linear coefficient <span class="math inline">\(-0.0754\)</span> and quadratic coefficient 0.0024, the curve’s slope is 0.0697 thousand dollars per prestige point at prestige 30, 0.1665 at 50, and 0.2633 at 70: income rises with prestige throughout the records, and faster at the top, where the straight line falls below several high-prestige occupations. The turning point, 15.5906, lies below the smallest observed prestige of 17.3, so the falling branch of the parabola is outside the records. The coordinate <span class="math inline">\(-0.0754\)</span> is the slope at prestige zero, a value no occupation has, so it is not a “negative prestige effect”.</p>
+<p>Centering fixes that reading without changing the curve, because it is a change of coordinates. Prestige and its square correlate .9849; centering prestige at its mean, 47.3276, before squaring lowers that correlation to .3216. The quadratic coefficient and its SE stay 0.0024 and 0.0009, and every fitted value stays the same. The linear coefficient becomes 0.1536 with SE 0.0347: the slope at mean prestige, a different quantity from the slope at prestige zero, whose SE is about 2.6 times as large. The smaller SE belongs to a slope read in the middle of the records, not to a sharper estimate of the old one.</p>
+</section>
+<section id="a-log-transformed-outcome" class="level3">
+<h3 class="anchored" data-anchor-id="a-log-transformed-outcome">A log-transformed outcome</h3>
+<p>Changing a predictor’s form keeps the question. Changing the outcome’s scale changes it.</p>
+<p><span class="math display">\[
+\log Y_i=\beta_0+\sum_j\beta_jx_{ij}+\varepsilon_i,\qquad
+100\,(e^{\beta_j}-1)\ \text{percent per unit of } x_j .
+\]</span></p>
+<p>A coefficient in a log-income model is an additive difference in expected log income. Exponentiating turns it into a multiplicative difference in geometric-mean income under that model, and <span class="math inline">\(100(e^{\widehat\beta}-1)\)</span> expresses the multiplier as a percentage. The geometric mean is not the arithmetic mean, so this is not automatically a statement about average income in dollars.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>m_log <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(income) <span class="sc">~</span> education <span class="sc">+</span> prestige <span class="sc">+</span> women <span class="sc">+</span> type, <span class="at">data =</span> d)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="dv">100</span> <span class="sc">*</span> (<span class="fu">exp</span>(<span class="fu">coef</span>(m_log)[<span class="fu">c</span>(<span class="st">"education"</span>, <span class="st">"prestige"</span>, <span class="st">"women"</span>)]) <span class="sc">-</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> education   prestige      women 
+ 0.7660700  2.0964846 -0.8429719 </code></pre>
+</div>
+</div>
+<div id="tbl-ch09-log" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[22,22,18,19,19]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Log-model contrasts on a geometric-mean percent scale.
+</figcaption>
+<div aria-describedby="tbl-ch09-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term</th>
+<th style="text-align: right;">Log coefficient</th>
+<th style="text-align: right;">Percent</th>
+<th style="text-align: right;">Lower</th>
+<th style="text-align: right;">Upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">education</td>
+<td style="text-align: right;">0.0076</td>
+<td style="text-align: right;">0.7661</td>
+<td style="text-align: right;"><span class="math inline">\(-4.2041\)</span></td>
+<td style="text-align: right;">5.9941</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">prestige</td>
+<td style="text-align: right;">0.0207</td>
+<td style="text-align: right;">2.0965</td>
+<td style="text-align: right;">1.4351</td>
+<td style="text-align: right;">2.7622</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">women</td>
+<td style="text-align: right;"><span class="math inline">\(-0.0085\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(-0.8430\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(-1.0189\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(-0.6667\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>One more prestige point is associated with about 2.0965 percent higher geometric-mean income at the same education, percentage of women, and type, with interval <span class="math inline">\([1.4351,\ 2.7622]\)</span> percent; one more percentage point of women with about <span class="math inline">\(-0.843\)</span> percent. The two type coefficients, <span class="math inline">\(-0.0137\)</span> and 0.0708 on the log scale, are <span class="math inline">\(-1.3584\)</span> and 7.3341 percent. The intervals in <a href="#tbl-ch09-log" class="quarto-xref">Table&nbsp;3</a> are the classical log-scale intervals with both endpoints transformed, which is legitimate because the transformation is monotone.</p>
+<p>The criteria do not carry across this change. This model’s AIC is 8.091 against 474.604 for <code>m2</code>, and the difference means nothing: the two likelihoods are densities of different response variables. Keep the outcome and the question fixed inside any comparison, and treat a change of scale as a new question rather than as data cleaning <span class="citation" data-cites="fox2019">(<a href="#ref-fox2019" role="doc-biblioref">Fox &amp; Weisberg, 2019</a>)</span>.</p>
+<p>On the log scale, the professional residual SD is 0.3276, against 0.1937 for blue-collar and 0.1607 for white-collar occupations. On the income scale the corresponding SDs are 4.3242, 1.0437, and 1.0243. The new scale evens the spread only partly, and also changes the question. The next section keeps the question and changes the uncertainty.</p>
+</section>
+</section>
+<section id="sec-ch9-hc3" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-hc3">Robust Standard Errors for Unequal Spread</h2>
+<p>The first half changed or compared the mean part. This half keeps that mean part and revisits the error conditions: classical standard errors rested on independent records and one common error variance. We first reconsider unequal spread, then dependence within schools. These sections can be read after Chapter 8 using the same occupation model.</p>
+<section id="unequal-spread-and-hc3-standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="unequal-spread-and-hc3-standard-errors">Unequal spread and HC3 standard errors</h3>
+<p>Every classical standard error so far assumed one common error variance for all 98 occupations. Keep the same records and fitted mean, but allow each record to contribute a different error variance. <strong>Must every coefficient’s SE grow? Which fitted quantities would change?</strong> Use the residual pattern and the SE comparison below to check the prediction.</p>
+<p><a href="#fig-ch9-spread" class="quarto-xref">Figure&nbsp;5</a> shows why one common variance is doubtful here.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-spread" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Jittered open circles of residuals in thousand dollars, one column per type, around a horizontal line at zero. Blue-collar and white-collar residuals stay between about −2.4 and 2.6, with SDs 1.0437 and 1.0243; professional residuals run from about −7.8 to 14.2, with SD 4.3242." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-spread-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Jittered open circles of residuals in thousand dollars, one column per type, around a horizontal line at zero. Blue-collar and white-collar residuals stay between about −2.4 and 2.6, with SDs 1.0437 and 1.0243; professional residuals run from about −7.8 to 14.2, with SD 4.3242." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Residuals of the full occupation model by type, with each type’s residual SD.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The residuals of professional occupations spread about four times as widely as the others: their SD is 4.3242 thousand dollars against 1.0437 for blue-collar and 1.0243 for white-collar occupations. A single <span class="math inline">\(s^2\)</span> averages these spreads, so it overstates the uncertainty contributed by some rows and understates it for others.</p>
+<p>A short graph shows the same comparison: <code>resid(m2)</code> supplies the fitted residuals, and <code>type</code> puts each occupation in its group. The finished figure adds a zero line, labels and a small horizontal displacement so that overlapping points remain visible.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(type, <span class="fu">resid</span>(m2))) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>HC3 replaces the single pooled variance by each row’s squared residual, adjusted for its <strong>leverage</strong>: how unusual its predictor profile is relative to the other records. That adjustment allows for the smaller fitted residuals high-leverage rows can produce. The coefficient covariance combines these row contributions with the same predictor information used in the fit <span class="citation" data-cites="white1980 mackinnon1985 long2000 zeileis2004">(<a href="#ref-long2000" role="doc-biblioref">Long &amp; Ervin, 2000</a>; <a href="#ref-mackinnon1985" role="doc-biblioref">MacKinnon &amp; White, 1985</a>; <a href="#ref-white1980" role="doc-biblioref">White, 1980</a>; <a href="#ref-zeileis2004" role="doc-biblioref">Zeileis, 2004</a>)</span>. Appendix A derives the estimator.</p>
+<p>The following call compares the two SE calculations on the same <code>m2</code>. <code>vcov()</code> supplies the classical coefficient covariance, <code>diag()</code> extracts its variances, and their square roots are the SEs. <code>vcovHC()</code> replaces that covariance by HC3; the fitted coefficients are unchanged.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>V_hc3 <span class="ot">&lt;-</span> sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(m2, <span class="at">type =</span> <span class="st">"HC3"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>V_classical <span class="ot">&lt;-</span> <span class="fu">vcov</span>(m2)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>se_classical <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(V_classical))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>se_hc3 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(V_hc3))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">classical =</span> se_classical, <span class="at">HC3 =</span> se_hc3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The professional coefficient’s SE grows by about 43%, from 1.4631 to 2.0928, while the white-collar SE grows by about 7%, from 0.9848 to 1.0548. The education SE grows from 0.2752 to 0.3823, with robust 95% interval <span class="math inline">\([-0.6429,\ 0.8758]\)</span>: wider, with the same reading of an imprecise comparison. The SE for the percentage of women <em>falls</em>, from 0.0097 to 0.0079. The direction depends on how the residual spread and predictor profiles combine; wide spread in one group alone cannot tell us that every SE will rise.</p>
+<p>The prediction therefore needs two distinctions. HC3 changes the covariance, so it can raise or lower an SE; every coefficient, fitted value and residual stays exactly what it was. Switching estimators after seeing which gives the preferred conclusion turns a stated method into a selection. For Section 1.5’s group-only contrast, professional incomes spread about 2.8 times as widely as the least spread type, and HC3 raises the SE from 0.9525 to 1.0733.</p>
+</section>
+<section id="a-robust-block-test" class="level3">
+<h3 class="anchored" data-anchor-id="a-robust-block-test">A robust block test</h3>
+<p>A joint Wald test measures how far the fitted type coefficients lie from zero in units of their estimated covariance, divided by the number of restrictions. Appendix A gives its matrix form; with the classical covariance it reproduces Section 3.2’s block <span class="math inline">\(F\)</span>. Substituting <span class="math inline">\(\widehat{\mathbf V}_{\mathrm{HC3}}\)</span> for <span class="math inline">\(\widehat{\mathbf V}\)</span> gives an approximate Wald version of the same block test: for the type block, 0.0345 with <span class="math inline">\(p=.9661\)</span>, against the classical 0.0319 and .9686. Here the substitution changes nothing of substance, because the type coefficients sit close to the restriction, each within a quarter of its classical SE of zero, so both statistics are near zero and far below the .05 critical value, 3.0954. A change of covariance matters most when a statistic lies near its critical value. The two also differ in kind: the classical statistic has an exact <span class="math inline">\(F_{2,92}\)</span> reference under the Normal linear model, while the robust one has only an approximate reference, justified as the sample grows, not the exact finite-sample result of Section 3.2’s test.</p>
+</section>
+<section id="limits-of-robust-standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="limits-of-robust-standard-errors">Limits of robust standard errors</h3>
+<p>HC3 has one job: under a linear conditional mean and independent observations, it estimates the coefficient covariance without assuming a common error variance. Several problems lie outside that job.</p>
+<ul>
+<li><strong>Curvature.</strong> If the mean function is wrong, the coefficients estimate a different quantity (Appendix A names it), and a robust covariance describes that quantity’s variability without making it the quantity of interest.</li>
+<li><strong>Dependence.</strong> Rows that are not independent break the estimator’s own derivation. Section 7 shows a robust row-level SE and a naive one agreeing closely while both understate the uncertainty by nearly half.</li>
+<li><strong>Selection and causal identification.</strong> Selection and missing outcomes change what the records represent, and causal identification comes from the design or from an argument about the conditioning set.</li>
+<li><strong>Measurement error.</strong> With one predictor, independent classical measurement error attenuates its slope toward zero by the predictor’s reliability; with several predictors the direction of bias can differ. A different covariance estimator does not repair measurement error <span class="citation" data-cites="cohen2003">(<a href="#ref-cohen2003" role="doc-biblioref">Cohen et al., 2003</a>)</span>. Independent mean-zero error in the outcome widens the residual spread and the standard errors but leaves the slope’s target unchanged. Chapter 14, Section 5.1, develops attenuation.</li>
+<li><strong>Thin support.</strong> The type contrast’s robust SE of 1.1827 is still the uncertainty of a comparison the records barely observe.</li>
+</ul>
+<p>A report therefore names the covariance estimator and the reason for it, and keeps these limits attached to the answer.</p>
+</section>
+</section>
+<section id="sec-ch9-bootstrap" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-bootstrap">Resampling the Records</h2>
+<section id="choosing-what-to-resample" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-what-to-resample">Choosing what to resample</h3>
+<p>Every uncertainty statement so far came from a formula: a coefficient covariance matrix, classical or robust, propagated through a linear combination. The <strong>bootstrap</strong> offers a different approximation: refit the model to many resamples of the records and read the spread of the refitted estimates directly <span class="citation" data-cites="efron1979 efron1993 davison1997">(<a href="#ref-davison1997" role="doc-biblioref">Davison &amp; Hinkley, 1997</a>; <a href="#ref-efron1979" role="doc-biblioref">Efron, 1979</a>; <a href="#ref-efron1993" role="doc-biblioref">Efron &amp; Tibshirani, 1993</a>)</span>. What to resample is an assumption, not a default.</p>
+<p>Chapter 3, Appendix B, described the procedure: draw records with replacement, refit, repeat, and read the spread of the estimates. Here we choose <strong>case resampling</strong>, drawing whole occupation records, for two reasons. Their predictors were not designed, so records and predictors are naturally treated as sampled together. And their residual spread differs by type (<a href="#fig-ch9-spread" class="quarto-xref">Figure&nbsp;5</a>), which resampling whole rows preserves without one common error distribution <span class="citation" data-cites="freedman1981">(<a href="#ref-freedman1981" role="doc-biblioref">Freedman, 1981</a>)</span>. Appendix B compares the residual and wild schemes, which hold the design fixed and model the errors, on these same targets.</p>
+</section>
+<section id="case-resampling-for-the-full-model" class="level3">
+<h3 class="anchored" data-anchor-id="case-resampling-for-the-full-model">Case resampling for the full model</h3>
+<p>Resample the 98 rows with replacement, refit <code>m2</code>, and keep the education slope. Each selected row brings its outcome and all its predictors with it. One repetition can be shown in three lines: <code>rows</code> names the selected records, and <code>update()</code> refits the same model formula on those records.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">90909</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>rows <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(<span class="fu">nrow</span>(d), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">update</span>(m2, <span class="at">data =</span> d[rows, ]))[<span class="st">"education"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Repeat this operation <span class="math inline">\(B=2000\)</span> times and collect the slopes in <code>boot_education</code>. Their SD estimates the slope’s sampling SE; their 2.5th and 97.5th percentiles supply the percentile interval. The seed 90909 and repetition count belong in the record because another set of resamples gives slightly different summaries.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(boot_education)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(boot_education, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A histogram makes the repeated slopes visible. Its vertical scale is density, so it can be compared with the Normal reference curve added in <a href="#fig-ch9-bootstrap" class="quarto-xref">Figure&nbsp;6</a>. The simpler call shows the same resampling histogram without the reference curve and interval lines.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">slope =</span> boot_education), <span class="fu">aes</span>(slope)) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-bootstrap" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Histogram of refitted education slopes from about −1.2 to 1.1, centered near 0.1 and slightly longer on the left, with solid vertical lines at −0.683 and 0.744. A dashed Normal curve centered at 0.1164 is narrower and taller than the histogram." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-bootstrap-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Histogram of refitted education slopes from about −1.2 to 1.1, centered near 0.1 and slightly longer on the left, with solid vertical lines at −0.683 and 0.744. A dashed Normal curve centered at 0.1164 is narrower and taller than the histogram." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: The 2,000 case-resampled education slopes (seed 90909). Solid lines mark the percentile interval; the dashed curve is the Normal distribution with the classical SE 0.2752.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-ch9-bootstrap" class="quarto-xref">Figure&nbsp;6</a> is the resampling distribution itself. The 2,000 refitted slopes spread more widely than the Normal curve built from the classical SE: their SD, the bootstrap SE, is 0.3699, and their middle 95%, the percentile interval, runs from <span class="math inline">\(-0.683\)</span> to 0.744. The same resamples give the other two targets of <a href="#tbl-ch09-bootstrap" class="quarto-xref">Table&nbsp;4</a>, the professional-minus-white-collar contrast and the professional coefficient. A resample could omit a whole occupational type and lose a type coefficient; all 2,000 resamples here contained all three types, so all 2,000 refits are usable.</p>
+<div id="tbl-ch09-bootstrap" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[22,12,14,12,14,13,13]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Model-based, HC3, and case-bootstrap uncertainty for three targets in the full occupation model (seed 90909, <span class="math inline">\(B=2000\)</span>).
+</figcaption>
+<div aria-describedby="tbl-ch09-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 14%">
+<col style="width: 13%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Target</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">Classical SE</th>
+<th style="text-align: right;">HC3 SE</th>
+<th style="text-align: right;">Bootstrap SE</th>
+<th style="text-align: right;">Percentile 2.5%</th>
+<th style="text-align: right;">Percentile 97.5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Education slope</td>
+<td style="text-align: right;">0.1164</td>
+<td style="text-align: right;">0.2752</td>
+<td style="text-align: right;">0.3823</td>
+<td style="text-align: right;">0.3699</td>
+<td style="text-align: right;"><span class="math inline">\(-0.6830\)</span></td>
+<td style="text-align: right;">0.7440</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">prof <span class="math inline">\(-\)</span> wc</td>
+<td style="text-align: right;">0.0889</td>
+<td style="text-align: right;">1.0800</td>
+<td style="text-align: right;">1.1827</td>
+<td style="text-align: right;">1.1187</td>
+<td style="text-align: right;"><span class="math inline">\(-1.9613\)</span></td>
+<td style="text-align: right;">2.4313</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">prof coefficient</td>
+<td style="text-align: right;">0.3242</td>
+<td style="text-align: right;">1.4631</td>
+<td style="text-align: right;">2.0928</td>
+<td style="text-align: right;">1.9926</td>
+<td style="text-align: right;"><span class="math inline">\(-3.1416\)</span></td>
+<td style="text-align: right;">4.5443</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Read the table one row at a time. The education slope’s bootstrap SE of 0.3699 sits between the classical 0.2752 and the HC3 0.3823: three calculations, one conclusion that this comparison is imprecise. The type contrast’s bootstrap SE of 1.1187 exceeds the classical 1.0800, with percentile interval <span class="math inline">\([-1.9613,\ 2.4313]\)</span>. The professional coefficient moves most, from a classical 1.4631 to 1.9926, close to the HC3 2.0928: with only 31 professional occupations spreading as widely as <a href="#fig-ch9-spread" class="quarto-xref">Figure&nbsp;5</a> shows, a resample’s composition matters.</p>
+<p>Agreement between HC3 and the bootstrap is not independent confirmation: both work on the same 98 records. And a different seed would move the last decimal of a bootstrap summary, which is why the seed and <span class="math inline">\(B=2000\)</span> are reported.</p>
+</section>
+<section id="bootstrap-intervals-and-their-limits" class="level3">
+<h3 class="anchored" data-anchor-id="bootstrap-intervals-and-their-limits">Bootstrap intervals and their limits</h3>
+<p>The <strong>normal-approximation interval</strong> uses the resampling distribution only for its spread: the original estimate plus and minus 1.96 bootstrap standard errors. For the professional-minus-white-collar contrast it is <span class="math inline">\([-2.1038,\ 2.2815]\)</span>, beside the percentile interval <span class="math inline">\([-1.9613,\ 2.4313]\)</span>. The endpoints tend to be close when the resampling distribution is approximately Normal and centered near the estimate. Here the three distributions have skewness <span class="math inline">\(-0.3891\)</span>, 0.2635, and 0.3785, read by their sign as in Chapter 2, Section 2.1: the education slopes have the slightly longer left tail visible in the figure, the other two a slightly longer right tail, and the asymmetry is mild enough that the two kinds of endpoint agree closely. For a strongly skewed or biased resampling distribution, <strong>bootstrap-<span class="math inline">\(t\)</span></strong> and <strong>BCa</strong> intervals are the higher-order alternatives; Appendix B defines both in words.</p>
+<p>What resampling assumes matters more than which interval is chosen. Drawing occupations with replacement treats them as independent and exchangeable, and there are reasons to doubt both: the occupations share one historical labour market, where common conditions can move related incomes together; the 98 rows were chosen by complete records rather than sampled at random; and their measurements are aggregates over workers. Resampling does not repair thin cross-type support, correct the measurement problems Chapter 8 documented, or make an observational comparison causal. And when a design has clusters, strata, or weights, the resampling unit has to follow the design rather than the rows, which is where the next section begins.</p>
+</section>
+</section>
+<section id="sec-ch9-star" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-star">Clustered Data: Project STAR</h2>
+<p>The occupation records were observational, and the reading study was a small experiment in one school. Project STAR is a large experiment of a different shape: kindergarten pupils were randomized to class types within their schools. The randomization supports reading the class-type comparison as an assignment comparison, and the schools make pupils’ outcomes dependent, which the uncertainty calculation has to follow.</p>
+<section id="the-study-and-its-question" class="level3">
+<h3 class="anchored" data-anchor-id="the-study-and-its-question">The study and its question</h3>
+<p>The question is specific:</p>
+<blockquote class="blockquote">
+<p>Among eligible kindergarten pupils in the participating Tennessee schools, what was the mean reading-score difference under assignment to a small rather than a regular class?</p>
+</blockquote>
+<p>The outcome is <code>readk</code>, an end-of-kindergarten reading scale score, and the field <code>stark</code> records the kindergarten class-type condition. Reading the small-versus-regular comparison as an assignment comparison rests on the documented protocol, not on the column name or the <code>lm()</code> call: random assignment occurred <strong>within</strong> participating schools <span class="citation" data-cites="finn1990 mosteller1995">(<a href="#ref-finn1990" role="doc-biblioref">Finn &amp; Achilles, 1990</a>; <a href="#ref-mosteller1995" role="doc-biblioref">Mosteller, 1995</a>)</span>. The regular-with-aide arm lies outside this two-arm comparison and is excluded by design.</p>
+<p>Three limits come with the question. Class <strong>type</strong> is not a measured headcount, so the analysis estimates no dose response in pupils per room. The distributed field does not verify each pupil’s original assignment; an assignment-effect reading also requires linking the recorded type to the assignment record and checking switches, which this teaching reanalysis does not do. And the target is the pupil-weighted mean assignment effect for the eligible cohort, which a common coefficient from a complete-record model reaches only through a further link: a common effect across schools or an explicit weighting argument.</p>
+<p>The data are distributed as <code>AER::STAR</code>, accompanying <em>Applied Econometrics with R</em> and following the version used by Stock and Watson <span class="citation" data-cites="kleiber2008 stock2007">(<a href="#ref-kleiber2008" role="doc-biblioref">Kleiber &amp; Zeileis, 2008</a>; <a href="#ref-stock2007" role="doc-biblioref">Stock &amp; Watson, 2007</a>)</span>. They are loaded from the package, and the analysis is retrospective rather than preregistered.</p>
+</section>
+<section id="which-records-enter-the-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="which-records-enter-the-analysis">Which records enter the analysis</h3>
+<p>A record can be absent from an analysis for two different reasons, and they are kept apart. Pupils who entered the study after kindergarten have no kindergarten condition: their absence is <strong>structural ineligibility</strong>. Eligible kindergarten pupils whose reading score or covariates were not recorded are <strong>missing</strong>, and missingness can distort a comparison. Only the variables a calculation uses enter its complete-record rule, so a missing mathematics score (<code>mathk</code>) does not exclude a usable reading record.</p>
+<div id="tbl-ch09-star-sample" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[60,40]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-star-sample-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: STAR eligibility and reading-analysis completeness.
+</figcaption>
+<div aria-describedby="tbl-ch09-star-sample-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 60%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Stage</th>
+<th style="text-align: right;"><span class="math inline">\(n\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Distributed records</td>
+<td style="text-align: right;">11,598</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kindergarten condition recorded</td>
+<td style="text-align: right;">6,325</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Eligible small or regular</td>
+<td style="text-align: right;">4,094</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Eligible, reading observed</td>
+<td style="text-align: right;">3,745</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Complete primary records</td>
+<td style="text-align: right;">3,735</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Primary regular</td>
+<td style="text-align: right;">2,001</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Primary small</td>
+<td style="text-align: right;">1,734</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Primary schools</td>
+<td style="text-align: right;">79</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The 5,273 records without a kindergarten condition are later entrants, not failed measurements; Chapter 2, Section 1.3, explains why such ineligibility and missing values need different denominators. Among the 4,094 eligible two-arm records, 349 lack a reading score. Ten more of the 3,745 observed-reading records lack a covariate, leaving 3,735 primary records in 79 schools, held in <code>star_df</code> in the code. Complete-record inference assumes that, given the declared covariates and within arm and school, whether a score was recorded does not depend on the score itself. Similar missing percentages across arms do not establish that condition. The 3,745 observed-reading records remain a declared sensitivity analysis.</p>
+</section>
+<section id="the-arm-difference-unadjusted-and-adjusted" class="level3">
+<h3 class="anchored" data-anchor-id="the-arm-difference-unadjusted-and-adjusted">The arm difference, unadjusted and adjusted</h3>
+<p>Section 1.1’s identity applies unchanged. With <span class="math inline">\(D_i=1\)</span> for the small arm and 0 for regular,</p>
+<p><span class="math display">\[
+\widehat Y_i=\widehat\beta_0+\widehat\delta D_i,\qquad
+\widehat\beta_0=\bar Y_{D=0},\qquad
+\widehat\delta=\bar Y_{D=1}-\bar Y_{D=0}=440.5474-434.7323=5.8151.
+\]</span></p>
+<p>On the 3,745 observed-reading records the slope reproduces the arm difference of 5.8151 reading points exactly, as Chapter 7’s binary predictor did for 24 students. The identity is algebraic; randomization adds the reason to read the difference as an assignment comparison.</p>
+<p>Two cautions attach to the number. Treating the rows as independent with a common variance, the slope’s <span class="math inline">\(t\)</span> test equals the pooled two-sample test, here <span class="math inline">\(t=5.6039\)</span>, which ignores that pupils sit in schools (Section 7.4). And raw arm means weight each school by its own arm-specific pupil count, so the pooled difference equals the pupil-weighted cohort target only under common assignment probabilities and comparable observation patterns, or after explicit standardization to target school weights.</p>
+<p>The adjusted model adds free-lunch status, gender, ethnicity, teacher experience, and school indicators. The school indicators match the blocks within which assignment happened; the other covariates are the declared adjustment set, not a substitute for randomization.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>star_unadjusted <span class="ot">&lt;-</span> <span class="fu">lm</span>(readk <span class="sc">~</span> stark, <span class="at">data =</span> star_df)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>star_primary <span class="ot">&lt;-</span> <span class="fu">lm</span>(readk <span class="sc">~</span> stark <span class="sc">+</span> lunchk <span class="sc">+</span> gender <span class="sc">+</span> ethnicity <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  experiencek <span class="sc">+</span> schoolidk, <span class="at">data =</span> star_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>On the common 3,735 primary rows, the unadjusted difference is 5.8955 and the adjusted coefficient is 6.6575. Adjustment can improve precision when the added variables predict reading. It is not needed to remove baseline confounding that a well-implemented randomization already prevents; this is Sections 2.2–2.3’s point about randomized groups, on a larger design. Adjustment also does not automatically preserve the causal target: when the covariates were recorded, which rows enter, and what the fitted comparison compares still need scrutiny.</p>
+<p>Chapter 8, Section 2.2, kept model comparisons on identical rows. The earlier 5.8151 comes from 3,745 rows, so it is not the same-row baseline for 6.6575; comparing the two would mix a change of records with a change of model. The same-row pair is 5.8955 against 6.6575. Similar unadjusted and adjusted coefficients are consistent with successful randomization; they do not show that implementation, missingness, or weighting problems are absent.</p>
+</section>
+<section id="clustered-standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="clustered-standard-errors">Clustered standard errors</h3>
+<p>Pupils are the outcome units. Schools are the randomization blocks and the approximately independent units for the uncertainty calculation; the schools themselves were not assigned to arms. Chapter 3, Section 2.3, showed that the uncertainty of a school-blocked comparison follows its within-school comparisons, and <a href="#fig-ch9-star-schools" class="quarto-xref">Figure&nbsp;7</a> shows those comparisons for STAR.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch9-star-schools" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Dot plot of 78 school differences, one dot per school, rising from about −32 to 59 reading points in an S-shaped column; 25 dots lie left of the solid zero line, and a dashed line marks the mean, about 6.71." data-fig-pos="!ht">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch9-star-schools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_09_files/figure-html/fig-ch9-star-schools-1.png" class="img-fluid figure-img" data-fig-pos="!ht" alt="Dot plot of 78 school differences, one dot per school, rising from about −32 to 59 reading points in an S-shaped column; 25 dots lie left of the solid zero line, and a dashed line marks the mean, about 6.71." width="614">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch9-star-schools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Small-minus-regular mean reading difference in each of the 78 schools that observed both class types, ordered by size. The dashed line is their unweighted mean, 6.7094.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In the 78 schools that observed pupils in both arms, the small-class advantage ranges from about <span class="math inline">\(-32\)</span> to 59 reading points, and it is negative in 25 schools. Pupils in one school share whatever made their school’s difference large or small: its teachers, its intake, its classrooms. The 3,745 pupils therefore do not supply 3,745 independent pieces of information about the arm difference; the schools do. An average of 78 independent differences with SD 15.4192 has SE <span class="math inline">\(15.4192/\sqrt{78}=1.7459\)</span>, close to the clustered standard errors below and far from the row-level 1.0377.</p>
+<p>A <strong>cluster-robust</strong> covariance builds this into the robust covariance of Section 5.1: the design component stays outside, and only the middle changes. Here <span class="math inline">\(\mathbf X\)</span> is the design matrix, with one row per pupil and one column per coefficient; <span class="math inline">\(\mathbf X_g\)</span> and <span class="math inline">\(\mathbf e_g\)</span> hold school <span class="math inline">\(g\)</span>’s rows and residuals. The score <span class="math inline">\(\mathbf s_g=\mathbf X_g^{\mathsf T}\mathbf e_g\)</span> sums the residual contributions <strong>within</strong> the school before an outer product is taken, and the CR1/HC1 covariance is</p>
+<p><span class="math display">\[
+\widehat{\mathbf V}_{\mathrm{CR1}}=c_G(\mathbf X^{\mathsf T}\mathbf X)^{-1}
+\Big(\sum_{g=1}^{G}\mathbf s_g\mathbf s_g^{\mathsf T}\Big)(\mathbf X^{\mathsf T}\mathbf X)^{-1},
+\qquad \mathbf s_g=\mathbf X_g^{\mathsf T}\mathbf e_g,\qquad
+c_G=\frac{G}{G-1}\frac{n-1}{n-p}.
+\]</span></p>
+<p>The within-school sums are what distinguish this from treating every pupil as independent, and <span class="math inline">\(c_G\)</span> is a finite-cluster correction. With <span class="math inline">\(G=79\)</span> schools, intervals use a <span class="math inline">\(t_{78}\)</span> critical value, 1.9908 <span class="citation" data-cites="zeileis2020">(<a href="#ref-zeileis2020" role="doc-biblioref">Zeileis et al., 2020</a>)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>star_V <span class="ot">&lt;-</span> sandwich<span class="sc">::</span><span class="fu">vcovCL</span>(star_primary, <span class="at">cluster =</span> star_df<span class="sc">$</span>schoolidk,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"HC1"</span>, <span class="at">cadjust =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(star_V[<span class="st">"starksmall"</span>, <span class="st">"starksmall"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.697409</code></pre>
+</div>
+</div>
+<div id="tbl-ch09-star-estimates" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,8,10,11,9,12,26]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-star-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Class-type comparisons with row-level, HC3, and school-clustered standard errors; intervals use the clustered SE with <span class="math inline">\(t_{78}\)</span>.
+</figcaption>
+<div aria-describedby="tbl-ch09-star-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 12%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;"><span class="math inline">\(n\)</span></th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">Row-level SE</th>
+<th style="text-align: right;">HC3 SE</th>
+<th style="text-align: right;">Clustered SE</th>
+<th style="text-align: left;">Clustered interval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Observed: unadjusted</td>
+<td style="text-align: right;">3,745</td>
+<td style="text-align: right;">5.8151</td>
+<td style="text-align: right;">1.0377</td>
+<td style="text-align: right;">1.0416</td>
+<td style="text-align: right;">1.8476</td>
+<td style="text-align: left;">[2.1368, 9.4935]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Primary: unadjusted</td>
+<td style="text-align: right;">3,735</td>
+<td style="text-align: right;">5.8955</td>
+<td style="text-align: right;">1.0399</td>
+<td style="text-align: right;">1.0439</td>
+<td style="text-align: right;">1.8491</td>
+<td style="text-align: left;">[2.2143, 9.5767]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Primary: adjusted</td>
+<td style="text-align: right;">3,735</td>
+<td style="text-align: right;">6.6575</td>
+<td style="text-align: right;">0.9161</td>
+<td style="text-align: right;">0.9509</td>
+<td style="text-align: right;">1.6974</td>
+<td style="text-align: left;">[3.2782, 10.0368]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Observed: school-adjusted</td>
+<td style="text-align: right;">3,745</td>
+<td style="text-align: right;">6.6273</td>
+<td style="text-align: right;">0.9504</td>
+<td style="text-align: right;">0.9860</td>
+<td style="text-align: right;">1.7797</td>
+<td style="text-align: left;">[3.0842, 10.1703]</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><a href="#tbl-ch09-star-estimates" class="quarto-xref">Table&nbsp;6</a> holds four distinct calculations, each with its own records and specification. Each clustered interval uses the school identifiers from that model’s own rows. For the observed-reading comparison, the row-level SE is 1.0377 and HC3 gives 1.0416, while school clustering gives 1.8476, nearly twice as large. Every row shows the same pattern. Unequal spread across pupils was not the main issue; dependence within schools was. Appendix A explains how the within-school contributions enter the covariance.</p>
+<p>These are cluster-asymptotic approximations, which improve as the number of schools grows; they are not exact randomization inference or a multilevel model. The design, not a residual plot, chooses the independence unit. And 79 clusters do not by themselves certify the approximation: the balance of information across schools and the influence of particular schools also matter.</p>
+</section>
+<section id="reporting-the-result-and-its-limits" class="level3">
+<h3 class="anchored" data-anchor-id="reporting-the-result-and-its-limits">Reporting the result and its limits</h3>
+<p>A chapter-authored report can now state:</p>
+<blockquote class="blockquote">
+<p>On 3,735 complete two-arm kindergarten records, the common adjusted small-versus-regular class-type coefficient was 6.6575 reading points, with approximate school-clustered interval [3.2782, 10.0368]. Its causal mean-effect interpretation relies on documented within-school randomization, a verified link from recorded class type to original assignment, suitable complete-record selection, independent-school uncertainty, and a common-effect or target-matching weighting argument. It concerns assigned class type, one kindergarten reading outcome, and participating Tennessee schools, not realized headcount or a portable policy dose response.</p>
+</blockquote>
+<p>As in Chapter 8, Section 7, the report connects statistical functions (the sample and model, the design and covariance reasoning, the estimate with its interval, and the bounded answer) with substantive ones (the pupils, test and schools, assignment and its qualifications, and the substantive claim).</p>
+<p>Judging the report separates what is <em>stated</em> from what is <em>demonstrated</em>. The randomization protocol is documented in the study’s own publications; the selection and weighting conditions and the link from recorded class type to original assignment are stated here, not shown. Where a necessary link cannot be assessed, the report names the limitation rather than assuming it away or quietly changing the target. The design literature discusses implementation and interpretation issues that one coefficient cannot settle <span class="citation" data-cites="krueger1999 hanushek1999 nye2000 chetty2011">(<a href="#ref-chetty2011" role="doc-biblioref">Chetty et al., 2011</a>; <a href="#ref-hanushek1999" role="doc-biblioref">Hanushek, 1999</a>; <a href="#ref-krueger1999" role="doc-biblioref">Krueger, 1999</a>; <a href="#ref-nye2000" role="doc-biblioref">Nye et al., 2000</a>)</span>, and the result does not transport by itself to other schools, periods, outcomes, or education systems. Those limits belong inside the answer; a crossed significance boundary is not what makes a result <span class="citation" data-cites="gelman2006 gelman2020">(<a href="#ref-gelman2020" role="doc-biblioref">Gelman et al., 2020</a>; <a href="#ref-gelman2006" role="doc-biblioref">Gelman &amp; Stern, 2006</a>)</span>. Chapter 14 returns to dependence as a design fact, reuses this calculation as its example, and asks what a design supplies that adjustment cannot.</p>
+</section>
+</section>
+<section id="sec-ch9-summary" class="level2">
+<h2 class="anchored" data-anchor-id="sec-ch9-summary">Reading Bridge</h2>
+<p>A factor enters a regression as indicators, and the one-way analysis of variance is that regression; a contrast’s uncertainty needs the covariance between coefficients, not the sum of two standard errors. The analysis of covariance adds a pretest: the posttest-only, gain-score, and adjusted analyses differ only in the pretest coefficient, and adjustment sharpens a randomized comparison without supplying what randomization supplies. Nested models on the same records and outcome are compared through their residual sums of squares, and information criteria rank models by penalized in-sample fit, never by held-out error. A squared predictor has no single slope, and a logged outcome asks a new question on a geometric-mean scale. HC3, the case bootstrap, and a clustered covariance each change the uncertainty for a stated reason and leave the coefficients alone; none repairs curvature, missing outcomes, weighting, or the absence of a design. In Project STAR, schools rather than pupils were the approximately independent units, and the standard error nearly doubled.</p>
+<p>In the additive models, a group comparison is the same at every value of the other predictors; Section 2.3 checked this common-slope requirement for the reading study. Chapter 10 lets a comparison vary with another predictor and develops how to read, probe, and report such an interaction.</p>
+<section id="key-terms" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="key-terms">Key terms</h3>
+<p>Use this short reference to revisit the concepts introduced here. The Part One Concept Reference gives the broader reference and the principal home of each concept; indicator coding, partial slopes, coefficient covariance, and HC3 are explained in Chapters 7 and 8, and regression toward the mean in Chapter 7.</p>
+<div id="tbl-ch09-key-terms" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Selected concepts for the regression toolbox.
+</figcaption>
+<div aria-describedby="tbl-ch09-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ANCOVA (analysis of covariance)</td>
+<td style="text-align: left;">A regression comparing groups while including a quantitative covariate with one common slope; its adjusted group means are read at a stated covariate value within common support. The posttest-only, gain-score and ANCOVA analyses are one regression whose pretest coefficient is 0, 1 or estimated; adjustment cannot supply what random assignment supplies.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Homogeneity of regression slopes (parallel slopes)</td>
+<td style="text-align: left;">ANCOVA’s condition that the outcome–covariate slope is the same in every group, checked by testing the group-by-covariate product block; when the slopes differ, the adjusted difference depends on the covariate value at which it is read.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Nested-model <span class="math inline">\(F\)</span> test (extra sum of squares; block test)</td>
+<td style="text-align: left;">Compares a reduced model with a fuller one fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the fuller model’s residual mean square, referred to <span class="math inline">\(F\)</span> with the number of restrictions and the fuller model’s residual df. It tests the added block jointly, not each coefficient separately.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Information criteria (AIC; BIC)</td>
+<td style="text-align: left;">Penalized in-sample fit: <span class="math inline">\(-2\log\widehat L\)</span> plus <span class="math inline">\(2k\)</span> (AIC) or <span class="math inline">\(k\log n\)</span> (BIC), with <span class="math inline">\(k\)</span> counting the coefficients and the residual variance. Smaller is preferred among models fitted to the same records and outcome scale; neither is held-out error.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standardized coefficient (beta weight)</td>
+<td style="text-align: left;">A partial slope rescaled by the predictor and outcome SDs, in outcome-SD units per predictor SD, with the other predictors held fixed. It differs from standardization over named profiles and does not measure causal importance.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Polynomial term (quadratic term; curvature)</td>
+<td style="text-align: left;">A power of a predictor added as a further column so that the fitted mean can curve. The predictor’s comparison then depends on its value; centering before squaring reduces collinearity without changing the fitted curve.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Log-transformed outcome (geometric-mean scale)</td>
+<td style="text-align: left;">Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and <span class="math inline">\(100(e^{\beta}-1)\)</span> percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale’s.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bootstrap (case resampling; percentile interval)</td>
+<td style="text-align: left;">Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cluster-robust standard error (school-clustered covariance)</td>
+<td style="text-align: left;">A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="further-reading" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="further-reading">Further reading</h3>
+<ul>
+<li>The <a href="https://openintro-ims.netlify.app/model-mlr">OpenIntro multiple-predictor and model-selection tutorial</a> gives concrete indicator interpretations and criterion-based reading. We use its equation-first device without adopting automatic stepwise selection.</li>
+<li>The <a href="https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch3-linreg-lab.html">ISLR regression lab</a> and the <a href="https://hastie.su.domains/ISLR2/Labs/Rmarkdown_Notebooks/Ch5-resample-lab.html">ISLR resampling lab</a> connect fitting, factors, criteria, and resampling in one workflow <span class="citation" data-cites="james2021">(<a href="#ref-james2021" role="doc-biblioref">James et al., 2021</a>)</span>.</li>
+<li>Fox <span class="citation" data-cites="fox2016">(<a href="#ref-fox2016" role="doc-biblioref">Fox, 2016</a>)</span> and Kutner and colleagues <span class="citation" data-cites="kutner2005">(<a href="#ref-kutner2005" role="doc-biblioref">Kutner et al., 2005</a>)</span> develop the linear-model algebra, the restriction statistic, and the diagnostics in this chapter’s Appendix A.</li>
+<li>Efron and Tibshirani <span class="citation" data-cites="efron1993">(<a href="#ref-efron1993" role="doc-biblioref">Efron &amp; Tibshirani, 1993</a>)</span> and Davison and Hinkley <span class="citation" data-cites="davison1997">(<a href="#ref-davison1997" role="doc-biblioref">Davison &amp; Hinkley, 1997</a>)</span> are the standard bootstrap references, including the bootstrap-<span class="math inline">\(t\)</span> and BCa intervals named in Section 6.3.</li>
+<li>The <a href="https://cran.r-project.org/web/packages/sandwich/sandwich.pdf">sandwich documentation</a> specifies the HC and CR covariance calls used here <span class="citation" data-cites="zeileis2020">(<a href="#ref-zeileis2020" role="doc-biblioref">Zeileis et al., 2020</a>)</span>.</li>
+</ul>
+</section>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<p>Use the supplied numbers; rounding within 0.02 is acceptable unless a different precision is requested. These prompts do not require the appendices.</p>
+<!-- prompt-id: CH09-E01 -->
+<section id="ex-ch09-01" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-01">Exercise 1: Read indicator coefficients (Foundational)</h3>
+<p>A group-only regression of income (thousand dollars) on occupation type has observed group means 5.3741 (blue-collar, 44 records), 10.5595 (professional, 31), and 5.0523 (white-collar, 23). (1) With blue-collar as reference, give the intercept and the two indicator coefficients. (2) Give the intercept and both coefficients with white-collar as reference. (3) Explain why the fitted values are the same under both codings. (4) The full additive model’s professional coefficient is 0.3242. Explain why it differs from the professional coefficient in (1) and why neither is “the effect of occupational type”.</p>
+<!-- prompt-id: CH09-E02 -->
+</section>
+<section id="ex-ch09-02" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-02">Exercise 2: A contrast needs covariance (Foundational)</h3>
+<p>In the full additive model the professional and white-collar coefficients are 0.3242 and 0.2353, with estimated variances 2.1406 and 0.9698 and covariance 0.9720, on 92 residual df. (1) The professional-minus-white-collar contrast is 0.0889. Calculate its variance, and explain why the covariance enters with a minus sign and what a positive covariance does to the result. (2) The contrast’s SE is 1.08 and its 95% interval is <span class="math inline">\([-2.0561,\ 2.2338]\)</span>. A student instead adds the two coefficient SEs (1.4631 and 0.9848). State what that number is and why it is wrong. (3) Explain what the interval does and does not say about the two types.</p>
+<!-- prompt-id: CH09-E03 -->
+</section>
+<section id="ex-ch09-03" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-03">Exercise 3: A nested comparison from residual sums of squares (Foundational)</h3>
+<p>On the same 98 records, the model with education and prestige has RSS 867.6537 on 95 df, and the full model adding the percentage of women and the two type indicators has RSS 630.8897 on 92 df. The 5% critical value of <span class="math inline">\(F(3,92)\)</span> is 2.7036. (1) Calculate the <span class="math inline">\(F\)</span> statistic for the added block. (2) State the decision at 5% and what it does and does not say about the three added columns. (3) Explain why the sequential sums of squares from a single <code>anova()</code> call on the full model would not answer this question.</p>
+<!-- prompt-id: CH09-E04 -->
+</section>
+<section id="ex-ch09-04" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-04">Exercise 4: What information criteria compare (Foundational)</h3>
+<p>The full additive model has maximized log-likelihood <span class="math inline">\(-230.302\)</span> on 98 records, with AIC 474.6040 and BIC 492.6988; the model with education and prestige only has AIC 499.8328 and BIC 510.1727. (1) The criteria count seven fitted parameters for the full model. Say what the seven are, and why BIC charges the full model more for them than AIC does (<span class="math inline">\(\log 98=4.585\)</span>). (2) Which model do the criteria favor, and on what condition is that comparison meaningful? (3) A log-income version of the full model has AIC 8.091. Explain why this number cannot be compared with 474.604.</p>
+<!-- prompt-id: CH09-E05 -->
+</section>
+<section id="ex-ch09-05" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-05">Exercise 5: Percent and curvature (Integrative)</h3>
+<p>Two changed models of the occupation records raise different questions. (1) In a log-income model the prestige coefficient is 0.0207. Give the percent difference in geometric-mean income per prestige point and say what “geometric mean” adds to the reading. (2) In an income model with a squared prestige term, the fitted slope is 0.0697 thousand dollars per prestige point at prestige 30, 0.1665 at 50 and 0.2633 at 70, and the turning point is at prestige 15.5906; prestige ranges from 17.3 to 87.2. Explain why the model has no single prestige slope, and what the position of the turning point tells you. (3) State in one sentence what the curve claims about income and prestige over the observed range, and one reason that claim is a sensitivity check rather than a discovery.</p>
+<!-- prompt-id: CH09-E06 -->
+</section>
+<section id="ex-ch09-06" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-06">Exercise 6: Choose the uncertainty calculation (Integrative)</h3>
+<p>The full model of the same 98 occupation records gives the following standard errors; its coefficients and fitted values are held fixed.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Coefficient</th>
+<th style="text-align: right;">Classical SE</th>
+<th style="text-align: right;">HC3 SE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Education</td>
+<td style="text-align: right;">0.2752</td>
+<td style="text-align: right;">0.3823</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Percentage of women</td>
+<td style="text-align: right;">0.0097</td>
+<td style="text-align: right;">0.0079</td>
+</tr>
+</tbody>
+</table>
+<ol type="1">
+<li>A student predicts that allowing unequal spread must make every SE larger. Use the supplied output to assess that prediction and explain what changes when the covariance estimator changes.</li>
+</ol>
+<p>In Project STAR, the small-minus-regular reading difference on 3,745 observed records is 5.8151 points. The SE is 1.0377 treating pupils as independent, 1.0416 with HC3, and 1.8476 clustering within 79 schools. The corresponding independent-row and clustered 95% intervals are [3.7807, 7.8496] and [2.1368, 9.4935]. Pupils and teachers were assigned to class types within schools. (2) Explain which uncertainty calculation respects this design, why row-level HC3 barely changes the SE here, and what remains unchanged when the clustered calculation replaces it. (3) Name two problems that none of these covariance changes repairs.</p>
+<!-- prompt-id: CH09-E07 -->
+</section>
+<section id="ex-ch09-07" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ex-ch09-07">Exercise 7: One randomized study, three analyses (Integrative)</h3>
+<p>In the Baumann records, 66 pupils in three randomized instruction groups have a pretest and a posttest. With DRA as reference, the DRTA difference is 3.0909 (SE 0.9614) from the posttest alone, 3.8636 (SE 0.7779) from the gain score, and 3.6266 (SE 0.7362) from the analysis of covariance, whose pretest coefficient is 0.6932; the DRA and DRTA pretest means are 10.5000 and 9.7273. (1) Write the three analyses as one regression and give the pretest coefficient each uses. (2) Explain why all three estimate the same average difference under random assignment, and show how the pretest gap accounts for the differences between the three estimates. (3) Say which analysis you would report, and when that choice has to be made. (4) Suppose the groups had been intact classes that differed at the pretest. Explain what changes, naming the paradox that can arise.</p>
+</section>
+</section>
+<section id="app-ch9-a" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="app-ch9-a">Appendix A: Matrix Geometry, Restrictions, and Sandwich Constructions</h2>
+<p>This appendix derives the results that Sections 3.1–3.2, 5.2, and 7.4 used, including the HC3 estimator that Chapter 8, Appendix B, stated, and names the target least squares estimates when a linear mean is only an approximation. The exercises do not require it.</p>
+<section id="projection-and-the-normal-equations" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="projection-and-the-normal-equations">Projection and the normal equations</h3>
+<p>The outcome vector <span class="math inline">\(\mathbf y\)</span> stacks the <span class="math inline">\(n\)</span> observed outcomes in one column. The <span class="math inline">\(n\times p\)</span> <strong>design matrix</strong> <span class="math inline">\(\mathbf X\)</span> stacks the corresponding predictor rows: one row per record and one column per coefficient, including a column of ones for the intercept. The <span class="math inline">\(p\)</span>-entry vector <span class="math inline">\(\boldsymbol\beta\)</span> contains those coefficients. For <code>m2</code>, these are 98 outcomes, a <span class="math inline">\(98\times6\)</span> design matrix, and six coefficients.</p>
+<p>Assume <span class="math inline">\(\mathbf X\)</span> has full column rank: none of its columns can be formed from the others, so <span class="math inline">\(\mathbf X^{\mathsf T}\mathbf X\)</span> is invertible. The least-squares criterion is <span class="math inline">\(S(\boldsymbol\beta)=(\mathbf y-\mathbf X\boldsymbol\beta)^{\mathsf T}(\mathbf y-\mathbf X\boldsymbol\beta)\)</span>. Expanding gives <span class="math inline">\(S=\mathbf y^{\mathsf T}\mathbf y-2\boldsymbol\beta^{\mathsf T}\mathbf X^{\mathsf T}\mathbf y
++\boldsymbol\beta^{\mathsf T}\mathbf X^{\mathsf T}\mathbf X\boldsymbol\beta\)</span>, and differentiating with respect to <span class="math inline">\(\boldsymbol\beta\)</span> yields the normal equations</p>
+<p><span class="math display">\[
+\mathbf X^{\mathsf T}\mathbf X\widehat{\boldsymbol\beta}=\mathbf X^{\mathsf T}\mathbf y,
+\qquad\text{equivalently}\qquad
+\mathbf X^{\mathsf T}(\mathbf y-\mathbf X\widehat{\boldsymbol\beta})=\mathbf 0 .
+\]</span></p>
+<p>Solving gives the estimator and its fitted and residual vectors:</p>
+<p><span class="math display">\[
+\widehat{\boldsymbol\beta}
+=(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf X^{\mathsf T}\mathbf y,
+\qquad
+\widehat{\mathbf y}=\mathbf H\mathbf y,
+\qquad
+\mathbf e=(\mathbf I-\mathbf H)\mathbf y,
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf H=\mathbf X(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf X^{\mathsf T}\)</span> is the <strong>hat matrix</strong> and <span class="math inline">\(\mathbf I\)</span> is the <span class="math inline">\(n\times n\)</span> identity matrix. The second normal equation is the geometry: <span class="math inline">\(\mathbf e\)</span> is orthogonal to every column of <span class="math inline">\(\mathbf X\)</span>, and therefore to their fitted linear combination <span class="math inline">\(\widehat{\mathbf y}\)</span>. The matrix <span class="math inline">\(\mathbf H\)</span> is symmetric (<span class="math inline">\(\mathbf H^{\mathsf T}=\mathbf H\)</span>) and idempotent (<span class="math inline">\(\mathbf H^2=\mathbf H\)</span>): projecting an outcome onto the space spanned by the predictor columns, then projecting again, gives the same fit. Its trace is <span class="math inline">\(p\)</span>, which is why the leverages <span class="math inline">\(h_{ii}\)</span> sum to the number of fitted coefficients; for <code>m2</code> they sum to 6.</p>
+<p>With an intercept, <span class="math inline">\(\mathbf e\)</span> is also orthogonal to the constant vector, so the centered fitted values and residuals are orthogonal. Writing <span class="math inline">\(y_i-\bar y=(\widehat y_i-\bar y)+e_i\)</span>, the cross-product term vanishes when the squares are summed:</p>
+<p><span class="math display">\[
+\underbrace{\sum_i(y_i-\bar y)^2}_{TSS}
+=\underbrace{\sum_i(\widehat y_i-\bar y)^2}_{RegSS}
++\underbrace{\sum_i e_i^2}_{RSS}.
+\]</span></p>
+<p>This is the projection basis for the regression sum-of-squares decomposition. Without an intercept, the centered decomposition does not follow automatically.</p>
+<p>Two consequences used earlier follow immediately. Any full-rank recoding <span class="math inline">\(\mathbf X\mathbf A\)</span>, with <span class="math inline">\(\mathbf A\)</span> invertible, spans the same column space, so <span class="math inline">\(\mathbf H\)</span> and <span class="math inline">\(\widehat{\mathbf y}\)</span> are unchanged: releveling a factor or centering a predictor cannot alter a single fitted value. Adding a genuinely new column enlarges the space and can change every fitted value. And under the classical error model, <span class="math inline">\(\widehat{\mathbf V}=s^2(\mathbf X^{\mathsf T}\mathbf X)^{-1}\)</span> with <span class="math inline">\(s^2=RSS/(n-p)\)</span>, which is where every classical standard error in this chapter came from. Solving the normal equations directly for <code>m2</code> reproduces <code>lm()</code>’s coefficients to about <span class="math inline">\(10^{-13}\)</span>. This equation explains the estimator, not its implementation: <code>lm()</code> uses a QR decomposition rather than forming the inverse, a more stable numerical route <span class="citation" data-cites="fox2016 fox2019">(<a href="#ref-fox2016" role="doc-biblioref">Fox, 2016</a>; <a href="#ref-fox2019" role="doc-biblioref">Fox &amp; Weisberg, 2019</a>)</span>.</p>
+</section>
+<section id="general-linear-restrictions" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="general-linear-restrictions">General linear restrictions</h3>
+<p>Let <span class="math inline">\(\mathbf R\)</span> be <span class="math inline">\(q\times p\)</span> of rank <span class="math inline">\(q\)</span> and consider <span class="math inline">\(\mathbf R\boldsymbol\beta=\mathbf r\)</span>. Since <span class="math inline">\(\widehat{\boldsymbol\beta}\)</span> has covariance <span class="math inline">\(\sigma^2(\mathbf X^{\mathsf T}\mathbf X)^{-1}\)</span> under the classical model, the vector <span class="math inline">\(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r\)</span> has covariance <span class="math inline">\(\sigma^2\mathbf R(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf R^{\mathsf T}\)</span>. Standardizing by that covariance and dividing by <span class="math inline">\(q\)</span> gives</p>
+<p><span class="math display">\[
+F=\frac{(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)^{\mathsf T}
+[\mathbf R(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf R^{\mathsf T}]^{-1}
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)}{q\,s^2}.
+\]</span></p>
+<p>When the null restriction <span class="math inline">\(\mathbf R\boldsymbol\beta=\mathbf r\)</span> holds, under the classical Normal model, this has an exact central <span class="math inline">\(F_{q,\,n-p}\)</span> reference: the numerator and denominator quadratic forms are independent chi-squares. Under an alternative the numerator is noncentral.</p>
+<p>It is the same number the extra-sum-of-squares formula produces. Minimizing <span class="math inline">\(S(\boldsymbol\beta)\)</span> subject to <span class="math inline">\(\mathbf R\boldsymbol\beta=\mathbf r\)</span> with a Lagrange multiplier gives the restricted estimator <span class="math inline">\(\widetilde{\boldsymbol\beta}=\widehat{\boldsymbol\beta}
+-(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf R^{\mathsf T}
+[\mathbf R(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf R^{\mathsf T}]^{-1}
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)\)</span>, a correction applied only in the directions the restriction touches. Substituting it into the criterion shows that the increase in residual sum of squares is</p>
+<p><span class="math display">\[
+RSS_R-RSS_F=(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r)^{\mathsf T}
+[\mathbf R(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf R^{\mathsf T}]^{-1}
+(\mathbf R\widehat{\boldsymbol\beta}-\mathbf r),
+\]</span></p>
+<p>which is exactly the numerator of the restriction statistic. Fitting the reduced model and differencing, or evaluating the quadratic form in the unrestricted fit, are two routes to one number; for the two type coefficients of <code>m2</code> both return 0.0319. Replacing <span class="math inline">\(s^2(\mathbf X^{\mathsf T}\mathbf X)^{-1}\)</span> by a robust covariance in the middle of the expression gives the Wald statistic of Section 5.2. The algebra survives the substitution; the exact reference distribution does not.</p>
+</section>
+<section id="the-hc3-sandwich" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="the-hc3-sandwich">The HC3 sandwich</h3>
+<p>Chapter 8, Appendix B, stated the HC3 estimator; this subsection shows where it comes from. Write the coefficient error as <span class="math inline">\(\widehat{\boldsymbol\beta}-\boldsymbol\beta
+=(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf X^{\mathsf T}\boldsymbol\varepsilon\)</span>. Under independent rows with possibly different variances <span class="math inline">\(\sigma_i^2\)</span>, its exact covariance is</p>
+<p><span class="math display">\[
+(\mathbf X^{\mathsf T}\mathbf X)^{-1}
+\Big(\sum_i\sigma_i^2\,\mathbf x_i\mathbf x_i^{\mathsf T}\Big)
+(\mathbf X^{\mathsf T}\mathbf X)^{-1},
+\]</span></p>
+<p>a <em>sandwich</em> with the design component as bread and the error-scale component as filling. The classical estimator substitutes a common <span class="math inline">\(s^2\)</span>, which collapses the filling to <span class="math inline">\(s^2\mathbf X^{\mathsf T}\mathbf X\)</span>. The HC family substitutes each row’s own squared residual instead. Because <span class="math inline">\(E(e_i^2)=\sigma_i^2(1-h_{ii})\)</span> under the classical model, the raw residual understates the error at high-leverage rows; HC3 corrects by dividing by <span class="math inline">\((1-h_{ii})^2\)</span>, which is deliberately slightly conservative and performs well in small samples <span class="citation" data-cites="mackinnon1985 long2000">(<a href="#ref-long2000" role="doc-biblioref">Long &amp; Ervin, 2000</a>; <a href="#ref-mackinnon1985" role="doc-biblioref">MacKinnon &amp; White, 1985</a>)</span>. Built directly from these pieces, the estimator reproduces <code>sandwich::vcovHC(m2, type = "HC3")</code> to about <span class="math inline">\(10^{-12}\)</span>.</p>
+</section>
+<section id="the-cr1-cluster-sandwich" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="the-cr1-cluster-sandwich">The CR1 cluster sandwich</h3>
+<p>Cluster robustness changes the filling, not the bread. Partition the rows into <span class="math inline">\(G\)</span> clusters and let <span class="math inline">\(\mathbf X_g\)</span> and <span class="math inline">\(\mathbf e_g\)</span> hold cluster <span class="math inline">\(g\)</span>’s rows and residuals. The cluster score <span class="math inline">\(\mathbf s_g=\mathbf X_g^{\mathsf T}\mathbf e_g\)</span> sums the within-cluster contributions <em>before</em> the outer product is taken, so the estimator of Section 7.4 retains the within-cluster residual correlations that the independent-row filling discards. If every cluster held one row, the filling would reduce to the HC0 form, which is why a row-level robust SE is the special case that assumes away the dependence.</p>
+<p>The asymptotics are in <span class="math inline">\(G\)</span>, not in <span class="math inline">\(n\)</span>: 3,745 pupils in 79 schools supply 79 approximately independent pieces of information for this covariance, which is why the clustered SE of 1.8476 is so much larger than the row-level 1.0377 and why a <span class="math inline">\(t_{G-1}\)</span> reference is used. For the observed-reading model the finite-cluster factor is <span class="math inline">\(c_G=1.0131\)</span>, and building the estimator from the school scores reproduces <code>sandwich::vcovCL(..., type = "HC1", cadjust = TRUE)</code> to about <span class="math inline">\(10^{-13}\)</span>.</p>
+</section>
+<section id="app-ch09-projection-target" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="app-ch09-projection-target">What least squares estimates when the mean is not linear</h3>
+<p>A linear regression is often fitted where the conditional mean of the outcome is not exactly linear in the predictors, as Section 4.1’s curved prestige component shows. Least squares then still estimates a defined target: the <strong>best linear projection</strong>, the coefficients that minimize expected squared error over the population the records represent,</p>
+<p><span class="math display">\[
+\begin{gathered}
+(\beta_0^*,\beta_1^*)=\arg\min_{a,b}E\{(Y-a-bX)^2\},\qquad
+\beta_1^*=\frac{\operatorname{Cov}(X,Y)}{\operatorname{Var}(X)}, \\
+\boldsymbol\beta^*=\{E(\mathbf x\mathbf x^{\mathsf T})\}^{-1}E(\mathbf x Y).
+\end{gathered}
+\]</span></p>
+<p>With one predictor the target slope is the population covariance over the predictor’s variance, the population version of Chapter 7’s covariance-to-slope identity; with several, it is the population version of the normal equations. The target is well defined, but it is an average: the projection slope of income on prestige in the additive model averages the curve’s steeper and flatter stretches, weighted by where the occupations’ prestige values fall. Its value therefore depends on the distribution of the predictors, and a sample with a different prestige mix would have a different target even with the same curve. It is a declared alternative target, not a rescue for a misspecified mean. HC3 standard errors remain appropriate for it under independent sampling, because the curvature the linear fit misses behaves like one more source of unequal spread <span class="citation" data-cites="fox2016">(<a href="#ref-fox2016" role="doc-biblioref">Fox, 2016</a>)</span>.</p>
+</section>
+</section>
+<section id="app-ch9-b" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="app-ch9-b">Appendix B: Bootstrap Schemes and Intervals</h2>
+<p>Section 6 used case resampling and said why. <a href="#tbl-ch09-schemes" class="quarto-xref">Table&nbsp;8</a> sets it beside the other two schemes on the same model, the same three targets, the same seed, and <span class="math inline">\(B=2000\)</span>.</p>
+<div id="tbl-ch09-schemes" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[11,27,24,13,12,13]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch09-schemes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Three bootstrap schemes for the full occupation model, with each scheme’s bootstrap SE for three targets (seed 90909, <span class="math inline">\(B=2000\)</span>).
+</figcaption>
+<div aria-describedby="tbl-ch09-schemes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 27%">
+<col style="width: 24%">
+<col style="width: 13%">
+<col style="width: 12%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Scheme</th>
+<th style="text-align: left;">What is resampled</th>
+<th style="text-align: left;">Assumption carried</th>
+<th style="text-align: right;">Education slope</th>
+<th style="text-align: right;">prof <span class="math inline">\(-\)</span> wc</th>
+<th style="text-align: right;">prof coefficient</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Case</td>
+<td style="text-align: left;">Whole records</td>
+<td style="text-align: left;">Records independent and exchangeable</td>
+<td style="text-align: right;">0.3699</td>
+<td style="text-align: right;">1.1187</td>
+<td style="text-align: right;">1.9926</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual</td>
+<td style="text-align: left;">Rescaled residuals, moved across records; design fixed</td>
+<td style="text-align: left;">One error distribution for every record</td>
+<td style="text-align: right;">0.2820</td>
+<td style="text-align: right;">1.1081</td>
+<td style="text-align: right;">1.4861</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Wild</td>
+<td style="text-align: left;">Each record’s own rescaled residual, sign flipped at random; design fixed</td>
+<td style="text-align: left;">Each record keeps its own error scale</td>
+<td style="text-align: right;">0.3673</td>
+<td style="text-align: right;">1.1151</td>
+<td style="text-align: right;">1.9767</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Both design-fixed schemes rebuild outcomes from the fitted values. Residual resampling draws leverage-rescaled residuals <span class="math inline">\(e_i/\sqrt{1-h_{ii}}\)</span> with replacement and adds them to the fitted values, which treats the rescaled residuals as exchangeable across rows. The wild bootstrap keeps each row’s own rescaled residual and multiplies it by <span class="math inline">\(\pm1\)</span> with equal probability, so each row retains its own error scale.</p>
+<p>Read the table by column. For the education slope the residual scheme is the outlier, 0.2820, close to the classical 0.2752, as expected when both assume one common error distribution. The wild bootstrap, which does not, lands at 0.3673, near the case result and HC3’s 0.3823. For the professional coefficient the pattern is stronger: 1.9926, 1.4861, and 1.9767. When the schemes disagree, the disagreement is about the error model, and it is a reason to say which scheme was used.</p>
+<p>Section 6.2 defined the percentile interval, the middle 95% of the resampling distribution. Section 6.3 defined the normal-approximation interval, which uses that distribution only for its spread and so ignores its skewness. Two higher-order intervals are worth describing in words.</p>
+<ul>
+<li>The <strong>bootstrap-<span class="math inline">\(t\)</span> interval</strong> resamples a studentized quantity, the resampled estimate minus the original estimate, divided by the resample’s own standard error, and inverts the empirical quantiles of that ratio. It needs a standard error inside every resample, and it is more accurate when the studentized quantity is closer to pivotal than the estimate itself.</li>
+<li>The <strong>BCa interval</strong> adjusts the percentile endpoints for median bias and for an acceleration constant that captures how the standard error changes with the parameter. It is the usual recommendation when the resampling distribution is visibly skewed <span class="citation" data-cites="efron1993 davison1997">(<a href="#ref-davison1997" role="doc-biblioref">Davison &amp; Hinkley, 1997</a>; <a href="#ref-efron1993" role="doc-biblioref">Efron &amp; Tibshirani, 1993</a>)</span>.</li>
+</ul>
+<p>For the three targets of Section 6 the skewness values <span class="math inline">\(-0.3891\)</span>, 0.2635, and 0.3785 are mild, so percentile and normal-approximation endpoints agree closely. The higher-order intervals would need their own calculation: mild skewness alone does not establish how much their endpoints change.</p>
+</section>
+<section id="references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-akaike1974" class="csl-entry" role="listitem">
+Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control</em>, <em>19</em>(6), 716–723. <a href="https://doi.org/10.1109/TAC.1974.1100705">https://doi.org/10.1109/TAC.1974.1100705</a>
+</div>
+<div id="ref-baumann1992" class="csl-entry" role="listitem">
+Baumann, J. F., Seifert-Kessell, N., &amp; Jones, L. A. (1992). Effect of think-aloud instruction on elementary students’ comprehension monitoring abilities. <em>Journal of Reading Behavior</em>, <em>24</em>(2), 143–172. <a href="https://doi.org/10.1080/10862969209547770">https://doi.org/10.1080/10862969209547770</a>
+</div>
+<div id="ref-chetty2011" class="csl-entry" role="listitem">
+Chetty, R., Friedman, J. N., Hilger, N., Saez, E., Schanzenbach, D. W., &amp; Yagan, D. (2011). How does your kindergarten classroom affect your earnings? Evidence from <span>Project STAR</span>. <em>The Quarterly Journal of Economics</em>, <em>126</em>(4), 1593–1660.
+</div>
+<div id="ref-cohen2003" class="csl-entry" role="listitem">
+Cohen, J., Cohen, P., West, S. G., &amp; Aiken, L. S. (2003). <em>Applied multiple regression/correlation analysis for the behavioral sciences</em> (3rd ed.). Lawrence Erlbaum Associates.
+</div>
+<div id="ref-davison1997" class="csl-entry" role="listitem">
+Davison, A. C., &amp; Hinkley, D. V. (1997). <em>Bootstrap methods and their application</em>. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511802843">https://doi.org/10.1017/CBO9780511802843</a>
+</div>
+<div id="ref-efron1979" class="csl-entry" role="listitem">
+Efron, B. (1979). Bootstrap methods: Another look at the jackknife. <em>The Annals of Statistics</em>, <em>7</em>(1), 1–26. <a href="https://doi.org/10.1214/aos/1176344552">https://doi.org/10.1214/aos/1176344552</a>
+</div>
+<div id="ref-efron1993" class="csl-entry" role="listitem">
+Efron, B., &amp; Tibshirani, R. J. (1993). <em>An introduction to the bootstrap</em>. <span>Chapman and Hall/CRC</span>. <a href="https://doi.org/10.1201/9780429246593">https://doi.org/10.1201/9780429246593</a>
+</div>
+<div id="ref-finn1990" class="csl-entry" role="listitem">
+Finn, J. D., &amp; Achilles, C. M. (1990). Answers and questions about class size: A statewide experiment. <em>American Educational Research Journal</em>, <em>27</em>(3), 557–577.
+</div>
+<div id="ref-fox2016" class="csl-entry" role="listitem">
+Fox, J. (2016). <em>Applied regression analysis and generalized linear models</em> (3rd ed.). SAGE Publications.
+</div>
+<div id="ref-fox2019" class="csl-entry" role="listitem">
+Fox, J., &amp; Weisberg, S. (2019). <em>An <span>R</span> companion to applied regression</em> (3rd ed.). SAGE Publications. <a href="https://www.john-fox.ca/Companion/index.html">https://www.john-fox.ca/Companion/index.html</a>
+</div>
+<div id="ref-carData2022" class="csl-entry" role="listitem">
+Fox, J., Weisberg, S., &amp; Price, B. (2022). <em><span class="nocase">carData</span>: Companion to applied regression data sets</em> (Versions 3.0-5). <span>Comprehensive R Archive Network</span>. <a href="https://doi.org/10.32614/CRAN.package.carData">https://doi.org/10.32614/CRAN.package.carData</a>
+</div>
+<div id="ref-freedman1981" class="csl-entry" role="listitem">
+Freedman, D. A. (1981). Bootstrapping regression models. <em>The Annals of Statistics</em>, <em>9</em>(6), 1218–1228. <a href="https://doi.org/10.1214/aos/1176345638">https://doi.org/10.1214/aos/1176345638</a>
+</div>
+<div id="ref-gelman2020" class="csl-entry" role="listitem">
+Gelman, A., Hill, J., &amp; Vehtari, A. (2020). <em>Regression and other stories</em>. Cambridge University Press. <a href="https://doi.org/10.1017/9781139161879">https://doi.org/10.1017/9781139161879</a>
+</div>
+<div id="ref-gelman2006" class="csl-entry" role="listitem">
+Gelman, A., &amp; Stern, H. (2006). The difference between <span>“significant”</span> and <span>“not significant”</span> is not itself statistically significant. <em>The American Statistician</em>, <em>60</em>(4), 328–331. <a href="https://doi.org/10.1198/000313006X152649">https://doi.org/10.1198/000313006X152649</a>
+</div>
+<div id="ref-hanushek1999" class="csl-entry" role="listitem">
+Hanushek, E. A. (1999). Some findings from an independent investigation of the <span>Tennessee STAR</span> experiment and from other investigations of class size effects. <em>Educational Evaluation and Policy Analysis</em>, <em>21</em>(2), 143–163.
+</div>
+<div id="ref-james2021" class="csl-entry" role="listitem">
+James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2021). <em>An introduction to statistical learning: With applications in <span>R</span></em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-1-0716-1418-1">https://doi.org/10.1007/978-1-0716-1418-1</a>
+</div>
+<div id="ref-kleiber2008" class="csl-entry" role="listitem">
+Kleiber, C., &amp; Zeileis, A. (2008). <em>Applied econometrics with <span>R</span></em>. Springer. <a href="https://doi.org/10.1007/978-0-387-77318-6">https://doi.org/10.1007/978-0-387-77318-6</a>
+</div>
+<div id="ref-krueger1999" class="csl-entry" role="listitem">
+Krueger, A. B. (1999). Experimental estimates of education production functions. <em>The Quarterly Journal of Economics</em>, <em>114</em>(2), 497–532.
+</div>
+<div id="ref-kutner2005" class="csl-entry" role="listitem">
+Kutner, M. H., Nachtsheim, C. J., Neter, J., &amp; Li, W. (2005). <em>Applied linear statistical models</em> (5th ed.). McGraw-Hill/Irwin.
+</div>
+<div id="ref-long2000" class="csl-entry" role="listitem">
+Long, J. S., &amp; Ervin, L. H. (2000). Using heteroscedasticity consistent standard errors in the linear regression model. <em>The American Statistician</em>, <em>54</em>(3), 217–224. <a href="https://doi.org/10.1080/00031305.2000.10474549">https://doi.org/10.1080/00031305.2000.10474549</a>
+</div>
+<div id="ref-lord1967" class="csl-entry" role="listitem">
+Lord, F. M. (1967). A paradox in the interpretation of group comparisons. <em>Psychological Bulletin</em>, <em>68</em>(5), 304–305. <a href="https://doi.org/10.1037/h0025105">https://doi.org/10.1037/h0025105</a>
+</div>
+<div id="ref-mackinnon1985" class="csl-entry" role="listitem">
+MacKinnon, J. G., &amp; White, H. (1985). Some heteroskedasticity-consistent covariance matrix estimators with improved finite sample properties. <em>Journal of Econometrics</em>, <em>29</em>(3), 305–325. <a href="https://doi.org/10.1016/0304-4076(85)90158-7">https://doi.org/10.1016/0304-4076(85)90158-7</a>
+</div>
+<div id="ref-mosteller1995" class="csl-entry" role="listitem">
+Mosteller, F. (1995). The <span>Tennessee</span> study of class size in the early school grades. <em>The Future of Children</em>, <em>5</em>(2), 113–127.
+</div>
+<div id="ref-nye2000" class="csl-entry" role="listitem">
+Nye, B., Hedges, L. V., &amp; Konstantopoulos, S. (2000). The effects of small classes on academic achievement: The results of the <span>Tennessee</span> class size experiment. <em>American Educational Research Journal</em>, <em>37</em>(1), 123–151.
+</div>
+<div id="ref-schwarz1978" class="csl-entry" role="listitem">
+Schwarz, G. (1978). Estimating the dimension of a model. <em>The Annals of Statistics</em>, <em>6</em>(2), 461–464. <a href="https://doi.org/10.1214/aos/1176344136">https://doi.org/10.1214/aos/1176344136</a>
+</div>
+<div id="ref-stock2007" class="csl-entry" role="listitem">
+Stock, J. H., &amp; Watson, M. W. (2007). <em>Introduction to econometrics</em> (2nd ed.). Addison Wesley.
+</div>
+<div id="ref-white1980" class="csl-entry" role="listitem">
+White, H. (1980). A heteroskedasticity-consistent covariance matrix estimator and a direct test for heteroskedasticity. <em>Econometrica</em>, <em>48</em>(4), 817–838. <a href="https://doi.org/10.2307/1912934">https://doi.org/10.2307/1912934</a>
+</div>
+<div id="ref-zeileis2004" class="csl-entry" role="listitem">
+Zeileis, A. (2004). Econometric computing with <span>HC</span> and <span>HAC</span> covariance matrix estimators. <em>Journal of Statistical Software</em>, <em>11</em>(10), 1–17. <a href="https://doi.org/10.18637/jss.v011.i10">https://doi.org/10.18637/jss.v011.i10</a>
+</div>
+<div id="ref-zeileis2020" class="csl-entry" role="listitem">
+Zeileis, A., Köll, S., &amp; Graham, N. (2020). Various versatile variances: An object-oriented implementation of clustered covariances in <span>R</span>. <em>Journal of Statistical Software</em>, <em>95</em>(1), 1–36. <a href="https://doi.org/10.18637/jss.v095.i01">https://doi.org/10.18637/jss.v095.i01</a>
+</div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in an unavailable-unit anchor. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#argument-c"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../part-one/chapter_08.html" class="pagination-link" aria-label="Multiple Regression I: Conditioning, Checks, and Coordinated Questions">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · CC BY 4.0</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#citation">
+<p>Cite</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#licences">
+<p>Licence</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

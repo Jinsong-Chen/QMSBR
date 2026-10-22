@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>Part Two: Factor Analysis and Structural Equation Modeling – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../part-two/part_two_concept_reference.html" rel="next">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../part-one/part_one_introduction.html"> 
+<span class="menu-text">Part One</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../part-two/part_two_introduction.html" aria-current="page"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../practice/index.html"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../argument-approach.html"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../part-two/part_two_introduction.html">Introduction</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/part_two_introduction.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/part_two_concept_reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Concept reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">From Latent-Variable Modeling to Factor Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exploratory Factor Analysis and Model Development</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Specifying and Estimating Confirmatory Factor Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-two/chapter_04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Evaluating and Comparing Confirmatory Factor Models</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Part Two: Factor Analysis and Structural Equation Modeling</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+<p class="qmsbr-page-download"><a class="btn btn-outline-primary" href="part_two_introduction.pdf" download>Download PDF</a></p>
+
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-part-two-is-and-who-it-is-for" id="toc-what-part-two-is-and-who-it-is-for">What Part Two Is and Who It Is For</a></li>
+  <li><a href="#how-the-chapters-build-on-one-another" id="toc-how-the-chapters-build-on-one-another">How the Chapters Build on One Another</a></li>
+  <li><a href="#how-to-read-a-chapter-and-use-the-concept-reference" id="toc-how-to-read-a-chapter-and-use-the-concept-reference">How to Read a Chapter and Use the Concept Reference</a></li>
+  <li><a href="#what-comes-later" id="toc-what-comes-later">What Comes Later</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="part_two_introduction.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<section id="what-part-two-is-and-who-it-is-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-part-two-is-and-who-it-is-for">What Part Two Is and Who It Is For</h2>
+<p>Part Two of <em>Quantitative Methods for Social and Behavioral Research</em> is about latent-variable modeling. The methods of Part One worked with variables that were recorded: a test score, a count, a group label. Here the variable of primary interest is one that no column of the data set holds. Twelve questionnaire items are recorded; the planning, the learning strategies and the sense of belonging those items are meant to register are not. Part Two asks what follows from taking that situation seriously, and answers through factor analysis: how observed responses represent latent variables, and how a measurement model is developed, specified, estimated, evaluated and extended.</p>
+<p>It is written for postgraduate students and applied researchers who have read Part One or who already command the statistics it develops: variable form, variance, covariance and correlation; estimates, sampling uncertainty, intervals and tests, with the limits of a dichotomous decision; regression equations, residuals and conditional comparisons; nested model comparison and penalized in-sample criteria; held-out evidence; and reproducible work in R. Part One’s argument-based reading of a study is useful background rather than a prerequisite.</p>
+<p>The first four chapters form the measurement foundation. Chapter 1, <em>From Latent-Variable Modeling to Factor Analysis</em>, is the general and conceptual presentation. Chapter 2, <em>Exploratory Factor Analysis and Model Development</em>, is the exploratory approach, conceptual and practical. Chapter 3, <em>Specifying and Estimating Confirmatory Factor Models</em>, is the foundational confirmatory approach, covering the general model, specification, identification, estimation and basic global and local evaluation. Chapter 4, <em>Evaluating and Comparing Confirmatory Factor Models</em>, develops comparison, revision, independent validation and the higher-order and bifactor extensions. The chapters after them carry the structural half of the subject, from relations between factors and indicators to relations among variables in a structural system; the last section here says what they cover and what they cannot confer.</p>
+<p>Part Two asks for more mathematics than Part One did. Readers manipulate equations, count the moments a covariance matrix supplies against the parameters a model spends, and work with small vectors and matrices: a matrix product, a transpose, a symmetric matrix, a diagonal matrix. No previous course in factor algebra or matrix calculus is assumed; each new operation appears first in a scalar or two-variable case, substantive and graphical meaning comes before notation, and every symbol, index and dimension is defined before it is used. Calculus and proof-based mathematical statistics are not prerequisites, and the longer derivations, identification theorems and asymptotic arguments are placed so that a reader can pass over them without losing a definition, an equation or an assumption the main route needs.</p>
+<p>The situation the four chapters share can be put in one sentence and one equation. Several recorded responses vary together, and the attribute used to explain their association is not recorded at all; the common-factor model writes each recorded response as a common part, shared with the other responses through a small number of unobserved variables, plus a residual part that the declared common variables do not represent. For <span class="math inline">\(p\)</span> indicators and <span class="math inline">\(m\)</span> factors, with <span class="math inline">\(\mathbf y_i\)</span> the <span class="math inline">\(p\times1\)</span> vector of responses recorded for unit <span class="math inline">\(i\)</span>,</p>
+<p><span class="math display">\[
+\mathbf y_i=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\eta_i
+  +\boldsymbol\epsilon_i,
+\qquad
+\begin{aligned}
+\boldsymbol\mu(\boldsymbol\vartheta)
+  &amp;=\boldsymbol\nu+\boldsymbol\Lambda\boldsymbol\alpha,\\
+\boldsymbol\Sigma(\boldsymbol\vartheta)
+  &amp;=\boldsymbol\Lambda\boldsymbol\Phi
+    \boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta,
+\end{aligned}
+\]</span></p>
+<p>with <span class="math inline">\(E(\boldsymbol\epsilon_i)=\mathbf 0\)</span> and <span class="math inline">\(\operatorname{Cov}(\boldsymbol\eta_i,\boldsymbol\epsilon_i)=\mathbf 0\)</span>. Here <span class="math inline">\(\boldsymbol\nu\)</span> holds the <span class="math inline">\(p\)</span> indicator intercepts, <span class="math inline">\(\boldsymbol\eta_i\)</span> the <span class="math inline">\(m\)</span> factors for unit <span class="math inline">\(i\)</span>, <span class="math inline">\(\boldsymbol\Lambda\)</span> the <span class="math inline">\(p\times m\)</span> loadings that relate the two, and <span class="math inline">\(\boldsymbol\epsilon_i\)</span> the <span class="math inline">\(p\)</span> residuals; <span class="math inline">\(\boldsymbol\alpha\)</span> holds the <span class="math inline">\(m\)</span> latent intercepts, <span class="math inline">\(\boldsymbol\Phi\)</span> is the <span class="math inline">\(m\times m\)</span> factor covariance matrix, <span class="math inline">\(\boldsymbol\Theta\)</span> the <span class="math inline">\(p\times p\)</span> residual covariance matrix, and <span class="math inline">\(\boldsymbol\vartheta\)</span> the complete vector of free parameters. What the model produces is the implied pair: a mean structure <span class="math inline">\(\boldsymbol\mu(\boldsymbol\vartheta)\)</span> and a covariance structure <span class="math inline">\(\boldsymbol\Sigma(\boldsymbol\vartheta)\)</span>. An analysis working from covariances alone sets the mean structure aside or profiles it out under stated assumptions, which is a choice rather than an absence. One notation serves all four chapters, and it is chosen to survive the move to structural models, so that later chapters extend the model rather than quietly changing what its symbols mean.</p>
+<p>The covariance equation is what makes the proposal answerable. Declared loadings, factor relations and residual restrictions imply one particular covariance matrix, and that matrix can be held against the one a sample supplies. The comparison has force because a covariance matrix for <span class="math inline">\(p\)</span> indicators holds only <span class="math inline">\(p(p+1)/2\)</span> distinct entries: a model that spends fewer parameters than that makes claims which can fail. That counting is a recurring operation in Part Two, and it is kept separate from the further question of whether those moments determine the parameters at all.</p>
+<p>None of this makes a factor identical to the construct that names it. A <strong>construct</strong> is a substantive idea belonging to the research question, and its meaning comes from theory, item content, response processes, the population studied and the use intended for the results, none of which a covariance matrix supplies. A <strong>factor</strong> is a random variable inside a statistical model, and an observed or estimated <strong>score</strong> is neither; the three are never treated as synonyms. The arrow a path diagram draws from a factor to an indicator states the direction of representation the model adopts, writing each response as a function of the factors plus a residual. It is not a finding that the factor produces the response, and it is the wrong direction for a construct whose indicators produce it.</p>
+<p>The scope is narrower than the vocabulary might suggest. Part Two models continuous indicators and continuous outcomes; ordered categorical indicators, thresholds, polychoric correlations and ordered-response factor models are signposted where a reader would meet them and are taught elsewhere, and numeric category codes are not automatically continuous measurements. The boundary concerns the indicators rather than every variable in a study: categorical grouping variables and dummy-coded predictors stay in scope, and the later multigroup and MIMIC work uses them alongside continuous indicators. The measurement foundation is the reflective common-factor model with its higher-order and bifactor relatives, estimated by normal-theory maximum likelihood across exploratory and confirmatory work; principal components analysis answers a different question and is not a common-factor estimator. What the family cannot do is as settled as what it can. No factor analysis establishes that a latent entity exists, that a reflective direction is causal, that a scale is valid, or that a structural claim is warranted; higher-order and bifactor models are rival representations of an adequate core model rather than repairs for a weak one; and reliability follows a defined score, model, population and use, so it is not validity and does not mend a weak measurement representation.</p>
+</section>
+<section id="how-the-chapters-build-on-one-another" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-chapters-build-on-one-another">How the Chapters Build on One Another</h2>
+<p>The first four chapters make four connected moves on one covariance equation: <strong>represent</strong> a common-factor model and derive the moments it implies; <strong>explore</strong> a development record to settle dimensionality, orientation and interpretation; <strong>formulate and evaluate</strong> the resulting proposal as explicit restrictions on evidence that played no part in producing it; and <strong>compare, revise and extend</strong> the fitted model. The equation is the same throughout. What changes at each stage is the responsibility it carries and the evidence it must answer to. <a href="#fig-part-two-route" class="quarto-xref">Figure&nbsp;1</a> sets out that architecture; no chapter redraws it.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-part-two-route" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four boxes connected from left to right: Chapter 1 general and conceptual introduction; Chapter 2 exploratory approach, concepts and practice; Chapter 3 foundational CFA formulation, estimation and basic evaluation; Chapter 4 advanced CFA comparison, revision and extensions." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-part-two-route-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="part_two_introduction_files/figure-html/fig-part-two-route-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" alt="Four boxes connected from left to right: Chapter 1 general and conceptual introduction; Chapter 2 exploratory approach, concepts and practice; Chapter 3 foundational CFA formulation, estimation and basic evaluation; Chapter 4 advanced CFA comparison, revision and extensions.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-part-two-route-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The four-chapter architecture moves from representation to exploratory development, foundational CFA, and advanced CFA.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#tbl-part-two-sequence" class="quarto-xref">Table&nbsp;1</a> states what each chapter is responsible for and what it hands to the chapter after it.</p>
+<div id="tbl-part-two-sequence" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[23,47,30]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-part-two-sequence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: <em>The four-chapter measurement sequence.</em>
+</figcaption>
+<div aria-describedby="tbl-part-two-sequence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 47%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Chapter</th>
+<th style="text-align: left;">Main responsibility</th>
+<th style="text-align: left;">What it hands forward</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>1. From Latent-Variable Modeling to Factor Analysis</strong></td>
+<td style="text-align: left;">Separate an observed variable, a latent random variable, a fixed parameter and a residual, and a factor from the construct that names it; write one two-factor, six-indicator system as scalar equations, matrices, a path diagram and a sentence and check the four against one another; say what a scaling, sign, location or coordinate convention supplies and what it cannot decide; derive <span class="math inline">\(\boldsymbol\Sigma=\boldsymbol\Lambda\boldsymbol\Phi\boldsymbol\Lambda^{\mathsf T}+\boldsymbol\Theta\)</span>; and say what exact reproduction does not establish</td>
+<td style="text-align: left;">The vocabulary the three later chapters use without redefinition, and the known-value six-indicator records on which the algebra is checked before any sample is read</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>2. Exploratory Factor Analysis and Model Development</strong></td>
+<td style="text-align: left;">Audit indicators, units, coding and missingness before reading a correlation matrix; state which matrix an extraction targets; compare observed eigenvalues with a matched permutation reference and read a structured retention profile across seven rules; count effective parameters and candidate degrees of freedom; transform loadings and factor covariance together and say what rotation preserves; and read pattern coefficients, structure correlations, factor correlations and communalities together, locating discrepancy in a residual matrix rather than an average</td>
+<td style="text-align: left;">A frozen candidate specification with its named rivals, its retained cross-loadings, the retention evidence behind it and an explicit list of unresolved alternatives, settled before any confirmation evidence is inspected</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>3. Specifying and Estimating Confirmatory Factor Models</strong></td>
+<td style="text-align: left;">State one restricted model as words, equations, parameter matrices and a diagram and check that they agree; separate free, fixed, equality-constrained, bounded and defined entries; set a latent metric by marker or fixed-factor scaling and transform between them; trace a cross-loading and a residual covariance into the moments each changes; count moments, free parameters and degrees of freedom and say why the count is not identification; check convergence, admissibility, gradients and local rank; read estimates with uncertainty, a basic global-fit profile and local residuals; and compare raw-record and derived-summary inputs</td>
+<td style="text-align: left;">A specification and evaluation record: the exact specification and parameter ledger, the active items in order, the moment and degrees-of-freedom audit, the estimator and scaling settings, the convergence and admissibility record, estimates with their uncertainty, the basic global/local evidence and its limits, and the rivals declared in advance</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>4. Evaluating and Comparing Confirmatory Factor Models</strong></td>
+<td style="text-align: left;">Reconstruct the discrepancy the estimator minimized under a named divisor convention; read the exact-fit test, RMSEA with its interval, CFI, TLI and SRMR as answers to different questions; separate the three residual scales; establish exact nesting, run a compatible difference test and say when AIC and BIC are eligible; specify, count, fit and compare the higher-order and bifactor extensions; read modification indices and expected parameter change as leads that change analytic status; and freeze one revision and evaluate it on untouched records</td>
+<td style="text-align: left;">A calibrated measurement conclusion whose analytic history and unresolved strain stay intact, and the structural question the later chapters take up: which latent variables are endogenous, which directional restrictions enter, and how measurement uncertainty is carried forward</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Using one model family repeatedly does not give every record the same inferential role. Part Two keeps the analysis history visible so that development, first evaluation and independent revalidation are not collapsed into one favorable account. Every decision is inherited, prespecified, a planned sensitivity, or post hoc, always in relation to a named body of evidence, and that status follows the timing and provenance of the decision rather than the name of the function that fitted it: a model developed after inspecting a record is exploratory with respect to that record whatever routine estimates it, and a record made exploratory by revision does not recover confirmatory status because the next command is named after confirmation. The samples are never pooled to manufacture a larger analysis, and availability is not permission to use a record early. <a href="#tbl-part-two-evidence" class="quarto-xref">Table&nbsp;2</a> gives the principal roles.</p>
+<div id="tbl-part-two-evidence" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,38,38]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-part-two-evidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: <em>Records keep distinct analytical roles even when they illustrate the same model family.</em>
+</figcaption>
+<div aria-describedby="tbl-part-two-evidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Record</th>
+<th style="text-align: left;">First permitted use</th>
+<th style="text-align: left;">What it cannot establish by itself</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Known-value six-indicator records</strong></td>
+<td style="text-align: left;">Chapter 1 reconstructs an implied covariance matrix entrywise from parameters declared in advance</td>
+<td style="text-align: left;">Sampling behavior, an empirical factor count, a unique rotation, a best model, or the existence of the constructs the columns are named after</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SLE Sample A, 360 cases, development</strong></td>
+<td style="text-align: left;">Chapter 2 audits the indicators, develops the exploratory solution, and freezes the candidate with its named rivals</td>
+<td style="text-align: left;">Independent confirmation of any choice made while Sample A was being inspected</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SLE Sample B, 360 cases, confirmation</strong></td>
+<td style="text-align: left;">Chapter 3 estimates and gives a basic global/local evaluation of the frozen candidate; Chapter 4 develops comparative evaluation and diagnosis</td>
+<td style="text-align: left;">Independent support for a relation first noticed in Sample B, which stays exploratory until fresh evidence tests it</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SLE Sample C, 360 cases, revalidation</strong></td>
+<td style="text-align: left;">Chapter 4 evaluates the one revision frozen after Sample B</td>
+<td style="text-align: left;">General validity, measurement invariance, or permission to search Sample C repeatedly for a revision that survives</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Known SLE generating moments</strong></td>
+<td style="text-align: left;">Chapter 4 discloses them only after the Sample B and Sample C sequence is complete, then computes the population optimum and the population discrepancies directly</td>
+<td style="text-align: left;">Contemporaneous justification for an earlier choice, or a finite-sample conclusion from one realization beyond what the audit separates</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Separate constructed examples</strong></td>
+<td style="text-align: left;">Chapters 3 and 4 illustrate specified models with declared populations: a six-indicator system and a four-factor higher-order comparison</td>
+<td style="text-align: left;">The development or confirmation status of the SLE sequence, which they never join</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The Student Learning Experiences (SLE) records are a synthetic course case: continuous simulated data, not observations from actual students and not a validated instrument. Three independent samples of 360 complete cases carry twelve indicators – four Planning, four Strategy and four Belonging – drawn from one declared population and distributed together in <code>sle_continuous.csv</code> beside the chapters. Each analysis uses only the sample its role entitles it to, Chapter 1 uses none of them, and the Chapter 2 appendix supplies the codebook, the sample manifest and the generating population, so that every reported value can be reproduced. The retrospective audit that closes Chapter 4 is possible only because that population is known, and it is disclosed only after the Sample B and Sample C sequence has run its course: first the evidence a researcher could actually have had, then the generating structure the candidate omitted. It adds no further sample, no new candidate, no successful revision and no after-the-fact justification for a choice made earlier; its value is that a reader watches a model stay coherent, reproducible and apparently well fitting while still owing a narrower conclusion than its name suggests – which no real study can show.</p>
+<p>The stopping points are as deliberate as the moves. Chapter 2 does not relabel a developed pattern as confirmation. Chapter 3 does not treat convergence or admissibility as adequate fit: it proceeds to a basic reading of global and local discrepancy, keeping the limits of that evidence visible. Chapter 4 does not treat favorable fit as construct validation. Each chapter completes one responsibility and transfers a defined record, rather than carrying an unexamined conclusion forward under a new name.</p>
+</section>
+<section id="how-to-read-a-chapter-and-use-the-concept-reference" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-read-a-chapter-and-use-the-concept-reference">How to Read a Chapter and Use the Concept Reference</h2>
+<p>Each chapter opens in the same way. A <strong>Chapter overview</strong> box summarizes the whole chapter in ordinary words: the route, and what a reader will be able to do at the end. The prose that follows it begins from a real measurement problem or concern in an applied study and states the question the chapter answers. Each chapter closes with a numbered <strong>Summary and reading bridge</strong> that gathers what has been settled and states the questions the next chapter owes. A short <strong>Key terms</strong> table follows where a chapter carries one, then exercises, then any appendices, which hold derivations, data documentation and extensions the main route does not require. A term is explained where it is first used, and the chapters carry the statistics themselves: a model appears as equations, as parameter matrices, as a path diagram and as an explanation, and every reported number is computed for the reader and read in prose and in named tables. Results are rounded to three decimals from full-precision computation, with trailing zeros dropped (3.1 rather than 3.100), unless a source’s own precision applies. Counts and degrees of freedom stay whole numbers, values shown together share one number of decimals, and a very small probability is shown as a bound, such as below .001, rather than as zero. Chapter 1’s exactly constructed values appear at their natural precision, and a few values carry the digits their purpose needs: a very small numerical check is written in scientific notation, and Chapter 4 shows its reconstructed discrepancy to six decimals and its population discrepancy to seven significant digits, so that the arithmetic can be followed.</p>
+<p>The software is named where the methods need it rather than taught as a course of its own. Chapter 1 asks for none: its records are constructed, its results exact, and its conclusions readable without a computer. <code>psych</code> and <code>GPArotation</code> enter with the exploratory work of Chapter 2, and <code>lavaan</code> enters with the confirmatory fits of Chapter 3. A chapter names the software it relies on and states the consequential defaults in words – scale setting, factor covariances, mean structures, missing-data handling, standard errors and the test-statistic family – so that a reader who never opens R can still follow every model, every count and every conclusion from the printed evidence.</p>
+<p>Part One’s argument vocabulary is reused rather than redefined, and Part Two does not re-teach the argument-based approach as a recurring apparatus. One optional section of Chapter 1 shows how evidence, justification, interpretation and claim boundaries change when a statistical variable is latent, applies the six quality-evaluation questions under Part One’s names, records at least one failed verdict and repairs the claim; a reader may skip it without losing a definition, an equation, an exercise or a prerequisite for the chapters that follow. Chapters 2 to 4 express prespecification, uncertainty, limitations and claim boundaries in the ordinary technical vocabulary of exploratory and confirmatory factor analysis, and <em>analytic status</em> is the one Part Two term that carries the development, confirmation and replication rules set out above.</p>
+<p>The <a href="https://jinsong-chen.github.io/QMSBR/part-two/part_two_concept_reference.html"><em>Part Two Concept Reference</em></a> publishes beside these chapters and holds the single vocabulary these chapters share. Its concept tables gather related terms into broad groups and give each term’s meaning or essential distinction, and a closing table records the notation; each row names the chapter and section where the term is principally explained, so a term met in one chapter can be traced to the place that teaches it. It is written for lookup rather than for reading through: consult it when a term or a symbol is unfamiliar, and return to the chapter for the explanation, the worked example and the reason behind the distinction.</p>
+</section>
+<section id="what-comes-later" class="level2">
+<h2 class="anchored" data-anchor-id="what-comes-later">What Comes Later</h2>
+<p>Chapters 1–4 are available on the website. Chapters 5–12 are not yet available; the following map shows how they extend the measurement foundation.</p>
+<p>Chapters 5–12 extend the measurement foundation to research questions about relationships, comparisons, change and the design of a new study. The same principle continues: define what the model represents, show which observed patterns its restrictions imply, and decide what the evidence supports. Each case states its own question, data and assumptions, so a new topic does not depend on remembering an earlier case’s numerical results.</p>
+<div id="tbl-part-two-structural-sequence" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[31,69]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-part-two-structural-sequence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: <em>The structural continuation of Part Two.</em>
+</figcaption>
+<div aria-describedby="tbl-part-two-structural-sequence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 69%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Chapter</th>
+<th style="text-align: left;">Research question and development</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>5. Path Analysis and Structural Systems</strong></td>
+<td style="text-align: left;">How do equations and diagrams define an observed-variable system? Known populations and empirical cases connect parameter identification, estimation, fit, constraints and comparison, including recursive and feedback systems.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>6. Causal Models, Interventions and Identification</strong></td>
+<td style="text-align: left;">Which intervention or counterfactual question do the data and assumptions identify? Causal assignments, adjustment, Simpson reversals and instruments separate an observed association from a proposed causal answer.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>7. Structural Equation Models with Latent Variables</strong></td>
+<td style="text-align: left;">How does a measurement model become part of a structural system? Joint measurement comes first, followed by a full structural refit that retains all indicators and re-estimates both portions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>8. Indirect Effects and Conditional Relationships</strong></td>
+<td style="text-align: left;">How do relationships operate through intermediates or vary with another variable? Indirect effects, latent products, conditional slopes and their intervals keep measurement quality and causal assumptions visible.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>9. Measurement Comparability and Group Comparisons</strong></td>
+<td style="text-align: left;">Which comparisons have a common unit and origin? Group means, variances and structural relations require measurement restrictions suited to the intended comparison, including sensitivity to anchors.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>10. Incomplete Data and Robust Inference</strong></td>
+<td style="text-align: left;">What information remains when responses are missing or distributions depart from the working model? Incomplete-data likelihood, robust inference, auxiliary information and explicit sensitivity analyses address different problems.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>11. Latent Growth Models</strong></td>
+<td style="text-align: left;">What changes over time, and for whom? Growth means, person variation, piecewise and parallel processes, and within-person lagged departures are distinct longitudinal targets.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>12. Study Planning and Power Analysis</strong></td>
+<td style="text-align: left;">What should a future study be able to learn? Evidence-calibrated populations, power, interval precision, failures and plausible model departures inform a feasible design.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Raw records and published summary statistics provide complementary routes. Means, covariances and sample sizes often permit a declared Normal model to be fitted or a published result to be replicated. Raw records additionally support case resampling, factor-score prediction, response-pattern inspection and procedures requiring information beyond the ordinary moments. Matching an estimate across routes does not automatically match every diagnostic or uncertainty calculation.</p>
+<p>For a model with several latent variables, the first step fits their measurement system jointly. The second adds the structural relationships, retains the indicators and re-estimates measurement and structural parameters together. Exporting estimated scores and treating them as error-free variables would be a different analysis. Suitable measurement support is also needed before interpreting latent group differences or construct change.</p>
+<p>A structural model does not upgrade an associational design to a causal one. Its directional claims require evidence about timing, confounding, assignment and the process that generated the measures. Planning therefore considers whether better measurement or a different design is needed, as well as whether more participants would improve precision. Multilevel modeling belongs to Part Three; categorical measurement and item-response models, mixture models and Bayesian SEM lie outside this Part Two sequence.</p>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in an unavailable-unit anchor. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#argument-c"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../part-two/part_two_concept_reference.html" class="pagination-link" aria-label="Concept reference">
+        <span class="nav-page-text">Concept reference</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · CC BY 4.0</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#citation">
+<p>Cite</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#licences">
+<p>Licence</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

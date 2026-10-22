@@ -1,0 +1,2550 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jinsong Chen">
+
+<title>Part One Concept Reference – QMSBR</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../part-one/chapter_01.html" rel="next">
+<link href="../part-one/part_one_introduction.html" rel="prev">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QMSBR</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../part-one/part_one_introduction.html" aria-current="page"> 
+<span class="menu-text">Part One</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../part-two/part_two_introduction.html"> 
+<span class="menu-text">Part Two</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html#part-three"> 
+<span class="menu-text">Part Three</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../practice/index.html"> 
+<span class="menu-text">R support</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../argument-approach.html"> 
+<span class="menu-text">Argument Approach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../part-one/part_one_concept_reference.html">Concept reference</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/part_one_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/part_one_concept_reference.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Concept reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Quantitative Research Journey</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data, Distributions, and Variation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimates, Uncertainty, and Statistical Tests</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Group Comparisons with Analysis of Variance</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Description and Basic Inference with R</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Group Comparisons and Statistical Modelling with R</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Part One Concept Reference</h1>
+<p class="subtitle lead">Central concepts and notation for Chapters 1–14</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jinsong Chen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+<p class="qmsbr-page-download"><a class="btn btn-outline-primary" href="part_one_concept_reference.pdf" download>Download PDF</a></p>
+
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-concepts-ch01" id="toc-sec-concepts-ch01">Chapter 1: The Quantitative Research Journey</a></li>
+  <li><a href="#sec-concepts-ch02" id="toc-sec-concepts-ch02">Chapter 2: Data, Distributions, and Variation</a></li>
+  <li><a href="#sec-concepts-ch03" id="toc-sec-concepts-ch03">Chapter 3: Estimates, Uncertainty, and Statistical Tests</a></li>
+  <li><a href="#sec-concepts-ch04" id="toc-sec-concepts-ch04">Chapter 4: Group Comparisons with Analysis of Variance</a></li>
+  <li><a href="#sec-concepts-ch05" id="toc-sec-concepts-ch05">Chapter 5: Description and Basic Inference with R</a></li>
+  <li><a href="#sec-concepts-ch06" id="toc-sec-concepts-ch06">Chapter 6: Group Comparisons and Statistical Modelling with R</a></li>
+  <li><a href="#sec-concepts-ch07" id="toc-sec-concepts-ch07">Chapter 7: Simple Linear Regression</a></li>
+  <li><a href="#sec-concepts-ch08" id="toc-sec-concepts-ch08">Chapter 8: Multiple Regression I: Conditioning, Checks, and Coordinated Questions</a></li>
+  <li><a href="#sec-concepts-ch09" id="toc-sec-concepts-ch09">Chapter 9: Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</a></li>
+  <li><a href="#sec-concepts-ch10" id="toc-sec-concepts-ch10">Chapter 10: Interaction and Moderation</a></li>
+  <li><a href="#sec-concepts-ch11" id="toc-sec-concepts-ch11">Chapter 11: Binary Logistic Regression</a></li>
+  <li><a href="#sec-concepts-ch12" id="toc-sec-concepts-ch12">Chapter 12: Extending the GLM: Nominal, Ordinal, and Count Outcomes</a></li>
+  <li><a href="#sec-concepts-ch13" id="toc-sec-concepts-ch13">Chapter 13: Prediction, Cross-Validation, and Regularization</a></li>
+  <li><a href="#sec-concepts-ch14" id="toc-sec-concepts-ch14">Chapter 14: Regression Pitfalls and Causal Design</a></li>
+  <li><a href="#sec-concepts-arg-a" id="toc-sec-concepts-arg-a">Argument Chapter A: How to Read a Quantitative Study as an Argument</a></li>
+  <li><a href="#sec-concepts-arg-b" id="toc-sec-concepts-arg-b">Argument Chapter B: Extending the Argument-Based Approach to Quantitative Studies</a></li>
+  <li><a href="#sec-concepts-procedures" id="toc-sec-concepts-procedures">Procedures and Their Conditions</a></li>
+  <li><a href="#sec-concepts-notation" id="toc-sec-concepts-notation">Shared Notation</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="part_one_concept_reference.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<p>This reference gathers the Key terms tables of Chapters 1–14 and of Argument Chapters A and B, followed by the procedures of Chapters 3 and 4 and the notation that several chapters share. Each table appears under its chapter’s heading and lists the concepts that chapter explains principally: each term with its common alternatives, and its meaning or the distinction that matters most. The reference is meant to be consulted while reading rather than read through: a term’s first use, its worked example, and the reasoning around it stay in the chapter that teaches it. Chapters 1–9 are available on the website; the tables for Chapters 10–14 point forward to chapter readings that are not yet available.</p>
+<p>A few conventions govern the rows. Names that pick out the same concept share one entry, so <em>mean</em> and <em>arithmetic mean</em> appear together, and <em>outcome</em>, <em>response</em>, and <em>dependent variable</em> are explained as one analytical role. A more specific role, such as treatment, exposure, or confounder, carries additional design or substantive meaning that the study itself must supply. Related concepts with different meanings, such as mean and median or SD and SE, keep separate entries. A term is listed under the chapter that explains it principally rather than the chapter that first mentions it, so a brief early introduction and a later full account can coexist: Chapter 1 introduces cases and samples through its studies, while Chapter 2 develops their use in reading records and calculations. Argument Chapters A and B, <em>How to Read a Quantitative Study as an Argument</em> and <em>Extending the Argument-Based Approach to Quantitative Studies</em>, extend the reading of one question-level argument to several statistical strands and coordinated questions; the notation table abbreviates them as <em>Arg. A</em> and <em>Arg. B</em>.</p>
+<section id="sec-concepts-ch01" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch01">Chapter 1: The Quantitative Research Journey</h2>
+<div id="tbl-intro-concepts-ch01" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Key terms of Chapter 1.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Question-answer pair</td>
+<td style="text-align: left;">What a study asks and the answer it eventually offers for that question. Each separately owed substantive answer has its own argument.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Traceable information</td>
+<td style="text-align: left;">Specific study content through which an argument component’s function can be identified at a documentary location. Identifying that contribution precedes judging its adequacy.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Estimand</td>
+<td style="text-align: left;">The target quantity sought for the named units, conditions, outcome, and scope. It can concern a fixed dataset, a population, a comparison, or prediction performance.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Outcome variable (response variable; dependent variable)</td>
+<td style="text-align: left;">The variable an analysis seeks to describe, compare, or predict. These alternative names share that role in many analyses; a variable’s role depends on the question.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Predictor variable (explanatory variable; independent variable)</td>
+<td style="text-align: left;">A variable used to represent an outcome’s relationship with other information. These analytical-role labels alone establish neither a causal effect nor statistical independence.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sampling (recruitment; selection into a study)</td>
+<td style="text-align: left;">How units come to enter a study, by probability selection, volunteering, or availability. It is contrasted with assignment, which concerns the conditions allocated to participating units.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Assignment (allocation)</td>
+<td style="text-align: left;">The allocation of study conditions to participating units, by any mechanism. Actual treatment received may differ from the assigned condition.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Random sampling (probability sampling)</td>
+<td style="text-align: left;">Selecting units from a defined population or sampling frame through a probability mechanism that gives every eligible unit a known, nonzero chance of selection, not necessarily the same chance. “Random selection” alone can describe other chance-based decisions.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Random assignment (random allocation)</td>
+<td style="text-align: left;">Allocating study conditions to participating units through a specified probability mechanism. The assigned units may be individuals or groups; realized groups need not be identical.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Causal effect (counterfactual contrast)</td>
+<td style="text-align: left;">The difference between the outcomes that would occur for the same units or target population under two specified conditions, only one of which is observed for each unit. The contrast may be zero; interpreting a comparison causally needs design and identification support.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Confounding</td>
+<td style="text-align: left;">Mixing an exposure’s effect with effects of other factors that influence both exposure and outcome. Such a factor is a confounder, a specific causal role.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">External validity (generalizability)</td>
+<td style="text-align: left;">Support for extending findings to other people, settings, or conditions. The intended extension determines which similarities and differences matter.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unit</td>
+<td style="text-align: left;">The entity selected, assigned, measured, or analyzed in a particular operation. The units of assignment, measurement, and analysis can differ, and all are distinct from measurement units such as points or minutes.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evidence</td>
+<td style="text-align: left;">Observations and contextual records contributing to an answer, including information about how they were produced.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Justification</td>
+<td style="text-align: left;">Reasons and conditions invoked to support a comparison, analytical move, or interpretation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Inference</td>
+<td style="text-align: left;">Reasoning and analysis connecting evidence and justification to a conclusion.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bounded claim</td>
+<td style="text-align: left;">The reported conclusion with its uncertainty, conditions, and scope: in the statistical layer, the conclusion about the estimand; in the substantive layer, the question-facing answer with its qualifications.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch02" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch02">Chapter 2: Data, Distributions, and Variation</h2>
+<div id="tbl-intro-concepts-ch02" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Key terms of Chapter 2.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Case</td>
+<td style="text-align: left;">The entity or measurement occasion described in a dataset. Depending on the study, a case may be a student, a class, or one measurement occasion for a student.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Variable</td>
+<td style="text-align: left;">A characteristic that can take different values across cases or occasions. A dataset records values of one or more variables for its cases.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Quantitative variable (numerical variable)</td>
+<td style="text-align: left;">A variable expressing an amount, including continuous measurements and discrete counts or scores. Its units and scale determine what numerical differences mean.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Categorical variable</td>
+<td style="text-align: left;">A variable whose values identify categories. Nominal categories have no intrinsic order; ordinal categories have an order; a binary variable has two categories.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Population</td>
+<td style="text-align: left;">The collection of units a question concerns. It may be the participating students themselves or a wider collection to which the findings might extend.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sample</td>
+<td style="text-align: left;">A selected set of units from a larger collection. Calling a set a sample does not by itself explain how it was selected or which population it represents.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Analysis sample</td>
+<td style="text-align: left;">The units whose data contribute to a particular analysis. Eligibility, missing measurements, and exclusions can make this set and its denominator differ across analyses.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sampling design (sampling scheme)</td>
+<td style="text-align: left;">The specified procedure for selecting a sample, including selection stages, grouping, and, for probability sampling, the selection probabilities.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Simple random sampling</td>
+<td style="text-align: left;">Selection in which every possible sample of the specified size has the same probability of being chosen.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Empirical distribution (observed distribution; data distribution)</td>
+<td style="text-align: left;">How the observed values are distributed across values or intervals, including their frequencies, center, spread, and shape. A probability model is a separate description of possible values.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Skewness and kurtosis (left or negative skew; right or positive skew; tail weight)</td>
+<td style="text-align: left;">Skewness describes asymmetry: in a right (positive) skew the long tail points toward larger values and the mean usually lies above the median; in a left (negative) skew the long tail points toward smaller values and the mean usually lies below the median. Kurtosis describes tail weight relative to a Normal distribution with the same mean and SD, not peakedness.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (arithmetic mean)</td>
+<td style="text-align: left;">The sum of the numerical values divided by their count. Every included value contributes, so unusual values can shift the mean.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Median</td>
+<td style="text-align: left;">The middle value after ordering the data, or the average of the two middle values when the count is even. It describes the center by position.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Quartile</td>
+<td style="text-align: left;">A cut point dividing ordered data into quarters. The first and third quartiles mark approximately the lower and upper edges of the middle half; calculation conventions can differ.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Interquartile range (IQR)</td>
+<td style="text-align: left;">The third quartile minus the first quartile: the width of the middle half of the ordered data, expressed in the variable’s original units.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Variance</td>
+<td style="text-align: left;">A measure of spread based on squared deviations from the mean. The usual sample variance divides their sum by <span class="math inline">\(n - 1\)</span> and is expressed in squared units.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standard deviation (SD)</td>
+<td style="text-align: left;">The square root of the variance, expressing spread around the mean in the variable’s original units. Applied to individual observations, it describes variation among their values; applied to a statistic’s sampling distribution, it is the SE.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Grand mean</td>
+<td style="text-align: left;">The mean across all included cases. It equals the average of the group means weighted by their group counts, so larger groups contribute more.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Degrees of freedom (df)</td>
+<td style="text-align: left;">A count reflecting freely varying information after constraints or fitted quantities are taken into account. The <span class="math inline">\(n\)</span> deviations from their own mean sum to zero, leaving <span class="math inline">\(n - 1\)</span> free.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Standardized value (z score)</td>
+<td style="text-align: left;">A value minus a specified mean, divided by a specified standard deviation. It expresses distance in SD units; standardizing alone preserves the distribution’s shape.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Normal distribution (Gaussian distribution)</td>
+<td style="text-align: left;">A symmetric, bell-shaped probability model described by a mean and standard deviation. The standard Normal has mean zero and SD one; observed data need not follow this model.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Conditional proportion</td>
+<td style="text-align: left;">The proportion in one category among cases satisfying a stated condition. Its denominator is the count in that conditioning group, such as students in one education-intention category.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Covariance</td>
+<td style="text-align: left;">A summary based on products of paired deviations from the two means. Its sign shows the direction of joint variation; its magnitude depends on both variables’ units and spreads.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pearson’s correlation (Pearson’s r; product-moment correlation)</td>
+<td style="text-align: left;">Covariance divided by the product of the two SDs. For variables with nonzero spread, it describes direction and strength of linear association on a scale from <span class="math inline">\(-1\)</span> to 1.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sampling distribution</td>
+<td style="text-align: left;">The distribution of a statistic, such as a sample mean, across repeated samples generated by a stated sampling procedure or model. Repeated sample summaries in a simulation approximate this distribution.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sampling error</td>
+<td style="text-align: left;">The part of an estimate’s departure from the population quantity that arises from observing a sample rather than the whole population. It varies across repetitions, and its spread is the SE; coverage, nonresponse, and measurement error are separate.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standard error (SE)</td>
+<td style="text-align: left;">The standard deviation of a statistic’s sampling distribution under a stated sampling procedure or model. It describes spread across repeated sample summaries, distinct from individual-value SD and one sample’s difference from the population quantity.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Design effect (deff)</td>
+<td style="text-align: left;">The factor by which a sampling design multiplies the variance of a statistic relative to simple random sampling of the same size. For a mean from equal clusters of <span class="math inline">\(m\)</span> units it is about <span class="math inline">\(1+(m-1)\,\mathrm{ICC}\)</span>, where the intraclass correlation (ICC) is the share of outcome variance lying between clusters: units in one cluster supply overlapping information.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Data matrix</td>
+<td style="text-align: left;">A rectangular arrangement with cases in rows and variables in columns; <span class="math inline">\(x_{ij}\)</span> denotes case <span class="math inline">\(i\)</span> on variable <span class="math inline">\(j\)</span>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Binary variable (0/1 coding)</td>
+<td style="text-align: left;">A binary variable has two possible categories; a 0/1 coding marks membership or occurrence. Its sample mean is the proportion coded 1.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Linear transformation</td>
+<td style="text-align: left;"><span class="math inline">\(Y=a+bX\)</span> changes the center to <span class="math inline">\(a+bE(X)\)</span> and the SD to <span class="math inline">\(\lvert b\rvert SD(X)\)</span>; a negative <span class="math inline">\(b\)</span> also reverses order.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bernoulli; binomial; categorical; Poisson; lognormal; logistic</td>
+<td style="text-align: left;">Respectively a binary outcome, a count of successes in fixed independent equal-probability trials, one category, an event count under a specified rate model, a positive variable with Normal log, and a continuous symmetric distribution used here as a preview. Logistic regression later models Bernoulli outcomes.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Density; cumulative distribution function; quantile</td>
+<td style="text-align: left;">Density determines probability by area for a continuous variable; the CDF gives <span class="math inline">\(P(X\le x)\)</span>; a quantile is a value reaching the stated cumulative probability.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Rank correlation; point-biserial correlation</td>
+<td style="text-align: left;">Spearman uses ranks; Kendall summarizes concordance; point-biserial is Pearson correlation with one binary variable coded 0/1. Each addresses a specified relationship.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Partial correlation</td>
+<td style="text-align: left;">Correlation between two variables after their linear relationships with stated controls are removed by regression; it describes residual association and does not establish causal adjustment.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parameter</td>
+<td style="text-align: left;">A numerical characteristic of a population or probability model, such as a population mean. A parameter may be the estimand; the question determines which quantity is sought.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Statistic</td>
+<td style="text-align: left;">A quantity calculated from sample data, such as a sample mean or proportion. The same statistic can summarize the sample or serve as an estimate for a wider target.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch03" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch03">Chapter 3: Estimates, Uncertainty, and Statistical Tests</h2>
+<div id="tbl-intro-concepts-ch03" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Key terms of Chapter 3.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Estimate</td>
+<td style="text-align: left;">A numerical approximation to an estimand, calculated from the available data. A point estimate expresses the approximation as one value.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Estimator</td>
+<td style="text-align: left;">The rule used to calculate an estimate from data. Its bias and precision concern how the rule behaves across the repetitions specified by the study’s procedure or model.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bias (of an estimator)</td>
+<td style="text-align: left;">The difference between an estimator’s expected value over the specified repetitions and the estimand. An unbiased estimator has bias zero; precision describes its spread, a separate quality.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pooled variance (<span class="math inline">\(s_p^2\)</span>; pooled within-group variance)</td>
+<td style="text-align: left;">A weighted average of within-group sample variances, each weighted by its degrees of freedom: <span class="math inline">\(s_p^2=\{(n_1-1)s_1^2+(n_0-1)s_0^2\}/(n_1+n_0-2)\)</span> for two groups. It estimates a variance the groups are assumed to share; its square root is the pooled SD.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Confidence interval (CI)</td>
+<td style="text-align: left;">An interval expressing uncertainty about an estimand. Under its conditions, the procedure covers that estimand at its stated rate across repetitions; the rate describes the procedure.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Critical value</td>
+<td style="text-align: left;">The cut-point of a reference distribution, such as the Normal or t, selected by a confidence or significance level. It multiplies the SE in an interval and marks the rejection region of a test.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Coverage</td>
+<td style="text-align: left;">The proportion of repetitions in which an interval procedure contains the estimand under its conditions. The confidence level is the procedure’s target coverage, not a probability for one realized interval.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Null hypothesis</td>
+<td style="text-align: left;">The statistical proposition used as the reference for a test, such as equality of specified population means. The alternative hypothesis states the departure being considered.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Test statistic</td>
+<td style="text-align: left;">A quantity calculated from data to assess departure from a null hypothesis. The test compares it with a reference distribution justified under that null and stated conditions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">p-value</td>
+<td style="text-align: left;">Under a specified null hypothesis and conditions, the probability of a test result at least as extreme as the observed one, using the test’s stated tail rule.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Significance level (alpha)</td>
+<td style="text-align: left;">The threshold used for rejecting a null hypothesis, chosen to control the probability of rejecting a true null under the test’s conditions. This error is called a Type I error.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">One-sample z test; one-sample t test</td>
+<td style="text-align: left;">Both compare a sample mean with a stated null mean using its SE; z uses a known process SD under its model, whereas t estimates that SD and uses the appropriate t reference. Neither choice follows an automatic sample-size cutoff.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Paired-samples t test</td>
+<td style="text-align: left;">A one-sample t test of within-pair differences against a specified mean difference, with independent pairs under the stated model.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Equal-variance two-sample t test (pooled t test; Student’s two-sample t test)</td>
+<td style="text-align: left;">One of the two independent-samples t tests. It compares two independent group means under the condition that the populations share one variance: its SE is <span class="math inline">\(s_p\sqrt{1/n_1+1/n_0}\)</span>, and its reference is t with <span class="math inline">\(n_1+n_0-2\)</span> df.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Welch’s unequal-variance t test (Welch test)</td>
+<td style="text-align: left;">The other independent-samples t test. It compares two independent group means without assuming a common variance: its SE adds the two estimated mean variances, and its approximate t reference uses Welch–Satterthwaite df. With equal group sizes its statistic equals the equal-variance statistic, and only the df can differ.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Expected count</td>
+<td style="text-align: left;">The count a cell of a two-way table would have under a stated null pattern such as independence, given the observed margins: row total times column total, divided by the overall total.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pearson’s chi-square statistic (<span class="math inline">\(X^2\)</span>)</td>
+<td style="text-align: left;">The sum over cells of squared differences between observed and expected counts, each divided by its expected count, compared with a chi-square reference with <span class="math inline">\((R-1)(C-1)\)</span> degrees of freedom under the stated model.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multiway table (three-way table; layered two-way tables)</td>
+<td style="text-align: left;">A table that cross-classifies three or more categorical variables: a two-way table holds two variables, a three-way table three, and a four-way table four. A three-way table is read as two-way tables within the layers of the third variable; a chi-square test of one two-way table cannot test the variables jointly, which needs a method that uses all three variables at once, such as a model for multiway tables.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standardized mean difference</td>
+<td style="text-align: left;">A difference in means divided by a specified SD. The chosen denominator determines the standardized quantity; the raw difference retains the outcome’s original units.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Power (statistical power)</td>
+<td style="text-align: left;">The probability of rejecting the null under a specified alternative, design, and test. Failure to reject under that alternative is a Type II error; power is one minus its probability.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch04" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch04">Chapter 4: Group Comparisons with Analysis of Variance</h2>
+<div id="tbl-intro-concepts-ch04" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch04-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Key terms of Chapter 4.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch04-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Factor (grouping factor)</td>
+<td style="text-align: left;">In ANOVA, a categorical variable defining groups or conditions; its categories are levels. This meaning differs from a latent factor used to model shared indicator variation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analysis of variance (ANOVA)</td>
+<td style="text-align: left;">A method for studying mean differences through sources of variation. One-way ANOVA uses one grouping factor, and multi-way (factorial) ANOVA uses two or more crossed factors, as two-way and three-way ANOVA do; each factor can have several levels.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fitted value</td>
+<td style="text-align: left;">The value a fitted model assigns to an observed case. In a one-way group-mean model, it is that case’s group mean.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual</td>
+<td style="text-align: left;">An observed outcome minus its fitted value. A residual is calculated from the fitted model; an error is the corresponding unknown departure in the population model.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean square (MS)</td>
+<td style="text-align: left;">A sum of squares divided by its degrees of freedom. In classical ANOVA, the within-group mean square estimates the common error variance under the model’s conditions.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F statistic (F ratio)</td>
+<td style="text-align: left;">In classical ANOVA, a ratio of the mean square for a tested source to the appropriate error mean square. Its null F reference depends on the model and both degrees of freedom.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Omnibus test</td>
+<td style="text-align: left;">A test of one joint null hypothesis about a whole pattern, such as equality of all group means. Rejecting it does not identify which comparisons differ or how large they are.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Eta squared</td>
+<td style="text-align: left;">The proportion of total observed variation attributed to a specified source in an ANOVA decomposition. In one-way ANOVA, it is between-group divided by total sum of squares.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Contrast (linear contrast)</td>
+<td style="text-align: left;">A weighted combination of means whose weights sum to zero, expressing a specific comparison. The means, weights, and target population determine the quantity compared.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Familywise error rate (FWER)</td>
+<td style="text-align: left;">The probability of at least one Type I error among a defined family of tests. Procedures such as Bonferroni allocate the error allowance across that family.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Simultaneous confidence intervals</td>
+<td style="text-align: left;">A set of intervals calibrated so that, under their conditions, all of them cover their estimands together at the stated familywise rate; Bonferroni, Tukey, and Dunnett are different calibrations for different families.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cell mean and marginal mean</td>
+<td style="text-align: left;">In a two-factor layout, a cell mean is the mean of the cases sharing one level of each factor; a marginal mean averages the cell means across the levels of the other factor, with stated weights.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Main effect</td>
+<td style="text-align: left;">A comparison across one factor’s levels averaged over the other factor’s levels, using stated weights. It remains an average when the conditional pattern differs across levels.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Interaction</td>
+<td style="text-align: left;">A pattern in which a comparison across one factor’s levels changes with the other factor’s level. A difference of differences expresses one such comparison.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Simple effect</td>
+<td style="text-align: left;">A comparison across one factor’s levels at a specified level of the other factor. It describes a conditional comparison within the factorial design.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Three-way interaction (higher-order interaction)</td>
+<td style="text-align: left;">A pattern in which a two-way interaction changes across the levels of a third factor. Each added factor multiplies the cells and adds interactions, so the highest-order interaction is read first and a few comparisons are declared in advance.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch05" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch05">Chapter 5: Description and Basic Inference with R</h2>
+<div id="tbl-intro-concepts-ch05" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch05-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Key terms of Chapter 5.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch05-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Script and Quarto source</td>
+<td style="text-align: left;">A saved <code>.R</code> script records commands so an analysis can be rerun; a <code>.qmd</code> source connects prose, mathematics, executable code, tables, figures, and references, and renders to PDF, HTML, or Word.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Simulation and seed (Monte Carlo simulation)</td>
+<td style="text-align: left;">Generating data from a declared process to see what a statistic or procedure does across repetitions. A seed makes the random draws repeatable; it does not make the process true for an actual study.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Monte Carlo standard error</td>
+<td style="text-align: left;">The numerical uncertainty of a simulated probability or mean that comes from using finitely many repetitions; more repetitions shrink it. It is distinct from a study’s SE, which depends on the study’s sample size.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Covariance matrix</td>
+<td style="text-align: left;">A square table of variances on the diagonal and covariances off the diagonal for a stated set of variables and observations.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Correlation matrix</td>
+<td style="text-align: left;">A square table of pairwise correlation coefficients for a stated set of variables and observations; its diagonal is 1 for variables with positive variance.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch06" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch06">Chapter 6: Group Comparisons and Statistical Modelling with R</h2>
+<div id="tbl-intro-concepts-ch06" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Key terms of Chapter 6.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Model formula (R formula)</td>
+<td style="text-align: left;">Notation such as <code>score ~ group</code> naming an outcome and the variables that explain it for a fitting function. It does not state whether observations are independent or paired; that comes from the design.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Categorical effect scales (difference in proportions; risk ratio; odds ratio; Cramér’s V)</td>
+<td style="text-align: left;">Four ways to state the size of an association in a table, each answering its own question: the difference in proportions gives an absolute gap, the risk ratio a relative gap, the odds ratio a ratio of odds that stays the same when rows and columns exchange roles, and Cramér’s V a unit-free strength, from 0 to 1, for a table of any size.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Objective function</td>
+<td style="text-align: left;">A numerical criterion evaluated at candidate parameter values for fixed data; fitting seeks a stated minimum or maximum.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch07" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch07">Chapter 7: Simple Linear Regression</h2>
+<div id="tbl-intro-concepts-ch07" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch07-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Key terms of Chapter 7.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch07-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Simple linear regression (simple regression model; regression line)</td>
+<td style="text-align: left;">A model in which an outcome’s mean is a straight line in one predictor, <span class="math inline">\(E(Y\mid x)=\beta_0+\beta_1x\)</span>, with errors around the line that average zero and share one SD <span class="math inline">\(\sigma\)</span>; its three parameters are the intercept, the slope and <span class="math inline">\(\sigma\)</span>. The least-squares line estimates the model’s line: its descriptive use concerns the records fitted, and a model-based use needs a declared process.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">The fitted outcome at predictor value zero. It places the line vertically; when zero is outside the observed support, it is a mathematical anchor rather than a supported prediction. Centering the predictor moves it to a supported reference point.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Slope (regression coefficient)</td>
+<td style="text-align: left;">The difference in fitted outcome per one-unit difference in the predictor, in outcome units per predictor unit. It compares units that differ in the predictor; it is not a change within one unit unless a design supports that reading.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ordinary least squares (OLS)</td>
+<td style="text-align: left;">The rule that chooses the intercept and slope minimizing the residual sum of squares. With an intercept, the fitted line passes through the mean point and the residuals sum to zero; the slope equals covariance divided by predictor variance.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Residual sum of squares (RSS)</td>
+<td style="text-align: left;">The sum of squared residuals from a fitted line, in squared outcome units. Total squared variation about the mean splits into a regression part and RSS when the model has an intercept.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual standard deviation (residual standard error)</td>
+<td style="text-align: left;">The square root of RSS divided by its residual degrees of freedom, in outcome units; with an intercept and one predictor the degrees of freedom are <span class="math inline">\(n-2\)</span>. Under the process model it estimates the error SD.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R-squared (coefficient of determination)</td>
+<td style="text-align: left;">One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Confidence interval for a mean response (mean-response interval)</td>
+<td style="text-align: left;">An interval for the process mean outcome at a stated predictor value, using the SE of the fitted value. It concerns an average, narrows near the predictor mean, and does not cover individual outcomes.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Prediction interval (new-case interval)</td>
+<td style="text-align: left;">An interval for one new outcome at a stated predictor value from the same process. Its variance adds the error variance to the fitted-mean variance, so it is wider than the mean-response interval and keeps a nonzero floor as the sample grows.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Leverage</td>
+<td style="text-align: left;">A measure of how unusual a record’s predictor value is relative to the others; it grows with distance from the predictor mean and appears in the SE of a fitted value and in influence measures.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cook’s distance (influence)</td>
+<td style="text-align: left;">A summary of how much the fitted values change when one record is omitted, combining its residual and its leverage. It prompts inspection of provenance and a disclosed sensitivity, not automatic deletion.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Heteroskedasticity-consistent covariance (HC3; sandwich estimator)</td>
+<td style="text-align: left;">A coefficient covariance estimate that allows unequal error variance across predictor values under independence. It changes SEs and intervals, not the fitted coefficients, and does not repair curvature, dependence, measurement error, or confounding.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Extrapolation (predictor support)</td>
+<td style="text-align: left;">Using a fitted line at predictor values outside the observed range or where observations are sparse. Software returns a number there; the data do not support it.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression toward the mean (regression to the mean)</td>
+<td style="text-align: left;">For a simple linear prediction in standard units, <span class="math inline">\(\widehat z_y=r\,z_x\)</span>; when <span class="math inline">\(\lvert r\rvert&lt;1\)</span>, the predicted value is nearer its mean than the predictor is to its mean. In a stable repeated-measurement model with independent occasion errors, a group selected on an extreme noisy first score is expected to be less extreme on the second. These are statements about predictions or conditional averages, not every case; a narrower spread of predictions does not imply a narrower outcome distribution (the regression paradox).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Regression fallacy</td>
+<td style="text-align: left;">Attributing to an intervention the movement expected from selection on an extreme noisy measurement. Evaluating an intervention requires a credible no-intervention benchmark, supplied by a suitable design or untreated comparison under stated assumptions; a fitted line through treated outcomes alone does not supply it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch08" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch08">Chapter 8: Multiple Regression I: Conditioning, Checks, and Coordinated Questions</h2>
+<div id="tbl-intro-concepts-ch08" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch08-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Key terms of Chapter 8.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch08-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Multiple regression (multiple regression model; additive model)</td>
+<td style="text-align: left;">A model in which an outcome’s mean is an intercept plus one term per predictor, <span class="math inline">\(E(Y\mid x_1,\ldots,x_{p-1})=\beta_0+\beta_1x_1+\cdots+\beta_{p-1}x_{p-1}\)</span>, with errors of one common SD <span class="math inline">\(\sigma\)</span>; its <span class="math inline">\(p\)</span> coefficients leave <span class="math inline">\(n-p\)</span> residual df, and least squares estimates them. Each coefficient compares means at the same values of the other predictors; the additive form assumes each comparison is the same across those values.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Partial slope (conditional coefficient; adjusted coefficient)</td>
+<td style="text-align: left;">The difference in fitted outcome per one-unit difference in one predictor, holding the model’s other predictors fixed. Its meaning depends on the conditioning set named with it; it is not an intervention effect or a claim about unmeasured differences.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Indicator variable (dummy variable) and reference category</td>
+<td style="text-align: left;">A 0/1 variable marking membership in one category of a factor; a factor with <span class="math inline">\(J\)</span> levels needs <span class="math inline">\(J-1\)</span> indicators, and the omitted level is the reference. The intercept refers to the reference category; each indicator coefficient is a difference from it at the same other predictors. Releveling changes coordinates, not fitted values.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Partial regression (residualization; added-variable form)</td>
+<td style="text-align: left;">Regressing both the outcome and one predictor on the other predictors, then relating their residuals. The residual slope equals the partial slope; the residual correlation is the partial correlation, unit-free.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Coefficient covariance matrix</td>
+<td style="text-align: left;">The estimated variances and covariances of the fitted coefficients (<code>vcov()</code> in R). Any linear combination of coefficients, such as a fitted mean or a contrast, has variance <span class="math inline">\(\mathbf c^{\mathsf T}\widehat{\mathbf V}\mathbf c\)</span>; adding SEs or ignoring covariances is a different, incorrect calculation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Variance inflation factor (VIF)</td>
+<td style="text-align: left;">One divided by one minus the <span class="math inline">\(R^2\)</span> from regressing a predictor on the other predictors. Its square root multiplies that coefficient’s SE relative to an orthogonal design, holding residual variance fixed; it describes precision, not bias, and is not a deletion rule.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Joint support (covariate hull)</td>
+<td style="text-align: left;">Whether a combination of predictor values lies within the region where observations actually occur, not merely within each variable’s separate range. A fitted value outside joint support is extrapolation even if each coordinate is observed somewhere.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Standardization over a named distribution (model-averaged fitted value)</td>
+<td style="text-align: left;">Averaging the model’s fitted values after setting one predictor to a chosen value for every profile in a declared set with fixed weights. Its uncertainty uses the coefficient covariance; it is not an observed group mean, a causal effect, or held-out performance.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Learning rule (learning procedure)</td>
+<td style="text-align: left;">A fixed recipe that turns training records into a prediction equation, such as fitting a declared OLS formula. Prediction performance concerns the rule at stated training sizes, not one final fitted equation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cross-validation (held-out validation)</td>
+<td style="text-align: left;">Dividing records into folds, fitting a rule on the other folds, predicting the held-out fold, and pooling the errors so that no outcome contributes to its own prediction. Resplits describe sensitivity to the partition, not new independent studies.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean absolute error (MAE)</td>
+<td style="text-align: left;">The average absolute difference between held-out outcomes and their predictions, in outcome units. It is an evaluation loss chosen separately from the squared-error criterion that OLS minimizes.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cross-question coherence</td>
+<td style="text-align: left;">The additional evaluation question for coordinated answers: does the synthesis preserve the distinct questions, estimands, methods, uncertainty, and limits of the separate answers rather than merging them into one omnibus claim?</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch09" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch09">Chapter 9: Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</h2>
+<div id="tbl-intro-concepts-ch09" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch09-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Key terms of Chapter 9.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch09-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ANCOVA (analysis of covariance)</td>
+<td style="text-align: left;">A regression comparing groups while including a quantitative covariate with one common slope; its adjusted group means are read at a stated covariate value within common support. The posttest-only, gain-score and ANCOVA analyses are one regression whose pretest coefficient is 0, 1 or estimated; adjustment cannot supply what random assignment supplies.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Homogeneity of regression slopes (parallel slopes)</td>
+<td style="text-align: left;">ANCOVA’s condition that the outcome–covariate slope is the same in every group, checked by testing the group-by-covariate product block; when the slopes differ, the adjusted difference depends on the covariate value at which it is read.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Nested-model <span class="math inline">\(F\)</span> test (extra sum of squares; block test)</td>
+<td style="text-align: left;">Compares a reduced model with a fuller one fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the fuller model’s residual mean square, referred to <span class="math inline">\(F\)</span> with the number of restrictions and the fuller model’s residual df. It tests the added block jointly, not each coefficient separately.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Information criteria (AIC; BIC)</td>
+<td style="text-align: left;">Penalized in-sample fit: <span class="math inline">\(-2\log\widehat L\)</span> plus <span class="math inline">\(2k\)</span> (AIC) or <span class="math inline">\(k\log n\)</span> (BIC), with <span class="math inline">\(k\)</span> counting the coefficients and the residual variance. Smaller is preferred among models fitted to the same records and outcome scale; neither is held-out error.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Standardized coefficient (beta weight)</td>
+<td style="text-align: left;">A partial slope rescaled by the predictor and outcome SDs, in outcome-SD units per predictor SD, with the other predictors held fixed. It differs from standardization over named profiles and does not measure causal importance.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Polynomial term (quadratic term; curvature)</td>
+<td style="text-align: left;">A power of a predictor added as a further column so that the fitted mean can curve. The predictor’s comparison then depends on its value; centering before squaring reduces collinearity without changing the fitted curve.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Log-transformed outcome (geometric-mean scale)</td>
+<td style="text-align: left;">Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and <span class="math inline">\(100(e^{\beta}-1)\)</span> percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale’s.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bootstrap (case resampling; percentile interval)</td>
+<td style="text-align: left;">Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cluster-robust standard error (school-clustered covariance)</td>
+<td style="text-align: left;">A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch10" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch10">Chapter 10: Interaction and Moderation</h2>
+<div id="tbl-intro-concepts-ch10" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch10-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Key terms of Chapter 10.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch10-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Product term (interaction term; multiplicative term)</td>
+<td style="text-align: left;">A column formed by multiplying predictors, so that a fitted comparison can depend on their values. A two-way product coefficient is a difference in slopes when no higher-order product makes that difference conditional, and nonadditivity is defined on the modeled scale: a nonlinear change of outcome scale can create or remove it.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Conditional slope (simple slope; conditional effect)</td>
+<td style="text-align: left;">The fitted difference in outcome per one-unit difference in a focal predictor evaluated at stated values or groups of the other predictors. It is a linear combination of coefficients, so its SE uses their covariance, and it describes a conditional mean, not an individual case.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Moderator (moderating variable; moderation)</td>
+<td style="text-align: left;">The variable across whose values or groups a named focal relationship is allowed to vary. The product-term algebra is symmetric in the two predictors, so the label comes from the research question; a moderation reading describes when a relationship differs, not how an effect is transmitted.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hierarchy principle (marginality; well-formulated model)</td>
+<td style="text-align: left;">The rule that a model containing a product retains its component terms and all lower-order products contained in it. Omitting them imposes restrictions tied to the coded origins; a three-way product therefore retains all three two-way products as well as the three component terms.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Centering a predictor (anchoring; reparameterization)</td>
+<td style="text-align: left;">Replacing a predictor by its difference from a chosen value, so that coefficients anchored at zero become comparisons at that value. It changes the intercept and lower-order coefficients while preserving fitted values, residuals and tests of equivalent model restrictions. The highest-order product coefficient stays unchanged under a change of origin; lower-order product coefficients can change in a higher-order model. Centering repairs no design, selection, or measurement problem.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Probe value (pick-a-point value)</td>
+<td style="text-align: left;">A stated value of the moderator at which a conditional slope or contrast is evaluated, chosen from the measurement scale, a threshold, or a decision need rather than by an automatic mean-and-SD rule, and restricted to values the records support.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Johnson–Neyman boundary (region of significance)</td>
+<td style="text-align: left;">A moderator value at which a pointwise interval for a conditional slope touches zero, found as a root of a quadratic whose leading coefficient decides which side is the region. A boundary outside the observed support describes the algebra and not the data, and a pointwise band is not a simultaneous band.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Interaction contrast (difference in differences within a model)</td>
+<td style="text-align: left;">A linear combination of coefficients comparing two conditional comparisons, such as one group’s difference minus another group’s difference. Under reference coding it equals a product coefficient up to sign; its SE uses the coefficient covariance, and its causal reading depends on design, not on the algebra.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Moderated moderation (three-way interaction; higher-order interaction)</td>
+<td style="text-align: left;">A two-way interaction that changes across a second moderator. A hierarchical three-way model retains all component and two-way terms; conditional slopes depend on both moderators, and a direct contrast tests how the named interaction differs rather than comparing separate significance decisions.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch11" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch11">Chapter 11: Binary Logistic Regression</h2>
+<div id="tbl-intro-concepts-ch11" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch11-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: Key terms of Chapter 11.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch11-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Event and non-event (the category coded 1)</td>
+<td style="text-align: left;">The category a binary model treats as occurring, named together with the category coded 0. Reversing the event reciprocates the odds ratios and complements fitted event probabilities; probabilities for the original event agree after relabelling.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Prevalence (event rate)</td>
+<td style="text-align: left;">The proportion of analytic rows that are events. Coefficient precision also depends on conditional probabilities, predictor spread and overlap; the rare-outcome approximation of an odds ratio by a risk ratio depends on the risks being compared.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Generalized linear model (GLM)</td>
+<td style="text-align: left;">A response distribution, a linear predictor and a link connecting the conditional mean to the linear predictor; changing the response distribution and link gives the models of Chapters 11 and 12.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Link function; logit link and inverse logit (logistic function)</td>
+<td style="text-align: left;">The logit is the log of the odds and its inverse the S-shaped function bounded in <span class="math inline">\((0,1)\)</span>, equal to one half and steepest at a linear predictor of zero.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Odds and log-odds</td>
+<td style="text-align: left;">The odds are <span class="math inline">\(\pi/(1-\pi)\)</span> and the log-odds their logarithm; the three scales describe one quantity with null values 1 and 0, and the log-odds scale is symmetric under reversing the event.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Odds ratio (OR)</td>
+<td style="text-align: left;">The factor <span class="math inline">\(e^{\beta_j}\)</span> by which the odds differ between units differing by one unit in a predictor and agreeing on the others; it depends on the units, reference, event and adjustment set, is not a risk ratio unless the event is rare, and implies no constant probability difference.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Noncollapsibility (of the odds ratio)</td>
+<td style="text-align: left;">A conditional odds ratio generally differs from the marginal one even with no confounding, so a coefficient that moves under adjustment is not by itself evidence of confounding.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Likelihood and log-likelihood</td>
+<td style="text-align: left;">The probability or density of the observed data under a declared model, viewed as a function of its parameters with the data fixed; the log-likelihood is its logarithm. It is not a probability distribution over the parameters.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Maximum likelihood estimation (MLE)</td>
+<td style="text-align: left;">Choosing parameter values that maximize the likelihood, equivalently the log-likelihood, over the stated parameter space; near the maximum, the curvature of the log-likelihood gives the large-sample SE.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bernoulli likelihood and score equations (binary-outcome likelihood)</td>
+<td style="text-align: left;">The probability of the observed data as a function of the parameters, maximized to estimate them; for a binary outcome it is a product of Bernoulli probabilities whose score equations have no closed form, and a model with an intercept reproduces the observed event total.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Iteratively reweighted least squares (IRLS)</td>
+<td style="text-align: left;">The algorithm that repeatedly solves a weighted linear regression with weights <span class="math inline">\(\widehat\pi_i(1-\widehat\pi_i)\)</span> until the coefficients stop changing; its convergence flag and iteration count belong in the record and establish no adequacy.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Deviance and the likelihood-ratio test (<span class="math inline">\(G^2\)</span>)</td>
+<td style="text-align: left;">For ungrouped binary data the deviance is <span class="math inline">\(-2\)</span> times the maximized log-likelihood and carries no goodness-of-fit reading alone, while the difference between nested models on the same rows and event is referred to chi-square.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Wald test and profile-likelihood interval</td>
+<td style="text-align: left;">The Wald statistic squares the estimate-to-SE ratio while a profile interval collects the values the log-likelihood does not reject; they diverge for rare events, small samples or near-infinite estimates.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">McFadden pseudo <span class="math inline">\(R^2\)</span></td>
+<td style="text-align: left;">One minus the ratio of the fitted to the intercept-only maximized log-likelihood: bounded in <span class="math inline">\([0,1]\)</span>, not a proportion of variance explained, and routinely small for useful models.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Empirical logit</td>
+<td style="text-align: left;">The log-odds of a grouped event count with one half added to each count, plotted against a predictor to check linearity of the log-odds in that predictor as entered.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Binned residual</td>
+<td style="text-align: left;">The mean raw residual within a bin of rows sorted by fitted probability, against a two-standard-error band; it replaces the residual-versus-fitted plot, which shows only two curved bands here.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Separation (complete; quasi-complete)</td>
+<td style="text-align: left;">A predictor pattern separates events from non-events completely or on a boundary, so at least one coefficient has no finite ordinary maximum-likelihood estimate. Diverging coefficients, large standard errors and convergence warnings can be symptoms; no one warning or numerical pattern is required.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">In-sample calibration and discrimination checks (fitted-probability checks)</td>
+<td style="text-align: left;">Calibration asks whether fitted probabilities match observed event frequencies, discrimination whether they rank events above non-events; the two answer distinct questions, and honest evaluation of new-case performance requires held-out data.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Linear probability model (LPM)</td>
+<td style="text-align: left;">Ordinary least squares on a 0/1 outcome, whose coefficients are probability differences but whose mean function is unbounded and whose conditional variance cannot be constant.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Averaged probability difference (average marginal comparison)</td>
+<td style="text-align: left;">The mean, over the analytic rows with their own other predictor values, of the difference between fitted probabilities at two values of one predictor.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch12" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch12">Chapter 12: Extending the GLM: Nominal, Ordinal, and Count Outcomes</h2>
+<div id="tbl-intro-concepts-ch12" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: Key terms of Chapter 12.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch12-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Outcome triage</td>
+<td style="text-align: left;">The measurement judgment, made before any model is fitted, classifying an outcome as binary, nominal, ordered, a count, a rate, a proportion of known trials, or a duration. The model follows the classification and cannot establish it.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Generalized logit model (baseline-category logit; multinomial logistic regression)</td>
+<td style="text-align: left;">For <span class="math inline">\(K\)</span> unordered categories, <span class="math inline">\(K-1\)</span> log-ratio equations against one baseline, each with its own intercept and slopes. The fitted probability surface is the same whichever baseline is chosen; the coefficients are not.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Baseline outcome category</td>
+<td style="text-align: left;">The outcome category in the denominator of every generalized-logit equation: a coordinate choice, distinct from the reference level of a categorical <em>predictor</em>, whose change alters every reported ratio.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Relative-risk ratio (RRR)</td>
+<td style="text-align: left;">The exponentiated generalized-logit coefficient: the factor by which one category’s probability relative to the baseline’s differs per predictor unit. It is not a probability difference, and is incomplete unless both compared categories are named.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Independence of irrelevant alternatives (IIA)</td>
+<td style="text-align: left;">The generalized logit’s assumption that the ratio of two categories’ probabilities does not depend on which other categories were available: a claim about the choice set, argued rather than settled by one test.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cumulative probability and cumulative logit</td>
+<td style="text-align: left;"><span class="math inline">\(\gamma_{ij}=P(Y_i\le j)\)</span> at each of the <span class="math inline">\(K-1\)</span> cut points, and its log-odds. A category probability is a difference of two adjacent cumulative probabilities.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Threshold (cut point; ordinal intercept)</td>
+<td style="text-align: left;">One of the ordered constants <span class="math inline">\(\zeta_1&lt;\cdots&lt;\zeta_{K-1}\)</span> placing the cut points on the logit scale. Their ordering keeps fitted probabilities nonnegative; they are not comparisons and are not read as effects.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Proportional odds (common-slope restriction; partial proportional odds)</td>
+<td style="text-align: left;">The restriction that one slope vector governs every cut point, so a single odds ratio applies at all of them. It is imposed by the analyst, not conferred by ordering the levels, and is testable against a cut-specific alternative.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Poisson regression (log-linear count model)</td>
+<td style="text-align: left;">A GLM with a Poisson random component and a log link, so the conditional mean is positive and differences are multiplicative on the count scale. Its conditional variance is not free: it is forced to equal the mean.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Incidence-rate ratio (IRR; rate ratio)</td>
+<td style="text-align: left;">For an ordinary log-link count or rate model, the exponentiated coefficient gives the factor by which the expected count, or rate with an exposure, differs per predictor unit. An absolute difference also requires its baseline. In a two-process model, a count-component coefficient alone does not give the overall mean ratio.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Exposure and offset</td>
+<td style="text-align: left;">The window over which each unit was observed, and <span class="math inline">\(\log t_i\)</span> entered with its coefficient fixed at one so the model describes a rate. An offset is a decision about the estimand, not an estimate: no SE, no <span class="math inline">\(p\)</span>-value, and freeing its coefficient gives a testable alternative.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Overdispersion and the dispersion statistic</td>
+<td style="text-align: left;">Conditional variance exceeding the conditional mean, assessed by the mean squared Pearson residual <span class="math inline">\(\widehat\phi\)</span> under a suitable mean model; the deviance ratio is a rough diagnostic and need not be near 1 for sparse counts even under a correct Poisson model. The diagnosis is conditional; a marginal ratio above one is not evidence.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Quasi-Poisson (quasi-likelihood; scaled Poisson)</td>
+<td style="text-align: left;">The Poisson mean with variance <span class="math inline">\(\phi\mu\)</span>: identical estimates and every SE multiplied by <span class="math inline">\(\sqrt{\widehat\phi}\)</span>. No full distribution is specified, so there is no log-likelihood and no AIC or BIC.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Negative-binomial regression</td>
+<td style="text-align: left;">A count model with variance <span class="math inline">\(\mu+\mu^2/\theta\)</span>, arising when the Poisson mean varies across units sharing predictor values. A different likelihood, not a rescaling: estimates move because large fitted means are down-weighted, and the Poisson comparison sits on the boundary <span class="math inline">\(1/\theta=0\)</span>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Zero-inflated model</td>
+<td style="text-align: left;">A mixture of an extra-zero component and a count component that can also generate zeros. The count-component mean differs from the overall mean; an observed zero does not identify which component generated it, and fitted extra-zero membership does not establish a substantive structural-zero mechanism.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hurdle model (two-part count model)</td>
+<td style="text-align: left;">A binary model for zero versus a positive count combined with a zero-truncated count distribution for positive values. The overall mean combines the probability of a positive outcome with its positive-count mean. Its binary coefficient concerns crossing zero, which differs from membership in a zero-inflated model’s extra-zero component.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Zero-truncated count distribution</td>
+<td style="text-align: left;">A count distribution conditioned on a positive outcome: its zero probability is removed and the positive probabilities are renormalized. Its mean is the original distribution’s mean divided by its probability of a positive count, so it differs from the untruncated mean parameter.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch13" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch13">Chapter 13: Prediction, Cross-Validation, and Regularization</h2>
+<div id="tbl-intro-concepts-ch13" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch13-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13: Key terms of Chapter 13.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch13-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Generalization error (prediction error; risk)</td>
+<td style="text-align: left;">Expected loss on a new unit from the stated deployment distribution. It can be defined for one fitted model conditional on its training data, or averaged over training samples for a learning rule at a stated training size; held-out observations estimate the chosen target.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Deployment moment (prediction time)</td>
+<td style="text-align: left;">The point at which a prediction must be produced, which decides whether a predictor is available. A variable recorded later may improve measured performance but cannot be used for that earlier prediction task.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Apparent error (training error; resubstitution error)</td>
+<td style="text-align: left;">Loss on the records used to fit the rule. Using those outcomes in fitting generally makes this loss optimistic for new-case performance; greater fitting flexibility can increase that optimism, without guaranteeing an ordering in every sample or for every loss.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Root mean squared error (RMSE)</td>
+<td style="text-align: left;">The square root of the mean squared prediction error, in outcome units. It penalizes a large error far more than MAE does, so the choice between them states which mistakes matter.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Out-of-sample <span class="math inline">\(R^2\)</span></td>
+<td style="text-align: left;">One minus the held-out squared error divided by the held-out squared error of a named constant reference fitted in the same analysis rows. It can be negative and is not the in-sample <span class="math inline">\(R^2\)</span> of Chapter 7.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Data leakage (information leakage)</td>
+<td style="text-align: left;">Using information unavailable at the deployment moment, or letting held-out records influence a training or selection step used to predict them. It can make performance estimates optimistic; there is no general proportional rule for the size of that optimism.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Development and test split (holdout set)</td>
+<td style="text-align: left;">A partition in which fitting, screening and tuning use the development records, while test outcomes remain protected until the rule is fixed. Adapting the rule after seeing test results uses the test set for development; repeating an unchanged calculation does not itself do so.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Penalized regression (shrinkage; ridge; lasso; elastic net)</td>
+<td style="text-align: left;">Fitting that adds a coefficient penalty to the loss, trading bias against variance. Ridge’s squared penalty generally shrinks coefficients without selecting exact zeros; the lasso’s absolute-value penalty can set coefficients to zero, and elastic net combines the penalties.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tuning parameter (penalty; <span class="math inline">\(\lambda\)</span>)</td>
+<td style="text-align: left;">A quantity that indexes a family of fits and is chosen from data the fit did not see. Choosing it is itself a data-dependent step and belongs inside the resample.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">One-standard-error rule</td>
+<td style="text-align: left;">A convention choosing the largest penalty whose observed cross-validated loss is within the estimated standard error at the minimum. It prefers a simpler fit under that empirical tolerance; it does not bound the increase in true prediction error.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Proper scoring rule (log loss; Brier score)</td>
+<td style="text-align: left;">A score for a predicted probability that is minimized in expectation by the true probability, so that honest uncertainty is rewarded. Accuracy and a single confusion matrix are not proper scores.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Calibration</td>
+<td style="text-align: left;">Agreement between predicted probabilities and observed event rates among cases with similar predictions. It is invisible in a ranking measure such as AUC and is checked on held-out predictions.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Discrimination (AUC; concordance)</td>
+<td style="text-align: left;">The probability that a randomly chosen event case receives a higher score than a non-event case, with half credit for tied scores. It depends on ranking and does not establish calibration of the probabilities.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Decision threshold (operating point)</td>
+<td style="text-align: left;">The predicted probability above which an action is taken, determined by the ratio of the costs of the two errors and not by the model. Two decision-makers with different costs read the same probabilities and act differently.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dataset shift</td>
+<td style="text-align: left;">A difference between the distributions in the development and use settings, potentially involving predictors, outcome frequencies or their relationship. Internal resampling alone does not establish performance in a different setting.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-ch14" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-ch14">Chapter 14: Regression Pitfalls and Causal Design</h2>
+<div id="tbl-intro-concepts-ch14" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch14-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;14: Key terms of Chapter 14.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-ch14-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Directed acyclic graph (causal diagram; DAG)</td>
+<td style="text-align: left;">A diagram whose arrows state assumed direct causes and whose directed paths cannot return to their starting point; it records assumptions that can be questioned, rather than conclusions produced by the data.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mediator (intermediate variable)</td>
+<td style="text-align: left;">A variable caused by the focal predictor and lying on a path to the outcome; one kind of post-treatment variable, not a synonym for every variable measured after treatment. Conditioning on it changes a total-effect comparison; a direct causal reading needs additional identification and modelling conditions.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Collider (common effect)</td>
+<td style="text-align: left;">A variable caused by two others. A path through a collider is blocked unless the collider or a descendant is conditioned on; such conditioning can induce an association along that path.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adjustment set</td>
+<td style="text-align: left;">The variables conditioned on for a stated estimand under an assumed structure, justified by that structure and the timing rather than by the available columns or a coefficient’s movement.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Aggregation reversal (Simpson’s paradox; strict Simpson reversal)</td>
+<td style="text-align: left;">A sign difference between a pooled comparison and the stratified or standardized comparisons, strict when every stratum points the opposite way to the pooled result; it arises from composition, not from a computational error.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Within-group, between-group, and pooled comparison</td>
+<td style="text-align: left;">Three estimands from one dataset: inside a level of the grouping variable, across group summaries, and across all rows ignoring the grouping, with the pooled slope a weighted average of the other two by the within and between shares of predictor variation.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Direct standardization (standardized comparison)</td>
+<td style="text-align: left;">Recomputing each group’s summary under one declared common distribution of a stratifying variable; a third estimand rather than a compromise between the pooled and conditional comparisons.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Range restriction (restriction of range)</td>
+<td style="text-align: left;">Keeping only part of the observed range; restricting the predictor under a correctly specified linear model costs precision, apparent strength and support outside the window, while restricting on the outcome also moves the slope.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Missingness mechanisms (MCAR; MAR; MNAR)</td>
+<td style="text-align: left;">MCAR means missingness is unrelated to observed and missing values; MAR means it is unrelated to missing values conditional on observed information; MNAR means dependence on missing values remains. Complete-case validity depends on the target and mechanism, and MNAR requires assumptions not identified by the observed data alone.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Attenuation from measurement error</td>
+<td style="text-align: left;">In a single-predictor linear model, classical predictor error multiplies the population slope by reliability. With several predictors the direction can differ; a mismeasured control can leave residual confounding.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ecological inference (ecological fallacy)</td>
+<td style="text-align: left;">Inferring an individual-level relationship from aggregate records. Aggregate and individual relationships can differ in sign and magnitude; the aggregate relationship alone does not identify the individual comparison.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Specification sensitivity (multiverse analysis; analyst degrees of freedom)</td>
+<td style="text-align: left;">The spread of an estimate across the defensible analyses that could have been run; a disclosure about specification, not evidence about an omitted common cause, selection or measurement shared by every version.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pseudoreplication (dependence as a design fact)</td>
+<td style="text-align: left;">Treating dependent observations as independent replicates, misrepresenting uncertainty. The relevant dependence, sampling and assignment structure must be represented; its effect on a standard error depends on the comparison.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Identification argument (design warrant)</td>
+<td style="text-align: left;">The explicit reasons a comparison estimates the intended causal quantity, whether assignment or a named quasi-experimental design with its stated assumption; naming a design is not meeting its assumption.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bounded regression claim (credible-claim template)</td>
+<td style="text-align: left;">A concluding statement whose unit, verb, conditioning set, supported range, design and disclosed sensitivity all match the analysis that produced it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-arg-a" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-arg-a">Argument Chapter A: How to Read a Quantitative Study as an Argument</h2>
+<div id="tbl-intro-concepts-arg-a" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-arg-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;15: Key terms of Argument Chapter A.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-arg-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Argument component</td>
+<td style="text-align: left;">One of the four functions, evidence, justification, inference, and bounded claim, that a piece of study information performs in the statistical or the substantive layer. A reader identifies the function before judging its adequacy.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Documentary location</td>
+<td style="text-align: left;">The place in a report or its related materials, such as Methods, a protocol, a codebook, or an analytical supplement, where the traceable information for a component is found.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Evaluation question</td>
+<td style="text-align: left;">One of the six questions on alignment, support, and translation used to judge the quality of a question-level argument after it has been read. Each receives a reasoned judgment, not a score.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-arg-b" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-arg-b">Argument Chapter B: Extending the Argument-Based Approach to Quantitative Studies</h2>
+<div id="tbl-intro-concepts-arg-b" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-arg-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;16: Key terms of Argument Chapter B.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-arg-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term and common alternatives</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Statistical strand</td>
+<td style="text-align: left;">An estimand-specific statistical chain inside one argument. Two strands arise only when sibling estimands are jointly required for one integrated substantive answer; each has its own statistical inference and conclusion.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Coordinated questions</td>
+<td style="text-align: left;">Several question-answer pairs in one study whose support depends on one another. Each answer is read on its own, and their coherence across questions is judged separately.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-procedures" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-procedures">Procedures and Their Conditions</h2>
+<p>The table below gathers, for each procedure that Chapters 3 and 4 teach, what its result estimates and the conditions it relies on. <em>Secured by design</em> lists the conditions a study’s design can supply, such as random assignment, random sampling, or pairing; <em>Model assumptions and how to check them</em> lists the conditions the statistical model adds and the evidence available about each; <em>If a condition fails</em> gives the response the chapters teach; and <em>Chapter</em> names the chapter that develops the procedure. The choices made for one particular analysis, such as the sidedness of a test, the confidence level, or the family of comparisons, stay with that analysis in its chapter.</p>
+<div id="tbl-intro-concepts-procedures" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[18,16,28,29,9]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-procedures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;17: Procedures and their conditions.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-procedures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 16%">
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Procedure and target</th>
+<th style="text-align: left;">Secured by design</th>
+<th style="text-align: left;">Model assumptions and how to check them</th>
+<th style="text-align: left;">If a condition fails</th>
+<th style="text-align: left;">Chapter</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">One-sample t test: the mean <span class="math inline">\(\mu\)</span> of the sampled population, in outcome units, compared with a stated null value</td>
+<td style="text-align: left;">Random sampling from the named population; independent units, each measured once</td>
+<td style="text-align: left;">A Normal population gives an exact t reference; otherwise the sample mean needs a near-Normal sampling distribution. Look for strong skew, heavy tails or one dominating value in the scores; no sample-size cutoff settles the question</td>
+<td style="text-align: left;">Dependent units: an SE that represents the pairs or clusters. Strong skew with few units: disclose the weaker approximation and compare a bootstrap interval. Without random sampling, a population reading needs a stated model</td>
+<td style="text-align: left;">Ch. 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Paired-samples t test: the mean within-pair difference <span class="math inline">\(\mu_D\)</span>, in outcome units, with the subtraction direction stated</td>
+<td style="text-align: left;">Pairs formed by the design, such as one student measured twice or two classes in one school; independent pairs. Random assignment within pairs supports a causal reading</td>
+<td style="text-align: left;">Near-Normal pair differences give the t reference: inspect the differences themselves rather than the two sets of scores; a few pairs say little about shape</td>
+<td style="text-align: left;">Ignoring the pairing: an independent-groups analysis omits the within-pair covariance and misstates the SE. No untreated comparison: a mean change alone cannot be separated from time trends or repeated testing. Skewed differences: resample whole pairs</td>
+<td style="text-align: left;">Ch. 3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Equal-variance two-sample t test: a difference between two means, in outcome units, either a mean assignment effect over the participants or a difference between two populations’ means</td>
+<td style="text-align: left;">Random assignment of individuals, supporting a causal comparison among the participants, or two independent random samples; different units in the two groups</td>
+<td style="text-align: left;">One common population variance and a near-Normal sampling distribution of the difference: compare the group SDs with the group sizes and look for skew or dominating values in each group. After random assignment the t reference is approximate. No interference between units is argued from the setting; the data cannot check it</td>
+<td style="text-align: left;">Unequal spreads with unequal group sizes: the pooled SE is too small when the smaller group varies more, so choose Welch’s t in advance from the design, not from a preliminary variance test. With equal group sizes the two SEs coincide</td>
+<td style="text-align: left;">Ch. 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Welch’s unequal-variance t test: a difference between two means, in outcome units, when the two groups’ variances may differ</td>
+<td style="text-align: left;">Two independent random samples or randomly assigned groups, with different units in each group</td>
+<td style="text-align: left;">No common variance is assumed. Each group mean needs a near-Normal sampling distribution, and the Welch–Satterthwaite df approximate the reference: inspect each group’s distribution, especially the smaller group’s</td>
+<td style="text-align: left;">Skew or a dominating value in a small group: disclose the weaker approximation and compare a bootstrap that resamples within each group. Paired or clustered units: an SE that represents them</td>
+<td style="text-align: left;">Ch. 3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pearson chi-square test of association: whether two categorical variables are associated in the stipulated population or process, against the null of no association (independence); conditional proportions give the direction and size</td>
+<td style="text-align: left;">Independent sampling of units, each counted once in one of mutually exclusive categories</td>
+<td style="text-align: left;">Adequate expected counts for the chi-square approximation: calculate every expected count, row total times column total divided by <span class="math inline">\(n\)</span>, before reading the p-value</td>
+<td style="text-align: left;">Small expected counts: an exact conditional test such as Fisher’s (Ch. 6). Repeated or clustered records: the counts overstate the independent information. An observed rather than assigned grouping supports association only</td>
+<td style="text-align: left;">Ch. 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">One-way ANOVA F test: whether <span class="math inline">\(J\)</span> group means are all equal, an omnibus question about the whole pattern of means</td>
+<td style="text-align: left;">Random assignment of individuals to the groups, or independent random samples; each unit in one group, measured once</td>
+<td style="text-align: left;">Independent Normal errors with a common variance around the group means: compare the group SDs with the group sizes, and inspect residuals against fitted means and in a Normal quantile plot. Normality concerns the residuals, not the pooled scores</td>
+<td style="text-align: left;">Unequal variances, above all with unequal group sizes: Welch’s one-way ANOVA, chosen in advance. Classes or repeated measurements: an analysis that represents that structure. Missing outcomes: compare assigned and analysed counts and state what the analysis assumes</td>
+<td style="text-align: left;">Ch. 4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Contrasts with a declared family: comparisons <span class="math inline">\(C=\sum_j c_j\mu_j\)</span> with weights summing to zero, in outcome units, with simultaneous coverage for the declared family</td>
+<td style="text-align: left;">Random assignment of individuals to the groups</td>
+<td style="text-align: left;">The one-way model’s common variance and Normal errors, because every SE uses <span class="math inline">\(MS_W\)</span> on <span class="math inline">\(N-J\)</span> df: check the group spreads and residuals as for the F test</td>
+<td style="text-align: left;">Unequal spreads: <span class="math inline">\(MS_W\)</span> misstates the SE of every contrast, tending to understate it for contrasts that include the more variable groups and to overstate it for those that exclude them; take each contrast’s SE from the groups’ own variances, which for a pair is Welch’s t (Ch. 3). Comparisons chosen after inspection: a family that covers the selection, such as Scheffé’s for all contrasts</td>
+<td style="text-align: left;">Ch. 4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Two-way (factorial) ANOVA: main effects, interaction and simple effects of two crossed factors, in outcome units, with the averaging weights stated</td>
+<td style="text-align: left;">Random assignment of individuals to the cells of a crossed layout; one score per unit</td>
+<td style="text-align: left;">Independent Normal errors with one common variance in every cell: inspect residuals against the fitted cell means; a few scores per cell say little about shape. A main effect is an average over the other factor’s levels; reading it as the effect at every level assumes additivity: examine the interaction row and the cell-mean plot first</td>
+<td style="text-align: left;">Interaction present: report cell means and simple effects rather than main effects alone. Unequal cell counts: state the averaging weights and the hypothesis each sum of squares tests. Unequal cell spreads, above all with unequal cell counts: treat the cells as the groups of one factor and take each stated contrast’s SE from the cells’ own variances; the joint F tests keep the common-variance model, a limit the report discloses</td>
+<td style="text-align: left;">Ch. 4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Welch’s one-way ANOVA: whether <span class="math inline">\(J\)</span> group means are all equal when the group variances may differ</td>
+<td style="text-align: left;">Independent groups of different units, randomly assigned or randomly sampled</td>
+<td style="text-align: left;">No common variance is assumed: each group mean, weighted by its own precision, needs a near-Normal sampling distribution, and the approximate F reference estimates its denominator df from the group variances. Inspect each group’s distribution and size</td>
+<td style="text-align: left;">Clustered or repeated observations: an analysis that represents that structure. Very small or skewed groups: disclose the weaker approximation. Its scope is one factor: crossed factors with unequal cell spreads use contrasts among the cells with the cells’ own variances</td>
+<td style="text-align: left;">Ch. 4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-concepts-notation" class="level2">
+<h2 class="anchored" data-anchor-id="sec-concepts-notation">Shared Notation</h2>
+<p>The table below lists the notation that two or more chapters share, with each symbol’s meaning, the chapter where it is mainly used, and the alternatives or other symbols it must be kept apart from. Each chapter explains its symbols where they are first used, including the symbols that appear in one chapter only.</p>
+<div id="tbl-intro-concepts-notation" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[12,20,32,10,26]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-notation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18: Notation shared by two or more chapters.
+</figcaption>
+<div aria-describedby="tbl-intro-concepts-notation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 20%">
+<col style="width: 32%">
+<col style="width: 10%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Symbol (preferred form)</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Main use</th>
+<th style="text-align: left;">Alternatives and notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Data</td>
+<td style="text-align: left;"><span class="math inline">\(n\)</span>, <span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_0\)</span>, <span class="math inline">\(n_j\)</span>, <span class="math inline">\(N\)</span></td>
+<td style="text-align: left;">Number of cases in the analysis sample; group sizes; a population or record count</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">Named groups take named subscripts, such as <span class="math inline">\(n_A\)</span> and <span class="math inline">\(n_B\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Data</td>
+<td style="text-align: left;"><span class="math inline">\(i\)</span>, <span class="math inline">\(j\)</span>, <span class="math inline">\(k\)</span>; <span class="math inline">\(x_{ij}\)</span></td>
+<td style="text-align: left;">Locally declared indices; a data-matrix entry</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">In the data matrix, <span class="math inline">\(i\)</span> is case and <span class="math inline">\(j\)</span> variable. ANOVA declares factor/group/replicate indices beside its own model.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Data</td>
+<td style="text-align: left;"><span class="math inline">\(y_i\)</span>, <span class="math inline">\(x_i\)</span></td>
+<td style="text-align: left;">Observed outcome and predictor values of case <span class="math inline">\(i\)</span>; lowercase marks observed values</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;"><span class="math inline">\(y_{ij}\)</span> for case <span class="math inline">\(i\)</span> in group <span class="math inline">\(j\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Data</td>
+<td style="text-align: left;"><span class="math inline">\(Y_i\)</span>, <span class="math inline">\(Y_{ij}\)</span></td>
+<td style="text-align: left;">The outcome as a random variable before observation; uppercase marks random quantities</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">Appear where the distinction from observed values matters; in <span class="math inline">\(Y_{ij}\)</span> the second index is the group of case <span class="math inline">\(i\)</span>, whereas the potential outcomes <span class="math inline">\(Y_{i1}\)</span>, <span class="math inline">\(Y_{i0}\)</span> have their own Estimands row</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Summaries</td>
+<td style="text-align: left;"><span class="math inline">\(\bar y\)</span>, <span class="math inline">\(\bar x\)</span>, <span class="math inline">\(\bar y_j\)</span>, <span class="math inline">\(\bar d\)</span></td>
+<td style="text-align: left;">Observed means; a group mean; the mean of paired differences</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">Lowercase marks observed means, including group means</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Summaries</td>
+<td style="text-align: left;"><span class="math inline">\(\bar Y\)</span></td>
+<td style="text-align: left;">The sample mean as an estimator in variance and SE derivations</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">Reserved for the random quantity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Summaries</td>
+<td style="text-align: left;"><span class="math inline">\(s\)</span>, <span class="math inline">\(s^2\)</span>, <span class="math inline">\(s_1\)</span>, <span class="math inline">\(s_0\)</span>, <span class="math inline">\(s_p\)</span>, <span class="math inline">\(s_p^2\)</span>, <span class="math inline">\(s_d\)</span></td>
+<td style="text-align: left;">Sample SD and variance; group SDs; pooled SD and pooled variance; SD of paired differences</td>
+<td style="text-align: left;">Ch. 2; Ch. 3</td>
+<td style="text-align: left;">SD in prose; <span class="math inline">\(s_{xy}\)</span> the sample covariance; the pooled SD and variance enter in Chapter 3, and Chapter 4’s <span class="math inline">\(MS_W\)</span> extends <span class="math inline">\(s_p^2\)</span> to <span class="math inline">\(k\)</span> groups</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Summaries</td>
+<td style="text-align: left;"><span class="math inline">\(r\)</span>, <span class="math inline">\(\rho\)</span></td>
+<td style="text-align: left;">Sample and population correlation</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">A partial correlation carries its conditioning set in a subscript (row below)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Relationships</td>
+<td style="text-align: left;"><span class="math inline">\(r_{xy\cdot z}\)</span></td>
+<td style="text-align: left;">Sample partial correlation controlling linearly for <span class="math inline">\(z\)</span></td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">Residual association, not causal exclusion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Population</td>
+<td style="text-align: left;"><span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma\)</span>, <span class="math inline">\(\sigma^2\)</span></td>
+<td style="text-align: left;">Process or population mean, SD, and variance; <span class="math inline">\(\mu_1-\mu_0\)</span> a mean difference</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;"><span class="math inline">\(\mu_0=\beta_0+\beta_1x_0\)</span> the mean response at <span class="math inline">\(x_0\)</span> (Ch. 7), distinct from the group mean <span class="math inline">\(\mu_0\)</span> in <span class="math inline">\(\mu_1-\mu_0\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Population</td>
+<td style="text-align: left;"><span class="math inline">\(p\)</span>, <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_0\)</span></td>
+<td style="text-align: left;">A population proportion and group proportions</td>
+<td style="text-align: left;">Ch. 6</td>
+<td style="text-align: left;">Distinct from the p-value, written p-value in prose and <span class="math inline">\(p=.0059\)</span> for its value</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Estimands</td>
+<td style="text-align: left;"><span class="math inline">\(Y_{i1}\)</span>, <span class="math inline">\(Y_{i0}\)</span></td>
+<td style="text-align: left;">Participant <span class="math inline">\(i\)</span>’s potential outcomes: the score participant <span class="math inline">\(i\)</span> would have under assignment 1 and under assignment 0; over the <span class="math inline">\(n\)</span> stated participants the mean assignment effect is <span class="math inline">\(\Delta\mu=\frac{1}{n}\sum_{i=1}^{n}\{Y_{i1}-Y_{i0}\}\)</span></td>
+<td style="text-align: left;">Ch. 3; Ch. 5</td>
+<td style="text-align: left;">Each participant reveals only the outcome of the assigned condition; the second index names an assignment, not the observed group of <span class="math inline">\(Y_{ij}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Estimands</td>
+<td style="text-align: left;"><span class="math inline">\(\Delta\mu\)</span>, <span class="math inline">\(\widehat{\Delta\mu}\)</span></td>
+<td style="text-align: left;">A difference in means as an estimand, <span class="math inline">\(\Delta\mu=\mu_1-\mu_0\)</span> or the mean assignment effect over the stated participants, and its estimate <span class="math inline">\(\widehat{\Delta\mu}=\bar y_1-\bar y_0\)</span>; a stipulated value of <span class="math inline">\(\Delta\mu\)</span> serves planning and power calculations</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;"><span class="math inline">\(\Delta p=p_1-p_0\)</span> for a difference in proportions (Ch. 6); <span class="math inline">\(\theta\)</span>, <span class="math inline">\(\widehat\theta\)</span> for a generic estimand and estimator, distinct from the negative-binomial <span class="math inline">\(\theta\)</span> of Chapter 12; <span class="math inline">\(\tau\)</span> and a bare <span class="math inline">\(\Delta\)</span> are not used</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Uncertainty</td>
+<td style="text-align: left;"><span class="math inline">\(SE(\cdot)\)</span>, <span class="math inline">\(\widehat{SE}(\cdot)\)</span></td>
+<td style="text-align: left;">The standard error of an estimator and its estimate; the hat marks the estimate. Name the statistic: <span class="math inline">\(SE(\bar y)\)</span>, <span class="math inline">\(SE(\bar y_1-\bar y_0)\)</span>, <span class="math inline">\(SE(\widehat C)\)</span></td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">The hat marks an estimated SE; a chapter that abbreviates the notation says so where it does</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Uncertainty</td>
+<td style="text-align: left;"><span class="math inline">\(\operatorname{Var}(\cdot)\)</span>, <span class="math inline">\(\operatorname{Cov}(\cdot,\cdot)\)</span>, <span class="math inline">\(E(\cdot)\)</span></td>
+<td style="text-align: left;">Variance, covariance, and expectation; upright operator names with round brackets. Chapter 2 defines <span class="math inline">\(E(X)\)</span> for a probability model; Chapter 3 applies the same expectation to an estimator over stated repetitions, <span class="math inline">\(E_{\mathrm{assign}}(\cdot)\)</span> when the repetition needs naming</td>
+<td style="text-align: left;">Ch. 2; Ch. 3</td>
+<td style="text-align: left;"><span class="math inline">\(E[\cdot]\)</span> and <span class="math inline">\(\mathbb E\)</span> are not used</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Probability</td>
+<td style="text-align: left;"><span class="math inline">\(P(\cdot)\)</span></td>
+<td style="text-align: left;">Probability of an event</td>
+<td style="text-align: left;">Ch. 2</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Distributions</td>
+<td style="text-align: left;"><span class="math inline">\(\lambda\)</span></td>
+<td style="text-align: left;">A Poisson rate</td>
+<td style="text-align: left;">Ch. 2; Ch. 12</td>
+<td style="text-align: left;">Chapter 12 writes a unit’s conditional rate per unit exposure as <span class="math inline">\(\lambda_i\)</span>; Chapter 13 uses <span class="math inline">\(\lambda\)</span> for a penalty size</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Design</td>
+<td style="text-align: left;"><span class="math inline">\(m\)</span>, <span class="math inline">\(\mathrm{ICC}\)</span>, <span class="math inline">\(\mathrm{deff}\)</span></td>
+<td style="text-align: left;">Units per cluster, such as students per sampled school; the intraclass correlation, the share of outcome variance lying between clusters; the design effect <span class="math inline">\(\mathrm{deff}=1+(m-1)\,\mathrm{ICC}\)</span> for a mean from equal clusters</td>
+<td style="text-align: left;">Ch. 2; Ch. 3</td>
+<td style="text-align: left;">Chapter 2 introduces all three and Chapter 3 uses deff for a clustered SE. ICC and deff are upright abbreviations, not products of letters; Chapter 14 writes the intraclass correlation as <span class="math inline">\(\rho_I\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Simulation</td>
+<td style="text-align: left;"><span class="math inline">\(B\)</span></td>
+<td style="text-align: left;">Number of simulation repetitions or bootstrap resamples, distinct from a study’s sample size <span class="math inline">\(n\)</span></td>
+<td style="text-align: left;">Ch. 5; Ch. 9</td>
+<td style="text-align: left;">Monte Carlo SE shrinks with <span class="math inline">\(B\)</span>; the study SE does not</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reference distributions</td>
+<td style="text-align: left;"><span class="math inline">\(z\)</span>, <span class="math inline">\(z^*\)</span></td>
+<td style="text-align: left;">A standardized score and a standard Normal critical value</td>
+<td style="text-align: left;">Ch. 2; Ch. 3</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Reference distributions</td>
+<td style="text-align: left;"><span class="math inline">\(t_{df}\)</span>, <span class="math inline">\(t^*\)</span></td>
+<td style="text-align: left;">The t distribution with <span class="math inline">\(df\)</span> degrees of freedom; a critical value</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;"><span class="math inline">\(t_{n-2}\)</span> in regression</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reference distributions</td>
+<td style="text-align: left;"><span class="math inline">\(\chi^2\)</span>, <span class="math inline">\(F(df_1, df_2)\)</span></td>
+<td style="text-align: left;">Chi-square and F reference distributions with their degrees of freedom</td>
+<td style="text-align: left;">Ch. 3; Ch. 4</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Testing</td>
+<td style="text-align: left;"><span class="math inline">\(X^2\)</span></td>
+<td style="text-align: left;">Observed Pearson chi-square statistic</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">Distinguish it from the <span class="math inline">\(\chi^2_{df}\)</span> reference distribution</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reference distributions</td>
+<td style="text-align: left;"><span class="math inline">\(df\)</span></td>
+<td style="text-align: left;">Degrees of freedom, upright; subscripts only when two are needed</td>
+<td style="text-align: left;">Ch. 2; Ch. 3</td>
+<td style="text-align: left;">Fractional Welch degrees of freedom follow the precision rule of the <em>Displayed values</em> row</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Testing</td>
+<td style="text-align: left;"><span class="math inline">\(H_0\)</span>, <span class="math inline">\(H_A\)</span>, <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, <span class="math inline">\(1-\beta\)</span></td>
+<td style="text-align: left;">Null and alternative hypotheses; Type I and Type II error probabilities; power at a specified alternative</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;"><span class="math inline">\(\beta\)</span> here is distinct from a regression coefficient, and <span class="math inline">\(\alpha\)</span> from the elastic-net mixing parameter of Chapter 13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Magnitude</td>
+<td style="text-align: left;"><span class="math inline">\(d\)</span>, <span class="math inline">\(g\)</span></td>
+<td style="text-align: left;">Standardized mean difference (Cohen’s <span class="math inline">\(d\)</span>, Hedges’ <span class="math inline">\(g\)</span>)</td>
+<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ANOVA</td>
+<td style="text-align: left;"><span class="math inline">\(SS_B\)</span>, <span class="math inline">\(SS_W\)</span>, <span class="math inline">\(SS_T\)</span>, <span class="math inline">\(MS_B\)</span>, <span class="math inline">\(MS_W\)</span>; <span class="math inline">\(SS_A\)</span>, <span class="math inline">\(SS_{AB}\)</span>, <span class="math inline">\(SS_E\)</span>, <span class="math inline">\(MS_E\)</span></td>
+<td style="text-align: left;">Sums of squares and mean squares between, within, and total; factor, interaction and error terms of the two-way table; subscripted plain letters</td>
+<td style="text-align: left;">Ch. 4</td>
+<td style="text-align: left;">In the two-way table <span class="math inline">\(SS_B\)</span> denotes factor B, not all between-cell variation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ANOVA</td>
+<td style="text-align: left;"><span class="math inline">\(\alpha_j\)</span>, <span class="math inline">\(\beta_k\)</span>, <span class="math inline">\((\alpha\beta)_{jk}\)</span></td>
+<td style="text-align: left;">Factor-model main effects and interaction departures in the two-way model</td>
+<td style="text-align: left;">Ch. 4</td>
+<td style="text-align: left;">Distinct from the unindexed Type I and Type II error probabilities <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ANOVA</td>
+<td style="text-align: left;"><span class="math inline">\(\eta^2\)</span></td>
+<td style="text-align: left;">Eta squared, an ANOVA effect-size measure</td>
+<td style="text-align: left;">Ch. 4</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ANOVA</td>
+<td style="text-align: left;"><span class="math inline">\(c_j\)</span>, <span class="math inline">\(C\)</span>, <span class="math inline">\(\widehat C\)</span></td>
+<td style="text-align: left;">Contrast coefficients, a contrast <span class="math inline">\(C=\sum_j c_j\mu_j\)</span> with <span class="math inline">\(\sum_j c_j=0\)</span>, and its estimate <span class="math inline">\(\widehat C=\sum_j c_j\bar y_j\)</span></td>
+<td style="text-align: left;">Ch. 4</td>
+<td style="text-align: left;"><span class="math inline">\(L\)</span> is not used for contrasts; <span class="math inline">\(L(\cdot)\)</span> is a likelihood</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ANOVA</td>
+<td style="text-align: left;"><span class="math inline">\(DD\)</span>, <span class="math inline">\(\widehat{DD}\)</span></td>
+<td style="text-align: left;">A difference of differences between group means and its estimate</td>
+<td style="text-align: left;">Ch. 6</td>
+<td style="text-align: left;">Chapter 4 develops the object as an interaction contrast declared in advance; Chapter 10 writes the same object as <span class="math inline">\(C_{\mathrm{DD}}\)</span> when it is a linear combination of coefficients</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_j\)</span>; <span class="math inline">\(\widehat\beta_0\)</span>, <span class="math inline">\(\widehat\beta_1\)</span></td>
+<td style="text-align: left;">Process intercept and slopes and their OLS estimates</td>
+<td style="text-align: left;">Ch. 7</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(\widehat y_i\)</span>, <span class="math inline">\(e_i\)</span>, <span class="math inline">\(\varepsilon_i\)</span></td>
+<td style="text-align: left;">Fitted value, residual, and error term of case <span class="math inline">\(i\)</span></td>
+<td style="text-align: left;">Ch. 4; Ch. 7</td>
+<td style="text-align: left;">Chapter 4 uses the grouped forms <span class="math inline">\(\widehat y_{ij}\)</span>, <span class="math inline">\(e_{ij}\)</span>, <span class="math inline">\(\varepsilon_{ij}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(T_i\)</span>; <span class="math inline">\(\varepsilon_{i1}\)</span>, <span class="math inline">\(\varepsilon_{i2}\)</span></td>
+<td style="text-align: left;">A case’s stable true score and the independent errors of two measurements of it</td>
+<td style="text-align: left;">Ch. 7; Ch. 14</td>
+<td style="text-align: left;">Distinct from the residual <span class="math inline">\(e_i\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(S_{xx}\)</span>, <span class="math inline">\(S_{xy}\)</span></td>
+<td style="text-align: left;">Centered sums of squares and cross-products</td>
+<td style="text-align: left;">Ch. 7; Ch. 14</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(RSS\)</span>, <span class="math inline">\(RegSS\)</span>, <span class="math inline">\(TSS\)</span></td>
+<td style="text-align: left;">Residual, regression, and total sums of squares in regression; upright multi-letter names</td>
+<td style="text-align: left;">Ch. 7</td>
+<td style="text-align: left;">Distinct from the ANOVA <span class="math inline">\(SS\)</span> family</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(s_e\)</span></td>
+<td style="text-align: left;">Residual standard deviation (residual standard error)</td>
+<td style="text-align: left;">Ch. 7</td>
+<td style="text-align: left;"><span class="math inline">\(\widehat\sigma_{\mathrm{ML}}\)</span> is the maximum-likelihood scale, a different estimate (Ch. 8)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(R^2\)</span></td>
+<td style="text-align: left;">Coefficient of determination</td>
+<td style="text-align: left;">Ch. 7</td>
+<td style="text-align: left;">Adjusted <span class="math inline">\(R^2\)</span> named in words</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(D\)</span>, <span class="math inline">\(D_i\)</span>, <span class="math inline">\(D_j\)</span></td>
+<td style="text-align: left;">Indicator (0/1) variables; <span class="math inline">\(D_i\)</span> marks case <span class="math inline">\(i\)</span>’s membership, and <span class="math inline">\(J-1\)</span> indicator columns <span class="math inline">\(D_j\)</span> code a <span class="math inline">\(J\)</span>-level factor with a named reference level</td>
+<td style="text-align: left;">Ch. 2; Ch. 9</td>
+<td style="text-align: left;">Distinct from the deviance <span class="math inline">\(D\)</span> (Ch. 11), Cook’s distance <span class="math inline">\(D_i\)</span> (Chs. 7–8), and the diagonal SD matrix <span class="math inline">\(\mathbf D\)</span> (Ch. 5)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: left;"><span class="math inline">\(\mathbf X\)</span>, <span class="math inline">\(\mathbf y\)</span>, <span class="math inline">\(\mathbf H\)</span>, <span class="math inline">\(\widehat{\boldsymbol\beta}\)</span></td>
+<td style="text-align: left;">Design matrix, outcome vector, hat matrix, and coefficient vector; bold, with <span class="math inline">\(\mathbf X^{\mathsf T}\mathbf X\)</span> for the cross-product</td>
+<td style="text-align: left;">Ch. 8; Ch. 9; Ch. 11</td>
+<td style="text-align: left;">Matrices and vectors are bold, with a superscript <span class="math inline">\(\mathsf T\)</span> for a transpose; an element such as <span class="math inline">\(s_{jk}\)</span> is an italic scalar. <span class="math inline">\(h_{ii}=\mathbf x_i^{\mathsf T}(\mathbf X^{\mathsf T}\mathbf X)^{-1}\mathbf x_i\)</span>, with <span class="math inline">\(\mathbf x_i\)</span> case <span class="math inline">\(i\)</span>’s row of <span class="math inline">\(\mathbf X\)</span> written as a column, including an initial 1 for the intercept</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Uncertainty</td>
+<td style="text-align: left;"><span class="math inline">\(\widehat{\mathbf V}\)</span></td>
+<td style="text-align: left;">Estimated covariance matrix of the fitted coefficients</td>
+<td style="text-align: left;">Ch. 8</td>
+<td style="text-align: left;">Distinct from the covariance matrix <span class="math inline">\(\mathbf S\)</span> of observed variables (Ch. 5)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Checks</td>
+<td style="text-align: left;"><span class="math inline">\(h_{ii}\)</span>, <span class="math inline">\(D_i\)</span></td>
+<td style="text-align: left;">Leverage and Cook’s distance of case <span class="math inline">\(i\)</span></td>
+<td style="text-align: left;">Ch. 7; Ch. 8</td>
+<td style="text-align: left;"><span class="math inline">\(h_i\)</span> in the one-predictor setting of Chapter 7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Likelihood</td>
+<td style="text-align: left;"><span class="math inline">\(L(\cdot)\)</span>, <span class="math inline">\(\ell(\cdot)\)</span>, <span class="math inline">\(AIC\)</span>, <span class="math inline">\(BIC\)</span></td>
+<td style="text-align: left;">Likelihood, log-likelihood, and information criteria</td>
+<td style="text-align: left;">Ch. 8; Ch. 9; Ch. 11</td>
+<td style="text-align: left;">Chapter 8 supplies a Normal likelihood for its criteria, Chapter 9 compares models with them, and Chapter 11 develops likelihood fully</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Design/contrasts</td>
+<td style="text-align: left;"><span class="math inline">\(\delta\)</span>, <span class="math inline">\(\widehat\delta\)</span></td>
+<td style="text-align: left;">A locally defined group contrast and its estimate</td>
+<td style="text-align: left;">Ch. 8; Ch. 9</td>
+<td style="text-align: left;">Each chapter defines the contrast where it uses it; a causal interpretation requires design and assumptions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Argument diagrams</td>
+<td style="text-align: left;">E, J, I, C</td>
+<td style="text-align: left;">Evidence, justification, inference and bounded claim: functions of information</td>
+<td style="text-align: left;">Ch. 1; Arg. A</td>
+<td style="text-align: left;">They name functions, not report headings or quality scores</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Argument diagrams</td>
+<td style="text-align: left;">STAT-E/J/I/C; SUB-E/J/I/C</td>
+<td style="text-align: left;">The four functions in the statistical and substantive layers</td>
+<td style="text-align: left;">Ch. 1; Arg. A/B</td>
+<td style="text-align: left;">SUB-E situates, SUB-J augments and contextualizes, SUB-I interprets, SUB-C bounds the substantive reach of the corresponding statistical contribution</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Argument diagrams</td>
+<td style="text-align: left;">Support arrows and cross-layer links</td>
+<td style="text-align: left;">Arrows show logical support within an argument; labelled links connect the meanings of the two layers</td>
+<td style="text-align: left;">Ch. 1; Arg. A/B</td>
+<td style="text-align: left;">Neither is a time sequence or causal path; label cross-question dependencies by the receiving function</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Numbers</td>
+<td style="text-align: left;">Displayed values</td>
+<td style="text-align: left;">Calculated results rounded once to four decimals with trailing zeros dropped (3.1, not 3.1000), and with no thousands separator; values shown as one set, such as a table column or an interval’s limits, share the fewest decimals, up to four, that show every member; the leading zero is kept except for bounded quantities (<span class="math inline">\(p\)</span>, <span class="math inline">\(r\)</span>, <span class="math inline">\(R^2\)</span>, proportions, probabilities: <span class="math inline">\(.0059\)</span>); a nonzero value that rounds to zero is written as a bound (<span class="math inline">\(p&lt;.0001\)</span>), and a proportion or probability that rounds to 1 without equalling 1 keeps four decimals; negative numbers with a true minus sign (<span class="math inline">\(-0.2179\)</span>) in prose, equations, and every authored table; counts, ordinary <span class="math inline">\(df\)</span>, and codes as integers, and a count of 1,000 or more takes a comma in text and tables</td>
+<td style="text-align: left;">Ch. 1</td>
+<td style="text-align: left;">Native software output printed as output and figure axis labels keep their own format; that output and the text R draws in a figure keep R’s hyphen before a negative value</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;"><span class="math inline">\(\pi_i\)</span>, <span class="math inline">\(\pi(x)\)</span>, <span class="math inline">\(\widehat\pi_i\)</span></td>
+<td style="text-align: left;">Conditional event probability and its fitted value</td>
+<td style="text-align: left;">Ch. 11</td>
+<td style="text-align: left;">Chapter 12 adds a category index (row below)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;"><span class="math inline">\(K\)</span>, <span class="math inline">\(\pi_{ik}\)</span></td>
+<td style="text-align: left;">Number of outcome categories and the probability that unit <span class="math inline">\(i\)</span> falls in category <span class="math inline">\(k\)</span></td>
+<td style="text-align: left;">Ch. 2; Ch. 12</td>
+<td style="text-align: left;">Chapter 2 writes the probabilities of one categorical variable as <span class="math inline">\(\pi_1,\ldots,\pi_K\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;"><span class="math inline">\(\eta_i\)</span>, <span class="math inline">\(\operatorname{logit}\)</span></td>
+<td style="text-align: left;">Linear predictor; the logit link <span class="math inline">\(\operatorname{logit}(\pi)=\log\{\pi/(1-\pi)\}\)</span> and its inverse <span class="math inline">\(\operatorname{logit}^{-1}\)</span></td>
+<td style="text-align: left;">Ch. 11; Ch. 12</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLM</td>
+<td style="text-align: left;"><span class="math inline">\(D\)</span>, <span class="math inline">\(G^2\)</span></td>
+<td style="text-align: left;">Deviance and a deviance difference referred to <span class="math inline">\(\chi^2_q\)</span></td>
+<td style="text-align: left;">Ch. 11; Ch. 12</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Prediction</td>
+<td style="text-align: left;"><span class="math inline">\(MAE\)</span></td>
+<td style="text-align: left;">Mean absolute error of held-out predictions</td>
+<td style="text-align: left;">Ch. 8; Ch. 13</td>
+<td style="text-align: left;">Distinct from RMSE, which squares the errors before averaging</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<!-- Navigation entries for units that are not out yet are ordinary links whose
+     href ends in an unavailable-unit anchor. styles.scss
+     mutes them and takes them out of the pointer flow; this marks the same links
+     disabled and drops them from the tab order, so keyboard and screen-reader
+     users meet the state the colour shows. Only the top row and the navigation
+     sidebar are touched, never a table of contents on the page itself.
+     This file is the book site's copy; materials/webr carries the same script
+     for the practice pages. -->
+<script>
+  (function () {
+    var scopes = [".navbar", ".sidebar-navigation"];
+    var targets = ["#part-three", "#argument-c"];
+    var selector = [];
+    scopes.forEach(function (scope) {
+      targets.forEach(function (target) {
+        selector.push(scope + ' a[href$="' + target + '"]');
+      });
+    });
+    document.querySelectorAll(selector.join(", ")).forEach(function (link) {
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("tabindex", "-1");
+    });
+  })();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/jinsong-chen\.github\.io\/QMSBR\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../part-one/part_one_introduction.html" class="pagination-link" aria-label="Introduction">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Introduction</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../part-one/chapter_01.html" class="pagination-link" aria-label="The Quantitative Research Journey">
+        <span class="nav-page-text">The Quantitative Research Journey</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Jinsong Chen · CC BY 4.0</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#citation">
+<p>Cite</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="../about.html#licences">
+<p>Licence</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
