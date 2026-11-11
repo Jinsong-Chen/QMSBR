@@ -58,7 +58,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-one/chapter_05.html" rel="next">
 <link href="../part-one/chapter_03.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -68,7 +68,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -250,13 +250,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+ <span class="menu-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+ <span class="menu-text">Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</span></a>
   </div>
 </li>
     </ul>
@@ -1874,7 +1874,7 @@ Table&nbsp;19: Rejection rates of a true null of equal means at nominal level .0
 <section id="sec-ch04-bridge" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ch04-bridge">Reading Bridge</h2>
 <p>Comparing several means extends the estimate-and-SE reasoning of Chapter 3. ANOVA separates sources of variation to ask an omnibus question; a contrast states a narrower question and its uncertainty. Main effects average across factor levels, while cell means and simple effects show the conditional pattern, and a third factor adds rows to the table and can change a two-way pattern itself. A joint interaction test and one declared interaction contrast answer different questions, and the history of a comparison sets the family its interval must cover.</p>
-<p>The same group-mean model can be written using indicator variables, as Chapter 6 does in R. A measured baseline can also enter an adjusted model, called analysis of covariance (ANCOVA), which Chapter 9, Section 2, develops as regression after Chapters 7–8 develop the regression mathematics, several controls and standardized predictions. Baseline adjustment accounts for a measured source of score variation and compares fitted outcomes at a stated common baseline value, or averages them over the same stated baseline distribution. The groups need adequate overlap in those baseline values, often called common support, for those comparisons to be informed by observations. Adjustment is not a general cure for confounding or missing outcomes.</p>
+<p>The same group-mean model can be written using indicator variables, as Chapter 6 does in R. A measured baseline can also enter an adjusted model, called analysis of covariance (ANCOVA), which Chapter 8, Section 5.2, develops as regression after Chapter 7 and the first sections of Chapter 8 develop the regression mathematics, several controls and indicator coding. Baseline adjustment accounts for a measured source of score variation and compares fitted outcomes at a stated common baseline value, or averages them over the same stated baseline distribution. The groups need adequate overlap in those baseline values, often called common support, for those comparisons to be informed by observations. Adjustment is not a general cure for confounding or missing outcomes.</p>
 <p><strong>Blocking</strong> makes condition comparisons within groups of similar units. Chapter 3, Section 2.3, illustrates it with paired schools: in each of twelve schools one class is assigned to each format, so the uncertainty follows twelve independent within-school comparisons rather than 480 students. Sampling strata, which organize selection into a sample, and allocation blocks, which organize treatment comparisons, have different roles. The three sound conditions and the feedback-by-practice cells of this chapter instead contain distinct, individually assigned students. Repeated measurements and classroom clustering change the covariance structure and the relevant error term; the shape of a data table cannot settle these design questions. Chapters 5–6 now make the statistical foundations executable while keeping the question, records and interpretation beside each calculation.</p>
 <section id="key-terms" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="key-terms">Key terms</h3>

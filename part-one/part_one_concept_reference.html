@@ -38,7 +38,7 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="../">
 <link href="../part-one/chapter_01.html" rel="next">
 <link href="../part-one/part_one_introduction.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -48,7 +48,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -230,13 +230,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+ <span class="menu-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+ <span class="menu-text">Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</span></a>
   </div>
 </li>
     </ul>
@@ -287,8 +287,8 @@ window.Quarto = {
   <li><a href="#sec-concepts-ch05" id="toc-sec-concepts-ch05">Chapter 5: Description and Basic Inference with R</a></li>
   <li><a href="#sec-concepts-ch06" id="toc-sec-concepts-ch06">Chapter 6: Group Comparisons and Statistical Modelling with R</a></li>
   <li><a href="#sec-concepts-ch07" id="toc-sec-concepts-ch07">Chapter 7: Simple Linear Regression</a></li>
-  <li><a href="#sec-concepts-ch08" id="toc-sec-concepts-ch08">Chapter 8: Multiple Regression I: Conditioning, Checks, and Coordinated Questions</a></li>
-  <li><a href="#sec-concepts-ch09" id="toc-sec-concepts-ch09">Chapter 9: Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</a></li>
+  <li><a href="#sec-concepts-ch08" id="toc-sec-concepts-ch08">Chapter 8: Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</a></li>
+  <li><a href="#sec-concepts-ch09" id="toc-sec-concepts-ch09">Chapter 9: Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</a></li>
   <li><a href="#sec-concepts-ch10" id="toc-sec-concepts-ch10">Chapter 10: Interaction and Moderation</a></li>
   <li><a href="#sec-concepts-ch11" id="toc-sec-concepts-ch11">Chapter 11: Binary Logistic Regression</a></li>
   <li><a href="#sec-concepts-ch12" id="toc-sec-concepts-ch12">Chapter 12: Extending the GLM: Nominal, Ordinal, and Count Outcomes</a></li>
@@ -883,50 +883,46 @@ Table&nbsp;7: Key terms of Chapter 7.
 <td style="text-align: left;">The difference in fitted outcome per one-unit difference in the predictor, in outcome units per predictor unit. It compares units that differ in the predictor; it is not a change within one unit unless a design supports that reading.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Comparison and counterfactual interpretations (predictive and causal readings)</td>
+<td style="text-align: left;">A comparison reading treats a coefficient as the predicted difference in outcome between units that differ by one unit in the predictor; it is the default for observational records. A counterfactual reading treats it as a causal contrast between outcomes under two predictor values. No unit is observed under both, so a credible comparison, such as a randomized one, can identify the average contrast across units even when individual contrasts differ, but not one unit’s own.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Ordinary least squares (OLS)</td>
 <td style="text-align: left;">The rule that chooses the intercept and slope minimizing the residual sum of squares. With an intercept, the fitted line passes through the mean point and the residuals sum to zero; the slope equals covariance divided by predictor variance.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Residual sum of squares (RSS)</td>
 <td style="text-align: left;">The sum of squared residuals from a fitted line, in squared outcome units. Total squared variation about the mean splits into a regression part and RSS when the model has an intercept.</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">Residual standard deviation (residual standard error)</td>
+<tr class="odd">
+<td style="text-align: left;">Residual standard deviation (residual standard error; standard error of the estimate)</td>
 <td style="text-align: left;">The square root of RSS divided by its residual degrees of freedom, in outcome units; with an intercept and one predictor the degrees of freedom are <span class="math inline">\(n-2\)</span>. Under the process model it estimates the error SD.</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">R-squared (coefficient of determination)</td>
-<td style="text-align: left;">One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation.</td>
-</tr>
 <tr class="even">
+<td style="text-align: left;">R-squared (coefficient of determination)</td>
+<td style="text-align: left;">One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation; for any least-squares fit with an intercept it equals the squared correlation between the outcome and its fitted values.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Confidence interval for a mean response (mean-response interval)</td>
 <td style="text-align: left;">An interval for the process mean outcome at a stated predictor value, using the SE of the fitted value. It concerns an average, narrows near the predictor mean, and does not cover individual outcomes.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Prediction interval (new-case interval)</td>
 <td style="text-align: left;">An interval for one new outcome at a stated predictor value from the same process. Its variance adds the error variance to the fitted-mean variance, so it is wider than the mean-response interval and keeps a nonzero floor as the sample grows.</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">Leverage</td>
-<td style="text-align: left;">A measure of how unusual a record’s predictor value is relative to the others; it grows with distance from the predictor mean and appears in the SE of a fitted value and in influence measures.</td>
-</tr>
 <tr class="odd">
-<td style="text-align: left;">Cook’s distance (influence)</td>
-<td style="text-align: left;">A summary of how much the fitted values change when one record is omitted, combining its residual and its leverage. It prompts inspection of provenance and a disclosed sensitivity, not automatic deletion.</td>
+<td style="text-align: left;">Residual plot (residuals against fitted values)</td>
+<td style="text-align: left;">A plot of each residual against its fitted value, read for its centre, where a curve questions the straight-line mean, and its spread, where widening scatter questions one error SD and the prediction interval built on it.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Heteroskedasticity-consistent covariance (HC3; sandwich estimator)</td>
-<td style="text-align: left;">A coefficient covariance estimate that allows unequal error variance across predictor values under independence. It changes SEs and intervals, not the fitted coefficients, and does not repair curvature, dependence, measurement error, or confounding.</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">Extrapolation (predictor support)</td>
 <td style="text-align: left;">Using a fitted line at predictor values outside the observed range or where observations are sparse. Software returns a number there; the data do not support it.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Regression toward the mean (regression to the mean)</td>
 <td style="text-align: left;">For a simple linear prediction in standard units, <span class="math inline">\(\widehat z_y=r\,z_x\)</span>; when <span class="math inline">\(\lvert r\rvert&lt;1\)</span>, the predicted value is nearer its mean than the predictor is to its mean. In a stable repeated-measurement model with independent occasion errors, a group selected on an extreme noisy first score is expected to be less extreme on the second. These are statements about predictions or conditional averages, not every case; a narrower spread of predictions does not imply a narrower outcome distribution (the regression paradox).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Regression fallacy</td>
 <td style="text-align: left;">Attributing to an intervention the movement expected from selection on an extreme noisy measurement. Evaluating an intervention requires a credible no-intervention benchmark, supplied by a suitable design or untreated comparison under stated assumptions; a fitted line through treated outcomes alone does not supply it.</td>
 </tr>
@@ -937,7 +933,7 @@ Table&nbsp;7: Key terms of Chapter 7.
 </div>
 </section>
 <section id="sec-concepts-ch08" class="level2">
-<h2 class="anchored" data-anchor-id="sec-concepts-ch08">Chapter 8: Multiple Regression I: Conditioning, Checks, and Coordinated Questions</h2>
+<h2 class="anchored" data-anchor-id="sec-concepts-ch08">Chapter 8: Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</h2>
 <div id="tbl-intro-concepts-ch08" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch08-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -958,15 +954,15 @@ Table&nbsp;8: Key terms of Chapter 8.
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Multiple regression (multiple regression model; additive model)</td>
-<td style="text-align: left;">A model in which an outcome’s mean is an intercept plus one term per predictor, <span class="math inline">\(E(Y\mid x_1,\ldots,x_{p-1})=\beta_0+\beta_1x_1+\cdots+\beta_{p-1}x_{p-1}\)</span>, with errors of one common SD <span class="math inline">\(\sigma\)</span>; its <span class="math inline">\(p\)</span> coefficients leave <span class="math inline">\(n-p\)</span> residual df, and least squares estimates them. Each coefficient compares means at the same values of the other predictors; the additive form assumes each comparison is the same across those values.</td>
+<td style="text-align: left;">A model in which an outcome’s mean is an intercept plus one term per predictor, <span class="math inline">\(E(y\mid x_1,\ldots,x_p)=\beta_0+\beta_1x_1+\cdots+\beta_px_p\)</span>, with errors of one common SD <span class="math inline">\(\sigma\)</span>; its <span class="math inline">\(p+1\)</span> coefficients leave <span class="math inline">\(n-p-1\)</span> residual df, and least squares estimates them. Each coefficient compares means at the same values of the other predictors; the additive form assumes each comparison is the same across those values.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Partial slope (conditional coefficient; adjusted coefficient)</td>
 <td style="text-align: left;">The difference in fitted outcome per one-unit difference in one predictor, holding the model’s other predictors fixed. Its meaning depends on the conditioning set named with it; it is not an intervention effect or a claim about unmeasured differences.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Indicator variable (dummy variable) and reference category</td>
-<td style="text-align: left;">A 0/1 variable marking membership in one category of a factor; a factor with <span class="math inline">\(J\)</span> levels needs <span class="math inline">\(J-1\)</span> indicators, and the omitted level is the reference. The intercept refers to the reference category; each indicator coefficient is a difference from it at the same other predictors. Releveling changes coordinates, not fitted values.</td>
+<td style="text-align: left;">Confounding and statistical control (adjustment)</td>
+<td style="text-align: left;">In the regression sense, confounding is a distortion of the relationship between a focal predictor and the outcome by a variable associated with both; statistical control includes such variables so that the focal coefficient compares units at the same values of them. Control yields an adjusted association for the measured, included variables in the form the model gives them, not automatically a causal effect.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Partial regression (residualization; added-variable form)</td>
@@ -977,32 +973,44 @@ Table&nbsp;8: Key terms of Chapter 8.
 <td style="text-align: left;">The estimated variances and covariances of the fitted coefficients (<code>vcov()</code> in R). Any linear combination of coefficients, such as a fitted mean or a contrast, has variance <span class="math inline">\(\mathbf c^{\mathsf T}\widehat{\mathbf V}\mathbf c\)</span>; adding SEs or ignoring covariances is a different, incorrect calculation.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Variance inflation factor (VIF)</td>
-<td style="text-align: left;">One divided by one minus the <span class="math inline">\(R^2\)</span> from regressing a predictor on the other predictors. Its square root multiplies that coefficient’s SE relative to an orthogonal design, holding residual variance fixed; it describes precision, not bias, and is not a deletion rule.</td>
+<td style="text-align: left;">Adjusted <span class="math inline">\(R^2\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(R^2\)</span> with a penalty for the number of predictors, <span class="math inline">\(1-(1-R^2)(n-1)/(n-p-1)\)</span>. It rises only when an added predictor’s partial <span class="math inline">\(F\)</span> exceeds 1; like <span class="math inline">\(R^2\)</span>, it is an in-sample summary.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Overall <span class="math inline">\(F\)</span> test (omnibus test)</td>
+<td style="text-align: left;">Tests whether all slopes are zero, <span class="math inline">\(F=\{RegSS/p\}/\{RSS/(n-p-1)\}\)</span> on <span class="math inline">\(p\)</span> and <span class="math inline">\(n-p-1\)</span> df. A significant result says the predictors together improve on one common mean, not that each predictor matters.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Nested-model <span class="math inline">\(F\)</span> test (partial <span class="math inline">\(F\)</span>; extra sum of squares; block test)</td>
+<td style="text-align: left;">Compares a reduced model with a full one that contains it, fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the full model’s residual mean square, on <span class="math inline">\(q\)</span> and <span class="math inline">\(n-p_F-1\)</span> df. It tests the added block jointly, not each coefficient separately.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Likelihood-ratio test (deviance difference)</td>
+<td style="text-align: left;">Compares nested models by twice the rise in maximized log-likelihood, <span class="math inline">\(LR=2(\widehat\ell_F-\widehat\ell_R)\)</span>, which for Normal linear models is <span class="math inline">\(n\log(RSS_R/RSS_F)\)</span>, referred to a chi-square distribution with <span class="math inline">\(q\)</span> df in large samples. For linear models the exact <span class="math inline">\(F\)</span> test is preferred; the likelihood-ratio test extends to models without a residual sum of squares.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Information criteria (AIC; BIC)</td>
+<td style="text-align: left;">Penalized in-sample fit: <span class="math inline">\(-2\widehat\ell\)</span> plus <span class="math inline">\(2K\)</span> (AIC) or <span class="math inline">\(K\log n\)</span> (BIC), with <span class="math inline">\(K=p+2\)</span> counting the coefficients and the error variance. Smaller is preferred among models fitted to the same records and outcome scale, nested or not; BIC charges more per parameter once <span class="math inline">\(n\ge8\)</span>, and neither is a held-out error.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Indicator variable (dummy variable) and reference category</td>
+<td style="text-align: left;">A 0/1 variable marking membership in one category of a factor; a factor with <span class="math inline">\(J\)</span> levels needs <span class="math inline">\(J-1\)</span> indicators, and the omitted level is the reference. The intercept refers to the reference category; each indicator coefficient is a difference from it at the same other predictors. Releveling changes coordinates, not fitted values.</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Joint support (covariate hull)</td>
 <td style="text-align: left;">Whether a combination of predictor values lies within the region where observations actually occur, not merely within each variable’s separate range. A fitted value outside joint support is extrapolation even if each coordinate is observed somewhere.</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">ANCOVA (analysis of covariance)</td>
+<td style="text-align: left;">A regression comparing groups while including a quantitative covariate with one common slope; its adjusted group means are read at a stated covariate value within common support. The posttest-only, gain-score and ANCOVA analyses are one regression whose pretest coefficient is 0, 1 or estimated; adjustment cannot supply what random assignment supplies.</td>
+</tr>
 <tr class="even">
+<td style="text-align: left;">Homogeneity of regression slopes (parallel slopes)</td>
+<td style="text-align: left;">ANCOVA’s condition that the outcome–covariate slope is the same in every group, checked by testing the group-by-covariate product block; when the slopes differ, the adjusted difference depends on the covariate value at which it is read.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Standardization over a named distribution (model-averaged fitted value)</td>
 <td style="text-align: left;">Averaging the model’s fitted values after setting one predictor to a chosen value for every profile in a declared set with fixed weights. Its uncertainty uses the coefficient covariance; it is not an observed group mean, a causal effect, or held-out performance.</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Learning rule (learning procedure)</td>
-<td style="text-align: left;">A fixed recipe that turns training records into a prediction equation, such as fitting a declared OLS formula. Prediction performance concerns the rule at stated training sizes, not one final fitted equation.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Cross-validation (held-out validation)</td>
-<td style="text-align: left;">Dividing records into folds, fitting a rule on the other folds, predicting the held-out fold, and pooling the errors so that no outcome contributes to its own prediction. Resplits describe sensitivity to the partition, not new independent studies.</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mean absolute error (MAE)</td>
-<td style="text-align: left;">The average absolute difference between held-out outcomes and their predictions, in outcome units. It is an evaluation loss chosen separately from the squared-error criterion that OLS minimizes.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Cross-question coherence</td>
-<td style="text-align: left;">The additional evaluation question for coordinated answers: does the synthesis preserve the distinct questions, estimands, methods, uncertainty, and limits of the separate answers rather than merging them into one omnibus claim?</td>
 </tr>
 </tbody>
 </table>
@@ -1011,7 +1019,7 @@ Table&nbsp;8: Key terms of Chapter 8.
 </div>
 </section>
 <section id="sec-concepts-ch09" class="level2">
-<h2 class="anchored" data-anchor-id="sec-concepts-ch09">Chapter 9: Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</h2>
+<h2 class="anchored" data-anchor-id="sec-concepts-ch09">Chapter 9: Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</h2>
 <div id="tbl-intro-concepts-ch09" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-intro-concepts-ch09-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1031,38 +1039,58 @@ Table&nbsp;9: Key terms of Chapter 9.
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">ANCOVA (analysis of covariance)</td>
-<td style="text-align: left;">A regression comparing groups while including a quantitative covariate with one common slope; its adjusted group means are read at a stated covariate value within common support. The posttest-only, gain-score and ANCOVA analyses are one regression whose pretest coefficient is 0, 1 or estimated; adjustment cannot supply what random assignment supplies.</td>
+<td style="text-align: left;">Model checking (regression diagnostics)</td>
+<td style="text-align: left;">Examining whether a fitted model’s mean function and error assumptions are adequate for the answers drawn from it, mainly through residual plots and the design. It judges whether departures are minor, whether they change conclusions, and whether a better model is available; it is not a pass–fail ritual.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Homogeneity of regression slopes (parallel slopes)</td>
-<td style="text-align: left;">ANCOVA’s condition that the outcome–covariate slope is the same in every group, checked by testing the group-by-covariate product block; when the slopes differ, the adjusted difference depends on the covariate value at which it is read.</td>
+<td style="text-align: left;">Regression assumptions (L.I.N.E.)</td>
+<td style="text-align: left;">Linearity of the conditional mean, independence of the errors, Normal errors, and equal error variance at every combination of predictor values. They concern the unobserved errors, not the raw outcome or predictors, and are checked through residual plots and the design.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Nested-model <span class="math inline">\(F\)</span> test (extra sum of squares; block test)</td>
-<td style="text-align: left;">Compares a reduced model with a fuller one fitted to the same records and outcome: the RSS reduction per added coefficient, divided by the fuller model’s residual mean square, referred to <span class="math inline">\(F\)</span> with the number of restrictions and the fuller model’s residual df. It tests the added block jointly, not each coefficient separately.</td>
+<td style="text-align: left;">Standardized residual (Normal Q–Q plot; scale–location plot)</td>
+<td style="text-align: left;">A residual divided by its estimated SD, <span class="math inline">\(e_i/(s_e\sqrt{1-h_i})\)</span>, roughly standard Normal under the model. A Q–Q plot compares the ordered standardized residuals with Normal quantiles; a scale–location plot shows whether their spread changes with the fitted value. A pooled Q–Q plot cannot separate non-Normal errors from spread that differs across cases.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Information criteria (AIC; BIC)</td>
-<td style="text-align: left;">Penalized in-sample fit: <span class="math inline">\(-2\log\widehat L\)</span> plus <span class="math inline">\(2k\)</span> (AIC) or <span class="math inline">\(k\log n\)</span> (BIC), with <span class="math inline">\(k\)</span> counting the coefficients and the residual variance. Smaller is preferred among models fitted to the same records and outcome scale; neither is held-out error.</td>
+<td style="text-align: left;">Leverage and influence (Cook’s distance)</td>
+<td style="text-align: left;">Leverage measures how unusual a case’s combination of predictor values is. The leverages average <span class="math inline">\((p+1)/n\)</span>. Cook’s distance measures the overall change in fitted values when a case is omitted. Its influence on a particular slope also depends on where the case lies on that predictor after adjustment for the others. Check influential cases and report how the fit changes when they are omitted.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Heteroscedasticity-consistent covariance (HC3; robust standard error)</td>
+<td style="text-align: left;">A coefficient covariance that allows a different error variance for each case, using each squared residual adjusted for leverage. It can raise or lower a standard error and leaves the coefficients unchanged; it does not repair a wrong mean, dependence, or measurement error.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multicollinearity (redundancy among predictors)</td>
+<td style="text-align: left;">Strong linear association among predictors, so that one can be predicted well from the others. It leaves the joint fit intact but makes individual coefficients unstable, inflates their standard errors, and makes holding the other predictors fixed a comparison the records rarely show.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Variance inflation factor (VIF; tolerance)</td>
+<td style="text-align: left;"><span class="math inline">\(\mathrm{VIF}_j=1/(1-R^2_j)\)</span>, where <span class="math inline">\(R^2_j\)</span> comes from regressing <span class="math inline">\(x_j\)</span> on the other predictors and <span class="math inline">\(1-R^2_j\)</span> is the tolerance. Holding error variance and predictor spread fixed, the VIF multiplies the slope variance relative to uncorrelated predictors. Cutoffs such as 5 or 10 are conventions.</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Standardized coefficient (beta weight)</td>
-<td style="text-align: left;">A partial slope rescaled by the predictor and outcome SDs, in outcome-SD units per predictor SD, with the other predictors held fixed. It differs from standardization over named profiles and does not measure causal importance.</td>
+<td style="text-align: left;">A partial slope expressed in outcome SDs per predictor SD, <span class="math inline">\(\beta^*_j=\widehat\beta_j\,s_{x_j}/s_y\)</span>, with the other predictors held fixed. It compares predictors within one model and sample; it is not a causal ranking.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Variance partition (unique and shared contributions; change in <span class="math inline">\(R^2\)</span>)</td>
+<td style="text-align: left;">Dividing a model’s <span class="math inline">\(R^2\)</span> into parts explained uniquely by each predictor, the change in <span class="math inline">\(R^2\)</span> when it is added last, and a part shared among predictors. A predictor’s total part is its squared correlation with the outcome; unique parts can be small for redundant predictors.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Polynomial term (quadratic term; curvature)</td>
-<td style="text-align: left;">A power of a predictor added as a further column so that the fitted mean can curve. The predictor’s comparison then depends on its value; centering before squaring reduces collinearity without changing the fitted curve.</td>
+<td style="text-align: left;">Outcome transformation (log; square root; Box–Cox)</td>
+<td style="text-align: left;">Refitting the model to a function of the outcome to stabilize its spread or reduce skew. The Box–Cox family <span class="math inline">\(y^{(\lambda)}\)</span> includes the log (<span class="math inline">\(\lambda=0\)</span>) and square root (<span class="math inline">\(\lambda=1/2\)</span>) and chooses <span class="math inline">\(\lambda\)</span> by likelihood. A changed scale is a changed question, and fit statistics do not carry across it.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Log-transformed outcome (geometric-mean scale)</td>
-<td style="text-align: left;">Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and <span class="math inline">\(100(e^{\beta}-1)\)</span> percent is a multiplicative difference in geometric means. A changed outcome scale is a changed question, and its criteria are not comparable with the original scale’s.</td>
+<td style="text-align: left;">Fitting the logarithm of the outcome, so that a coefficient is an additive difference in expected log outcome and <span class="math inline">\(100(e^{\beta}-1)\)</span> percent is a multiplicative difference in geometric means.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Polynomial term (quadratic term; curvature)</td>
+<td style="text-align: left;">A power of a predictor added as a further column so that the fitted mean can curve while the model stays linear in its coefficients. The predictor’s slope then depends on its value; centering before squaring moves the linear coefficient’s reading to the centre without changing the fit.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Bootstrap (case resampling; percentile interval)</td>
 <td style="text-align: left;">Refitting the model to many resamples of the records drawn with replacement and using the spread of the refitted estimates as an SE, or their middle 95% as a percentile interval. It treats the resampled units as independent and exchangeable; it does not repair dependence, thin support, measurement error, or an observational design.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Cluster-robust standard error (school-clustered covariance)</td>
 <td style="text-align: left;">A coefficient covariance that sums residual contributions within clusters, such as schools, before combining them, allowing dependence within clusters under an approximation that treats clusters as independent. It changes uncertainty, not the coefficient, and does not repair missing outcomes or weighting.</td>
 </tr>
@@ -1093,40 +1121,48 @@ Table&nbsp;10: Key terms of Chapter 10.
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Product term (interaction term; multiplicative term)</td>
-<td style="text-align: left;">A column formed by multiplying predictors, so that a fitted comparison can depend on their values. A two-way product coefficient is a difference in slopes when no higher-order product makes that difference conditional, and nonadditivity is defined on the modeled scale: a nonlinear change of outcome scale can create or remove it.</td>
+<td style="text-align: left;">Interaction (product term; nonadditivity)</td>
+<td style="text-align: left;">A model term formed by multiplying predictors, so that the slope of one depends on the value of another: in <span class="math inline">\(y=\beta_0+\beta_1x_1+\beta_2x_2+\beta_3x_1x_2+\varepsilon\)</span>, <span class="math inline">\(\beta_3\)</span> is the change in the slope of <span class="math inline">\(x_1\)</span> per unit of <span class="math inline">\(x_2\)</span> and equally the change in the slope of <span class="math inline">\(x_2\)</span> per unit of <span class="math inline">\(x_1\)</span>. Nonadditivity is defined on the modeled scale; a nonlinear change of outcome scale can create or remove it.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Conditional slope (simple slope; conditional effect)</td>
-<td style="text-align: left;">The fitted difference in outcome per one-unit difference in a focal predictor evaluated at stated values or groups of the other predictors. It is a linear combination of coefficients, so its SE uses their covariance, and it describes a conditional mean, not an individual case.</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">Moderator (moderating variable; moderation)</td>
-<td style="text-align: left;">The variable across whose values or groups a named focal relationship is allowed to vary. The product-term algebra is symmetric in the two predictors, so the label comes from the research question; a moderation reading describes when a relationship differs, not how an effect is transmitted.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hierarchy principle (marginality; well-formulated model)</td>
-<td style="text-align: left;">The rule that a model containing a product retains its component terms and all lower-order products contained in it. Omitting them imposes restrictions tied to the coded origins; a three-way product therefore retains all three two-way products as well as the three component terms.</td>
+<td style="text-align: left;">The variable across whose values or groups a named focal relationship is allowed to vary. The product-term algebra is symmetric, so the label comes from theory, timing or design; when roles cannot be justified, symmetric language and both sets of simple slopes are used. A moderation reading describes when a relationship differs, not how an effect is transmitted.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Centering a predictor (anchoring; reparameterization)</td>
-<td style="text-align: left;">Replacing a predictor by its difference from a chosen value, so that coefficients anchored at zero become comparisons at that value. It changes the intercept and lower-order coefficients while preserving fitted values, residuals and tests of equivalent model restrictions. The highest-order product coefficient stays unchanged under a change of origin; lower-order product coefficients can change in a higher-order model. Centering repairs no design, selection, or measurement problem.</td>
+<td style="text-align: left;">Simple slope (conditional slope; conditional effect)</td>
+<td style="text-align: left;">The slope of a focal predictor at a stated value of the moderator, such as <span class="math inline">\(\beta_1+\beta_3w\)</span>. Its SE is the square root of <span class="math inline">\(\operatorname{Var}(\widehat\beta_1)+w^2\operatorname{Var}(\widehat\beta_3)+2w\operatorname{Cov}(\widehat\beta_1,\widehat\beta_3)\)</span>, which combines the variances and the covariance of the coefficients involved; adding SEs or dropping the covariance is a different, incorrect calculation.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Probe value (pick-a-point value)</td>
-<td style="text-align: left;">A stated value of the moderator at which a conditional slope or contrast is evaluated, chosen from the measurement scale, a threshold, or a decision need rather than by an automatic mean-and-SD rule, and restricted to values the records support.</td>
+<td style="text-align: left;">Pick-a-point approach (simple slope analysis; probing)</td>
+<td style="text-align: left;">Estimating and graphing simple slopes at a few moderator values, such as the mean and one SD either side, the quartiles, meaningful cut points, or the two values of a 0/1 moderator. It reports magnitudes at interpretable values, but its significance statements depend on the probes chosen.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Johnson–Neyman boundary (region of significance)</td>
-<td style="text-align: left;">A moderator value at which a pointwise interval for a conditional slope touches zero, found as a root of a quadratic whose leading coefficient decides which side is the region. A boundary outside the observed support describes the algebra and not the data, and a pointwise band is not a simultaneous band.</td>
+<td style="text-align: left;">Johnson–Neyman technique (region of significance)</td>
+<td style="text-align: left;">Finding the moderator values at which the pointwise interval for a simple slope touches zero, the roots of a quadratic. Within the observed range there can be one, two or no boundaries; a boundary outside the data has no empirical support, and a pointwise band is not a simultaneous band.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Interaction contrast (difference in differences within a model)</td>
-<td style="text-align: left;">A linear combination of coefficients comparing two conditional comparisons, such as one group’s difference minus another group’s difference. Under reference coding it equals a product coefficient up to sign; its SE uses the coefficient covariance, and its causal reading depends on design, not on the algebra.</td>
+<td style="text-align: left;">Hierarchy principle (marginality)</td>
+<td style="text-align: left;">The rule that a model with a product term keeps every lower-order term the product contains, even when those coefficients are small or nonsignificant. Omitting one forces a slope to zero at an arbitrary origin and changes the fitted surface when a predictor is shifted.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Moderated moderation (three-way interaction; higher-order interaction)</td>
-<td style="text-align: left;">A two-way interaction that changes across a second moderator. A hierarchical three-way model retains all component and two-way terms; conditional slopes depend on both moderators, and a direct contrast tests how the named interaction differs rather than comparing separate significance decisions.</td>
+<td style="text-align: left;">Centering a predictor (mean-centering)</td>
+<td style="text-align: left;">Subtracting a chosen value, often the mean, from a predictor so that the lower-order coefficients become slopes at that value. It changes the intercept and lower-order coefficients, and their SEs, while leaving the fitted values, the product’s estimate and its test unchanged; it adds no information and does not reduce collinearity in a way that matters.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Difference of differences (interaction contrast)</td>
+<td style="text-align: left;">A comparison of two simple effects or slopes, such as a status difference at one level minus that at another. In a regression with indicators and their products, a product coefficient is a difference of differences of cell means; its SE comes from the coefficient covariance.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Partial eta squared (<span class="math inline">\(\eta^2_{\text{partial}}\)</span>)</td>
+<td style="text-align: left;">An effect’s sum of squares divided by the sum of that effect’s and the error sum of squares, <span class="math inline">\(SS_{\text{effect}}/(SS_{\text{effect}}+SS_{\text{error}})\)</span>. It equals <span class="math inline">\(\eta^2\)</span> in a one-way design. With unequal cell sizes, a sequential main effect’s sum of squares and its partial eta squared can depend on factor order.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Separate-slopes model (analysis of covariance with interaction)</td>
+<td style="text-align: left;">A regression of an outcome on a factor, a covariate and their products, giving each group its own covariate slope. The products test whether the slopes differ; group differences are then read at a stated covariate value inside every group’s observed range.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Higher-order interaction (three-way interaction; moderated moderation)</td>
+<td style="text-align: left;">A product of three or more predictors, kept with all its lower-order terms. A three-way term asks whether the moderation of one predictor’s slope by a second predictor changes across a third; it needs support in every cell it compares.</td>
 </tr>
 </tbody>
 </table>
@@ -1155,82 +1191,86 @@ Table&nbsp;11: Key terms of Chapter 11.
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Event and non-event (the category coded 1)</td>
-<td style="text-align: left;">The category a binary model treats as occurring, named together with the category coded 0. Reversing the event reciprocates the odds ratios and complements fitted event probabilities; probabilities for the original event agree after relabelling.</td>
+<td style="text-align: left;">Generalized linear model (GLM)</td>
+<td style="text-align: left;">A random component (the outcome’s distribution), a linear predictor <span class="math inline">\(\eta=\beta_0+\beta_1x_1+\cdots+\beta_px_p\)</span> and a link <span class="math inline">\(g(\mu)=\eta\)</span> connecting the conditional mean to it, with variance <span class="math inline">\(\phi V(\mu)\)</span>; ordinary regression is the Normal, identity-link case, and changing the distribution and link gives the models of Chapters 11 and 12.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Prevalence (event rate)</td>
-<td style="text-align: left;">The proportion of analytic rows that are events. Coefficient precision also depends on conditional probabilities, predictor spread and overlap; the rare-outcome approximation of an odds ratio by a risk ratio depends on the risks being compared.</td>
+<td style="text-align: left;">Event and non-event (the category coded 1)</td>
+<td style="text-align: left;">The category a binary model treats as occurring, named with the category coded 0. Reversing the event reciprocates the odds ratios and complements the fitted probabilities; probabilities for the original event agree after relabeling.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Generalized linear model (GLM)</td>
-<td style="text-align: left;">A response distribution, a linear predictor and a link connecting the conditional mean to the linear predictor; changing the response distribution and link gives the models of Chapters 11 and 12.</td>
+<td style="text-align: left;">Prevalence (event rate)</td>
+<td style="text-align: left;">The proportion of analytic rows that are events. Precision also depends on conditional probabilities, predictor spread and overlap; an odds ratio approximates a risk ratio only when the compared risks are small.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Link function; logit link and inverse logit (logistic function)</td>
-<td style="text-align: left;">The logit is the log of the odds and its inverse the S-shaped function bounded in <span class="math inline">\((0,1)\)</span>, equal to one half and steepest at a linear predictor of zero.</td>
+<td style="text-align: left;">Link function; logit and inverse logit (logistic function)</td>
+<td style="text-align: left;">The logit is the log of the odds; its inverse is the S-shaped function bounded in <span class="math inline">\((0,1)\)</span>, equal to one half and steepest where the linear predictor is zero. The link transforms the mean, not the observed 0 or 1.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Odds and log-odds</td>
-<td style="text-align: left;">The odds are <span class="math inline">\(\pi/(1-\pi)\)</span> and the log-odds their logarithm; the three scales describe one quantity with null values 1 and 0, and the log-odds scale is symmetric under reversing the event.</td>
+<td style="text-align: left;">The odds are <span class="math inline">\(\pi/(1-\pi)\)</span> and the log-odds their logarithm; the three scales describe one quantity, with null values 1 and 0, and the log-odds scale is symmetric under reversing the event.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Odds ratio (OR)</td>
-<td style="text-align: left;">The factor <span class="math inline">\(e^{\beta_j}\)</span> by which the odds differ between units differing by one unit in a predictor and agreeing on the others; it depends on the units, reference, event and adjustment set, is not a risk ratio unless the event is rare, and implies no constant probability difference.</td>
+<td style="text-align: left;">The factor <span class="math inline">\(e^{\beta_j}\)</span> by which the odds differ between cases one unit apart in a predictor and agreeing on the others; it depends on the units, reference, event and adjustment set, is not a risk ratio unless the event is rare, and implies no constant probability difference.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Divide-by-4 rule</td>
+<td style="text-align: left;">For a constant log-odds slope <span class="math inline">\(\beta_j\)</span>, the probability slope <span class="math inline">\(\beta_j\pi(1-\pi)\)</span> is steepest at <span class="math inline">\(\pi=.5\)</span>. Its value there is <span class="math inline">\(\beta_j/4\)</span>, and its magnitude bounds the absolute probability difference for a one-unit step.</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Noncollapsibility (of the odds ratio)</td>
-<td style="text-align: left;">A conditional odds ratio generally differs from the marginal one even with no confounding, so a coefficient that moves under adjustment is not by itself evidence of confounding.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Likelihood and log-likelihood</td>
-<td style="text-align: left;">The probability or density of the observed data under a declared model, viewed as a function of its parameters with the data fixed; the log-likelihood is its logarithm. It is not a probability distribution over the parameters.</td>
+<td style="text-align: left;">A conditional odds ratio generally differs from the marginal one even without confounding, so a coefficient that moves under adjustment is not by itself evidence of confounding.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Maximum likelihood estimation (MLE)</td>
-<td style="text-align: left;">Choosing parameter values that maximize the likelihood, equivalently the log-likelihood, over the stated parameter space; near the maximum, the curvature of the log-likelihood gives the large-sample SE.</td>
+<td style="text-align: left;">Likelihood and maximum likelihood (log-likelihood; MLE)</td>
+<td style="text-align: left;">The probability of the observed data under a model, viewed as a function of its parameters with the data fixed, and the choice of parameter values that maximize it or its logarithm; it is not a probability distribution over the parameters, and the curvature of the log-likelihood at its maximum gives the large-sample SE.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Bernoulli likelihood and score equations (binary-outcome likelihood)</td>
-<td style="text-align: left;">The probability of the observed data as a function of the parameters, maximized to estimate them; for a binary outcome it is a product of Bernoulli probabilities whose score equations have no closed form, and a model with an intercept reproduces the observed event total.</td>
+<td style="text-align: left;">Bernoulli likelihood and score equations</td>
+<td style="text-align: left;">For independent binary outcomes, the likelihood is the product of <span class="math inline">\(\pi_i\)</span> over events and <span class="math inline">\(1-\pi_i\)</span> over non-events. The logistic score equations <span class="math inline">\(\sum_ix_{ij}(y_i-\pi_i)=0\)</span> generally require numerical solution. With an intercept, the fitted probabilities sum to the observed event total.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Iteratively reweighted least squares (IRLS)</td>
-<td style="text-align: left;">The algorithm that repeatedly solves a weighted linear regression with weights <span class="math inline">\(\widehat\pi_i(1-\widehat\pi_i)\)</span> until the coefficients stop changing; its convergence flag and iteration count belong in the record and establish no adequacy.</td>
+<td style="text-align: left;">The algorithm that repeatedly solves a weighted linear regression with weights <span class="math inline">\(\widehat\pi_i(1-\widehat\pi_i)\)</span> until the coefficients stop changing; convergence establishes no adequacy.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Deviance and the likelihood-ratio test (<span class="math inline">\(G^2\)</span>)</td>
-<td style="text-align: left;">For ungrouped binary data the deviance is <span class="math inline">\(-2\)</span> times the maximized log-likelihood and carries no goodness-of-fit reading alone, while the difference between nested models on the same rows and event is referred to chi-square.</td>
+<td style="text-align: left;">For ungrouped binary data the deviance is <span class="math inline">\(-2\)</span> times the maximized log-likelihood and has no fit reading alone; the difference between nested models on the same rows and event, <span class="math inline">\(G^2=2(\widehat\ell_{\text{full}}-\widehat\ell_{\text{reduced}})\)</span>, is referred to chi-square.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Wald test and profile-likelihood interval</td>
-<td style="text-align: left;">The Wald statistic squares the estimate-to-SE ratio while a profile interval collects the values the log-likelihood does not reject; they diverge for rare events, small samples or near-infinite estimates.</td>
+<td style="text-align: left;">The Wald statistic divides an estimate by its SE, and its interval is exponentiated for an odds ratio; a profile interval collects the values a likelihood-ratio comparison does not reject. They diverge for small samples, rare events or near-infinite estimates.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">McFadden pseudo <span class="math inline">\(R^2\)</span></td>
-<td style="text-align: left;">One minus the ratio of the fitted to the intercept-only maximized log-likelihood: bounded in <span class="math inline">\([0,1]\)</span>, not a proportion of variance explained, and routinely small for useful models.</td>
+<td style="text-align: left;">One minus the ratio of the fitted to the intercept-only maximized log-likelihood: not a proportion of variance explained, and routinely small for useful models.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Ratio of odds ratios (interaction on the odds scale)</td>
+<td style="text-align: left;">The exponential of a product coefficient: the factor by which one predictor’s odds ratio changes per unit of the other. It is read through conditional odds ratios at stated values and predicted-probability plots, with the scale named.</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Empirical logit</td>
-<td style="text-align: left;">The log-odds of a grouped event count with one half added to each count, plotted against a predictor to check linearity of the log-odds in that predictor as entered.</td>
+<td style="text-align: left;">The log-odds of a grouped event count with one half added to each count, plotted against a predictor to check that the log-odds is linear in it.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Binned residual</td>
-<td style="text-align: left;">The mean raw residual within a bin of rows sorted by fitted probability, against a two-standard-error band; it replaces the residual-versus-fitted plot, which shows only two curved bands here.</td>
+<td style="text-align: left;">The mean raw residual within a group of cases with similar fitted probabilities, against an approximate two-SE band; it replaces the residual-versus-fitted plot, which shows only two bands for binary data.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Separation (complete; quasi-complete)</td>
-<td style="text-align: left;">A predictor pattern separates events from non-events completely or on a boundary, so at least one coefficient has no finite ordinary maximum-likelihood estimate. Diverging coefficients, large standard errors and convergence warnings can be symptoms; no one warning or numerical pattern is required.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">In-sample calibration and discrimination checks (fitted-probability checks)</td>
-<td style="text-align: left;">Calibration asks whether fitted probabilities match observed event frequencies, discrimination whether they rank events above non-events; the two answer distinct questions, and honest evaluation of new-case performance requires held-out data.</td>
+<td style="text-align: left;">A predictor pattern separates events from non-events completely or on a boundary, so at least one coefficient has no finite maximum-likelihood estimate; diverging coefficients, huge SEs and many iterations are symptoms, and no single warning is required.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Linear probability model (LPM)</td>
-<td style="text-align: left;">Ordinary least squares on a 0/1 outcome, whose coefficients are probability differences but whose mean function is unbounded and whose conditional variance cannot be constant.</td>
+<td style="text-align: left;">Calibration and discrimination</td>
+<td style="text-align: left;">Calibration asks whether fitted probabilities match observed frequencies, discrimination whether they rank events above non-events; they answer distinct questions, and new-case performance needs held-out data.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Linear probability model (LPM)</td>
+<td style="text-align: left;">Least squares on a 0/1 outcome. An additive slope gives a fitted probability difference per unit. Fitted values can leave <span class="math inline">\([0,1]\)</span>, and the conditional variance <span class="math inline">\(\pi(1-\pi)\)</span> generally varies across predictor values.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Averaged probability difference (average marginal comparison)</td>
 <td style="text-align: left;">The mean, over the analytic rows with their own other predictor values, of the difference between fitted probabilities at two values of one predictor.</td>
 </tr>
@@ -1262,71 +1302,87 @@ Table&nbsp;12: Key terms of Chapter 12.
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Outcome triage</td>
-<td style="text-align: left;">The measurement judgment, made before any model is fitted, classifying an outcome as binary, nominal, ordered, a count, a rate, a proportion of known trials, or a duration. The model follows the classification and cannot establish it.</td>
+<td style="text-align: left;">The measurement judgment, made before any model is fitted, classifying an outcome as binary, nominal, ordered, a count, a rate, a count with many zeros or a proportion of known trials. The model follows the classification and cannot establish it.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Generalized logit model (baseline-category logit; multinomial logistic regression)</td>
-<td style="text-align: left;">For <span class="math inline">\(K\)</span> unordered categories, <span class="math inline">\(K-1\)</span> log-ratio equations against one baseline, each with its own intercept and slopes. The fitted probability surface is the same whichever baseline is chosen; the coefficients are not.</td>
+<td style="text-align: left;">Multinomial logistic regression (baseline-category logit; generalized logit)</td>
+<td style="text-align: left;">For <span class="math inline">\(J\)</span> unordered categories, <span class="math inline">\(J-1\)</span> log-ratio equations against one baseline category, each with its own intercept and slopes, estimated jointly so that the category probabilities sum to one. The fitted probabilities are the same whichever baseline is chosen; the coefficients are not.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Baseline outcome category</td>
-<td style="text-align: left;">The outcome category in the denominator of every generalized-logit equation: a coordinate choice, distinct from the reference level of a categorical <em>predictor</em>, whose change alters every reported ratio.</td>
+<td style="text-align: left;">The outcome category in the denominator of every multinomial equation: a coordinate choice, distinct from the reference level of a categorical predictor, whose change alters every reported ratio.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Relative-risk ratio (RRR)</td>
-<td style="text-align: left;">The exponentiated generalized-logit coefficient: the factor by which one category’s probability relative to the baseline’s differs per predictor unit. It is not a probability difference, and is incomplete unless both compared categories are named.</td>
+<td style="text-align: left;">Relative risk ratio (RRR)</td>
+<td style="text-align: left;">The exponentiated multinomial coefficient: the factor by which the ratio of one category’s probability to the baseline’s is multiplied per predictor unit. It is not a probability difference, and is incomplete unless both compared categories are named.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Independence of irrelevant alternatives (IIA)</td>
-<td style="text-align: left;">The generalized logit’s assumption that the ratio of two categories’ probabilities does not depend on which other categories were available: a claim about the choice set, argued rather than settled by one test.</td>
+<td style="text-align: left;">The multinomial model’s assumption that the probability ratio of two categories does not depend on which other categories are available: a claim about the choice set, argued from the design.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Cumulative probability and cumulative logit</td>
-<td style="text-align: left;"><span class="math inline">\(\gamma_{ij}=P(Y_i\le j)\)</span> at each of the <span class="math inline">\(K-1\)</span> cut points, and its log-odds. A category probability is a difference of two adjacent cumulative probabilities.</td>
+<td style="text-align: left;"><span class="math inline">\(P(y\le k)\)</span> at each of the <span class="math inline">\(J-1\)</span> cut points, and its log-odds. A category probability is a difference of two adjacent cumulative probabilities.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Threshold (cut point; ordinal intercept)</td>
-<td style="text-align: left;">One of the ordered constants <span class="math inline">\(\zeta_1&lt;\cdots&lt;\zeta_{K-1}\)</span> placing the cut points on the logit scale. Their ordering keeps fitted probabilities nonnegative; they are not comparisons and are not read as effects.</td>
+<td style="text-align: left;">One of the ordered constants <span class="math inline">\(\zeta_1&lt;\cdots&lt;\zeta_{J-1}\)</span> placing the cut points on the logit scale; they are location constants, not effects.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Proportional odds (common-slope restriction; partial proportional odds)</td>
-<td style="text-align: left;">The restriction that one slope vector governs every cut point, so a single odds ratio applies at all of them. It is imposed by the analyst, not conferred by ordering the levels, and is testable against a cut-specific alternative.</td>
+<td style="text-align: left;">The restriction that one slope vector governs every cut point, so one odds ratio applies above every cut. It is imposed by the analyst, not conferred by ordering the levels, and is testable against cut-specific slopes; a partial model frees selected slopes.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Poisson regression (log-linear count model)</td>
-<td style="text-align: left;">A GLM with a Poisson random component and a log link, so the conditional mean is positive and differences are multiplicative on the count scale. Its conditional variance is not free: it is forced to equal the mean.</td>
+<td style="text-align: left;">A GLM with a Poisson outcome and a log link, so the expected count is positive and differences are multiplicative; its conditional variance is forced to equal the mean.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Incidence-rate ratio (IRR; rate ratio)</td>
-<td style="text-align: left;">For an ordinary log-link count or rate model, the exponentiated coefficient gives the factor by which the expected count, or rate with an exposure, differs per predictor unit. An absolute difference also requires its baseline. In a two-process model, a count-component coefficient alone does not give the overall mean ratio.</td>
+<td style="text-align: left;">The exponentiated coefficient of a log-link count or rate model: the factor by which the expected count, or rate with an offset, differs per predictor unit. An absolute difference also needs its baseline.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Exposure and offset</td>
-<td style="text-align: left;">The window over which each unit was observed, and <span class="math inline">\(\log t_i\)</span> entered with its coefficient fixed at one so the model describes a rate. An offset is a decision about the estimand, not an estimate: no SE, no <span class="math inline">\(p\)</span>-value, and freeing its coefficient gives a testable alternative.</td>
+<td style="text-align: left;">The window over which each unit was observed, and <span class="math inline">\(\log t_i\)</span> entered with its coefficient fixed at one so the model describes a rate. An offset is a decision about the estimand, with no SE or <span class="math inline">\(p\)</span>-value; freeing its coefficient gives a testable alternative.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Overdispersion and the dispersion statistic</td>
-<td style="text-align: left;">Conditional variance exceeding the conditional mean, assessed by the mean squared Pearson residual <span class="math inline">\(\widehat\phi\)</span> under a suitable mean model; the deviance ratio is a rough diagnostic and need not be near 1 for sparse counts even under a correct Poisson model. The diagnosis is conditional; a marginal ratio above one is not evidence.</td>
+<td style="text-align: left;">Conditional variance exceeding the conditional mean, assessed by the mean squared Pearson residual <span class="math inline">\(\widehat\phi\)</span> under a suitable mean model. Under a constant variance-to-mean multiplier greater than one, the usual Poisson SEs are too small. The marginal variance also reflects differences in the conditional means.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Quasi-Poisson (quasi-likelihood; scaled Poisson)</td>
-<td style="text-align: left;">The Poisson mean with variance <span class="math inline">\(\phi\mu\)</span>: identical estimates and every SE multiplied by <span class="math inline">\(\sqrt{\widehat\phi}\)</span>. No full distribution is specified, so there is no log-likelihood and no AIC or BIC.</td>
+<td style="text-align: left;">Quasi-Poisson (quasi-likelihood)</td>
+<td style="text-align: left;">The Poisson mean with variance <span class="math inline">\(\phi\mu\)</span>: identical estimates and every SE multiplied by <span class="math inline">\(\sqrt{\widehat\phi}\)</span>. No full distribution is specified, so there is no log-likelihood, AIC or BIC.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Negative-binomial regression</td>
-<td style="text-align: left;">A count model with variance <span class="math inline">\(\mu+\mu^2/\theta\)</span>, arising when the Poisson mean varies across units sharing predictor values. A different likelihood, not a rescaling: estimates move because large fitted means are down-weighted, and the Poisson comparison sits on the boundary <span class="math inline">\(1/\theta=0\)</span>.</td>
+<td style="text-align: left;">Negative binomial regression</td>
+<td style="text-align: left;">A count model with variance <span class="math inline">\(\mu+\mu^2/\theta\)</span>, arising when the Poisson mean varies across units sharing predictor values. It is a different likelihood, not a rescaling, and the Poisson model is its boundary case <span class="math inline">\(1/\theta=0\)</span>.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Zero-inflated model</td>
-<td style="text-align: left;">A mixture of an extra-zero component and a count component that can also generate zeros. The count-component mean differs from the overall mean; an observed zero does not identify which component generated it, and fitted extra-zero membership does not establish a substantive structural-zero mechanism.</td>
+<td style="text-align: left;">A mixture of an always-zero component, modeled by a logit, and a count component that can also produce zeros. The count-component mean differs from the overall mean, and an observed zero does not reveal which component produced it. The variance-to-mean ratio, <span class="math inline">\(1+\pi\lambda+\lambda/\theta\)</span> (ZIP: without the last term), shows that excess zeros alone create overdispersion.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Hurdle model (two-part count model)</td>
-<td style="text-align: left;">A binary model for zero versus a positive count combined with a zero-truncated count distribution for positive values. The overall mean combines the probability of a positive outcome with its positive-count mean. Its binary coefficient concerns crossing zero, which differs from membership in a zero-inflated model’s extra-zero component.</td>
+<td style="text-align: left;">A binary model for zero versus a positive count combined with a zero-truncated count distribution for the positive values; the overall mean combines the probability of a positive count with the positive-count mean.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Zero-truncated count distribution</td>
-<td style="text-align: left;">A count distribution conditioned on a positive outcome: its zero probability is removed and the positive probabilities are renormalized. Its mean is the original distribution’s mean divided by its probability of a positive count, so it differs from the untruncated mean parameter.</td>
+<td style="text-align: left;">A count distribution conditioned on a positive outcome: its zero probability is removed and the positive probabilities rescaled. Its mean is the original mean divided by the probability of a positive count.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Loglinear model</td>
+<td style="text-align: left;">A Poisson model for the cell counts of a cross-classified table, with the classifying variables as predictors. Its two-factor terms are conditional log odds ratios, and with one variable as the response it reproduces the corresponding multinomial or logit model.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Likelihood-ratio statistic <span class="math inline">\(G^2\)</span> (deviance of a table)</td>
+<td style="text-align: left;"><span class="math inline">\(2\sum O\log(O/E)\)</span> over the cells of a table, the deviance of a loglinear model, referred to chi-square on its residual df when the expected counts are adequate. The Pearson <span class="math inline">\(X^2\)</span> uses the same expected counts.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Conditional independence</td>
+<td style="text-align: left;">Two variables unrelated within every level of a third, as in the model [SF][SY]; their association in the table with the layers added can still differ from zero.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Homogeneous association</td>
+<td style="text-align: left;">The same odds ratio between two variables in every layer of a third: the loglinear model with all two-factor terms and no three-factor term.</td>
 </tr>
 </tbody>
 </table>
@@ -1363,8 +1419,8 @@ Table&nbsp;13: Key terms of Chapter 13.
 <td style="text-align: left;">The point at which a prediction must be produced, which decides whether a predictor is available. A variable recorded later may improve measured performance but cannot be used for that earlier prediction task.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Apparent error (training error; resubstitution error)</td>
-<td style="text-align: left;">Loss on the records used to fit the rule. Using those outcomes in fitting generally makes this loss optimistic for new-case performance; greater fitting flexibility can increase that optimism, without guaranteeing an ordering in every sample or for every loss.</td>
+<td style="text-align: left;">Apparent error and optimism (training error; resubstitution error)</td>
+<td style="text-align: left;">Loss on the records used to fit the rule. Using those outcomes in fitting generally makes this loss optimistic for new-case performance; the gap to held-out loss is the optimism, which greater flexibility can increase, without a guaranteed ordering in every sample or for every loss.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Root mean squared error (RMSE)</td>
@@ -1372,19 +1428,27 @@ Table&nbsp;13: Key terms of Chapter 13.
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Out-of-sample <span class="math inline">\(R^2\)</span></td>
-<td style="text-align: left;">One minus the held-out squared error divided by the held-out squared error of a named constant reference fitted in the same analysis rows. It can be negative and is not the in-sample <span class="math inline">\(R^2\)</span> of Chapter 7.</td>
+<td style="text-align: left;">One minus the held-out squared error divided by the held-out squared error of a named constant reference fitted to the same training rows. It can be negative and is not the in-sample <span class="math inline">\(R^2\)</span> of Chapter 7.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><span class="math inline">\(k\)</span>-fold cross-validation</td>
+<td style="text-align: left;">Splitting the development records into <span class="math inline">\(k\)</span> folds, fitting on <span class="math inline">\(k-1\)</span> of them and predicting the withheld fold in turn, so that every record is predicted once by a fit that did not use it. It estimates the risk of a learning rule at training size about <span class="math inline">\((k-1)n/k\)</span>; the folds’ training sets overlap.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Data leakage (information leakage)</td>
 <td style="text-align: left;">Using information unavailable at the deployment moment, or letting held-out records influence a training or selection step used to predict them. It can make performance estimates optimistic; there is no general proportional rule for the size of that optimism.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Development and test split (holdout set)</td>
 <td style="text-align: left;">A partition in which fitting, screening and tuning use the development records, while test outcomes remain protected until the rule is fixed. Adapting the rule after seeing test results uses the test set for development; repeating an unchanged calculation does not itself do so.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Penalized regression (shrinkage; ridge; lasso; elastic net)</td>
 <td style="text-align: left;">Fitting that adds a coefficient penalty to the loss, trading bias against variance. Ridge’s squared penalty generally shrinks coefficients without selecting exact zeros; the lasso’s absolute-value penalty can set coefficients to zero, and elastic net combines the penalties.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bias–variance trade-off</td>
+<td style="text-align: left;">The split of expected squared prediction error into noise variance, squared bias and variance across training samples. A penalty can add bias and remove more variance, lowering the total.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Tuning parameter (penalty; <span class="math inline">\(\lambda\)</span>)</td>
@@ -1395,20 +1459,28 @@ Table&nbsp;13: Key terms of Chapter 13.
 <td style="text-align: left;">A convention choosing the largest penalty whose observed cross-validated loss is within the estimated standard error at the minimum. It prefers a simpler fit under that empirical tolerance; it does not bound the increase in true prediction error.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Nested cross-validation</td>
+<td style="text-align: left;">Cross-validation with an outer loop that assesses a whole selection or tuning procedure and an inner loop, inside each outer training part, that makes the selection. It estimates how the procedure, not one chosen rule, performs.</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Proper scoring rule (log loss; Brier score)</td>
 <td style="text-align: left;">A score for a predicted probability that is minimized in expectation by the true probability, so that honest uncertainty is rewarded. Accuracy and a single confusion matrix are not proper scores.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Calibration</td>
 <td style="text-align: left;">Agreement between predicted probabilities and observed event rates among cases with similar predictions. It is invisible in a ranking measure such as AUC and is checked on held-out predictions.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Discrimination (AUC; concordance)</td>
 <td style="text-align: left;">The probability that a randomly chosen event case receives a higher score than a non-event case, with half credit for tied scores. It depends on ranking and does not establish calibration of the probabilities.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Decision threshold (operating point)</td>
 <td style="text-align: left;">The predicted probability above which an action is taken, determined by the ratio of the costs of the two errors and not by the model. Two decision-makers with different costs read the same probabilities and act differently.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Confusion matrix (sensitivity; specificity; precision; accuracy)</td>
+<td style="text-align: left;">The two-by-two table crossing a rule’s actions with the outcomes. Sensitivity is the share of events flagged, specificity the share of non-events left unflagged, precision the share of flags that are events, and accuracy the share of correct decisions, which depends heavily on how common the event is.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Dataset shift</td>
@@ -1446,7 +1518,7 @@ Table&nbsp;14: Key terms of Chapter 14.
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mediator (intermediate variable)</td>
-<td style="text-align: left;">A variable caused by the focal predictor and lying on a path to the outcome; one kind of post-treatment variable, not a synonym for every variable measured after treatment. Conditioning on it changes a total-effect comparison; a direct causal reading needs additional identification and modelling conditions.</td>
+<td style="text-align: left;">A variable caused by the focal predictor and lying on a path to the outcome; one kind of post-treatment variable, not a synonym for every variable measured after treatment. Conditioning on it changes a total-effect comparison; a direct causal reading needs additional identification and modeling conditions.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Collider (common effect)</td>
@@ -1782,14 +1854,14 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;">Estimands</td>
 <td style="text-align: left;"><span class="math inline">\(Y_{i1}\)</span>, <span class="math inline">\(Y_{i0}\)</span></td>
 <td style="text-align: left;">Participant <span class="math inline">\(i\)</span>’s potential outcomes: the score participant <span class="math inline">\(i\)</span> would have under assignment 1 and under assignment 0; over the <span class="math inline">\(n\)</span> stated participants the mean assignment effect is <span class="math inline">\(\Delta\mu=\frac{1}{n}\sum_{i=1}^{n}\{Y_{i1}-Y_{i0}\}\)</span></td>
-<td style="text-align: left;">Ch. 3; Ch. 5</td>
+<td style="text-align: left;">Ch. 3; Ch. 5; Ch. 14</td>
 <td style="text-align: left;">Each participant reveals only the outcome of the assigned condition; the second index names an assignment, not the observed group of <span class="math inline">\(Y_{ij}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Estimands</td>
 <td style="text-align: left;"><span class="math inline">\(\Delta\mu\)</span>, <span class="math inline">\(\widehat{\Delta\mu}\)</span></td>
 <td style="text-align: left;">A difference in means as an estimand, <span class="math inline">\(\Delta\mu=\mu_1-\mu_0\)</span> or the mean assignment effect over the stated participants, and its estimate <span class="math inline">\(\widehat{\Delta\mu}=\bar y_1-\bar y_0\)</span>; a stipulated value of <span class="math inline">\(\Delta\mu\)</span> serves planning and power calculations</td>
-<td style="text-align: left;">Ch. 3</td>
+<td style="text-align: left;">Ch. 3; Ch. 14</td>
 <td style="text-align: left;"><span class="math inline">\(\Delta p=p_1-p_0\)</span> for a difference in proportions (Ch. 6); <span class="math inline">\(\theta\)</span>, <span class="math inline">\(\widehat\theta\)</span> for a generic estimand and estimator, distinct from the negative-binomial <span class="math inline">\(\theta\)</span> of Chapter 12; <span class="math inline">\(\tau\)</span> and a bare <span class="math inline">\(\Delta\)</span> are not used</td>
 </tr>
 <tr class="even">
@@ -1818,7 +1890,7 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;"><span class="math inline">\(\lambda\)</span></td>
 <td style="text-align: left;">A Poisson rate</td>
 <td style="text-align: left;">Ch. 2; Ch. 12</td>
-<td style="text-align: left;">Chapter 12 writes a unit’s conditional rate per unit exposure as <span class="math inline">\(\lambda_i\)</span>; Chapter 13 uses <span class="math inline">\(\lambda\)</span> for a penalty size</td>
+<td style="text-align: left;">Chapter 12 writes a Poisson model’s expected count as <span class="math inline">\(\lambda\)</span> and, with exposure <span class="math inline">\(t_i\)</span>, a unit’s rate per unit exposure as <span class="math inline">\(\lambda_i\)</span>, so that its expected count is <span class="math inline">\(t_i\lambda_i\)</span>; Chapter 6 uses <span class="math inline">\(\lambda\)</span> for the noncentrality of a <span class="math inline">\(t\)</span> distribution, Chapter 9 for the Box–Cox power, and Chapter 13 for a penalty size</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Design</td>
@@ -1895,7 +1967,7 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;"><span class="math inline">\(\alpha_j\)</span>, <span class="math inline">\(\beta_k\)</span>, <span class="math inline">\((\alpha\beta)_{jk}\)</span></td>
 <td style="text-align: left;">Factor-model main effects and interaction departures in the two-way model</td>
 <td style="text-align: left;">Ch. 4</td>
-<td style="text-align: left;">Distinct from the unindexed Type I and Type II error probabilities <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span></td>
+<td style="text-align: left;">Distinct from the unindexed Type I and Type II error probabilities <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. Chapter 10 writes the second factor’s effects as <span class="math inline">\(\gamma_k\)</span> and the interaction as <span class="math inline">\((\alpha\gamma)_{jk}\)</span>, keeping <span class="math inline">\(\beta\)</span> for regression coefficients</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ANOVA</td>
@@ -1909,14 +1981,14 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;"><span class="math inline">\(c_j\)</span>, <span class="math inline">\(C\)</span>, <span class="math inline">\(\widehat C\)</span></td>
 <td style="text-align: left;">Contrast coefficients, a contrast <span class="math inline">\(C=\sum_j c_j\mu_j\)</span> with <span class="math inline">\(\sum_j c_j=0\)</span>, and its estimate <span class="math inline">\(\widehat C=\sum_j c_j\bar y_j\)</span></td>
 <td style="text-align: left;">Ch. 4</td>
-<td style="text-align: left;"><span class="math inline">\(L\)</span> is not used for contrasts; <span class="math inline">\(L(\cdot)\)</span> is a likelihood</td>
+<td style="text-align: left;"><span class="math inline">\(L\)</span> is not used for contrasts; <span class="math inline">\(L(\cdot)\)</span> is a likelihood. Chapter 8 writes a contrast of regression coefficients as <span class="math inline">\(C=\mathbf c^{\mathsf T}\boldsymbol\beta\)</span> with estimate <span class="math inline">\(\widehat C=\mathbf c^{\mathsf T}\widehat{\boldsymbol\beta}\)</span>, and Chapter 10’s Appendix A uses the same <span class="math inline">\(\mathbf c^{\mathsf T}\boldsymbol\beta\)</span> form</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ANOVA</td>
 <td style="text-align: left;"><span class="math inline">\(DD\)</span>, <span class="math inline">\(\widehat{DD}\)</span></td>
 <td style="text-align: left;">A difference of differences between group means and its estimate</td>
 <td style="text-align: left;">Ch. 6</td>
-<td style="text-align: left;">Chapter 4 develops the object as an interaction contrast declared in advance; Chapter 10 writes the same object as <span class="math inline">\(C_{\mathrm{DD}}\)</span> when it is a linear combination of coefficients</td>
+<td style="text-align: left;">Chapter 4 develops the object as an interaction contrast declared in advance; Chapter 10 names the same object in words and reads it as a product coefficient of an indicator regression, with its SE from the coefficient covariance</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Regression</td>
@@ -1971,8 +2043,8 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;">Regression</td>
 <td style="text-align: left;"><span class="math inline">\(D\)</span>, <span class="math inline">\(D_i\)</span>, <span class="math inline">\(D_j\)</span></td>
 <td style="text-align: left;">Indicator (0/1) variables; <span class="math inline">\(D_i\)</span> marks case <span class="math inline">\(i\)</span>’s membership, and <span class="math inline">\(J-1\)</span> indicator columns <span class="math inline">\(D_j\)</span> code a <span class="math inline">\(J\)</span>-level factor with a named reference level</td>
-<td style="text-align: left;">Ch. 2; Ch. 9</td>
-<td style="text-align: left;">Distinct from the deviance <span class="math inline">\(D\)</span> (Ch. 11), Cook’s distance <span class="math inline">\(D_i\)</span> (Chs. 7–8), and the diagonal SD matrix <span class="math inline">\(\mathbf D\)</span> (Ch. 5)</td>
+<td style="text-align: left;">Ch. 2; Ch. 6</td>
+<td style="text-align: left;">Chapter 6 writes a factor’s indicators with level subscripts, such as <span class="math inline">\(D_I\)</span> and <span class="math inline">\(D_L\)</span>. Chapters 8 and 10 write indicators as predictors, <span class="math inline">\(x\)</span> with a level subscript such as <span class="math inline">\(x_{\mathrm{prof}}\)</span> or <span class="math inline">\(x_{A2}\)</span>, with coefficients such as <span class="math inline">\(\beta_{\mathrm{prof}}\)</span>. Distinct from the deviance <span class="math inline">\(D\)</span> (Chs. 11–12), Cook’s distance <span class="math inline">\(D_i\)</span> (Ch. 9), the group difference <span class="math inline">\(D_j(x)\)</span> (Ch. 10), and the diagonal SD matrix <span class="math inline">\(\mathbf D\)</span> (Ch. 5)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Regression</td>
@@ -1990,24 +2062,24 @@ Table&nbsp;18: Notation shared by two or more chapters.
 </tr>
 <tr class="even">
 <td style="text-align: left;">Checks</td>
-<td style="text-align: left;"><span class="math inline">\(h_{ii}\)</span>, <span class="math inline">\(D_i\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(h_i\)</span>, <span class="math inline">\(h_{ii}\)</span>, <span class="math inline">\(D_i\)</span></td>
 <td style="text-align: left;">Leverage and Cook’s distance of case <span class="math inline">\(i\)</span></td>
-<td style="text-align: left;">Ch. 7; Ch. 8</td>
-<td style="text-align: left;"><span class="math inline">\(h_i\)</span> in the one-predictor setting of Chapter 7</td>
+<td style="text-align: left;">Ch. 9</td>
+<td style="text-align: left;">Chapter 7 defines leverage and Cook’s distance in words for a one-predictor line; Chapter 9 gives formulas for several predictors, writing the leverage as <span class="math inline">\(h_i\)</span> in the main text and as <span class="math inline">\(h_{ii}\)</span>, the diagonal entry of <span class="math inline">\(\mathbf H\)</span>, in Appendices A and B, and Cook’s distance as <span class="math inline">\(D_i\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Likelihood</td>
 <td style="text-align: left;"><span class="math inline">\(L(\cdot)\)</span>, <span class="math inline">\(\ell(\cdot)\)</span>, <span class="math inline">\(AIC\)</span>, <span class="math inline">\(BIC\)</span></td>
 <td style="text-align: left;">Likelihood, log-likelihood, and information criteria</td>
 <td style="text-align: left;">Ch. 8; Ch. 9; Ch. 11</td>
-<td style="text-align: left;">Chapter 8 supplies a Normal likelihood for its criteria, Chapter 9 compares models with them, and Chapter 11 develops likelihood fully</td>
+<td style="text-align: left;">Chapter 8 supplies a Normal likelihood for its likelihood-ratio test and criteria and compares models with them, Chapter 9 reads them for its respecified models, Chapter 11 develops likelihood fully, and Chapter 12 carries it to its nominal, ordinal and count models. Chapters 8, 11 and 12 write the criteria as <span class="math inline">\(-2\ell+2K\)</span> and <span class="math inline">\(-2\ell+K\log n\)</span> at the maximized log-likelihood, with <span class="math inline">\(K\)</span> counting every estimated parameter</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Design/contrasts</td>
-<td style="text-align: left;"><span class="math inline">\(\delta\)</span>, <span class="math inline">\(\widehat\delta\)</span></td>
-<td style="text-align: left;">A locally defined group contrast and its estimate</td>
-<td style="text-align: left;">Ch. 8; Ch. 9</td>
-<td style="text-align: left;">Each chapter defines the contrast where it uses it; a causal interpretation requires design and assumptions</td>
+<td style="text-align: left;"><span class="math inline">\(\delta\)</span></td>
+<td style="text-align: left;">A difference stipulated by the analyst: the population difference of one comparison in a power calculation (Ch. 6), or an assumed shortfall among missing outcomes in a sensitivity analysis (Arg. B)</td>
+<td style="text-align: left;">Ch. 6; Arg. B</td>
+<td style="text-align: left;">Each use is defined where it appears; a contrast of regression coefficients is written <span class="math inline">\(C=\mathbf c^{\mathsf T}\boldsymbol\beta\)</span> (ANOVA row <span class="math inline">\(c_j\)</span>, <span class="math inline">\(C\)</span>, <span class="math inline">\(\widehat C\)</span>); a causal interpretation requires design and assumptions</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Argument diagrams</td>
@@ -2041,36 +2113,36 @@ Table&nbsp;18: Notation shared by two or more chapters.
 <td style="text-align: left;">GLM</td>
 <td style="text-align: left;"><span class="math inline">\(\pi_i\)</span>, <span class="math inline">\(\pi(x)\)</span>, <span class="math inline">\(\widehat\pi_i\)</span></td>
 <td style="text-align: left;">Conditional event probability and its fitted value</td>
-<td style="text-align: left;">Ch. 11</td>
-<td style="text-align: left;">Chapter 12 adds a category index (row below)</td>
+<td style="text-align: left;">Ch. 11; Ch. 13</td>
+<td style="text-align: left;">Chapter 12 writes category probabilities as <span class="math inline">\(P(y=k)\)</span> (row below) and uses <span class="math inline">\(\pi_i\)</span> for a zero-inflated model’s probability that unit <span class="math inline">\(i\)</span> belongs to the always-zero component</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">GLM</td>
-<td style="text-align: left;"><span class="math inline">\(K\)</span>, <span class="math inline">\(\pi_{ik}\)</span></td>
-<td style="text-align: left;">Number of outcome categories and the probability that unit <span class="math inline">\(i\)</span> falls in category <span class="math inline">\(k\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(K\)</span>, <span class="math inline">\(\pi_k\)</span>; <span class="math inline">\(J\)</span>, <span class="math inline">\(P(y=k)\)</span></td>
+<td style="text-align: left;">Number of categories and the probability of category <span class="math inline">\(k\)</span></td>
 <td style="text-align: left;">Ch. 2; Ch. 12</td>
-<td style="text-align: left;">Chapter 2 writes the probabilities of one categorical variable as <span class="math inline">\(\pi_1,\ldots,\pi_K\)</span></td>
+<td style="text-align: left;">Chapter 2 writes the probabilities of one categorical variable’s <span class="math inline">\(K\)</span> categories as <span class="math inline">\(\pi_1,\ldots,\pi_K\)</span>; Chapter 12 writes an outcome’s <span class="math inline">\(J\)</span> categories with conditional probabilities <span class="math inline">\(P(y=k)\)</span>, category linear predictors <span class="math inline">\(\eta_k\)</span> and ordinal thresholds <span class="math inline">\(\zeta_k\)</span>. In AIC and BIC, <span class="math inline">\(K\)</span> counts the estimated parameters (Likelihood row)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">GLM</td>
 <td style="text-align: left;"><span class="math inline">\(\eta_i\)</span>, <span class="math inline">\(\operatorname{logit}\)</span></td>
 <td style="text-align: left;">Linear predictor; the logit link <span class="math inline">\(\operatorname{logit}(\pi)=\log\{\pi/(1-\pi)\}\)</span> and its inverse <span class="math inline">\(\operatorname{logit}^{-1}\)</span></td>
 <td style="text-align: left;">Ch. 11; Ch. 12</td>
-<td style="text-align: left;">—</td>
+<td style="text-align: left;">Both chapters write the conditional variance as <span class="math inline">\(\phi\,V(\mu)\)</span>, with dispersion <span class="math inline">\(\phi\)</span> and variance function <span class="math inline">\(V(\mu)\)</span>, and the general link as <span class="math inline">\(g(\cdot)\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">GLM</td>
 <td style="text-align: left;"><span class="math inline">\(D\)</span>, <span class="math inline">\(G^2\)</span></td>
-<td style="text-align: left;">Deviance and a deviance difference referred to <span class="math inline">\(\chi^2_q\)</span></td>
+<td style="text-align: left;">Deviance, and the likelihood-ratio statistic, referred to a chi-square distribution whose df count the parameters compared</td>
 <td style="text-align: left;">Ch. 11; Ch. 12</td>
-<td style="text-align: left;">—</td>
+<td style="text-align: left;">Chapter 11 writes <span class="math inline">\(D=-2\widehat\ell\)</span> for ungrouped binary records and <span class="math inline">\(G^2\)</span> for the drop in deviance between nested models; Chapter 12 writes <span class="math inline">\(D=2\{\ell_{\mathrm{saturated}}-\ell\}\)</span>, and for a table <span class="math inline">\(G^2=2\sum O\log(O/E)\)</span>, a loglinear model’s deviance against the saturated model, beside Pearson’s <span class="math inline">\(X^2\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Prediction</td>
 <td style="text-align: left;"><span class="math inline">\(MAE\)</span></td>
 <td style="text-align: left;">Mean absolute error of held-out predictions</td>
-<td style="text-align: left;">Ch. 8; Ch. 13</td>
-<td style="text-align: left;">Distinct from RMSE, which squares the errors before averaging</td>
+<td style="text-align: left;">Ch. 13</td>
+<td style="text-align: left;">RMSE is the square root of the mean squared error.</td>
 </tr>
 </tbody>
 </table>

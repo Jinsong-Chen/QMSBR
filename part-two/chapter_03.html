@@ -58,7 +58,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-two/chapter_04.html" rel="next">
 <link href="../part-two/chapter_02.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -68,7 +68,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -524,7 +524,7 @@ window.Quarto = {
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-local-dependence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="In both panels one factor predicts Y2 and Y3. Only the right panel has a double-headed residual covariance arc between their remaining influences." data-fig-pos="H">
+<div id="fig-cfa-local-dependence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="In both panels one factor predicts Y2 and Y3. Only the right panel has a double-headed residual covariance arc between their remaining influences." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-local-dependence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-local-dependence-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="In both panels one factor predicts Y2 and Y3. Only the right panel has a double-headed residual covariance arc between their remaining influences." width="1120">
@@ -592,7 +592,7 @@ Table&nbsp;1: Local dependence changes association remaining after the true fact
 <p>The indicator intercepts are <span class="math inline">\((10,12,11,15,14,13)\)</span>. Factors are jointly Normal; residuals are mutually independent Normal variables and independent of the factors. Each simulated person is independent of the others. The extra .25 loading allows <span class="math inline">\(Y_3\)</span> to reflect both factors. These are <em>declared population values</em>, not estimates selected because they fit a sample well.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-generated-model" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="F1 predicts Y1, Y2 and Y3; F2 predicts Y4, Y5 and Y6 plus a secondary path to Y3. Factors covary and each indicator has its own residual." data-fig-pos="H">
+<div id="fig-cfa-generated-model" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="F1 predicts Y1, Y2 and Y3; F2 predicts Y4, Y5 and Y6 plus a secondary path to Y3. Factors covary and each indicator has its own residual." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-generated-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-generated-model-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="F1 predicts Y1, Y2 and Y3; F2 predicts Y4, Y5 and Y6 plus a secondary path to Y3. Factors covary and each indicator has its own residual." width="1088">
@@ -726,7 +726,7 @@ Table&nbsp;3: Known population covariance for the disclosed six-indicator model.
 <p>We generate 500 independent records from these declarations, using seed 20260930 with the Mersenne-Twister generator, Normal inversion and the stated indicator order. The values and seed are held fixed. The resulting sample is separate from the later learning-experience samples; knowing this population supplies no advance knowledge about that other case.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-population-sample" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Three six-by-six covariance heatmaps compare the known generating matrix, sample covariance with divisor N, and fitted matrix. Broad blocks remain similar but sample and fitted cells differ from their population targets." data-fig-pos="H">
+<div id="fig-cfa-population-sample" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Three six-by-six covariance heatmaps compare the known generating matrix, sample covariance with divisor N, and fitted matrix. Broad blocks remain similar but sample and fitted cells differ from their population targets." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-population-sample-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-population-sample-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Three six-by-six covariance heatmaps compare the known generating matrix, sample covariance with divisor N, and fitted matrix. Broad blocks remain similar but sample and fitted cells differ from their population targets." width="1120">
@@ -790,7 +790,7 @@ Table&nbsp;4: Selected covariance entries from the three panels. The sample uses
 <p>The population and sample panels answer different questions. The first is what the declared model generates on average; the second is what these 500 people happened to produce. Estimation selects one member of the restricted model family, shown in the third panel. Even a correctly specified model need not reproduce the sample matrix exactly or recover each generating parameter exactly. We return to that distinction after developing estimation. For exact arithmetic in Sections 2–5, a simpler <em>controlled population</em> sets the extra loading to zero; it is explicitly distinguished from this sampled population.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-sequence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Four linked boxes show restrictions, identification, estimation, and evaluation." data-fig-pos="H">
+<div id="fig-cfa-sequence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Four linked boxes show restrictions, identification, estimation, and evaluation." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-sequence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-sequence-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Four linked boxes show restrictions, identification, estimation, and evaluation." width="1120">
@@ -846,7 +846,7 @@ Y_{i6}&amp;=\nu_6+\lambda_{62}\eta_{i2}+\epsilon_{i6}.
 <h2 data-number="2.4" class="anchored" data-anchor-id="a-diagram-and-the-free-parameters-it-implies"><span class="header-section-number">2.4</span> A diagram and the free parameters it implies</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-six" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="F1 predicts Y1, Y2, and Y3; F2 predicts Y4, Y5, and Y6. The Y1 and Y4 loadings equal one. Factor variances and their covariance are free." data-fig-pos="H">
+<div id="fig-cfa-six" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="F1 predicts Y1, Y2, and Y3; F2 predicts Y4, Y5, and Y6. The Y1 and Y4 loadings equal one. Factor variances and their covariance are free." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-six-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-six-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="F1 predicts Y1, Y2, and Y3; F2 predicts Y4, Y5, and Y6. The Y1 and Y4 loadings equal one. Factor variances and their covariance are free." width="1120">
@@ -904,7 +904,7 @@ Figure&nbsp;5: Marker-scaled six-indicator CFA. Residual variances are free; res
 <p>A larger diagram should be read with the same ledger rather than as a new kind of model. As a published-reading exercise, reconstruct the topology of Figure 3 in <span class="citation" data-cites="chou2021">Chou &amp; Chou (<a href="#ref-chou2021" role="doc-biblioref">2021, p. 6</a>)</span>: four correlated factors—self-efficacy, school support, privacy concerns, and technostress—each measured by four indicators. The reconstruction below records the displayed assignments and factor relations; it does not reproduce the paper’s estimated coefficients or imply that every software default used in the original analysis is known.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-four" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Four correlated factors called Self-efficacy, School support, Privacy concerns, and Technostress each predict four separate indicators. Each indicator has a residual." data-fig-pos="H">
+<div id="fig-cfa-four" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Four correlated factors called Self-efficacy, School support, Privacy concerns, and Technostress each predict four separate indicators. Each indicator has a residual." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-four-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-four-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Four correlated factors called Self-efficacy, School support, Privacy concerns, and Technostress each predict four separate indicators. Each indicator has a residual." width="1120">
@@ -1028,7 +1028,7 @@ Y_{i3}=\nu_3+\lambda_{31}\eta_{i1}
 <p>One formerly zero matrix entry becomes free. The new coefficient affects the variance of <span class="math inline">\(Y_3\)</span> and its covariances with all indicators connected to either factor. It does not merely repair the covariance of one chosen pair. The coefficient’s interpretation is conditional on factor 1, just as an oblique EFA pattern coefficient was conditional on the other factors.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-cross" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="The six-indicator model adds one dashed arrow from F2 to Y3; all other relations match the marker-scaled base model." data-fig-pos="H">
+<div id="fig-cfa-cross" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The six-indicator model adds one dashed arrow from F2 to Y3; all other relations match the marker-scaled base model." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-cross-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-cross-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The six-indicator model adds one dashed arrow from F2 to Y3; all other relations match the marker-scaled base model." width="1120">
@@ -1046,7 +1046,7 @@ Figure&nbsp;7: A single additional loading changes several implied moments. The 
 <p>Alternatively, retain the original loading matrix but free <span class="math inline">\(\theta_{23}=\operatorname{Cov}(\epsilon_2,\epsilon_3)\)</span>. Then only the <span class="math inline">\((2,3)\)</span> and <span class="math inline">\((3,2)\)</span> entries of the residual matrix change. This can represent item-specific shared wording, a common task, or another source of association outside the two modeled factors. Its meaning must be justified; “the software suggested it” is not a measurement explanation.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-residual" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="The base six-indicator model adds a covariance between residuals e2 and e3 without adding a factor-to-indicator loading." data-fig-pos="H">
+<div id="fig-cfa-residual" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The base six-indicator model adds a covariance between residuals e2 and e3 without adding a factor-to-indicator loading." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-residual-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The base six-indicator model adds a covariance between residuals e2 and e3 without adding a factor-to-indicator loading." width="1120">
@@ -1547,7 +1547,7 @@ t_{\mathrm{EFA}}=12+6-\frac{2(2-1)}2=17,
 <p>The diagonal equations then determine residual variances. These expressions explain generic recoverability for this simple block, subject to admissibility. If a denominator vanishes, the reasoning must be revisited; a generic result does not cover every exceptional configuration.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-three-indicator" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="One factor predicts three indicators, the first loading is fixed to one, and each indicator has a residual." data-fig-pos="H">
+<div id="fig-cfa-three-indicator" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="One factor predicts three indicators, the first loading is fixed to one, and each indicator has a residual." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-three-indicator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-three-indicator-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="One factor predicts three indicators, the first loading is fixed to one, and each indicator has a residual." width="896">
@@ -1572,7 +1572,7 @@ Figure&nbsp;9: A marker-scaled three-indicator block. The three off-diagonal cov
 <div aria-describedby="fig-cfa-identification-pair-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="quarto-layout-row">
 <div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-cfa-identification-pair" style="flex-basis: 50.0%;justify-content: center;">
-<div id="fig-cfa-identification-pair-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors.">
+<div id="fig-cfa-identification-pair-1" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors." data-fig-align="center">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-cfa-identification-pair-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-identification-pair-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" data-ref-parent="fig-cfa-identification-pair" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors." width="672">
@@ -1584,7 +1584,7 @@ Figure&nbsp;9: A marker-scaled three-indicator block. The three off-diagonal cov
 </div>
 </div>
 <div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-cfa-identification-pair" style="flex-basis: 50.0%;justify-content: center;">
-<div id="fig-cfa-identification-pair-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors.">
+<div id="fig-cfa-identification-pair-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors." data-fig-align="center">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-cfa-identification-pair-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-identification-pair-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" data-ref-parent="fig-cfa-identification-pair" alt="The left panel shows two separate two-indicator factors. The right panel adds a covariance between the two factors." width="672">
@@ -1606,7 +1606,7 @@ Figure&nbsp;10: Both two-indicator models have positive nominal degrees of freed
 <p><strong>One indicator needs external measurement information.</strong> Suppose a study has one continuous score with variance 25. A centered measurement model writes <span class="math inline">\(x=\eta+\epsilon\)</span>, with loading one and <span class="math inline">\(\operatorname{Cov}(\eta,\epsilon)=0\)</span>. Its sole variance equation is <span class="math inline">\(25=\phi+\theta\)</span>. Naming the factor and fixing its loading set a metric; they do not separate the two unknown variance components. Repeating the same score would add no observed information.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-single-indicator" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="A latent factor eta has a fixed loading of one on observed score x. Its residual epsilon has externally fixed variance (1 minus rho) times 25; the factor variance phi is the one free parameter." data-fig-pos="H">
+<div id="fig-cfa-single-indicator" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A latent factor eta has a fixed loading of one on observed score x. Its residual epsilon has externally fixed variance (1 minus rho) times 25; the factor variance phi is the one free parameter." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-single-indicator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-single-indicator-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="A latent factor eta has a fixed loading of one on observed score x. Its residual epsilon has externally fixed variance (1 minus rho) times 25; the factor variance phi is the one free parameter." width="1024">
@@ -1748,7 +1748,7 @@ Table&nbsp;7: Exact one-indicator population-moment reconstructions. Every row r
 <p>One deliberately constrained example shows what an exact mapping looks like. For two positively correlated first-order factors, fix both second-order loadings to one, set <span class="math inline">\(\operatorname{Var}(G)=\phi_{12}\)</span>, and set the two first-order disturbance variances to <span class="math inline">\(\phi_{11}-\phi_{12}\)</span> and <span class="math inline">\(\phi_{22}-\phi_{12}\)</span>. When these variances are nonnegative, the second-order parameterization reproduces exactly the same <span class="math inline">\(2\times2\)</span> factor covariance matrix. Without the two extra scale/equality restrictions, two first-order factors do not by themselves identify a second-order factor. Chapter 4 develops the case with three first-order factors and then a distinct bifactor structure. Those models express alternative measurement structures; they are not generic remedies for a weak initial model.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-equivalent-pair" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="The left model connects two first-order factors with a covariance. The right model replaces that covariance with one general factor loading one-to-one on each first-order factor." data-fig-pos="H">
+<div id="fig-cfa-equivalent-pair" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The left model connects two first-order factors with a covariance. The right model replaces that covariance with one general factor loading one-to-one on each first-order factor." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-equivalent-pair-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-equivalent-pair-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The left model connects two first-order factors with a covariance. The right model replaces that covariance with one general factor loading one-to-one on each first-order factor." width="1120">
@@ -1784,7 +1784,7 @@ F_{\mathrm{ML}}
 <p>At a proper optimum, numerical changes in the free parameters cannot materially lower the objective under the specified constraints. That is an optimization statement. It does not imply small absolute discrepancy, plausible parameter meaning, or a unique substantive model.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-estimation" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Observed moments lie away from a curve of model-implied moments; a dashed arrow points to a selected model point, with a warning that ML is not Euclidean distance." data-fig-pos="H">
+<div id="fig-cfa-estimation" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Observed moments lie away from a curve of model-implied moments; a dashed arrow points to a selected model point, with a warning that ML is not Euclidean distance." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-estimation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-estimation-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Observed moments lie away from a curve of model-implied moments; a dashed arrow points to a selected model point, with a warning that ML is not Euclidean distance." width="1056">
@@ -2206,7 +2206,7 @@ t=14\text{ loadings}+12\text{ residual variances}
 <p>The simpler 27-parameter, 51-df model remains M0-simple, a named rival. It is not silently substituted for the inherited model. The all-item one-factor rival, the orthogonal restriction, and the raw-loading equality retain their Chapter 2 definitions. Models keep their M0–M4 identifiers across the three chapters; the separate example models use D1–D4, and a later data-developed revision will use an R identifier.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-handoff" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Three correlated SLE factors have twelve primary indicator relations and the two frozen additional loadings, P4 on Strategy and S4 on Belonging." data-fig-pos="H">
+<div id="fig-cfa-handoff" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Three correlated SLE factors have twelve primary indicator relations and the two frozen additional loadings, P4 on Strategy and S4 on Belonging." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-handoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-handoff-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Three correlated SLE factors have twelve primary indicator relations and the two frozen additional loadings, P4 on Strategy and S4 on Belonging." width="1120">
@@ -2406,7 +2406,7 @@ e^{(s)}_{jk}=\frac{e_{jk}}{\sqrt{S_{N,jj}S_{N,kk}}}.
 <p>The sign is informative: a positive entry means that the model reproduces less association than the sample contains. A raw residual uses the product of the indicators’ units; the scaled value facilitates comparison across pairs. It is neither an estimated residual-covariance parameter in <span class="math inline">\(\boldsymbol\Theta\)</span> nor a discrepancy divided by its sampling standard error. Calling it a <span class="math inline">\(z\)</span> statistic would attach an unsupported reference distribution.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-basic-local-residuals" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="A twelve-indicator residual matrix has small average discrepancy but several negative residuals involving B4, including minus .093 with S3." data-fig-pos="H">
+<div id="fig-cfa-basic-local-residuals" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A twelve-indicator residual matrix has small average discrepancy but several negative residuals involving B4, including minus .093 with S3." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-basic-local-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-basic-local-residuals-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="A twelve-indicator residual matrix has small average discrepancy but several negative residuals involving B4, including minus .093 with S3." width="1088">
@@ -2461,7 +2461,7 @@ Table&nbsp;14: Nine recorded test scores and their proposed domains.
 <p>Fit one correlated three-factor model with each indicator loading on its assigned factor only. Set factor variances to one, free the three factor covariances and nine residual variances, and set residual covariances to zero. All nine selected scores are observed for all 301 pupils. Keep the normal-theory ML convention, expected-information standard errors and covariance-only model. The ledger is <span class="math inline">\(9(10)/2=45\)</span> distinct moments minus <span class="math inline">\(9+9+3=21\)</span> free parameters, giving 24 df.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-empirical-model" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Visual predicts x1 to x3, Textual predicts x4 to x6 and Speed predicts x7 to x9. The three factors covary and each test has its own residual." data-fig-pos="H">
+<div id="fig-cfa-empirical-model" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Visual predicts x1 to x3, Textual predicts x4 to x6 and Speed predicts x7 to x9. The three factors covary and each test has its own residual." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-empirical-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-empirical-model-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Visual predicts x1 to x3, Textual predicts x4 to x6 and Speed predicts x7 to x9. The three factors covary and each test has its own residual." width="1040">
@@ -2595,7 +2595,7 @@ Table&nbsp;16: The same empirical model fitted from individual records and their
 <p>The exact-fit test rejects at <span class="math inline">\(p&lt;.001\)</span>: <span class="math inline">\(T=85.306\)</span> on 24 df. RMSEA .092 has 90% interval [.071, .114], CFI is .931, TLI .896 and SRMR .065. The model summarizes substantial association, but its exact restrictions are opposed and its local discrepancies merit attention. The x7–x8 raw covariance residual is .082 and its observed-SD-scaled value is .075. A clear loading estimate and an imperfect covariance representation can occur together; neither finding should erase the other. This section evaluates the declared model without searching for a better-fitting replacement.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-cfa-empirical-residuals" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="A numbered lower triangle of nine-test covariance residuals. The x7--x8 residual is positive 0.075, and several other cells have larger absolute discrepancies, showing why a single selected residual does not describe the whole pattern." data-fig-pos="H">
+<div id="fig-cfa-empirical-residuals" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A numbered lower triangle of nine-test covariance residuals. The x7--x8 residual is positive 0.075, and several other cells have larger absolute discrepancies, showing why a single selected residual does not describe the whole pattern." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cfa-empirical-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_03_files/figure-html/fig-cfa-empirical-residuals-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="A numbered lower triangle of nine-test covariance residuals. The x7--x8 residual is positive 0.075, and several other cells have larger absolute discrepancies, showing why a single selected residual does not describe the whole pattern." width="1040">

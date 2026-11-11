@@ -93,7 +93,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-one/chapter_08.html" rel="next">
 <link href="../part-one/chapter_06.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -103,7 +103,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -285,13 +285,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+ <span class="menu-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+ <span class="menu-text">Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</span></a>
   </div>
 </li>
     </ul>
@@ -355,11 +355,6 @@ window.Quarto = {
   <li><a href="#ch07-correlation-test" id="toc-ch07-correlation-test">The slope test and the correlation test</a></li>
   <li><a href="#ch07-binary-predictor" id="toc-ch07-binary-predictor">A binary predictor and the two-sample t test</a></li>
   </ul></li>
-  <li><a href="#sec-ch7-repetition" id="toc-sec-ch7-repetition">Slopes Across Repeated Samples</a>
-  <ul>
-  <li><a href="#repeated-samples-and-coverage" id="toc-repeated-samples-and-coverage">Repeated samples and coverage</a></li>
-  <li><a href="#what-changes-slope-precision" id="toc-what-changes-slope-precision">What changes slope precision</a></li>
-  </ul></li>
   <li><a href="#sec-ch7-prediction" id="toc-sec-ch7-prediction">Prediction</a>
   <ul>
   <li><a href="#point-prediction" id="toc-point-prediction">Point prediction</a></li>
@@ -367,10 +362,7 @@ window.Quarto = {
   <li><a href="#a-new-case-and-its-prediction-interval" id="toc-a-new-case-and-its-prediction-interval">A new case and its prediction interval</a></li>
   <li><a href="#confidence-and-prediction-intervals-compared" id="toc-confidence-and-prediction-intervals-compared">Confidence and prediction intervals compared</a></li>
   </ul></li>
-  <li><a href="#sec-ch7-check" id="toc-sec-ch7-check">Diagnostic Checks</a>
-  <ul>
-  <li><a href="#residuals-influence-and-unequal-spread" id="toc-residuals-influence-and-unequal-spread">Residuals, influence and unequal spread</a></li>
-  </ul></li>
+  <li><a href="#sec-ch7-check" id="toc-sec-ch7-check">Checking the Fitted Line</a></li>
   <li><a href="#sec-ch7-rtm" id="toc-sec-ch7-rtm">Regression to the Mean and Its Paradox</a>
   <ul>
   <li><a href="#version-one-childrens-heights-regressing-to-the-mean" id="toc-version-one-childrens-heights-regressing-to-the-mean">Version one: children’s heights regressing to the mean</a></li>
@@ -411,7 +403,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This chapter reads regression as prediction with quantified uncertainty. It opens with the simple regression model, a straight line for the mean of an outcome with three parameters, and reads those parameters in a picture and in a simulated process whose values we know. It then turns to a reported claim about education and income and a question about 102 occupations: we plot the records, fit a straight line, read its slope, intercept, fitted values and residuals as a description of those records, and see how least squares chooses the line and how well it fits. Declaring the model for the occupations gives the slope a standard error and an interval, repeated samples of the known process show what the interval’s coverage means, and prediction comes at three levels: a point, a mean response and one new case. Checks of form, spread, influence and support qualify these answers. The chapter closes with regression toward the mean in its two versions, Galton’s heights of fathers and sons and a hypothetical class’s two exams. By the end you will be able to state and read a simple regression model, fit and read one in R, say what its descriptive and model-based answers concern, and recognize regression toward the mean in a before-and-after claim. An appendix develops the mathematics.</p>
+<p>This chapter reads regression as prediction with quantified uncertainty. It opens with the simple regression model, a straight line for the mean of an outcome with three parameters, and reads those parameters in a picture and in a simulated process whose values we know. It then turns to a reported claim about education and income and a question about 102 occupations: we plot the records, fit a straight line, read its slope, intercept, fitted values and residuals as a description of those records, and see how least squares chooses the line and how well it fits. Declaring the model for the occupations gives the slope a standard error and an interval, repeated samples of the known process show what the interval’s coverage means, and prediction comes at three levels: a point, a mean response and one new case. A residual plot and one influential occupation qualify these answers. The chapter closes with regression toward the mean in its two versions, Galton’s heights of fathers and sons and a hypothetical class’s two exams. By the end you will be able to state and read a simple regression model, fit and read one in R, say what its descriptive and model-based answers concern, and recognize regression toward the mean in a before-and-after claim. An appendix develops the mathematics.</p>
 </div>
 </div>
 <p>Suppose a report says, “Another year of education increases income by about 900 dollars.” Before asking whether the number is significant, ask whose education and whose income were measured: individuals, households and occupations give three different comparisons.</p>
@@ -420,7 +412,7 @@ window.Quarto = {
 <p>Among the 102 recorded Canadian occupations, how did occupation-average income differ across the supported range of occupation-average education in 1971, as summarized by a fitted straight line?</p>
 </blockquote>
 <p>One row is an <strong>occupation</strong>, not a worker. An occupation with higher average education need not contain the same people as one with lower average education, so a comparison of their averages does not describe what another year of schooling would do to one person’s income. Aggregate and individual relationships can differ substantially <span class="citation" data-cites="robinson1950">(<a href="#ref-robinson1950" role="doc-biblioref">Robinson, 1950</a>)</span>.</p>
-<p>Regression can be read as <strong>prediction with quantified uncertainty</strong>. A fitted line predicts an occupation’s average income from its average education; the residuals show how far each record lies from its prediction; and, once a model for the records is declared, standard errors and intervals say how uncertain the slope and the predictions are. Section 1 states the model that gives a slope its meaning; Section 2 returns to the occupations.</p>
+<p><strong>Regression</strong> estimates the relationship between an outcome (the dependent variable) and one or more predictors (independent variables), and uses that relationship to predict the outcome. It is best read as <strong>prediction with quantified uncertainty</strong>. A fitted line predicts an occupation’s average income from its average education; the residuals show how far each record lies from its prediction; and, once a model for the records is declared, standard errors and intervals say how uncertain the slope and the predictions are. We take a comparison, not a causal, perspective: the line predicts income at given education values, and its slope compares those predictions across occupations. Section 1 states the model that gives a slope its meaning; Section 2 returns to the occupations.</p>
 <div style="page-break-after: always;"></div>
 <section id="sec-ch7-model" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ch7-model">The Simple Regression Model</h2>
@@ -535,7 +527,7 @@ Figure&nbsp;2: Known and fitted lines for one simulated dataset. The true proces
 </div>
 </div>
 </div>
-<p>In this one sample each coefficient misses its programmed value by less than one SE: the slope is 0.4695 against 0.5, with SE 0.0733, and the intercept 2.477 against 2, with SE 0.8362. Misses of that size are usual. For this 20-point design about two-thirds of estimates fall within one SE of the truth and about 94% within two, the chances .6694 and .9392 that a <span class="math inline">\(t\)</span> variable on 18 df lies within 1 and 2 of zero; Section 4 checks this by repeating the sample many times. In <a href="#fig-ch7-core-true-fitted" class="quarto-xref">Figure&nbsp;2</a> the errors are the vertical distances to the dashed true line, and the residuals of Section 2.3 the distances to the solid fitted line.</p>
+<p>In this one sample each coefficient misses its programmed value by less than one SE: the slope is 0.4695 against 0.5, with SE 0.0733, and the intercept 2.477 against 2, with SE 0.8362. Misses of that size are usual. For this 20-point design about two-thirds of estimates fall within one SE of the truth and about 94% within two, the chances .6694 and .9392 that a <span class="math inline">\(t\)</span> variable on 18 df lies within 1 and 2 of zero; Section 3.1 repeats the process many times to show what an SE estimates. In <a href="#fig-ch7-core-true-fitted" class="quarto-xref">Figure&nbsp;2</a> the errors are the vertical distances to the dashed true line, and the residuals of Section 2.3 the distances to the solid fitted line.</p>
 </section>
 </section>
 <section id="sec-ch7-line" class="level2">
@@ -646,6 +638,19 @@ Figure&nbsp;3: Education and income in the 102 occupation records, before fittin
 \widehat{\mathrm{income}}=-2.8536+0.8988\,\mathrm{education}.
 \]</span></p>
 <p>With income in thousands of dollars, the slope says that fitted income differs by 0.8988 thousand dollars, about 899 dollars, per one-year difference in occupation-average education; a two-year difference corresponds to <span class="math inline">\(2\widehat\beta_1\approx1.7976\)</span> thousand dollars.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A word of caution on the intercept.</strong> The intercept is meaningful only if <span class="math inline">\(x=0\)</span> is a plausible value within the scope of the data; otherwise it is a mathematical anchor for the line, not an interpretable value. Here <span class="math inline">\(\widehat\beta_0=-2.8536\)</span> is the fitted income at zero years of education, far outside the observed 6.38–15.97 years, and no recorded occupation has negative income. Centering education at 12 years (Section 2.5) moves the intercept to a supported value: 7.9322 thousand dollars, the fitted income of an occupation averaging 12 years.</p>
+</div>
+</div>
 <p>For university teachers, the fitted coefficients before rounding give</p>
 <p><span class="math display">\[
 \widehat y=\widehat\beta_0+\widehat\beta_1(15.97)
@@ -663,7 +668,27 @@ e=12.4800-\widehat y\approx0.9795,
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        fitted      residual         at_12 </span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11.5004555017  0.9795444983  7.9321685196</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>An occupation averaging 12 years of education has fitted income 7.9322 thousand dollars. <a href="#tbl-ch7-slope-readings" class="quarto-xref">Table&nbsp;3</a> sets the slope’s reading beside two sentences a report might also write about it.</p>
+<p>The last value, <code>at_12</code>, is the 7.9322 thousand dollars that the intercept warning above uses. <a href="#fig-ch7-line-residual" class="quarto-xref">Figure&nbsp;4</a> draws the fitted line and marks the university-teacher residual.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch7-line-residual" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A fitted line crosses the mean education and income. At 15.97 years, a vertical segment joins the fitted value to the higher university-teacher observation.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch7-line-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_07_files/figure-html/fig-ch7-line-residual-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="A fitted line crosses the mean education and income. At 15.97 years, a vertical segment joins the fitted value to the higher university-teacher observation." width="604">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-line-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The least-squares line passes through the mean point; the marked vertical segment is the university-teacher residual.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>lm()</code> returns this line whether or not Section 1’s model holds for the occupations. Here the line describes the 102 records: its slope, fitted values and residuals are completed calculations on them. A standard error and an interval answer a further question, which Section 3.1 asks once the model is declared for the occupations.</p>
+<section id="comparison-versus-counterfactual-interpretation" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="comparison-versus-counterfactual-interpretation">Comparison versus counterfactual interpretation</h4>
+<p>A regression coefficient can be described in two ways that are easily confused. A <strong>comparison</strong> or <strong>predictive interpretation</strong> describes differences between units: two units whose predictor values differ by one unit are predicted to differ by <span class="math inline">\(\beta_1\)</span> in their outcomes, on average. It answers questions such as “How well does <span class="math inline">\(x\)</span> predict <span class="math inline">\(y\)</span>?”, “How do units that differ in <span class="math inline">\(x\)</span> differ in <span class="math inline">\(y\)</span>?” and “What is the relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>?” This is the default reading of a regression fitted to observational records, and the reading this chapter uses.</p>
+<p>A <strong>counterfactual</strong> or <strong>causal interpretation</strong> asks how a unit’s outcome would differ under two alternatives, such as two amounts of schooling one year apart. Each unit experiences only one alternative on a given occasion. With a design that supports the comparison, such as random assignment, outcomes across units can identify an average effect even when individual effects differ. If the mean outcome under each alternative follows a straight line in <span class="math inline">\(x\)</span>, its slope <span class="math inline">\(\beta_1\)</span> gives that average effect per unit difference in <span class="math inline">\(x\)</span>. Records of the same units over time can show how they changed, but attributing that change to the predictor still needs a credible comparison.</p>
+<p><a href="#tbl-ch7-slope-readings" class="quarto-xref">Table&nbsp;3</a> applies the two readings to the occupation slope. The counterfactual reading appears twice, because the unit that would change can be an occupation or a worker.</p>
 <div id="tbl-ch7-slope-readings" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[40,26,34]">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch7-slope-readings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -691,12 +716,12 @@ Table&nbsp;3: Three readings of one slope; only the first is a comparison these 
 </tr>
 <tr class="even">
 <td style="text-align: left;">If an occupation’s average education rose by one year, its average income would rise by about 899 dollars</td>
-<td style="text-align: left;">One occupation before and after a change</td>
-<td style="text-align: left;">No: it needs records of occupations over time and a design that isolates the change</td>
+<td style="text-align: left;">One occupation with and without the rise</td>
+<td style="text-align: left;">No: one occupation’s income without the rise is never observed; a credible comparison, such as a randomized one, could identify an average effect across occupations, not this occupation’s own</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Another year of schooling raises a worker’s income by about 899 dollars</td>
-<td style="text-align: left;">One person before and after more schooling</td>
+<td style="text-align: left;">One person with and without more schooling</td>
 <td style="text-align: left;">No: it needs records of individuals and a causal design; occupation averages cannot supply either</td>
 </tr>
 </tbody>
@@ -704,23 +729,8 @@ Table&nbsp;3: Three readings of one slope; only the first is a comparison these 
 </div>
 </figure>
 </div>
-<p>Only the first sentence compares what the records compare: occupations that differ in average education. The second describes a change within one occupation over time and the third a change within one person; the records observe neither <span class="citation" data-cites="robinson1950">(<a href="#ref-robinson1950" role="doc-biblioref">Robinson, 1950</a>)</span>. The wording of a question signals which reading it asks for. Words such as <em>difference</em>, <em>relationship</em>, <em>higher</em>, <em>lower</em> and <em>predict</em> usually ask for a comparison between units; <em>effect</em>, <em>impact</em>, <em>change</em>, <em>increase</em> and <em>decrease</em> usually ask what a change would do, which needs a design that supports it. The opening report, “another year of education increases income”, uses the second kind of wording for a comparison of the first kind.</p>
-<p><code>lm()</code> returns this line whether or not Section 1’s model holds for the occupations. Here the line describes the 102 records: its slope, fitted values and residuals are completed calculations on them. A standard error and an interval answer a further question, which Section 3.1 asks once the model is declared for the occupations.</p>
-<p>The intercept, <span class="math inline">\(-2.8536\)</span>, is the line’s fitted income at zero years of education. Zero lies far outside the observed range, so, as Section 1.2 warned, the intercept only places the line; no recorded occupation has negative income. Section 2.5 moves the intercept to a supported education value.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-ch7-line-residual" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A fitted line crosses the mean education and income. At 15.97 years, a vertical segment joins the fitted value to the higher university-teacher observation.">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ch7-line-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="chapter_07_files/figure-html/fig-ch7-line-residual-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="A fitted line crosses the mean education and income. At 15.97 years, a vertical segment joins the fitted value to the higher university-teacher observation." width="604">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-line-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: The least-squares line passes through the mean point; the marked vertical segment is the university-teacher residual.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<p>Only the first sentence compares what the records compare: occupations that differ in average education. The second compares one occupation with and without a rise in education, and the third one worker with and without more schooling. A cross-sectional comparison of occupation averages supplies no credible comparison for either, and the third also asks about individuals, whom occupation averages do not describe <span class="citation" data-cites="robinson1950">(<a href="#ref-robinson1950" role="doc-biblioref">Robinson, 1950</a>)</span>. The wording of a question signals which reading it asks for. Words such as <em>difference</em>, <em>relationship</em>, <em>higher</em>, <em>lower</em> and <em>predict</em> usually ask for a comparison between units; <em>effect</em>, <em>impact</em>, <em>change</em>, <em>increase</em> and <em>decrease</em> usually ask what a change would do, which needs a design that supports it. The opening report, “another year of education increases income”, uses the second kind of wording for a comparison of the first kind.</p>
+</section>
 </section>
 <section id="how-least-squares-chooses-the-line" class="level3">
 <h3 class="anchored" data-anchor-id="how-least-squares-chooses-the-line">How least squares chooses the line</h3>
@@ -754,7 +764,7 @@ S_{xy}=\sum_i(x_i-\bar x)(y_i-\bar y),
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(x, y) <span class="sc">*</span> <span class="fu">sd</span>(y) <span class="sc">/</span> <span class="fu">sd</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Both routes give 0.8988 using unrounded quantities from the same 102 complete pairs. This common set of records matters: separately calculated summaries that omit different occupations need not reproduce the fitted line.</p>
-<p>A slope needs education to vary: if every occupation had the same education, <span class="math inline">\(S_{xx}=0\)</span> and no slope could be identified. The line passes through <span class="math inline">\((\bar x,\bar y)\)</span>, since substituting <span class="math inline">\(\bar x\)</span> into the intercept formula gives <span class="math inline">\(\bar y\)</span>. With an intercept, the residuals also sum to zero and their products with <span class="math inline">\(x\)</span> sum to zero; otherwise the line could be shifted or tilted to reduce RSS. These are algebraic properties of OLS, not tests of independence or linearity. Because they tie the residuals together, residuals are an imperfect window on the errors, which Section 6 keeps in mind. <strong>Appendix A</strong> derives them.</p>
+<p>A slope needs education to vary: if every occupation had the same education, <span class="math inline">\(S_{xx}=0\)</span> and no slope could be identified. The line passes through <span class="math inline">\((\bar x,\bar y)\)</span>, since substituting <span class="math inline">\(\bar x\)</span> into the intercept formula gives <span class="math inline">\(\bar y\)</span>. With an intercept, the residuals also sum to zero and their products with <span class="math inline">\(x\)</span> sum to zero; otherwise the line could be shifted or tilted to reduce RSS. These are algebraic properties of OLS, not tests of independence or linearity. Because they tie the residuals together, residuals are an imperfect window on the errors, which Section 5 keeps in mind. <strong>Appendix A</strong> derives them.</p>
 <p>Three teaching records, <span class="math inline">\((x,y)=(1,2),(2,4),(3,3)\)</span>, show the whole calculation at once. Their means are <span class="math inline">\(\bar x=2\)</span> and <span class="math inline">\(\bar y=3\)</span>. <a href="#tbl-ch7-tiny" class="quarto-xref">Table&nbsp;4</a> lays out the centered values, their squares and products, the fitted values and the residuals, with column sums in the last row.</p>
 <div id="tbl-ch7-tiny" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[9,9,11,11,12,17,11,10,10]">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -927,27 +937,37 @@ Figure&nbsp;5: Five candidate lines through the sample mean. The OLS line has th
 </section>
 <section id="sec-ch7-fit" class="level3">
 <h3 class="anchored" data-anchor-id="sec-ch7-fit">How well does the line fit?</h3>
-<p>A line can show a clear trend and still leave large differences between occupations. For OLS with an intercept, the total variation of income around its mean splits into two sums of squares:</p>
+<p>A line can show a clear trend and still leave large differences between occupations. Two summaries assess the fit of the model as a whole: one as a proportion, the other on the outcome scale. For OLS with an intercept, the total variation of income around its mean splits into two sums of squares:</p>
 <p><span class="math display">\[
 TSS=\sum_i(y_i-\bar y)^2=RegSS+RSS,
 \qquad RegSS=\sum_i(\widehat y_i-\bar y)^2.
 \]</span></p>
-<p>For the occupation records, <span class="math inline">\(1820.8134=607.4214+1213.3920\)</span>, in squared thousand dollars. These are sums of squared deviations, not variances; the split holds because the fitted deviations and the residuals have a zero cross-product. The coefficient of determination is</p>
+<p>For the occupation records, <span class="math inline">\(1820.8134=607.4214+1213.3920\)</span>, in squared thousand dollars. These are sums of squared deviations, not variances; the split holds because the fitted deviations and the residuals have a zero cross-product. The <strong>coefficient of determination</strong>, <span class="math inline">\(R^2\)</span>, is the share of the total that the regression part accounts for:</p>
 <p><span class="math display">\[
-R^2=1-\frac{RSS}{TSS}
+R^2=\frac{RegSS}{TSS}=1-\frac{RSS}{TSS}
 =1-\frac{1213.3920}{1820.8134}\approx.3336.
 \]</span></p>
-<p>The line accounts for a proportion .3336 of the squared variation of income around its mean. “Accounts for” is algebraic: it does not mean that education causes or determines income. With an intercept and one predictor, <span class="math inline">\(R^2=r^2\)</span>, here <span class="math inline">\(.5776^2\approx.3336\)</span>.</p>
-<p>The residual standard deviation, in thousand dollars, is</p>
+<p>As a <strong>goodness-of-fit</strong> measure, <span class="math inline">\(R^2\)</span> runs from 0, a line that predicts no better than the mean, to 1, a line through every record. The occupation line accounts for 33.36% of the squared variation of income around its mean. “Accounts for” is algebraic: it does not mean that education causes or determines income. A higher <span class="math inline">\(R^2\)</span> indicates a closer fit, but what counts as a good <span class="math inline">\(R^2\)</span> depends on the context; an <span class="math inline">\(R^2\)</span> of .10, for instance, means that the line accounts for 10% of the squared variation in the outcome.</p>
+<p>With an intercept, <span class="math inline">\(R^2\)</span> is also a squared correlation in two ways:</p>
+<p><span class="math display">\[
+R^2=r_{xy}^2=r_{y\widehat y}^2,
+\]</span></p>
+<p>here <span class="math inline">\(.5776^2\approx.3336\)</span>. The first is the squared correlation between the predictor and the outcome; the second, between the outcome and its fitted values. In simple regression the two agree, because the fitted values are a straight-line function of <span class="math inline">\(x\)</span>. The second carries over to multiple regression (Chapter 8), where several predictors share one set of fitted values.</p>
+<p><span class="math inline">\(R^2\)</span> has no units. The <strong>residual standard deviation</strong> puts the remaining scatter back on the outcome scale. It averages the squared residuals over their <strong>degrees of freedom</strong> (df) rather than over <span class="math inline">\(n\)</span>. For one mean, the <span class="math inline">\(n\)</span> deviations from the sample mean sum to zero, so only <span class="math inline">\(n-1\)</span> of them are free to vary, and the sample variance divides by <span class="math inline">\(n-1\)</span>. A fitted line imposes two such constraints. Least squares makes the residuals sum to zero and also makes them uncorrelated with the predictor,</p>
+<p><span class="math display">\[
+\sum_ie_i=0,\qquad \sum_ix_ie_i=0,
+\]</span></p>
+<p>as Appendix A derives from the equations that define the minimizing line. These are two independent linear constraints on the <span class="math inline">\(n\)</span> residuals, so the residuals can vary freely in only <span class="math inline">\(n-2\)</span> directions: they carry <span class="math inline">\(n-2\)</span> free pieces of information. Each estimated coefficient uses up one degree of freedom: the intercept and the slope leave <span class="math inline">\(n-2=100\)</span> <strong>residual degrees of freedom</strong> for the 102 occupations. Chapter 8 extends the count to <span class="math inline">\(n-p-1\)</span> for a model with <span class="math inline">\(p\)</span> predictors. Dividing by <span class="math inline">\(n-2\)</span> rather than <span class="math inline">\(n\)</span> compensates for the fit: the line was chosen to make these particular residuals small, so their plain average square would understate the scatter of the errors around the true line (Appendix A shows that the <span class="math inline">\(n-2\)</span> divisor removes this bias). The residual SD is</p>
 <p><span class="math display">\[
 s_e=\sqrt{\frac{RSS}{n-2}}
 =\sqrt{\frac{1213.392}{100}}=3.4834.
 \]</span></p>
-<p>Fitting an intercept and a slope leaves <span class="math inline">\(n-2\)</span> residual degrees of freedom. Under the model of Section 1.1, <span class="math inline">\(s_e^2\)</span> is an unbiased estimate of the error variance and <span class="math inline">\(s_e\)</span> estimates the error SD <span class="math inline">\(\sigma\)</span> (Appendix A); without that model, <span class="math inline">\(s_e\)</span> measures residual scatter. It is not the slope’s standard error. <code>sigma()</code> returns it, and <code>summary()</code> reports <span class="math inline">\(R^2\)</span>:</p>
+<p>Occupations typically lie about 3.48 thousand dollars, roughly 3,483 dollars, above or below the line. “Typically” here means a root mean square, the square root of an average squared residual, rather than an average distance. R prints <span class="math inline">\(s_e\)</span> as the <strong>residual standard error</strong>, and it is also called the standard error of the estimate; despite the name, it is not the standard error of a coefficient. Under the model of Section 1.1, <span class="math inline">\(s_e^2\)</span> is an unbiased estimate of the error variance <span class="math inline">\(\sigma^2\)</span> and <span class="math inline">\(s_e\)</span> estimates the error SD <span class="math inline">\(\sigma\)</span> (Appendix A); without that model, <span class="math inline">\(s_e\)</span> measures residual scatter. <code>sigma()</code> returns it, <code>summary()</code> reports <span class="math inline">\(R^2\)</span>, and squaring the correlation of Section 2.4’s <code>x</code> and <code>y</code> reproduces <span class="math inline">\(R^2\)</span>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">residual_SD =</span> <span class="fu">sigma</span>(model), <span class="at">R_squared =</span> <span class="fu">summary</span>(model)<span class="sc">$</span>r.squared)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  residual_SD    R_squared </span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3.4833777071 0.3335989192</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">residual_SD =</span> <span class="fu">sigma</span>(model), <span class="at">R_squared =</span> <span class="fu">summary</span>(model)<span class="sc">$</span>r.squared,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">squared_r =</span> <span class="fu">cor</span>(x, y)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  residual_SD    R_squared    squared_r </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3.4833777071 0.3335989192 0.3335989192</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><a href="#tbl-ch7-quantities" class="quarto-xref">Table&nbsp;6</a> sets four summaries side by side. Here and below, <span class="math inline">\(SE\)</span> denotes an estimated standard error; the last row needs Section 1’s model declared for the occupations, which Section 3.1 does, and is not part of the completed calculation on the 102 records.</p>
 <div id="tbl-ch7-quantities" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[24,22,54]">
@@ -1001,7 +1021,7 @@ Table&nbsp;6: Different summaries have different units and jobs.
 <h2 class="anchored" data-anchor-id="sec-ch7-inference">Inference for the Slope</h2>
 <section id="the-slopes-standard-error-and-confidence-interval" class="level3">
 <h3 class="anchored" data-anchor-id="the-slopes-standard-error-and-confidence-interval">The slope’s standard error and confidence interval</h3>
-<p>The slope 0.8988 is not waiting to be discovered: we computed it from all 102 records named in the question. A confidence interval answers a further question, about a process that could generate new outcomes. Apply the model of Section 1.1 to the occupations: suppose each occupation’s income arose independently from a process whose mean at education <span class="math inline">\(x_i\)</span> is <span class="math inline">\(\beta_0+\beta_1x_i\)</span>, with errors of common variance <span class="math inline">\(\sigma^2\)</span>, Normal for the exact <span class="math inline">\(t\)</span> procedure. The estimand is now <span class="math inline">\(\beta_1\)</span>, the slope of that hypothetical process, not the fixed slope of the records, and repetition means new incomes at the same 102 education values, not a new sample of occupations. Nothing in the records establishes this process: it is declared, and its conditions are a proposed justification that Section 6 examines.</p>
+<p>The slope 0.8988 is not waiting to be discovered: we computed it from all 102 records named in the question. A confidence interval answers a further question, about a process that could generate new outcomes. Apply the model of Section 1.1 to the occupations: suppose each occupation’s income arose independently from a process whose mean at education <span class="math inline">\(x_i\)</span> is <span class="math inline">\(\beta_0+\beta_1x_i\)</span>, with errors of common variance <span class="math inline">\(\sigma^2\)</span>, Normal for the exact <span class="math inline">\(t\)</span> procedure. The estimand is now <span class="math inline">\(\beta_1\)</span>, the slope of that hypothetical process, not the fixed slope of the records, and repetition means new incomes at the same 102 education values, not a new sample of occupations. Nothing in the records establishes this process: it is declared, and its conditions are a proposed justification that Section 5 examines.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-ch7-conditional" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The 102 occupation records and the fitted line rising from about 3 to 12 thousand dollars over education 6 to 16. At 8, 10, 12 and 14 years, an identical bell-shaped curve stands sideways on the line, spreading about 10 thousand dollars above and below it; the curve at 8 years extends below zero income, while several high-income records at 12 years and above lie beyond the curves' upper tails.">
@@ -1016,7 +1036,7 @@ Figure&nbsp;6: The model of Section 1 drawn on the occupation records, with the 
 </div>
 </div>
 </div>
-<p><a href="#fig-ch7-conditional" class="quarto-xref">Figure&nbsp;6</a> draws that model on the records, as panel (d) of <a href="#fig-ch7-model-parts" class="quarto-xref">Figure&nbsp;1</a> drew it on invented points, with the fitted line and <span class="math inline">\(s_e=3.4834\)</span> in place of the unknown <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\sigma\)</span>. The records do not look like that everywhere. At higher education they spread more widely, and several incomes lie beyond the upper tails; at 8 years the curve reaches below zero, a sign that a Normal model for a nonnegative outcome is an approximation, which Section 5 meets again.</p>
+<p><a href="#fig-ch7-conditional" class="quarto-xref">Figure&nbsp;6</a> draws that model on the records, as panel (d) of <a href="#fig-ch7-model-parts" class="quarto-xref">Figure&nbsp;1</a> drew it on invented points, with the fitted line and <span class="math inline">\(s_e=3.4834\)</span> in place of the unknown <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\sigma\)</span>. The records do not look like that everywhere. At higher education they spread more widely, and several incomes lie beyond the upper tails; at 8 years the curve reaches below zero, a sign that a Normal model for a nonnegative outcome is an approximation, which Section 4 meets again.</p>
 <p>Substituting the process into the slope formula shows where slope uncertainty comes from. The observed predictor values stay fixed, as in Section 1.1, and <span class="math inline">\(\sum_i(x_i-\bar x)=0\)</span>, so</p>
 <p><span class="math display">\[
 \widehat\beta_1-\beta_1
@@ -1040,13 +1060,27 @@ SE(\widehat\beta_1)=\frac{s_e}{\sqrt{S_{xx}}}
 \approx0.8988\pm1.984(0.127)
 \approx[0.6468,\ 1.1508].
 \]</span></p>
-<p>Here 1.984 is the 97.5th percentile of <span class="math inline">\(t\)</span> with 100 degrees of freedom. More error variation raises the SE, and a wider predictor spread lowers it.</p>
-<p>The education values <code>x</code> defined in Section 2.4 give the same SE:</p>
+<p>Here 1.984 is the 97.5th percentile of <span class="math inline">\(t\)</span> with 100 degrees of freedom, the residual df of Section 2.6: the <span class="math inline">\(t\)</span> reference takes its df from the variance estimate, whose own uncertainty the heavier <span class="math inline">\(t\)</span> tails allow for. More error variation raises the SE; more records and a wider predictor spread lower it, both by enlarging <span class="math inline">\(S_{xx}\)</span>. The education values <code>x</code> defined in Section 2.4 give the same SE:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sxx <span class="ot">&lt;-</span> <span class="fu">sum</span>((x <span class="sc">-</span> <span class="fu">mean</span>(x))<span class="sc">^</span><span class="dv">2</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sigma</span>(model) <span class="sc">/</span> <span class="fu">sqrt</span>(sxx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>The test of <span class="math inline">\(H_0:\beta_1=0\)</span> gives <span class="math inline">\(t=\widehat\beta_1/SE(\widehat\beta_1)\approx7.0753\)</span> and a two-sided <span class="math inline">\(p&lt;.0001\)</span>: evidence against the zero-slope model under the stated procedure. It is not the probability that the null is true, evidence of causation or a measure of practical importance. The interval describes what the procedure achieves over repetitions, which Section 4 makes visible, not a 95% probability for the fixed parameter. The coefficient table gives the estimate, SE and test, and <code>confint()</code> the interval, at its default level .95:</p>
+<p>Repeating the known process of Section 1.3 shows what this SE estimates. Fix 40 predictor values over the same range, 6 to 16, and draw 2,000 samples from <span class="math inline">\(Y_i=2+0.5x_i+\varepsilon_i\)</span> with <span class="math inline">\(\sigma=1\)</span>, fitting a line to each. The 2,000 fitted slopes have SD 0.0528, the average of their estimated SEs is 0.0531, and the formula <span class="math inline">\(\sigma/\sqrt{S_{xx}}\)</span> gives 0.0534: the SE computed from one sample estimates how far slopes vary from sample to sample. Of the 2,000 intervals at the 95% level, .9455 contain the true slope 0.5, about as close to .95 as 2,000 repetitions can show. As for any confidence interval, coverage belongs to the interval procedure, not to one realized interval, which either contains the true slope or does not. In <a href="#fig-ch7-coverage" class="quarto-xref">Figure&nbsp;7</a>, panel (a) shows the 2,000 slopes following the Normal curve whose SD, 0.0534, the SE formula gives, and panel (b) shows the first 100 realized intervals, of which 4 miss the true slope.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch7-coverage" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Two panels. Panel (a) is a histogram of 2,000 fitted slopes from about 0.31 to 0.70, centred on a vertical line at 0.5, with a Normal curve following the bars closely and dashed lines near 0.39 and 0.61. Panel (b) stacks 100 horizontal interval segments, each about 0.2 wide, by sample number from 1 to 100 around a vertical line at 0.5; 96 grey segments cross the line and 4 black segments, at samples 25, 42, 80 and 93, lie wholly to one side of it.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch7-coverage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_07_files/figure-html/fig-ch7-coverage-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Two panels. Panel (a) is a histogram of 2,000 fitted slopes from about 0.31 to 0.70, centred on a vertical line at 0.5, with a Normal curve following the bars closely and dashed lines near 0.39 and 0.61. Panel (b) stacks 100 horizontal interval segments, each about 0.2 wide, by sample number from 1 to 100 around a vertical line at 0.5; 96 grey segments cross the line and 4 black segments, at samples 25, 42, 80 and 93, lie wholly to one side of it." width="604">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-coverage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Repeating the known process 2,000 times, with 40 predictor values from 6 to 16 and true slope 0.5. (a) The fitted slopes, with the Normal curve of SD <span class="math inline">\(\sigma/\sqrt{S_{xx}}=0.0534\)</span> that the SE formula gives and dashed lines two such SDs either side of 0.5. (b) The first 100 of the 95% intervals, one per sample; the 4 drawn in black miss the true slope.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The test of <span class="math inline">\(H_0:\beta_1=0\)</span> gives <span class="math inline">\(t=\widehat\beta_1/SE(\widehat\beta_1)\approx7.0753\)</span> and a two-sided <span class="math inline">\(p&lt;.0001\)</span>: evidence against the zero-slope model under the stated procedure. It is not the probability that the null is true, evidence of causation or a measure of practical importance. The interval describes what the procedure achieves over repetitions, as the known process showed, not a 95% probability for the fixed parameter. The coefficient table gives the estimate, SE and test, and <code>confint()</code> the interval, at its default level .95:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(model))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  Estimate   Std. Error      t value        Pr(&gt;|t|)</span></span>
@@ -1059,7 +1093,7 @@ SE(\widehat\beta_1)=\frac{s_e}{\sqrt{S_{xx}}}
 </section>
 <section id="ch07-correlation-test" class="level3">
 <h3 class="anchored" data-anchor-id="ch07-correlation-test">The slope test and the correlation test</h3>
-<p>Chapter 5 tested a zero Pearson correlation. For an OLS line with an intercept, fitted to the same complete pairs,</p>
+<p>The Pearson correlation <span class="math inline">\(r\)</span> has its own test of a zero correlation, <span class="math inline">\(t=r\sqrt{(n-2)/(1-r^2)}\)</span>. For an OLS line with an intercept, fitted to the same complete pairs, the two tests coincide:</p>
 <p><span class="math display">\[
 \begin{aligned}
 t_{\mathrm{slope}}
@@ -1072,11 +1106,105 @@ F_{\mathrm{regression}}
 \end{aligned}
 \]</span></p>
 <p>The first identity follows from the covariance form of the slope and <span class="math inline">\(RSS=(1-r^2)TSS\)</span>; the second compares the intercept-only model with the line, and squaring the signed <span class="math inline">\(t\)</span> gives the nondirectional <span class="math inline">\(F\)</span>. For the occupation line both <span class="math inline">\(t\)</span> statistics are 7.0753 on 100 df, and the <span class="math inline">\(F\)</span> statistic that <code>summary()</code> prints is <span class="math inline">\(F(1,100)=50.0598=t^2\)</span>, all with <span class="math inline">\(p&lt;.0001\)</span>. They are one comparison written three ways, not three pieces of evidence.</p>
-<p>The equality is algebra, and it needs the same intercept, rows, weights and coefficient-covariance convention: a robust slope test of the kind Section 6 introduces, which estimates the slope’s SE without assuming equal error variance, need not equal the ordinary <span class="math inline">\(F\)</span>. For randomly sampled bivariate-Normal pairs a zero population correlation, <span class="math inline">\(\rho=0\)</span>, also means a zero conditional-mean slope, but the occupation records have no sampling warrant, so here the Pearson test only reproduces the process calculation.</p>
+<p>The <span class="math inline">\(F\)</span> statistic is built from the sums of squares of Section 2.6 in the same way as the one-way analysis-of-variance <span class="math inline">\(F\)</span> that compares group means: each sum of squares is divided by its degrees of freedom to give a <strong>mean square</strong>, and <span class="math inline">\(F\)</span> is the ratio of the regression mean square to the residual mean square. <a href="#tbl-ch7-anova" class="quarto-xref">Table&nbsp;7</a> sets out the parts, which R’s <code>anova()</code> prints as the <strong>analysis-of-variance table</strong> of the regression.</p>
+<div id="tbl-ch7-anova" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[14,14,7,39,14,12]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch7-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Analysis-of-variance table for the occupation line, with what each df counts.
+</figcaption>
+<div aria-describedby="tbl-ch7-anova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 7%">
+<col style="width: 39%">
+<col style="width: 14%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Source</th>
+<th style="text-align: right;">SS</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: left;">What the df count</th>
+<th style="text-align: right;">MS</th>
+<th style="text-align: right;"><span class="math inline">\(F\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Regression</td>
+<td style="text-align: right;">607.4214</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Coefficients beyond the mean: one slope</td>
+<td style="text-align: right;">607.4214</td>
+<td style="text-align: right;">50.0598</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual</td>
+<td style="text-align: right;">1213.3920</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">Residuals free to vary after fitting two coefficients, <span class="math inline">\(n-2\)</span></td>
+<td style="text-align: right;">12.1339</td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: right;">1820.8134</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: left;">Deviations from the mean free to vary, <span class="math inline">\(n-1\)</span></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The degrees of freedom add as the sums of squares do, <span class="math inline">\(101=1+100\)</span>. The residual mean square is the squared residual SD, <span class="math inline">\(12.1339=3.4834^2\)</span>, and the regression mean square measures how far the fitted values spread around the mean per fitted slope. Their ratio, 50.0598, is compared with an <span class="math inline">\(F\)</span> reference on 1 and 100 df, the two df of the table.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Sum Sq</th>
+<th style="text-align: right;">Mean Sq</th>
+<th style="text-align: right;">F value</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">education</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">607.421386</td>
+<td style="text-align: right;">607.42138602</td>
+<td style="text-align: right;">50.05978064</td>
+<td style="text-align: right;">2e-10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residuals</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">1213.392025</td>
+<td style="text-align: right;">12.13392025</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The numerical identities use the same unweighted observations, a line with an intercept, and the ordinary least-squares standard error for the slope. For randomly sampled bivariate-Normal pairs a zero population correlation, <span class="math inline">\(\rho=0\)</span>, also means a zero conditional-mean slope, but the occupation records have no sampling warrant, so here the Pearson test only reproduces the process calculation.</p>
 </section>
 <section id="ch07-binary-predictor" class="level3">
 <h3 class="anchored" data-anchor-id="ch07-binary-predictor">A binary predictor and the two-sample t test</h3>
-<p>A predictor need not be continuous. Chapter 4’s invented feedback study gave each of its 24 students a score out of 20, twelve under massed and twelve under spaced practice. Code the schedule <span class="math inline">\(x_i=0\)</span> for massed and <span class="math inline">\(x_i=1\)</span> for spaced, and fit the same kind of line. With only two predictor values, the least-squares line joins the two group means (<a href="#fig-ch7-binary" class="quarto-xref">Figure&nbsp;7</a>).</p>
+<p>A predictor need not be continuous. In an invented feedback study, 24 students each received a score out of 20, twelve after massed and twelve after spaced practice. Code the schedule <span class="math inline">\(x_i=0\)</span> for massed and <span class="math inline">\(x_i=1\)</span> for spaced, and fit the same kind of line. With only two predictor values, the least-squares line joins the two group means (<a href="#fig-ch7-binary" class="quarto-xref">Figure&nbsp;8</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-ch7-binary" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Twenty-four invented scores plotted at 0 for massed and 1 for spaced practice, massed scores from 4 to 12 and spaced from 4 to 20. A line joins the massed mean 8 to the spaced mean 12, both marked with filled diamonds.">
@@ -1085,160 +1213,18 @@ F_{\mathrm{regression}}
 <img src="chapter_07_files/figure-html/fig-ch7-binary-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Twenty-four invented scores plotted at 0 for massed and 1 for spaced practice, massed scores from 4 to 12 and spaced from 4 to 20. A line joins the massed mean 8 to the spaced mean 12, both marked with filled diamonds." width="537">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-binary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: With a 0/1 predictor, the least-squares line joins the two group means: the intercept is the massed mean and the slope the difference in means.
+Figure&nbsp;8: With a 0/1 predictor, the least-squares line joins the two group means: the intercept is the massed mean and the slope the difference in means.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Its coefficients take the readings of panel (b) of <a href="#fig-ch7-model-parts" class="quarto-xref">Figure&nbsp;1</a>: the intercept is the mean at <span class="math inline">\(x=0\)</span>, the massed mean, and the slope the difference for a one-unit step in <span class="math inline">\(x\)</span>, from massed to spaced,</p>
-<p><span class="math display">\[
-\widehat\beta_0=\bar y_0=8,\qquad
-\widehat\beta_1=\bar y_1-\bar y_0=12-8=4.
-\]</span></p>
-<p>The residual SD is the pooled SD, <span class="math inline">\(s_e=4.156\)</span> on <span class="math inline">\(24-2=22\)</span> df, and the slope SE becomes <span class="math inline">\(SE(\widehat\beta_1)=s_e\sqrt{1/n_0+1/n_1}=4.156\sqrt{1/12+1/12}=1.6967\)</span>, so <span class="math inline">\(t=2.3575\)</span> on 22 df, <span class="math inline">\(p=.0277\)</span> and the interval is <span class="math inline">\([0.4813,\ 7.5187]\)</span>. These are exactly the equal-variance two-sample <span class="math inline">\(t\)</span> test and interval, written as a line, with <span class="math inline">\(R^2=.2017\)</span> and <span class="math inline">\(F(1,22)=5.5579=t^2\)</span>.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>           <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">19</span>, <span class="dv">20</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>spaced <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">4</span>), <span class="dv">3</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>two_groups <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> spaced)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(two_groups))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Welch’s test uses the separate group SDs, 2.3741 and 5.3767, and gives 15.1322 df and <span class="math inline">\(p=.0323\)</span>; the classical slope SE and test above instead use one common error variance. The HC3 covariance of Section 6 keeps the line and gives a slope SE of 1.7721. A factor with more than two levels needs more than one 0/1 column; Chapter 9 develops that coding, its contrasts and the link to the analysis of variance of Chapter 4.</p>
-</section>
-</section>
-<section id="sec-ch7-repetition" class="level2">
-<h2 class="anchored" data-anchor-id="sec-ch7-repetition">Slopes Across Repeated Samples</h2>
-<section id="repeated-samples-and-coverage" class="level3">
-<h3 class="anchored" data-anchor-id="repeated-samples-and-coverage">Repeated samples and coverage</h3>
-<p>Section 1.3 drew one sample of 20 from the known process <span class="math inline">\(Y_i=2+0.5x_i+\varepsilon_i\)</span> with <span class="math inline">\(\sigma=1\)</span>. Now fix 40 predictor values over the same range, 6 to 16, and draw 2,000 samples from the same generating rule. The study size is 40; the 2,000 repetitions only refine the simulation’s description of that study. Each repetition draws new errors, adds them to the same 40 process means, fits a line, records its slope and SE, and checks whether its 95% interval contains 0.5.</p>
-<div class="cell">
-<div id="tbl-ch7-repeated-slopes" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch7-repeated-slopes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;7: Slope behavior across 2,000 repetitions of the known process.
-</figcaption>
-<div aria-describedby="tbl-ch7-repeated-slopes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">Quantity</th>
-<th style="text-align: left;">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Mean estimated slope</td>
-<td style="text-align: left;">0.5018</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">SD of estimated slopes</td>
-<td style="text-align: left;">0.0528</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mean estimated SE</td>
-<td style="text-align: left;">0.0531</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Theoretical slope SD</td>
-<td style="text-align: left;">0.0534</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Fraction of intervals covering 0.5</td>
-<td style="text-align: left;">.9455</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</figure>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-ch7-core-repetition" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="A roughly symmetric histogram of repeated fitted slopes is centered near one half; its spread represents repeated-sample slope variation.">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ch7-core-repetition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="chapter_07_files/figure-html/fig-ch7-core-repetition-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="A roughly symmetric histogram of repeated fitted slopes is centered near one half; its spread represents repeated-sample slope variation." width="604">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-core-repetition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Slopes in 2,000 repetitions of the known process. The vertical reference is the true slope, 0.5.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>The SD of the 2,000 slopes estimates their repeated-sample spread, and each fitted SE estimates that spread from one sample; on average the two agree closely, and both are close to the theoretical SD <span class="math inline">\(\sigma/\sqrt{S_{xx}}\)</span> that Section 3.1’s variance formula gives with <span class="math inline">\(\sigma=1\)</span>. Measured in their own SEs, .6890 of the slopes lie within one SE of 0.5 and .9425 within two, close to the .6764 and .9473 of a <span class="math inline">\(t\)</span> variable on 38 df: the reading of one sample in Section 1.3 holds across many. Coverage belongs to the interval procedure, not to one realized interval, and with 2,000 repetitions its Monte Carlo SE at a true .95 is <span class="math inline">\(\sqrt{.95(.05)/2000}\approx0.0049\)</span>, so the observed .9455 lies within one Monte Carlo SE of .95.</p>
-</section>
-<section id="what-changes-slope-precision" class="level3">
-<h3 class="anchored" data-anchor-id="what-changes-slope-precision">What changes slope precision</h3>
-<p><a href="#tbl-ch7-precision-conditions" class="quarto-xref">Table&nbsp;8</a> uses the theoretical slope SD <span class="math inline">\(\sigma/\sqrt{S_{xx}}\)</span> to change one feature of the design at a time.</p>
-<div class="cell">
-<div id="tbl-ch7-precision-conditions" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch7-precision-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;8: How sample size, predictor support, and error SD affect theoretical slope precision.
-</figcaption>
-<div aria-describedby="tbl-ch7-precision-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">Condition</th>
-<th style="text-align: right;">n</th>
-<th style="text-align: right;">Lower</th>
-<th style="text-align: right;">Upper</th>
-<th style="text-align: right;">Error SD</th>
-<th style="text-align: left;">Slope SD</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Baseline</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">6.0</td>
-<td style="text-align: right;">16.0</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">0.0534</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">More rows</td>
-<td style="text-align: right;">160</td>
-<td style="text-align: right;">6.0</td>
-<td style="text-align: right;">16.0</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">0.0272</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Narrower support</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">8.5</td>
-<td style="text-align: right;">13.5</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">0.1068</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">More noise</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">6.0</td>
-<td style="text-align: right;">16.0</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">0.1068</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</figure>
-</div>
-</div>
-<p>Halving the predictor range or doubling <span class="math inline">\(\sigma\)</span> doubles the slope SD; quadrupling the points over the same range about halves it, not exactly, because the two grids’ variances differ slightly. Taking <code>x &lt;- 1:n</code> with a growing <span class="math inline">\(n\)</span> would change size and range together. More rows do not remove confounding, measurement error, dependence or misspecification; these simulations show behavior only under the mechanism programmed into them.</p>
+<p>Its coefficients take the readings of panel (b) of <a href="#fig-ch7-model-parts" class="quarto-xref">Figure&nbsp;1</a>: the intercept is the mean at <span class="math inline">\(x=0\)</span>, the massed mean 8, and the slope the difference for a one-unit step in <span class="math inline">\(x\)</span>, from massed to spaced, <span class="math inline">\(\widehat\beta_1=12-8=4\)</span>. The slope’s SE is 1.6967, and its test gives <span class="math inline">\(t=2.3575\)</span> on <span class="math inline">\(24-2=22\)</span> df, <span class="math inline">\(p=.0277\)</span>. These are exactly the equal-variance (pooled) two-sample <span class="math inline">\(t\)</span> test, written as a line, with <span class="math inline">\(F(1,22)=5.5579=t^2\)</span>. A factor with more than two levels needs more than one 0/1 column; Chapter 8, Section 4, develops that coding.</p>
 </section>
 </section>
 <section id="sec-ch7-prediction" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ch7-prediction">Prediction</h2>
-<p>At a chosen fixed education value <span class="math inline">\(x_0\)</span> the line gives one number, which can answer three questions of increasing uncertainty: what the line predicts, what the mean income of occupations at <span class="math inline">\(x_0\)</span> is, and what one new occupation’s income will be. The last two need Section 1’s model, declared for the occupations in Section 3.1.</p>
+<p>One of the most useful applications of a fitted regression is to predict the outcome at chosen predictor values. At a fixed education value <span class="math inline">\(x_0\)</span> the line gives one number, which answers three questions of increasing uncertainty: what the line predicts, what the mean income of occupations at <span class="math inline">\(x_0\)</span> is, and what one new occupation’s income will be. The first is a point prediction; the second and third are the two targets it serves, a mean and a single new case, and both need Section 1’s model, declared for the occupations in Section 3.1.</p>
 <section id="point-prediction" class="level3">
 <h3 class="anchored" data-anchor-id="point-prediction">Point prediction</h3>
 <p>The <strong>point prediction</strong> at <span class="math inline">\(x_0\)</span> is the fitted line’s value,</p>
@@ -1256,7 +1242,7 @@ SE(\widehat\mu_0)
 =3.4834\sqrt{\frac1{102}+
 \frac{(12-10.738)^2}{751.8852}}=0.3803
 \]</span></p>
-<p>at 12 years. The 95% <strong>confidence interval for the mean response</strong> is <span class="math inline">\(7.9322\pm1.984(0.3803)\approx[7.1776,\ 8.6868]\)</span>. The SE is smallest at <span class="math inline">\(\bar x\)</span>, grows with distance from it, and shrinks as independent records accumulate: it describes uncertainty about an average, not the spread of individual occupations. <code>predict()</code> returns the fit and the two limits:</p>
+<p>at 12 years. The 95% <strong>confidence interval for the mean response</strong> is <span class="math inline">\(7.9322\pm1.984(0.3803)\approx[7.1776,\ 8.6868]\)</span>. The SE is smallest at <span class="math inline">\(\bar x\)</span> and grows with distance from it: it describes uncertainty about an average, not the spread of individual occupations. <code>predict()</code> returns the fit and the two limits:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model, <span class="fu">data.frame</span>(<span class="at">education =</span> <span class="dv">12</span>), <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          fit        lwr         upr</span></span>
@@ -1281,7 +1267,7 @@ SE_{\mathrm{new}}
 =s_e\sqrt{1+\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}}
 =3.5041,
 \]</span></p>
-<p>and the 95% <strong>prediction interval</strong> <span class="math inline">\(7.9322\pm1.984(3.5041)\approx[0.9802,\ 14.8842]\)</span>. The extra 1 is the new outcome’s own error variance, in units of <span class="math inline">\(\sigma^2\)</span>; unlike the mean-response SE, it does not shrink as the estimation sample grows.</p>
+<p>and the 95% <strong>prediction interval</strong> <span class="math inline">\(7.9322\pm1.984(3.5041)\approx[0.9802,\ 14.8842]\)</span>. The extra 1 is the new outcome’s own error variance, in units of <span class="math inline">\(\sigma^2\)</span>. More records locate the mean line more precisely, so the mean-response SE approaches zero as the sample grows; a new occupation still has its own deviation from that line, so <span class="math inline">\(SE_{\mathrm{new}}\)</span> approaches <span class="math inline">\(\sigma\)</span> instead.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model, <span class="fu">data.frame</span>(<span class="at">education =</span> <span class="dv">12</span>), <span class="at">interval =</span> <span class="st">"prediction"</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          fit          lwr        upr</span></span>
@@ -1304,128 +1290,72 @@ Figure&nbsp;9: Confidence intervals for the mean response (dark band) and predic
 </div>
 </div>
 </div>
-<p><a href="#fig-ch7-intervals" class="quarto-xref">Figure&nbsp;9</a> draws both intervals across the observed education range. The prediction band is much wider everywhere, because it carries a new occupation’s own scatter as well as the uncertainty about the line; the confidence band carries only the latter. Both widen away from <span class="math inline">\(\bar x\)</span>. Below about 11 years the prediction band’s lower limit falls below zero, which exposes the limits of a Normal model for a nonnegative outcome rather than forecasting negative income. Outside 6.38–15.97 years the software still returns numbers, but the records cannot check them. Neither interval measures how well the line predicts records it has not seen; that held-out question belongs to Chapter 8. Appendix A derives the mean-response variance from the coefficient variances and their covariance, and gives both intervals at four education values.</p>
+<p><a href="#fig-ch7-intervals" class="quarto-xref">Figure&nbsp;9</a> draws both intervals across the observed education range. The prediction band is much wider everywhere, because a prediction interval for one new occupation must account for two sources of uncertainty:</p>
+<ul>
+<li>the uncertainty in the estimated line, which the confidence interval for the mean response also captures;</li>
+<li>the new occupation’s own deviation from the line, whose SD is <span class="math inline">\(\sigma\)</span>.</li>
+</ul>
+<p>Averaging removes the second source: the mean income of occupations at <span class="math inline">\(x_0\)</span> does not depend on any one occupation’s deviation. Both bands widen away from <span class="math inline">\(\bar x\)</span>. Below about 11 years the prediction band’s lower limit falls below zero, which exposes the limits of a Normal model for a nonnegative outcome rather than forecasting negative income. Neither interval measures how well the line predicts records it has not seen; that held-out question belongs to Chapter 13. Appendix A derives the mean-response variance from the coefficient variances and their covariance, and gives both intervals at four education values.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A warning on extrapolation.</strong> Predicting at predictor values outside the observed range is called <strong>extrapolation</strong>. The line describes the relationship only where records exist, here 6.38–15.97 years of education; beyond that range the relationship may change, and the records cannot check it. Software still returns a prediction and an interval there, but the data give them no support. The intercept is the extreme case: at zero years of education the line predicts an impossible income of <span class="math inline">\(-2.8536\)</span> thousand dollars.</p>
+</div>
+</div>
 </section>
 </section>
 <section id="sec-ch7-check" class="level2">
-<h2 class="anchored" data-anchor-id="sec-ch7-check">Diagnostic Checks</h2>
-<section id="residuals-influence-and-unequal-spread" class="level3">
-<h3 class="anchored" data-anchor-id="residuals-influence-and-unequal-spread">Residuals, influence and unequal spread</h3>
-<p>The fitted line exists whether or not the model of Section 1.1 holds. Claims that it describes a linear conditional mean, that its interval has the stated coverage, or that it predicts new occupations well need more support, and a check earns its place when its result could change one of those claims.</p>
+<h2 class="anchored" data-anchor-id="sec-ch7-check">Checking the Fitted Line</h2>
+<p>Sections 3 and 4 use a straight-line mean and independent Normal errors with one SD at every education value. Judging independence requires knowing how the occupations and their measurements are related. The residuals help us examine the shape of the mean and the spread around it. <a href="#fig-ch7-checks" class="quarto-xref">Figure&nbsp;10</a> plots each residual against its fitted value. Read the centre first. If a straight line describes the mean, the residuals scatter around zero with no pattern, and a smooth curve through them stays roughly flat. Here the curve sags, about 1.1 thousand dollars above zero at the lowest fitted incomes, about 1.6 below near a fitted income of 8, and back up to about 0.5 below zero at the top, so a constant education slope may miss a bend. Then read its spread: the vertical scatter widens from left to right. The residual SD is 1.59 thousand dollars in the third of the occupations with the lowest fitted incomes, 2.45 in the middle third and 5.15 in the top third, so one error SD for the whole range is doubtful.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-ch7-checks" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The left panel shows curvature and uneven scatter in residuals. The right panel shows Cook's distances, with physicians most influential for this fit.">
+<div id="fig-ch7-checks" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Residuals in thousand dollars against fitted income from about 3 to 11.5. Most residuals lie within 5 of zero. A smooth curve starts about 1 above zero, dips to about minus 1.6 near a fitted income of 8 and rises again. The vertical scatter is narrow at the left and wide at the right, where general managers and physicians lie about 18 and 14 above zero.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch7-checks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="chapter_07_files/figure-html/fig-ch7-checks-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="The left panel shows curvature and uneven scatter in residuals. The right panel shows Cook's distances, with physicians most influential for this fit." width="614">
+<img src="chapter_07_files/figure-html/fig-ch7-checks-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Residuals in thousand dollars against fitted income from about 3 to 11.5. Most residuals lie within 5 of zero. A smooth curve starts about 1 above zero, dips to about minus 1.6 near a fitted income of 8 and rises again. The vertical scatter is narrow at the left and wide at the right, where general managers and physicians lie about 18 and 14 above zero." width="537">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-checks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10: Residual pattern and influence invite different follow-up questions.
+Figure&nbsp;10: Residuals of the occupation line against its fitted values, with a smooth curve. The curve sags in the middle, and the scatter widens as fitted income rises.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>A curve in the residuals (<a href="#fig-ch7-checks" class="quarto-xref">Figure&nbsp;10</a>, left) suggests that one straight conditional mean leaves systematic variation, and a residual spread that changes with the fitted value challenges the common-variance SE. Leverage concerns an unusual predictor value; influence concerns how much the fit changes when a record is left out. A large residual, high leverage and high influence are related but different properties.</p>
-<p>A minimal version of the first display plots residuals against fitted values, with a horizontal reference at zero:</p>
+<p>The widening spread matters most for the prediction interval of Section 4, which used one error SD, 3.4834, at every education value. The residual pattern suggests that the interval may be unnecessarily wide at low fitted incomes and too narrow at high fitted incomes. Checking its coverage would require outcomes for new occupations at comparable education values. To examine the bend in the centre of the plot, add education squared to the model. Its positive coefficient, 0.1342, gives a curve that steepens as education increases. The usual test gives <span class="math inline">\(p=.0059\)</span> under the common-variance model. The widening spread and the fact that the plot prompted the check qualify the evidence for curvature.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(model), <span class="fu">resid</span>(model))</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>most <span class="ot">&lt;-</span> <span class="fu">which.max</span>(<span class="fu">cooks.distance</span>(model))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>without <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education, <span class="at">data =</span> prestige[<span class="sc">-</span>most, ])</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>quad <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> <span class="fu">I</span>(education<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> prestige)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">slope =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(model)[<span class="dv">2</span>]), <span class="at">without =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(without)[<span class="dv">2</span>]))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        slope      without </span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.8988128418 0.7982204353</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(quad))[<span class="st">"I(education^2)"</span>, <span class="fu">c</span>(<span class="st">"Estimate"</span>, <span class="st">"Pr(&gt;|t|)"</span>)]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Estimate       Pr(&gt;|t|) </span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.134179313419 0.005856544055</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>For a straight line with an intercept, the leverage and Cook’s distance of record <span class="math inline">\(i\)</span> are</p>
-<p><span class="math display">\[
-h_i=\frac1n+\frac{(x_i-\bar x)^2}{S_{xx}},
-\qquad
-D_i=\frac{e_i^2}{2s_e^2}\frac{h_i}{(1-h_i)^2}.
-\]</span></p>
-<p>Leverage grows with distance from <span class="math inline">\(\bar x\)</span>; Cook’s distance combines it with the residual to summarize how far the fitted values move when record <span class="math inline">\(i\)</span> is omitted (<a href="#fig-ch7-checks" class="quarto-xref">Figure&nbsp;10</a>, right). It prompts a look at provenance and a sensitivity analysis, not automatic deletion.</p>
-<p>Adding education squared lets the fit bend. This same-record comparison is an exploratory check, not a new final model:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>quad <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education <span class="sc">+</span> <span class="fu">I</span>(education<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> prestige)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>most <span class="ot">&lt;-</span> <span class="fu">which.max</span>(<span class="fu">cooks.distance</span>(model))</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>without <span class="ot">&lt;-</span> <span class="fu">lm</span>(income_k <span class="sc">~</span> education, <span class="at">data =</span> prestige[<span class="sc">-</span>most, ])</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">full =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(model)[<span class="dv">2</span>]), <span class="at">without =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(without)[<span class="dv">2</span>]))</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         full      without </span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.8988128418 0.7982204353</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(quad))[<span class="st">"I(education^2)"</span>, ]</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Estimate     Std. Error        t value       Pr(&gt;|t|) </span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.134179313419 0.047636405684 2.816738825952 0.005856544055</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>One occupation can also change the answer. General managers have the largest residual, 17.71 thousand dollars, yet omitting them moves the slope only from 0.8988 to 0.8625, because their education, 12.26 years, is only 1.5 years above the average. Omitting physicians moves it to 0.7982: physicians combine a large residual, 13.82, with nearly the highest education in the records, 15.96 years. A record’s <strong>leverage</strong> increases with its distance from mean education. Its <strong>influence</strong> depends on both its leverage and its residual. <strong>Cook’s distance</strong> summarizes how much the fitted values change when the record is omitted. Physicians have the largest Cook’s distance, 0.3983. <a href="#fig-ch7-influence" class="quarto-xref">Figure&nbsp;11</a> shows the two lines: physicians, at the right end of the education range, lift that end of the full-data line and tilt it upward. Without physicians the education-squared coefficient also falls, to 0.0947 with <span class="math inline">\(p=.0406\)</span>, so the evidence for a bend leans partly on this one record.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-ch7-curvature" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="The quadratic fit bends upward toward higher education, unlike the constant-slope straight line. Both fits use all 102 occupation records on the same income scale.">
+<div id="fig-ch7-influence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Income against education for the 102 occupations as grey open circles. A solid line and a slightly flatter dashed line cross near 9 years of education; at 16 years the dashed line lies about 0.7 thousand dollars lower. Filled points mark general managers at about 12 years and 26 thousand dollars, near the middle of the education range, and physicians at about 16 years and 25 thousand dollars, at its right end.">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ch7-curvature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="chapter_07_files/figure-html/fig-ch7-curvature-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="The quadratic fit bends upward toward higher education, unlike the constant-slope straight line. Both fits use all 102 occupation records on the same income scale." width="604">
+<div aria-describedby="fig-ch7-influence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_07_files/figure-html/fig-ch7-influence-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Income against education for the 102 occupations as grey open circles. A solid line and a slightly flatter dashed line cross near 9 years of education; at 16 years the dashed line lies about 0.7 thousand dollars lower. Filled points mark general managers at about 12 years and 26 thousand dollars, near the middle of the education range, and physicians at about 16 years and 25 thousand dollars, at its right end." width="604">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-curvature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: Straight and quadratic fits to the same 102 records. The curve is an exploratory sensitivity, not a selected final model.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-influence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: The occupation line fitted to all 102 records (solid, slope 0.8988) and refitted without physicians (dashed, slope 0.7982). The two highlighted records have the largest residuals.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The quadratic coefficient, 0.1342, has <span class="math inline">\(p=.0059\)</span> under that model’s classical calculation: a reason to look at the curvature rather than a model-selection rule, since the spread is unequal and the comparison was chosen after seeing the records. Omitting physicians, the record with the largest Cook’s distance (0.3983), moves the slope from 0.8988 to 0.7982. Nothing shows that physicians were recorded wrongly; the deletion is a sensitivity disclosure, not a replacement sample.</p>
-<p>An HC3 heteroskedasticity-consistent covariance gives a slope SE of 0.1491 rather than 0.1270 and, with the same <span class="math inline">\(t_{100}\)</span> multiplier, an approximate interval <span class="math inline">\([0.6031,\ 1.1945]\)</span>. The line does not change. HC3 relaxes the equal-variance assumption for independent records; it does not repair curvature, dependence, confounding or measurement error <span class="citation" data-cites="white1980 mackinnon1985 long2000 zeileis2004">(<a href="#ref-long2000" role="doc-biblioref">Long &amp; Ervin, 2000</a>; <a href="#ref-mackinnon1985" role="doc-biblioref">MacKinnon &amp; White, 1985</a>; <a href="#ref-white1980" role="doc-biblioref">White, 1980</a>; <a href="#ref-zeileis2004" role="doc-biblioref">Zeileis, 2004</a>)</span>.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>V_hc3 <span class="ot">&lt;-</span> sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(model, <span class="at">type =</span> <span class="st">"HC3"</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">classical =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(model))[<span class="st">"education"</span>, <span class="st">"Std. Error"</span>],</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">HC3 =</span> <span class="fu">sqrt</span>(V_hc3[<span class="st">"education"</span>, <span class="st">"education"</span>]))</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    classical          HC3 </span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.1270354112 0.1490510028</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Later chapters go further: Chapter 8, Appendix B, builds the HC3 matrix from its parts; Chapter 9, Appendix A, defines what a least-squares line estimates when the conditional mean is not linear; and Chapter 14, Section 5.1, illustrates attenuation under independent classical predictor error in a single-predictor model. Nothing here relies on them. <a href="#tbl-ch7-diagnostic-consequences" class="quarto-xref">Table&nbsp;9</a> collects the five checks and what each can change.</p>
-<div id="tbl-ch7-diagnostic-consequences" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[16,38,46]">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch7-diagnostic-consequences-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;9: Diagnostic questions and their consequences.
-</figcaption>
-<div aria-describedby="tbl-ch7-diagnostic-consequences-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 38%">
-<col style="width: 46%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Check</th>
-<th style="text-align: left;">What needs to be examined</th>
-<th style="text-align: left;">Consequence</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Form</td>
-<td style="text-align: left;">Residual curve and a curved-fit comparison</td>
-<td style="text-align: left;">A straight line may remain a description but fail as a constant conditional-mean slope account</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Spread</td>
-<td style="text-align: left;">Residual variation over fitted values</td>
-<td style="text-align: left;">Classical SEs may need revision; HC3 is a variance sensitivity, not a universal repair</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Influence</td>
-<td style="text-align: left;">Source record and result with/without a consequential case</td>
-<td style="text-align: left;">Disclose sensitivity; correct errors only when verified</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Independence</td>
-<td style="text-align: left;">How occupations and measurements were generated or related</td>
-<td style="text-align: left;">A plot cannot establish independent process realizations</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Support</td>
-<td style="text-align: left;">Actual education range and density of observations</td>
-<td style="text-align: left;">Restrict comparisons; avoid extrapolation and individual-level claims</td>
-</tr>
-</tbody>
-</table>
-</div>
-</figure>
-</div>
-</section>
+<p>Nothing shows that physicians were recorded wrongly, so a report gives the slope with and without them rather than deleting them. Chapter 9 develops these checks for several predictors.</p>
 </section>
 <section id="sec-ch7-rtm" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ch7-rtm">Regression to the Mean and Its Paradox</h2>
@@ -1434,37 +1364,41 @@ Table&nbsp;9: Diagnostic questions and their consequences.
 <li>When two different but related variables are measured and cases are extreme on the first, the predictor, they are likely to be less extreme, on average, on the second, the outcome.</li>
 <li>When one variable is measured twice and cases are extreme on the first measurement, they are likely to be less extreme, on average, on the second.</li>
 </ol>
-<p>The principle behind both versions is the same, provided that the factors producing the measurements stay stable. The order in time does not matter: selecting on the second measurement gives the same movement toward the mean on the first. In regression models it appears as follows.</p>
+<p>Both versions start with the same property of the fitted line. An extreme score on one measurement gives a less extreme linear prediction on the other, in standard units. This also works in reverse when we fit the first measurement on the second. To read either line as the average for cases at a given predictor value, the conditional mean in that direction must be adequately described by a line.</p>
 <ul>
-<li>In simple regression, when an initial measurement <span class="math inline">\(x\)</span> predicts a later measurement <span class="math inline">\(y\)</span>, cases with extreme values of <span class="math inline">\(x\)</span> have, on average, <span class="math inline">\(y\)</span> values closer to the mean of <span class="math inline">\(y\)</span>, and the fitted line captures this average movement toward the mean. In standard units, <span class="math inline">\(z_x=(x-\bar x)/s_x\)</span>, the slope of Section 2.4, <span class="math inline">\(\widehat\beta_1=r\,s_y/s_x\)</span>, turns the line into <span class="math inline">\(\widehat z_y=r\,z_x\)</span>: unless the correlation is perfect, a case <span class="math inline">\(z_x\)</span> SDs from the predictor’s mean is predicted only <span class="math inline">\(r\,z_x\)</span> SDs from the outcome’s mean.</li>
-<li>With several predictors the same principle holds for the predicted outcome. A model predicts the mean outcome of cases that share their predictor values, so its predictions as a whole are less spread out than the observed outcomes, while each case’s outcome still varies around its prediction.</li>
+<li><p>In simple regression, the amount of shrinkage depends on the correlation between the measurements. In standard units, <span class="math inline">\(z_x=(x-\bar x)/s_x\)</span> and <span class="math inline">\(z_y=(y-\bar y)/s_y\)</span>, the slope of Section 2.4, <span class="math inline">\(\widehat\beta_1=r\,s_y/s_x\)</span>, turns the line into <span class="math inline">\(\widehat z_y=r\,z_x\)</span>; fitting the first measurement on the second, with slope <span class="math inline">\(r\,s_x/s_y\)</span>, gives <span class="math inline">\(\widehat z_x=r\,z_y\)</span>:</p>
+<p><span class="math display">\[
+\widehat z_y=r\,z_x,\qquad \widehat z_x=r\,z_y.
+\]</span></p>
+<p>A case <span class="math inline">\(z_x\)</span> SDs from the predictor’s mean is predicted only <span class="math inline">\(r\,z_x\)</span> SDs from the outcome’s mean. Both lines have slope <span class="math inline">\(r\)</span>, smaller than 1 in absolute value unless the correlation is perfect.</p></li>
+<li><p>With several predictors the same principle holds for the predicted outcome. A model predicts the mean outcome of cases that share their predictor values, so its predictions as a whole are less spread out than the observed outcomes, while each case’s outcome still varies around its prediction.</p></li>
 </ul>
 <section id="version-one-childrens-heights-regressing-to-the-mean" class="level3">
 <h3 class="anchored" data-anchor-id="version-one-childrens-heights-regressing-to-the-mean">Version one: children’s heights regressing to the mean</h3>
 <p>The first version was discovered by Francis Galton, who gave regression its name <span class="citation" data-cites="galton1886">(<a href="#ref-galton1886" role="doc-biblioref">Galton, 1886</a>)</span>. Predicting children’s adult heights from their parents’ heights, he noticed that the children of tall parents were taller than average but, on average, less tall than their parents, and that the children of short parents were shorter than average but less short than their parents. In the vocabulary of statistics, heights had “regressed” toward the mean from one generation to the next.</p>
 <p>The <code>GaltonFamilies</code> data in the R package HistData hold the heights in inches of the parents and adult children of 205 families, from Beverley Shipley’s 2001 transcription of Galton’s notebook, hosted by James Hanley <span class="citation" data-cites="hanley2004 friendly2025">(<a href="#ref-friendly2025" role="doc-biblioref">Friendly et al., 2025</a>; <a href="#ref-hanley2004" role="doc-biblioref">Hanley, 2004</a>)</span>. We predict sons’ heights from their fathers’ heights. Install the package once with <code>install.packages("HistData")</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>d0 <span class="ot">&lt;-</span> HistData<span class="sc">::</span>GaltonFamilies</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>sons <span class="ot">&lt;-</span> d0[d0<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">"male"</span>, ]</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>galton <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">father =</span> sons<span class="sc">$</span>father, <span class="at">son =</span> sons<span class="sc">$</span>childHeight)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(galton)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      father              son         </span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Min.   :62.00000   Min.   :60.0000  </span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1st Qu.:68.00000   1st Qu.:67.5000  </span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Median :69.00000   Median :69.2000  </span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Mean   :69.13763   Mean   :69.2341  </span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3rd Qu.:70.50000   3rd Qu.:71.0000  </span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Max.   :78.50000   Max.   :79.0000</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>galton_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(son <span class="sc">~</span> father, <span class="at">data =</span> galton)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(galton_fit))</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  Estimate    Std. Error      t value</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 38.3625810324 3.30837360613 11.595601223</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father       0.4465226047 0.04782546198  9.336503742</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Pr(&gt;|t|)</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 1.425209005e-27</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father      3.737108856e-19</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sigma</span>(galton_fit)</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2.415990157</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>d0 <span class="ot">&lt;-</span> HistData<span class="sc">::</span>GaltonFamilies</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sons <span class="ot">&lt;-</span> d0[d0<span class="sc">$</span>gender <span class="sc">==</span> <span class="st">"male"</span>, ]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>galton <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">father =</span> sons<span class="sc">$</span>father, <span class="at">son =</span> sons<span class="sc">$</span>childHeight)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(galton)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      father              son         </span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Min.   :62.00000   Min.   :60.0000  </span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1st Qu.:68.00000   1st Qu.:67.5000  </span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Median :69.00000   Median :69.2000  </span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Mean   :69.13763   Mean   :69.2341  </span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3rd Qu.:70.50000   3rd Qu.:71.0000  </span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Max.   :78.50000   Max.   :79.0000</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>galton_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(son <span class="sc">~</span> father, <span class="at">data =</span> galton)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(galton_fit))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  Estimate    Std. Error      t value</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 38.3625810324 3.30837360613 11.595601223</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father       0.4465226047 0.04782546198  9.336503742</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    Pr(&gt;|t|)</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 1.425209005e-27</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father      3.737108856e-19</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sigma</span>(galton_fit)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2.415990157</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>d0</code> keeps the original records, <code>sons</code> the 481 rows for sons, and <code>galton</code> the two heights under short names. The 481 sons come from 179 families, so brothers share a father: the rows describe sons rather than separate families. That leaves the fitted line unchanged, but the model’s standard errors treat the 481 sons as independent and are therefore somewhat optimistic.</p>
 <p>The intercept, 38.3626 inches, is the predicted height of a son whose father is zero inches tall. It places the line but has no substantive meaning, because no father in the data is anywhere near zero height: fathers range from 62 to 78.5 inches. The slope says that for two fathers who differ in height by one inch, the predicted heights of their sons differ by about 0.4465 inch. The residual SD, 2.416 inches, says how far sons typically lie from the line: under Normal errors about two-thirds of the sons are within 2.416 inches of the height predicted from their fathers’ heights. <a href="#fig-ch7-galton" class="quarto-xref">Figure&nbsp;12</a> draws the records and the fitted line.</p>
@@ -1490,20 +1424,20 @@ Figure&nbsp;12: Fathers’ and sons’ heights for 481 sons in Galton’s famili
 <p><span class="math display">\[
 \widehat{\mathrm{son}}=69.2341+0.4465\,(\mathrm{father}-69.1376).
 \]</span></p>
-<p>In context, a father of average height is predicted to have a son of average height, 69.2341 inches, and for each inch that a father stands above or below the fathers’ mean, his son is predicted to stand about 0.45 inch above or below the sons’ mean. The same holds for groups. Among the 481 son records, 65 have a father more than 1 SD above the mean of the fathers’ column; they come from 27 families, so a father with several sons counts once for each son. Their fathers average 72.8754 inches, 1.621 SDs above that mean, and the 65 sons average 70.9631 inches, 0.6589 SDs above the sons’ mean, close to the line’s prediction in standard units, <span class="math inline">\(r(1.621)=.3924\times1.621=0.6361\)</span>.</p>
+<p>In context, a father of average height is predicted to have a son of average height, 69.2341 inches, and for each inch that a father stands above or below the fathers’ mean, his son is predicted to stand about 0.45 inch above or below the sons’ mean. The same holds for groups. Among the 481 son records, 65 have a father more than 1 SD above the mean of the fathers’ column; they come from 27 families, so a father with several sons counts once for each son. Their fathers average 72.8754 inches, 1.621 SDs above that mean, and the 65 sons average 70.9631 inches, 0.6589 SDs above the sons’ mean, close to the line’s prediction in standard units, <span class="math inline">\(r(1.621)=.3924\times1.621=0.6361\)</span>. The reverse line <span class="math inline">\(\widehat z_x=r\,z_y\)</span> also shows up in the records: the 83 sons more than 1 SD above the sons’ mean, 1.4302 SDs on average, have fathers only 0.6421 SD above the fathers’ mean, a little above the reverse line’s <span class="math inline">\(r(1.4302)=0.5612\)</span>; the 83 sons come from 56 families. Tall sons have less tall fathers, so regression runs backward in time as well, which no causal process between generations could produce.</p>
 <p>This raises the <strong>paradox of regression to the mean</strong>. If tall fathers tend to have sons who are only tallish, and short fathers sons who are only shortish, are children more average than their parents? And if this continued, would each generation be more average than the last, until after a few generations nearly everyone was about the same height? Clearly this does not happen: many generations after Galton, heights are as variable as ever. In these families the sons’ heights are in fact more variable than the fathers’:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(galton)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             father         son</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father 5.316560204 2.373964310</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; son    2.373964310 6.884876733</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(<span class="fu">fitted</span>(galton_fit))</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1.060028727</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(<span class="fu">resid</span>(galton_fit))</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5.824848005</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(galton)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             father         son</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; father 5.316560204 2.373964310</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; son    2.373964310 6.884876733</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(<span class="fu">fitted</span>(galton_fit))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1.060028727</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(<span class="fu">resid</span>(galton_fit))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5.824848005</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The fathers’ heights have variance 5.3166 square inches and the sons’ 6.8849. The resolution of the paradox is that a son’s predicted height is not his actual height. The predictions are closer to the mean than the fathers’ heights are: the slope is below one, and the fitted values vary by only 1.06 square inches. The prediction is imperfect, though, and the part of each son’s height that his father’s height does not predict, the residual, adds variance 5.8248. The two parts add to the sons’ variance, <span class="math inline">\(1.06+5.8248=6.8849\)</span> after rounding, and the predicted part’s share is <span class="math inline">\(R^2=r^2=.154\)</span>, Section 2.6’s decomposition divided by <span class="math inline">\(n-1\)</span>.</p>
-<p>Regression is prediction with quantified uncertainty. The predictions move toward the mean, while the variation that the predictor does not explain moves outcomes away from their predictions; in a stable population the two balance, so that total variation stays roughly constant from one generation to the next <span class="citation" data-cites="gelman2020">(<a href="#ref-gelman2020" role="doc-biblioref">Gelman et al., 2020</a>)</span>. Regression to the mean therefore arises in some form whenever predictions are imperfect in a stable setting. It describes predictions for groups selected on the predictor, not a population growing more uniform.</p>
+<p>Regression is prediction with quantified uncertainty. The predictions move toward the mean, while the variation that the predictor does not explain moves outcomes away from their predictions; in a stable population the two balance, so that total variation stays roughly constant from one generation to the next <span class="citation" data-cites="gelman2020">(<a href="#ref-gelman2020" role="doc-biblioref">Gelman et al., 2020</a>)</span>. Here sons of tall fathers have a less extreme predicted height, while sons across all the families still span a wide range of heights.</p>
 </section>
 <section id="version-two-successive-measurements-regressing-to-the-mean" class="level3">
 <h3 class="anchored" data-anchor-id="version-two-successive-measurements-regressing-to-the-mean">Version two: successive measurements regressing to the mean</h3>
@@ -1519,23 +1453,23 @@ M_i=T_i+\varepsilon_{i1},\qquad F_i=T_i+\varepsilon_{i2},\qquad
 T_i\sim\mathcal N(50,\,10^2),\qquad
 \varepsilon_{i1},\,\varepsilon_{i2}\overset{\mathrm{ind}}\sim\mathcal N(0,\,10^2).
 \]</span></p>
-<p>Half of each exam’s score variance comes from the true score, <span class="math inline">\(10^2/(10^2+10^2)=.5\)</span>, the exam’s <strong>reliability</strong>, the consistency of scores that Chapter 1 described. Only the true score repeats, so .5 is also the population correlation of the two exams and the slope of the population line, <span class="math inline">\(E(F\mid M)=50+.5\,(M-50)\)</span>.</p>
+<p>Half of each exam’s score variance comes from the true score, <span class="math inline">\(10^2/(10^2+10^2)=.5\)</span>, the exam’s <strong>reliability</strong>, the consistency of scores across repeated measurements. Only the true score repeats, so .5 is also the population correlation of the two exams and the slope of the population line, <span class="math inline">\(E(F\mid M)=50+.5\,(M-50)\)</span>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>true_score <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>error_1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>error_2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>midterm <span class="ot">&lt;-</span> true_score <span class="sc">+</span> error_1</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>final <span class="ot">&lt;-</span> true_score <span class="sc">+</span> error_2</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(midterm, final)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>exam_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(final <span class="sc">~</span> midterm, <span class="at">data =</span> exams)</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(exam_fit))</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  Estimate    Std. Error     t value        Pr(&gt;|t|)</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 24.9127867912 1.32322445877 18.82733245 6.691489442e-68</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; midterm      0.4951449148 0.02511297731 19.71669502 2.435995828e-73</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sigma</span>(exam_fit)</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 11.70896866</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>true_score <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>error_1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>error_2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>midterm <span class="ot">&lt;-</span> true_score <span class="sc">+</span> error_1</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>final <span class="ot">&lt;-</span> true_score <span class="sc">+</span> error_2</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(midterm, final)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>exam_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(final <span class="sc">~</span> midterm, <span class="at">data =</span> exams)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(exam_fit))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  Estimate    Std. Error     t value        Pr(&gt;|t|)</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 24.9127867912 1.32322445877 18.82733245 6.691489442e-68</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; midterm      0.4951449148 0.02511297731 19.71669502 2.435995828e-73</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sigma</span>(exam_fit)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 11.70896866</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -1558,27 +1492,42 @@ Figure&nbsp;13: Midterm and final scores of 1,000 simulated students with the fi
 <p>The estimated slope, 0.4951, lies below 1, which is regression to the mean: students who score high on the midterm tend to score only about half as far above the average on the final, and students who score low on the midterm still tend to score low on the final, but typically not as far below the average. At the far left of <a href="#fig-ch7-midterm-final" class="quarto-xref">Figure&nbsp;13</a>, one student scored 0.4533 on the midterm but 19.5119 on the final; at the far right, one scored 100.2345 on the midterm but 86.6075 on the final. The 100 students in the top tenth on the midterm averaged 76.7247 points there and 64.5625 on the final, close to their mean true score of 63.7567; the bottom tenth rose from 24.7399 to 36.6971, near their mean true score of 37.1194.</p>
 <p>It might seem natural to interpret this causally: students who score well on the midterm have high ability but then grow overconfident and ease off, so they do less well on the final, while poor scorers are motivated to try harder and improve. The data, however, came from a model with no causal effects at all. Both exams are a true score plus independent noise, and nothing happens between them; we know this because we wrote the rule that generated them.</p>
 <p>The slope below 1 is a consequence of the variation between the first and second observations. A student who scores very well on the midterm is likely to have a high true score and also to have been somewhat lucky, with a large positive error. That luck is unlikely to repeat on the final, so the student is expected to do better than average but less well than on the midterm <span class="citation" data-cites="gelman2020">(<a href="#ref-gelman2020" role="doc-biblioref">Gelman et al., 2020</a>)</span>. Reading the pattern causally would invent an effect: better-scoring students slacking off and weaker ones studying harder. Nor does the class become more uniform: the two exams’ SDs, 14.7516 and 13.7954, both estimate the same population SD, <span class="math inline">\(\sqrt{10^2+10^2}=14.1421\)</span>, because fresh luck on the final carries other students into the extremes.</p>
+<p><a href="#fig-ch7-rtm-z" class="quarto-xref">Figure&nbsp;14</a> puts both versions in standard units. In each panel the group means (diamonds) lie near the flatter line <span class="math inline">\(\widehat z_y=r\,z_x\)</span>, not the dotted line of slope 1. For the exams that slope is the sample correlation, .5295, a little above the raw slope 0.4951 because the final scores vary slightly less than the midterm scores.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ch7-rtm-z" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" alt="Two square panels with both axes from minus 3 to 3 standard units. Panel (a) shows sons' against fathers' heights and panel (b) final against midterm scores, each as a light grey cloud. In each, a dotted line of slope 1 runs corner to corner and a flatter solid line passes through the origin, with slope about 0.39 in (a) and 0.53 in (b). Filled diamonds for group means lie near the solid line: in (a) four diamonds from about minus 1.6 to 1.6 across and minus 0.65 to 0.66 up, in (b) ten diamonds from about minus 1.75 to 1.77 across and minus 0.96 to 1.06 up; the middle diamonds sit near zero.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ch7-rtm-z-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="chapter_07_files/figure-html/fig-ch7-rtm-z-1.png" class="img-fluid figure-img" data-fig-pos="H" alt="Two square panels with both axes from minus 3 to 3 standard units. Panel (a) shows sons' against fathers' heights and panel (b) final against midterm scores, each as a light grey cloud. In each, a dotted line of slope 1 runs corner to corner and a flatter solid line passes through the origin, with slope about 0.39 in (a) and 0.53 in (b). Filled diamonds for group means lie near the solid line: in (a) four diamonds from about minus 1.6 to 1.6 across and minus 0.65 to 0.66 up, in (b) ten diamonds from about minus 1.75 to 1.77 across and minus 0.96 to 1.06 up; the middle diamonds sit near zero." width="604">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ch7-rtm-z-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: Both versions of regression to the mean in standard units. Diamonds mark group means (fathers in four bands split at <span class="math inline">\(-1\)</span>, 0 and 1 SD; students in midterm tenths). They lie near the solid line <span class="math inline">\(\widehat z_y=r\,z_x\)</span>, closer to zero than the dotted slope-1 line, on which the second measurement would repeat the first.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="further-reflection-the-flight-school-example" class="level3">
 <h3 class="anchored" data-anchor-id="further-reflection-the-flight-school-example">Further reflection: the flight school example</h3>
 <p>The paradox of regression to the mean is not uncommon. A well-known illustration comes from flight training <span class="citation" data-cites="kahneman1973 tversky1974">(<a href="#ref-kahneman1973" role="doc-biblioref">Kahneman &amp; Tversky, 1973</a>; <a href="#ref-tversky1974" role="doc-biblioref">Tversky &amp; Kahneman, 1974</a>)</span>. Instructors at a flight school followed psychologists’ advice to reinforce success: they praised each well-executed manoeuvre. With experience, they concluded that the advice was wrong. After high praise for a smooth execution the next attempt was usually worse, while after criticism of a poor one the next attempt was usually better.</p>
 <p>The instructors had discovered regression to the mean but credited it to the effect of praise. Kahneman and Tversky drew a sobering general lesson <span class="citation" data-cites="kahneman1973">(<a href="#ref-kahneman1973" role="doc-biblioref">Kahneman &amp; Tversky, 1973</a>)</span>. People usually reward others when their performance is good and punish them when it is poor. Regression alone then makes performance tend to improve after punishment and decline after reward, so those who give feedback are repeatedly taught, misleadingly, that punishment works and reward does not. The instructors could come to believe firmly that praise is ineffective or even harmful, and that criticism is a highly effective tool.</p>
 <p>The key point of the example is that a quantitative understanding of prediction clears up a qualitative confusion about variation and causality. When performance has a substantial random component, an extremely good result is likely to be followed by a less exceptional one and an extremely poor result by an improvement, even when no causal mechanism connects the two events. From statistical considerations alone, the best trainees are expected to decline somewhat relative to the others on their next attempt and the worst to improve, just as the sons of very tall fathers tend to be shorter than their fathers and the sons of very short fathers taller. The same pattern appears in the performance of athletes and teams from one game or season to the next, in the economic results of regions across successive quarters or years, and in repeated scores on educational tests <span class="citation" data-cites="gelman2020">(<a href="#ref-gelman2020" role="doc-biblioref">Gelman et al., 2020</a>)</span>.</p>
-<p>The <strong>regression fallacy</strong> arises when such patterns are compared, often without saying so, with a model of perfect prediction in which the second measurement would equal the first. When both measurements are on the same scale, that hidden benchmark is a line of slope 1: midterm and final scores identical, a son exactly as tall as his father, a next landing as good as the last. The comparison is inappropriate because real measurements always contain random variation, and the movement away from the slope-1 line is then mistakenly credited to a cause.</p>
+<p>The <strong>regression fallacy</strong> arises when such patterns are compared, often without saying so, with a model of perfect prediction in which the second measurement would equal the first. When both measurements are on the same scale, that hidden benchmark is a line of slope 1: midterm and final scores identical, a son exactly as tall as his father, a next landing as good as the last. The comparison is inappropriate because real measurements always contain random variation, and the movement away from the slope-1 line is then mistakenly credited to a cause. The dotted line in <a href="#fig-ch7-rtm-z" class="quarto-xref">Figure&nbsp;14</a> is that benchmark in standard units, the line on which the second measurement is exactly as many SDs from its mean as the first: the group means follow the flatter regression line, not the line the fallacy expects.</p>
 <p>The point is not that a simple regression licenses causal conclusions in such settings. Rather, regression to the mean, compared with an implicit and unrealistic model of perfect prediction, easily leads to wrong causal conclusions, such as that students who did poorly on the midterm were motivated to study harder for the final while those who did well relaxed. Judging an actual intervention requires a design that supplies the expected outcome without the intervention, such as random assignment of help among similarly selected cases or credible untreated comparison data <span class="citation" data-cites="barnett2005">(<a href="#ref-barnett2005" role="doc-biblioref"><span class="nocase">Barnett et al.</span>, 2005</a>)</span>; the two measurements alone cannot. Exercise 5 works through one such benchmark, and Chapter 14, Section 4.1, applies the reasoning to selection on a noisy baseline.</p>
 </section>
 </section>
 <section id="sec-ch7-summary" class="level2">
 <h2 class="anchored" data-anchor-id="sec-ch7-summary">Reading Bridge</h2>
-<p>A simple regression starts from a model: the mean of an outcome is a straight line in one predictor, with an intercept, a slope and an error SD, and a process whose values we set shows estimates landing near them, usually within about one SE. Applied to records, the line starts with a unit and a comparison. Its fitted values are the line’s predictions for the records and its residuals the records’ distances from them; least squares puts the line through the mean point, with the slope set by covariance and predictor variation. Across the 102 recorded occupations, fitted income rises by 0.8988 thousand 1971 Canadian dollars, about 899 dollars, per year of occupation-average education over the observed 6.38–15.97 years: a bounded description of the records, not an individual, causal or population return. Declaring the model for the occupations gives the slope a standard error and an interval, whose coverage repeated samples make visible. The residual SD, <span class="math inline">\(R^2\)</span>, the slope’s standard error, and the mean-response and new-case intervals answer different questions, and the checks say which answers the records support. That is the chapter’s through-line: the line predicts, and, once a model is declared, standard errors and intervals say how uncertain its slope and predictions are. In standard units the line predicts <span class="math inline">\(r\)</span> times a case’s distance from the mean, whether the two measurements are a father’s and a son’s heights or one student’s two exam scores. Groups selected for extreme values are predicted nearer the mean under the stated linear relation, while outcomes retain residual variation. Reading a before-and-after gain as an effect needs a credible no-intervention comparison and an appropriate causal design. Argument Chapter A reads a short report of the occupation line as an argument.</p>
-<p>Chapter 8 writes the model with several predictors and reads a partial slope, first on a simulated process with two predictors. On the occupations it refits the education-only line on the 98 occupations with a recorded type, so that the change from 102 to 98 records is not mistaken for an effect of adjustment; it then adds prestige, percentage of women and occupation type, and asks a separate held-out prediction question. Chapter 9 takes Chapter 8’s model as its map, changing its mean part with factors of several levels, model comparison and changed forms, and recomputing its uncertainty with robust and resampled methods; its Section 7 (Project STAR) reads a randomized class-size experiment whose uncertainty follows its school-clustered design <span class="citation" data-cites="finn1990 mosteller1995">(<a href="#ref-finn1990" role="doc-biblioref">Finn &amp; Achilles, 1990</a>; <a href="#ref-mosteller1995" role="doc-biblioref">Mosteller, 1995</a>)</span>. Chapter 10 extends the factorial interactions of Chapters 4 and 6 to regression predictors.</p>
+<p>A simple regression starts from a model: the mean of an outcome is a straight line in one predictor, with an intercept, a slope and an error SD, and a process whose values we set shows estimates landing near them, usually within about one SE. Applied to records, the line starts with a unit and a comparison. Its fitted values are the line’s predictions for the records and its residuals the records’ distances from them; least squares puts the line through the mean point, with the slope set by covariance and predictor variation. Across the 102 recorded occupations, fitted income rises by 0.8988 thousand 1971 Canadian dollars, about 899 dollars, per year of occupation-average education over the observed 6.38–15.97 years: a bounded description of the records, not an individual, causal or population return. Declaring the model for the occupations gives the slope a standard error and an interval, whose coverage repeated samples make visible. The residual SD, <span class="math inline">\(R^2\)</span>, the slope’s standard error, and the mean-response and new-case intervals answer different questions. The residual SD and the <span class="math inline">\(t\)</span> and <span class="math inline">\(F\)</span> references count the residual degrees of freedom, <span class="math inline">\(n-2\)</span>, left after fitting two coefficients. The bend in the residual plot questions a constant slope, and the widening spread questions one error SD and the prediction interval built on it. Omitting one influential occupation moves the slope from 0.8988 to 0.7982. That is the chapter’s through-line: the line predicts, and, once a model is declared, standard errors and intervals say how uncertain its slope and predictions are. In standard units the line predicts <span class="math inline">\(r\)</span> times a case’s distance from the mean, whether the two measurements are a father’s and a son’s heights or one student’s two exam scores. Groups selected for extreme values are predicted nearer the mean under the stated linear relation, while outcomes retain residual variation. Reading a before-and-after gain as an effect needs a credible no-intervention comparison and an appropriate causal design. Argument Chapter A reads a short report of the occupation line as an argument.</p>
+<p>Chapter 8 writes the model with several predictors and reads a partial slope, first on a simulated process with two predictors. On the occupations it refits the education-only line on the 98 occupations with a recorded type, so that the change from 102 to 98 records is not mistaken for an effect of adjustment; it then adds prestige and the percentage of women, compares models, and brings occupation type in as a categorical predictor. Chapter 9 develops the checks of the assumptions fully for Chapter 8’s model, examines overlapping predictors and their contributions, transforms variables, and recomputes uncertainty with robust and resampled methods; its Section 7 (Project STAR) reads a randomized class-size experiment whose uncertainty follows its school-clustered design <span class="citation" data-cites="finn1990 mosteller1995">(<a href="#ref-finn1990" role="doc-biblioref">Finn &amp; Achilles, 1990</a>; <a href="#ref-mosteller1995" role="doc-biblioref">Mosteller, 1995</a>)</span>. Chapter 10 extends the factorial interactions of Chapters 4 and 6 to regression predictors.</p>
 <section id="key-terms" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="key-terms">Key terms</h3>
 <p>Use this short reference to revisit the regression concepts introduced here. The Part One Concept Reference gives the broader reference and the principal home of each concept; fitted values, residuals, standard errors, intervals, standardized values, and the reading vocabulary are explained in Chapters 1–4.</p>
 <div id="tbl-ch07-key-terms" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[28,72]">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch07-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;10: Selected concepts for simple linear regression.
+Table&nbsp;8: Selected concepts for simple linear regression.
 </figcaption>
 <div aria-describedby="tbl-ch07-key-terms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -1606,50 +1555,46 @@ Table&nbsp;10: Selected concepts for simple linear regression.
 <td style="text-align: left;">The difference in fitted outcome per one-unit difference in the predictor, in outcome units per predictor unit. It compares units that differ in the predictor; it is not a change within one unit unless a design supports that reading.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Comparison and counterfactual interpretations (predictive and causal readings)</td>
+<td style="text-align: left;">A comparison reading treats a coefficient as the predicted difference in outcome between units that differ by one unit in the predictor; it is the default for observational records. A counterfactual reading treats it as a causal contrast between outcomes under two predictor values. No unit is observed under both, so a credible comparison, such as a randomized one, can identify the average contrast across units even when individual contrasts differ, but not one unit’s own.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Ordinary least squares (OLS)</td>
 <td style="text-align: left;">The rule that chooses the intercept and slope minimizing the residual sum of squares. With an intercept, the fitted line passes through the mean point and the residuals sum to zero; the slope equals covariance divided by predictor variance.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Residual sum of squares (RSS)</td>
 <td style="text-align: left;">The sum of squared residuals from a fitted line, in squared outcome units. Total squared variation about the mean splits into a regression part and RSS when the model has an intercept.</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">Residual standard deviation (residual standard error)</td>
+<tr class="odd">
+<td style="text-align: left;">Residual standard deviation (residual standard error; standard error of the estimate)</td>
 <td style="text-align: left;">The square root of RSS divided by its residual degrees of freedom, in outcome units; with an intercept and one predictor the degrees of freedom are <span class="math inline">\(n-2\)</span>. Under the process model it estimates the error SD.</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">R-squared (coefficient of determination)</td>
-<td style="text-align: left;">One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation.</td>
-</tr>
 <tr class="even">
+<td style="text-align: left;">R-squared (coefficient of determination)</td>
+<td style="text-align: left;">One minus RSS divided by total squared variation: the proportion of centered squared outcome variation accounted for by the fit in these records. In simple regression with an intercept it equals the squared correlation; for any least-squares fit with an intercept it equals the squared correlation between the outcome and its fitted values.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Confidence interval for a mean response (mean-response interval)</td>
 <td style="text-align: left;">An interval for the process mean outcome at a stated predictor value, using the SE of the fitted value. It concerns an average, narrows near the predictor mean, and does not cover individual outcomes.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Prediction interval (new-case interval)</td>
 <td style="text-align: left;">An interval for one new outcome at a stated predictor value from the same process. Its variance adds the error variance to the fitted-mean variance, so it is wider than the mean-response interval and keeps a nonzero floor as the sample grows.</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">Leverage</td>
-<td style="text-align: left;">A measure of how unusual a record’s predictor value is relative to the others; it grows with distance from the predictor mean and appears in the SE of a fitted value and in influence measures.</td>
-</tr>
 <tr class="odd">
-<td style="text-align: left;">Cook’s distance (influence)</td>
-<td style="text-align: left;">A summary of how much the fitted values change when one record is omitted, combining its residual and its leverage. It prompts inspection of provenance and a disclosed sensitivity, not automatic deletion.</td>
+<td style="text-align: left;">Residual plot (residuals against fitted values)</td>
+<td style="text-align: left;">A plot of each residual against its fitted value, read for its centre, where a curve questions the straight-line mean, and its spread, where widening scatter questions one error SD and the prediction interval built on it.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Heteroskedasticity-consistent covariance (HC3; sandwich estimator)</td>
-<td style="text-align: left;">A coefficient covariance estimate that allows unequal error variance across predictor values under independence. It changes SEs and intervals, not the fitted coefficients, and does not repair curvature, dependence, measurement error, or confounding.</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">Extrapolation (predictor support)</td>
 <td style="text-align: left;">Using a fitted line at predictor values outside the observed range or where observations are sparse. Software returns a number there; the data do not support it.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Regression toward the mean (regression to the mean)</td>
 <td style="text-align: left;">For a simple linear prediction in standard units, <span class="math inline">\(\widehat z_y=r\,z_x\)</span>; when <span class="math inline">\(\lvert r\rvert&lt;1\)</span>, the predicted value is nearer its mean than the predictor is to its mean. In a stable repeated-measurement model with independent occasion errors, a group selected on an extreme noisy first score is expected to be less extreme on the second. These are statements about predictions or conditional averages, not every case; a narrower spread of predictions does not imply a narrower outcome distribution (the regression paradox).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Regression fallacy</td>
 <td style="text-align: left;">Attributing to an intervention the movement expected from selection on an extreme noisy measurement. Evaluating an intervention requires a credible no-intervention benchmark, supplied by a suitable design or untreated comparison under stated assumptions; a fitted line through treated outcomes alone does not supply it.</td>
 </tr>
@@ -1701,8 +1646,8 @@ Table&nbsp;10: Selected concepts for simple linear regression.
 <section id="ex-ch07-06" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="ex-ch07-06">Exercise 6: Respond to sensitivity (Integrative)</h3>
 <!-- exercise-id: ch07-ex06 -->
-<p>In a descriptive analysis of 102 occupations, the slope is 0.9. A valid, high-income occupation has the largest Cook’s distance; removing it gives 0.79. A curved-fit check changes the shape, and an HC3 calculation changes the slope SE from 0.13 to 0.15 without changing the line.</p>
-<p>What does each check tell you? What does it not tell you? Explain why deleting the occupation automatically is inappropriate. Distinguish a variance repair for the same estimand from replacing a constant process slope with a different estimand. Write a short sensitivity disclosure for the descriptive analysis.</p>
+<p>Across the 102 occupations, the education slope is 0.90 thousand dollars per year. Omitting physicians, a valid high-income occupation, gives 0.80. The residual plot also shows a bend in its centre and a widening spread at higher fitted incomes.</p>
+<p>What does the omission tell you about the slope? How does adding education squared change the interpretation of a one-year difference? What does the widening spread suggest about the prediction interval for a new occupation? Write a short sensitivity disclosure explaining why you retain physicians in the analysis.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
@@ -1711,13 +1656,13 @@ Table&nbsp;10: Selected concepts for simple linear regression.
 <p>This appendix derives the identities the main text uses, keeping identities about the observed records apart from claims about hypothetical repetitions. Occupation calculations use the same 102 rows, education in years and income in thousand 1971 Canadian dollars.</p>
 <section id="derivatives-normal-equations-and-the-minimizing-line" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="derivatives-normal-equations-and-the-minimizing-line">Derivatives, normal equations, and the minimizing line</h3>
-<p>Start with a fitted model that predicts one common center <span class="math inline">\(m\)</span> for every observation. Chapter 2 Section 2.2 states that the mean minimizes the sum of squared deviations, and Chapter 3 Appendix A derives the identity behind it:</p>
+<p>Start with a fitted model that predicts one common center <span class="math inline">\(m\)</span> for every observation. The mean minimizes the sum of squared deviations, because of the identity</p>
 <p><span class="math display">\[
 L(m)=\sum_i(y_i-m)^2
 =\sum_i(y_i-\bar y)^2+n(m-\bar y)^2.
 \]</span></p>
 <p>Write <span class="math inline">\(y_i-m=(y_i-\bar y)+(\bar y-m)\)</span> and expand the square. The cross term is zero because <span class="math inline">\(\sum_i(y_i-\bar y)=0\)</span>. For <span class="math inline">\(n&gt;0\)</span>, the last term is nonnegative and vanishes only at <span class="math inline">\(m=\bar y\)</span>, so the mean uniquely minimizes this criterion.</p>
-<p>The three outcomes <span class="math inline">\(2,4,3\)</span> from Section 2.4 have mean 3 and <span class="math inline">\(L(m)=2+3(m-3)^2\)</span>, so their best constant line has loss 2. Letting the fitted value depend on the three predictor values reduces RSS to 1.5, as <a href="#tbl-ch7-tiny" class="quarto-xref">Table&nbsp;4</a> showed; neither result requires Normal errors or a probability sample. Chapter 6, Section 5, located the least-squares center with a numerical search; here we develop the least-squares line algebraically.</p>
+<p>The three outcomes <span class="math inline">\(2,4,3\)</span> from Section 2.4 have mean 3 and <span class="math inline">\(L(m)=2+3(m-3)^2\)</span>, so their best constant line has loss 2. Letting the fitted value depend on the three predictor values reduces RSS to 1.5, as <a href="#tbl-ch7-tiny" class="quarto-xref">Table&nbsp;4</a> showed; neither result requires Normal errors or a probability sample. A numerical search could locate the least-squares line; here we develop it algebraically.</p>
 <p>The intercept-and-slope criterion has two coefficients to determine, so we set its two partial derivatives to zero and then verify that the resulting line is the minimum. For candidate intercept <span class="math inline">\(b_0\)</span> and slope <span class="math inline">\(b_1\)</span>, define</p>
 <p><span class="math display">\[
 Q(b_0,b_1)=\sum_{i=1}^n(y_i-b_0-b_1x_i)^2.
@@ -1758,7 +1703,7 @@ n\widehat\beta_0+\widehat\beta_1\sum_i x_i=\sum_i y_i,
 \qquad
 \widehat\beta_0=\bar y-\widehat\beta_1\bar x\approx-2.8536.
 \]</span></p>
-<p>Unlike a correlation, the slope changes when a variable’s units change. Standardizing both variables makes their SDs one, so the slope becomes <span class="math inline">\(r\)</span>; Section 7 reads that line.</p>
+<p>Unlike a correlation, the slope changes when a variable’s units change. Standardizing both variables makes their SDs one, so the slope becomes <span class="math inline">\(r\)</span>; Section 6 reads that line.</p>
 <p>To verify that the stationary point is the unique minimum, write any other line as <span class="math inline">\(\widehat\beta_0+d_0+(\widehat\beta_1+d_1)x_i\)</span>. The normal equations make the cross term with the OLS residuals vanish, leaving</p>
 <p><span class="math display">\[
 Q(\widehat\beta_0+d_0,\widehat\beta_1+d_1)
@@ -1808,7 +1753,7 @@ RSS=\sum_i\varepsilon_i^2-n\bar\varepsilon^2
 \frac{\widehat\beta_j-\beta_j}{SE(\widehat\beta_j)}
 \sim t_{n-2},\qquad j=0,1.
 \]</span></p>
-<p>That is the basis of exact classical coverage for <span class="math inline">\(\widehat\beta_j\pm t_{.975,n-2}SE(\widehat\beta_j)\)</span> and of the corresponding null test, which Section 3.1 applies to the occupation slope; the diagnostics of Section 6 do not support treating that interval’s nominal coverage as established.</p>
+<p>That is the basis of exact classical coverage for <span class="math inline">\(\widehat\beta_j\pm t_{.975,n-2}SE(\widehat\beta_j)\)</span> and of the corresponding null test, which Section 3.1 applies to the occupation slope; the diagnostics of Section 5 do not support treating that interval’s nominal coverage as established.</p>
 <p>These derivations condition on the predictor values, which need not have been fixed by an experiment; a model with random predictors uses the same conditional argument when its error conditions hold. Neither route shows that the occupations were probability sampled, and neither requires education or income to be Normal.</p>
 </section>
 <section id="why-a-new-case-interval-has-an-additional-variance-term" class="level3 unnumbered">
@@ -1828,11 +1773,11 @@ RSS=\sum_i\varepsilon_i^2-n\bar\varepsilon^2
 \operatorname{Var}(Y_0-\widehat\mu_0)
 =\sigma^2\left\{1+\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}\right\}.
 \]</span></p>
-<p>The extra <span class="math inline">\(1\)</span> is new outcome variation, which would remain even if the model mean were known. Both intervals use the same <span class="math inline">\(t_{.975,n-2}\)</span> multiplier. The table applies both formulas at four supported education values, the same calculation as Section 5’s two <code>predict()</code> calls.</p>
+<p>The extra <span class="math inline">\(1\)</span> is new outcome variation, which would remain even if the model mean were known. Both intervals use the same <span class="math inline">\(t_{.975,n-2}\)</span> multiplier. The table applies both formulas at four supported education values, the same calculation as Section 4’s two <code>predict()</code> calls.</p>
 <div id="tbl-ch07-app-a-intervals" class="quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[16,16,17,17,17,17]">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ch07-app-a-intervals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;11: Mean-response and new-case intervals at four supported education values.
+Table&nbsp;9: Mean-response and new-case intervals at four supported education values.
 </figcaption>
 <div aria-describedby="tbl-ch07-app-a-intervals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -1892,7 +1837,7 @@ Table&nbsp;11: Mean-response and new-case intervals at four supported education 
 </div>
 </figure>
 </div>
-<p>At 10 years the point prediction is 6.1345 thousand dollars, the mean interval [5.4254, 6.8437] and the new-occupation interval [<span class="math inline">\(-0.8127\)</span>, 13.0818]. Cutting the negative endpoint off at zero would not produce a valid 95% interval; a transformation or a model that respects the boundary would be a different analysis with its own checks.</p>
+<p>At 10 years the point prediction is 6.1345 thousand dollars, the mean interval [5.4254, 6.8437] and the new-occupation interval [<span class="math inline">\(-0.8127\)</span>, 13.0818]. For an income known to be nonnegative, replacing the lower endpoint by zero includes exactly the same possible incomes. Its coverage therefore stays the same. Whether that coverage is close to 95% depends on how well the model describes new occupations at 10 years of education. A model that builds in the income boundary would have its own prediction interval and checks.</p>
 <p>None of these formulas includes uncertainty from a wrong mean function, biased measurement or a shift to another labour market. They are pointwise model intervals, not a simultaneous band or an out-of-sample validation, and their target is a new occupation-level record from the declared process, never an individual worker’s income.</p>
 </section>
 </section>
@@ -1935,12 +1880,6 @@ Kahneman, D., &amp; Tversky, A. (1973). On the psychology of prediction. <em>Psy
 <div id="ref-kutner2005" class="csl-entry" role="listitem">
 Kutner, M. H., Nachtsheim, C. J., Neter, J., &amp; Li, W. (2005). <em>Applied linear statistical models</em> (5th ed.). McGraw-Hill/Irwin.
 </div>
-<div id="ref-long2000" class="csl-entry" role="listitem">
-Long, J. S., &amp; Ervin, L. H. (2000). Using heteroscedasticity consistent standard errors in the linear regression model. <em>The American Statistician</em>, <em>54</em>(3), 217–224. <a href="https://doi.org/10.1080/00031305.2000.10474549">https://doi.org/10.1080/00031305.2000.10474549</a>
-</div>
-<div id="ref-mackinnon1985" class="csl-entry" role="listitem">
-MacKinnon, J. G., &amp; White, H. (1985). Some heteroskedasticity-consistent covariance matrix estimators with improved finite sample properties. <em>Journal of Econometrics</em>, <em>29</em>(3), 305–325. <a href="https://doi.org/10.1016/0304-4076(85)90158-7">https://doi.org/10.1016/0304-4076(85)90158-7</a>
-</div>
 <div id="ref-mosteller1995" class="csl-entry" role="listitem">
 Mosteller, F. (1995). The <span>Tennessee</span> study of class size in the early school grades. <em>The Future of Children</em>, <em>5</em>(2), 113–127.
 </div>
@@ -1949,12 +1888,6 @@ Robinson, W. S. (1950). Ecological correlations and the behavior of individuals.
 </div>
 <div id="ref-tversky1974" class="csl-entry" role="listitem">
 Tversky, A., &amp; Kahneman, D. (1974). Judgment under uncertainty: Heuristics and biases. <em>Science</em>, <em>185</em>(4157), 1124–1131. <a href="https://doi.org/10.1126/science.185.4157.1124">https://doi.org/10.1126/science.185.4157.1124</a>
-</div>
-<div id="ref-white1980" class="csl-entry" role="listitem">
-White, H. (1980). A heteroskedasticity-consistent covariance matrix estimator and a direct test for heteroskedasticity. <em>Econometrica</em>, <em>48</em>(4), 817–838. <a href="https://doi.org/10.2307/1912934">https://doi.org/10.2307/1912934</a>
-</div>
-<div id="ref-zeileis2004" class="csl-entry" role="listitem">
-Zeileis, A. (2004). Econometric computing with <span>HC</span> and <span>HAC</span> covariance matrix estimators. <em>Journal of Statistical Software</em>, <em>11</em>(10), 1–17. <a href="https://doi.org/10.18637/jss.v011.i10">https://doi.org/10.18637/jss.v011.i10</a>
 </div>
 </div>
 
@@ -2393,8 +2326,8 @@ Zeileis, A. (2004). Econometric computing with <span>HC</span> and <span>HAC</sp
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../part-one/chapter_08.html" class="pagination-link" aria-label="Multiple Regression I: Conditioning, Checks, and Coordinated Questions">
-        <span class="nav-page-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../part-one/chapter_08.html" class="pagination-link" aria-label="Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison">
+        <span class="nav-page-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -58,7 +58,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-two/chapter_02.html" rel="next">
 <link href="../part-two/part_two_concept_reference.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -68,7 +68,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -401,7 +401,7 @@ Table&nbsp;1: <em>Four kinds of quantity in a factor model.</em>
 <p><a href="#fig-lvm" class="quarto-xref">Figure&nbsp;1</a> shows the smallest interesting case. Three observed indicators are drawn as rectangles, one unobserved variable as a circle, and the single-headed arrows run from the unobserved variable to the observed ones.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-lvm" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow." data-fig-align="center">
+<div id="fig-lvm" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-lvm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-lvm-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" alt="One latent factor eta points to observed indicators Y1 through Y3; each indicator also receives a residual epsilon arrow.">
@@ -561,7 +561,7 @@ Y_2=.7\eta+.4u+\sqrt{.35}e_2.
 <p>Before inspecting Panel C, predict whether removing <span class="math inline">\(.7\eta\)</span> will remove all association. Each indicator still has variance <span class="math inline">\(1\)</span>, and its residual variance remains <span class="math inline">\(.4^2+.35=.51\)</span>. However, the shared component <span class="math inline">\(.4u\)</span> remains in both residuals, so their conditional covariance is <span class="math inline">\(.4^2=.16\)</span>. The focal factor alone no longer supplies local independence.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-local-independence" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence." data-fig-align="center">
+<div id="fig-local-independence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-local-independence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-local-independence-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Three scatterplots show positively associated pooled indicators, an unstructured cloud after removing the known factor in the independent-residual construction, and remaining positive association when both residuals share a wording influence." width="768">
@@ -647,7 +647,7 @@ y_{i6} &amp;= \nu_6 + \lambda_{61}\eta_{i1} + \lambda_{62}\eta_{i2} + \epsilon_{
 <p><a href="#fig-general" class="quarto-xref">Figure&nbsp;3</a> draws the same system. Every indicator receives an arrow from both factors, and the double-headed arrow between the factors is the covariance <span class="math inline">\(\phi_{12}\)</span>.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-general" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Both correlated factors point to all six indicators; cross-loading paths are dashed, and each indicator has a residual." data-fig-align="center">
+<div id="fig-general" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Both correlated factors point to all six indicators; cross-loading paths are dashed, and each indicator has a residual.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-general-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-general-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:88.0%" alt="Both correlated factors point to all six indicators; cross-loading paths are dashed, and each indicator has a residual.">
@@ -676,7 +676,7 @@ Figure&nbsp;3: The two-factor, six-indicator system with every loading present. 
 <p><a href="#fig-simple" class="quarto-xref">Figure&nbsp;4</a> redraws the same system after the cross-loadings are fixed at zero.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-simple" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Eta 1 points only to Y1 through Y3 and eta 2 only to Y4 through Y6; the factors covary and every indicator has a residual." data-fig-align="center">
+<div id="fig-simple" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Eta 1 points only to Y1 through Y3 and eta 2 only to Y4 through Y6; the factors covary and every indicator has a residual.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-simple-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:88.0%" alt="Eta 1 points only to Y1 through Y3 and eta 2 only to Y4 through Y6; the factors covary and every indicator has a residual.">
@@ -1032,7 +1032,7 @@ Table&nbsp;6: <em>A constructed one-factor correlation matrix.</em>
 <p><a href="#fig-onefactor" class="quarto-xref">Figure&nbsp;5</a> draws this parameterization before the entrywise check.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-onefactor" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator." data-fig-pos="!htb" data-fig-align="center">
+<div id="fig-onefactor" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator." data-fig-pos="!htb">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-onefactor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-onefactor-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%" data-fig-pos="!htb" alt="One factor points to six indicators, with every loading labeled point 7 and a separate residual for every indicator.">
@@ -1143,7 +1143,7 @@ Table&nbsp;7: <em>A constructed two-factor correlation matrix.</em>
 <p><a href="#fig-orthogonal" class="quarto-xref">Figure&nbsp;6</a> draws the corresponding two-factor parameterization.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-orthogonal" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero." data-fig-pos="!htb" data-fig-align="center">
+<div id="fig-orthogonal" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero." data-fig-pos="!htb">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-orthogonal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-orthogonal-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%" data-fig-pos="!htb" alt="Eta 1 loads point 8 on Y1 through Y3, eta 2 loads point 6 on Y4 through Y6, and their covariance is zero.">
@@ -1527,7 +1527,7 @@ Table&nbsp;12: <em>Six applied evaluation verdicts for an overclaim based on the
 <p><a href="#fig-chapter-route" class="quarto-xref">Figure&nbsp;7</a> retraces the chapter’s route from observed covariance to a bounded interpretation.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-chapter-route" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim." data-fig-align="center">
+<div id="fig-chapter-route" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-chapter-route-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_01_files/figure-html/fig-chapter-route-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:78.0%" alt="A six-step vertical sequence runs from observed indicators covary, through proposing factors and residuals, translating the model, supplying the factor scale, and deriving implied moments and restrictions, to calibrating the substantive claim.">

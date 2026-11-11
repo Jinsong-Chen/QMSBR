@@ -37,7 +37,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../part-one/part_one_concept_reference.html" rel="next">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -47,7 +47,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -200,13 +200,13 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+ <span class="menu-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+ <span class="menu-text">Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</span></a>
   </div>
 </li>
     </ul>
@@ -264,7 +264,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="how-the-chapters-build-on-each-other" class="level2">
 <h2 class="anchored" data-anchor-id="how-the-chapters-build-on-each-other">How the Chapters Build on Each Other</h2>
-<p>Part One contains fourteen chapters. The first nine establish a route from questions and records to regression. Chapter 1, <em>The Quantitative Research Journey</em>, orients the reader in questions, evidence, design, and interpretation. Chapter 2, <em>Data, Distributions, and Variation</em>, develops records, distributions, and variation across repeated samples. Chapter 3, <em>Estimates, Uncertainty, and Statistical Tests</em>, develops estimation, intervals, and tests. Chapter 4, <em>Group Comparisons with Analysis of Variance</em>, develops comparisons among several groups. Chapter 5, <em>Description and Basic Inference with R</em>, and Chapter 6, <em>Group Comparisons and Statistical Modelling with R</em>, make those foundations executable. Chapters 7–9 then develop regression from one predictor to the regression toolbox: Chapter 7, <em>Simple Linear Regression</em>; Chapter 8, <em>Multiple Regression I: Conditioning, Checks, and Coordinated Questions</em>; and Chapter 9, <em>Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</em>.</p>
+<p>Part One contains fourteen chapters. The first nine establish a route from questions and records to regression. Chapter 1, <em>The Quantitative Research Journey</em>, orients the reader in questions, evidence, design, and interpretation. Chapter 2, <em>Data, Distributions, and Variation</em>, develops records, distributions, and variation across repeated samples. Chapter 3, <em>Estimates, Uncertainty, and Statistical Tests</em>, develops estimation, intervals, and tests. Chapter 4, <em>Group Comparisons with Analysis of Variance</em>, develops comparisons among several groups. Chapter 5, <em>Description and Basic Inference with R</em>, and Chapter 6, <em>Group Comparisons and Statistical Modelling with R</em>, make those foundations executable. Chapters 7–9 then develop regression from one predictor to the regression toolbox: Chapter 7, <em>Simple Linear Regression</em>; Chapter 8, <em>Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</em>; and Chapter 9, <em>Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</em>.</p>
 <p>Chapters 10–14 extend the regression framework to conditional relationships, noncontinuous outcomes and prediction, then return to the design of a study and the limits of its claims. Interaction changes how a relationship varies across conditions; generalized linear models change the outcome model; validation asks how a fitted rule performs on new cases; and causal design asks which comparisons can support an intervention claim.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -328,12 +328,12 @@ Table&nbsp;1: The question each chapter answers.
 <td style="text-align: left;">How does an outcome’s mean change with one predictor, and how well does a fitted line describe, estimate, and predict it?</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>8. Multiple Regression I: Conditioning, Checks, and Coordinated Questions</strong></td>
-<td style="text-align: left;">What does a comparison on one predictor mean when the other predictors are held fixed, and how can one set of records answer several coordinated questions?</td>
+<td style="text-align: left;"><strong>8. Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</strong></td>
+<td style="text-align: left;">What does a comparison on one predictor mean when the other predictors are held fixed, how do groups enter the same model, and how is one model compared with another?</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>9. Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</strong></td>
-<td style="text-align: left;">How can a regression’s mean part be changed or compared, and its uncertainty recalculated, when the question or the data call for it?</td>
+<td style="text-align: left;"><strong>9. Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</strong></td>
+<td style="text-align: left;">How far can a fitted regression’s answers be trusted, and how is the model revised or its uncertainty recalculated when its assumptions fail?</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>10. Interaction and Moderation</strong></td>
@@ -367,7 +367,7 @@ Table&nbsp;1: The question each chapter answers.
 <p>The numbered chapters share an arrangement. A <strong>Chapter overview</strong> box opens the chapter with the route it follows and what a reader will be able to do afterwards. Numbered sections develop the material in order. A closing <strong>Reading Bridge</strong> brings the principal ideas together and connects them to the next chapter, and a selective <strong>Key terms</strong> table gives a compact reference to the concepts explained principally there. Unnumbered material follows the numbered sections: exercises for working with the ideas, appendices holding fuller derivations and specialized extensions, and the references. The arrangement keeps the main explanation distinct from fuller derivations and specialized extensions.</p>
 <p>There are two sensible routes through the chapters. The first is the chapter sequence. The second pairs statistics with computation: Chapters 2 and 3 with Chapter 5, then Chapters 3 and 4 with Chapter 6. Either way, follow a method from its data and question through its calculation to its interpretation; a result separated from the question it answers is difficult to use.</p>
 <p>The <a href="https://jinsong-chen.github.io/QMSBR/part-one/part_one_concept_reference.html"><strong>Part One Concept Reference</strong></a> is published beside this introduction. It gathers the Key terms tables of Chapters 1–14 and of Argument Chapters A and B, one table for each chapter, so a term appears with its meaning under the chapter that explains it principally. A further table lists the procedures of Chapters 3 and 4 with what each estimates and the conditions it relies on, and a closing table records the notation that several chapters share. It is a place to look something up while reading rather than a substitute for reading, because first-use explanations and worked examples stay in the chapters themselves.</p>
-<p>Readers who would like to run R without installing anything can use the <a href="https://jinsong-chen.github.io/QMSBR/practice/">public browser practice pages</a> that accompany Chapters 3 and 4.</p>
+<p>Readers who would like to run R without installing anything can use the <a href="https://jinsong-chen.github.io/QMSBR/practice/">R support pages</a> that accompany Chapters 3 and 4.</p>
 </section>
 <section id="what-comes-later" class="level2">
 <h2 class="anchored" data-anchor-id="what-comes-later">What Comes Later</h2>

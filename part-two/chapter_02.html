@@ -58,7 +58,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-two/chapter_03.html" rel="next">
 <link href="../part-two/chapter_01.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -68,7 +68,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -682,7 +682,7 @@ Table&nbsp;2: Sample A audit, in raw process-index points; skewness is the third
 <p>There are 360 distinct rows, no missing values, and positive variance in every indicator. The minimum eigenvalue of the Pearson matrix is 0.223, so its inverse exists without matrix repair. This is a useful computational check, not evidence that the factor model is true. Normal-theory ML also needs an appropriate sampling and distributional interpretation. The simulation supplies independent normal factor/residual draws; a real study would have to justify or investigate those assumptions.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Boxplots of twelve continuous SLE indices, grouped by Planning, Strategy, and Belonging; all have nonzero dispersion." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Boxplots of twelve continuous SLE indices, grouped by Planning, Strategy, and Belonging; all have nonzero dispersion." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-distributions-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Boxplots of twelve continuous SLE indices, grouped by Planning, Strategy, and Belonging; all have nonzero dispersion." width="1120">
@@ -710,7 +710,7 @@ Figure&nbsp;1: Raw distributions in Sample A. Different dispersions motivate an 
 <p>The observations are synthetic samples generated from a prespecified continuous latent-variable population, and the exact released records are distributed as <code>sle_continuous.csv</code>. Throughout this chapter the analysis runs on Sample A alone: its 360 rows of twelve indicators, taken from that file in codebook order, and their Pearson correlation matrix <span class="math inline">\(\mathbf R\)</span>. For these complete observations, standardizing the covariance matrix gives the same Pearson matrix as direct calculation. That identity checks the transformation, not the suitability of Pearson correlation for every dataset. Numeric codes for categories would require a separate measurement treatment; that topic belongs to other courses or later series. Categorical group labels and coded predictors remain possible in later multigroup or MIMIC work. This brief boundary introduces no categorical-estimator track here.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-correlation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Twelve-by-twelve Pearson matrix with generally stronger within-domain correlations and positive relations between domains." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-correlation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Twelve-by-twelve Pearson matrix with generally stronger within-domain correlations and positive relations between domains." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-correlation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-correlation-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Twelve-by-twelve Pearson matrix with generally stronger within-domain correlations and positive relations between domains." width="1040">
@@ -996,7 +996,7 @@ Table&nbsp;5: <em>The parallel-analysis settings that affect the retained count.
 <p><strong>Two targets, two panels.</strong> <a href="#fig-efa-pa" class="quarto-xref">Figure&nbsp;3</a> runs this comparison twice, and the difference between its panels is the diagonal of the matrix being decomposed. The left panel uses the full Pearson matrix, whose diagonal is all ones: its eigenvalues describe <em>total</em> standardized variance, which is what a principal component analysis decomposes. The right panel replaces that diagonal with SMCs before taking eigenvalues, so it describes only the variance each indicator shares with the others - closer to what a common-factor model tries to explain. Reduced-matrix eigenvalues are smaller, and the later ones can be negative, which is why the two panels have different vertical scales and why an observed curve must only ever be read against the reference drawn beside it. The same diagonal rule is applied to every permuted matrix as well, so each panel is an internally consistent comparison.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-pa" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels show full Pearson and SMC-reduced eigenvalues against their separate permutation 95th percentiles. The first three observed roots exceed their references in each panel." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-pa" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels show full Pearson and SMC-reduced eigenvalues against their separate permutation 95th percentiles. The first three observed roots exceed their references in each panel." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-pa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-pa-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Two panels show full Pearson and SMC-reduced eigenvalues against their separate permutation 95th percentiles. The first three observed roots exceed their references in each panel." width="1152">
@@ -1334,7 +1334,7 @@ Table&nbsp;9: Neighboring ML solutions. RMS uses distinct off-diagonal correlati
 <p>An interior uniqueness of .200 and a bound-constrained uniqueness of .005 are qualitatively different evidence. The latter can signal too many factors, a highly redundant pair, sampling fluctuation, or a misspecified common-factor model. Inspect its indicator and neighboring pattern before assigning a new construct name. Do not silently omit the bound from the report or describe it as evidence of nearly perfect measurement.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-neighbors" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three heatmaps display all loadings in the two-, three-, and four-factor solutions, allowing comparison of merged and split item groups." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-neighbors" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three heatmaps display all loadings in the two-, three-, and four-factor solutions, allowing comparison of merged and split item groups." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-neighbors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-neighbors-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Three heatmaps display all loadings in the two-, three-, and four-factor solutions, allowing comparison of merged and split item groups." width="1152">
@@ -1389,7 +1389,7 @@ T_m=\left[n-1-\frac{2p+5}{6}-\frac{2m}{3}\right]
 <p>If the transformed factor variances are subsequently rescaled to one, the loading columns must be rescaled correspondingly. Multiplying the loadings by an arbitrary matrix while leaving <span class="math inline">\(\boldsymbol\Phi\)</span> unchanged is not an equivalent oblique rotation. This inverse-paired transformation is the same principle introduced in Chapter 1.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-rotation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three panels show the same four indicators under original, orthogonal, and oblique factor coordinates; oblique coordinates require a matching factor covariance." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-rotation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three panels show the same four indicators under original, orthogonal, and oblique factor coordinates; oblique coordinates require a matching factor covariance." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-rotation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-rotation-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Three panels show the same four indicators under original, orthogonal, and oblique factor coordinates; oblique coordinates require a matching factor covariance." width="1152">
@@ -1879,7 +1879,7 @@ Table&nbsp;14: Item decisions combine the existing Sample A estimates with the i
 <p>The off-diagonal average deliberately excludes variances. It is not automatically identical to every software statistic called RMSR or SRMR. Its definition here is transparent and reproducible. The largest absolute residual supplies different information: one problematic pair can be concealed by averaging many small residuals.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-efa-residual" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A labeled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell." data-fig-pos="H" data-fig-align="center">
+<div id="fig-efa-residual" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A labeled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell." data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-efa-residual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-efa-residual-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="A labeled residual heatmap shows small positive and negative discrepancies across the twelve indicators, with values printed in every cell." width="1008">

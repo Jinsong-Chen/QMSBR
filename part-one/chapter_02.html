@@ -58,7 +58,7 @@ div.csl-indent {
 <meta name="quarto:offset" content="../">
 <link href="../part-one/chapter_03.html" rel="next">
 <link href="../part-one/chapter_01.html" rel="prev">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../website/assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -68,7 +68,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f493eea3bd17280f8ec81a293a4b649d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c03294a22ca32d369c42465dc17aab00.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -250,13 +250,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_08.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression I: Conditioning, Checks, and Coordinated Questions</span></a>
+ <span class="menu-text">Multiple Regression I: Adjusted Relationships, Group Comparisons, and Model Comparison</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../part-one/chapter_09.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Regression II: Categorical Predictors, Model Comparison, Nonlinearity, and Robust Uncertainty</span></a>
+ <span class="menu-text">Multiple Regression II: Model Assumptions, Diagnostics, and Respecification</span></a>
   </div>
 </li>
     </ul>
@@ -704,7 +704,7 @@ Table&nbsp;5: Graphs answer different descriptive questions.
 <p><a href="#fig-ch02-graph-gallery" class="quarto-xref">Figure&nbsp;1</a> shows how those choices work with invented learning records. Bars ease comparisons between category counts; a pie chart emphasizes shares of a whole. The four displays of completion times use the same sixteen values. A <strong>density curve</strong> smooths their shape, with the degree of smoothing controlled by a bandwidth. Its height is not the probability of one exact time. Here the smoother is shown only over feasible positive times; it is an exploratory summary rather than a fitted probability law. Individual points keep the observations visible in a small sample.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-graph-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Bar and pie panels show counts four, seven and five for three learning formats. A histogram, density curve and boxplot show the same sixteen completion times, with a long right tail. The final panel shows individual times.">
+<div id="fig-ch02-graph-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar and pie panels show counts four, seven and five for three learning formats. A histogram, density curve and boxplot show the same sixteen completion times, with a long right tail. The final panel shows individual times." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-graph-gallery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-graph-gallery-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Bar and pie panels show counts four, seven and five for three learning formats. A histogram, density curve and boxplot show the same sixteen completion times, with a long right tail. The final panel shows individual times.">
@@ -719,7 +719,7 @@ Figure&nbsp;1: Several views of invented learning records: category proportions 
 <p><a href="#fig-grade-distribution" class="quarto-xref">Figure&nbsp;2</a> displays all 395 final grades. The graph makes several features visible: the score is bounded between 0 and 20, centered near 11, discrete rather than continuous, and has a visible group at zero.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-grade-distribution" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="A histogram of grades from zero to twenty is centered near eleven, bounded at both ends, and shows a visible group at zero.">
+<div id="fig-grade-distribution" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A histogram of grades from zero to twenty is centered near eleven, bounded at both ends, and shows a visible group at zero." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-grade-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-grade-distribution-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="A histogram of grades from zero to twenty is centered near eleven, bounded at both ends, and shows a visible group at zero.">
@@ -743,7 +743,7 @@ Figure&nbsp;2: Distribution of final mathematics grades for the 395 students. Da
 <p><a href="#fig-ch02-skew-centers" class="quarto-xref">Figure&nbsp;3</a> shows three invented sets of 300 test scores on a 0–100 scale. In the right-skewed panel the mean, 19.5477, lies above the median, 13.7055. The left-skewed panel reflects those scores, so its mean, 80.4523, lies the same distance below its median, 86.2945; in the symmetric panel the two lines nearly coincide. The ordering is a common pattern rather than a rule: a gap, a second cluster or many tied values on a discrete scale can break it, so read it together with the graph.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-skew-centers" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Three histograms of invented test scores share an axis from 0 to 100. In the left-skewed panel most scores lie above 70 and a long tail reaches down toward 15; the dashed mean line, at 80.4523, lies left of the dotted median line, at 86.2945. The symmetric panel is centered near 50, with the two lines almost together. The right-skewed panel mirrors the left one: most scores lie below 30, a long tail reaches up toward 85, and the mean, 19.5477, lies right of the median, 13.7055.">
+<div id="fig-ch02-skew-centers" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three histograms of invented test scores share an axis from 0 to 100. In the left-skewed panel most scores lie above 70 and a long tail reaches down toward 15; the dashed mean line, at 80.4523, lies left of the dotted median line, at 86.2945. The symmetric panel is centered near 50, with the two lines almost together. The right-skewed panel mirrors the left one: most scores lie below 30, a long tail reaches up toward 85, and the mean, 19.5477, lies right of the median, 13.7055." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-skew-centers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-skew-centers-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Three histograms of invented test scores share an axis from 0 to 100. In the left-skewed panel most scores lie above 70 and a long tail reaches down toward 15; the dashed mean line, at 80.4523, lies left of the dotted median line, at 86.2945. The symmetric panel is centered near 50, with the two lines almost together. The right-skewed panel mirrors the left one: most scores lie below 30, a long tail reaches up toward 85, and the mean, 19.5477, lies right of the median, 13.7055.">
@@ -955,7 +955,7 @@ Table&nbsp;8: Five numerical summaries of final mathematics grade.
 <p><a href="#fig-same-mean" class="quarto-xref">Figure&nbsp;4</a> shows three invented distributions with the same mean of 10. Their shapes and spreads are plainly different.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-same-mean" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Faceted dot plots show a concentrated distribution around ten, a broad evenly spaced distribution, and a right-skewed distribution. Each has mean ten.">
+<div id="fig-same-mean" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Faceted dot plots show a concentrated distribution around ten, a broad evenly spaced distribution, and a right-skewed distribution. Each has mean ten." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-same-mean-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-same-mean-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Faceted dot plots show a concentrated distribution around ten, a broad evenly spaced distribution, and a right-skewed distribution. Each has mean ten.">
@@ -1083,7 +1083,7 @@ Table&nbsp;10: <em>A small grouped dataset for describing center and spread</em>
 <p>Group B takes three minutes longer on average, but its learners are also more spread out. The dotplot in <a href="#fig-ch02-groups" class="quarto-xref">Figure&nbsp;5</a> keeps both features visible. Some learners in different groups have the same time, and the group means summarize rather than replace those observations.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-groups" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Group A has times one and three, with mean two. Group B has times three, three, five, and nine, with mean five. The two three-minute learners in group B are shown separately. Diamonds mark group means.">
+<div id="fig-ch02-groups" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Group A has times one and three, with mean two. Group B has times three, three, five, and nine, with mean five. The two three-minute learners in group B are shown separately. Diamonds mark group means." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-groups-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-groups-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Group A has times one and three, with mean two. Group B has times three, three, five, and nine, with mean five. The two three-minute learners in group B are shown separately. Diamonds mark group means.">
@@ -1118,7 +1118,7 @@ s_B=\sqrt{8}=2.8284\text{ minutes}.
 <p>The same reasoning applies to the school grades. The dataset records whether each student reported an intention to pursue higher education; this is a reported intention, not eventual enrollment. <a href="#fig-ch02-intention-groups" class="quarto-xref">Figure&nbsp;6</a> shows every student’s grade in the two groups, with a boxplot for each group and a diamond at each mean. The dashed line separates passing grades, 10 or above, from the rest, so the share of each group to its right is the passing proportion that Section 3.1 compares.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-intention-groups" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Horizontal boxplots with every student's grade shown as a point. The 20 students with no intention have a box from zero to ten, median eight and mean 6.8, with six zero grades. The 375 students with the intention have a box from nine to fourteen, median eleven and mean 10.6, with 32 zero grades set apart from the rest of their group.">
+<div id="fig-ch02-intention-groups" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Horizontal boxplots with every student's grade shown as a point. The 20 students with no intention have a box from zero to ten, median eight and mean 6.8, with six zero grades. The 375 students with the intention have a box from nine to fourteen, median eleven and mean 10.6, with 32 zero grades set apart from the rest of their group." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-intention-groups-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-intention-groups-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Horizontal boxplots with every student's grade shown as a point. The 20 students with no intention have a box from zero to ten, median eight and mean 6.8, with six zero grades. The 375 students with the intention have a box from nine to fourteen, median eleven and mean 10.6, with 32 zero grades set apart from the rest of their group.">
@@ -1275,7 +1275,7 @@ Table&nbsp;12: Models for different kinds of possible observations.
 <p>For <strong>discrete</strong> outcomes, probabilities at the possible values add to one. For a <strong>continuous</strong> variable, a density curve has total area one, and the probability of a range is its area. A curve height is not a probability at one exact value. <a href="#fig-ch02-model-gallery" class="quarto-xref">Figure&nbsp;7</a> shows masses and densities separately. The displayed axes show informative ranges; they do not make a Normal, Lognormal or Poisson tail end at the plot boundary. Positive skew alone establishes none of these models.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-model-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD 0.5 is positive and right-skewed.">
+<div id="fig-ch02-model-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD 0.5 is positive and right-skewed." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-model-gallery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-model-gallery-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Bernoulli probabilities at zero and one are .3 and .7. A Binomial with ten trials and success probability .7 peaks near seven. Three category probabilities are .2, .5 and .3. A Poisson with mean three has a right tail. A Normal with mean fifty and SD ten is symmetric; a Lognormal with log mean two and log SD 0.5 is positive and right-skewed.">
@@ -1326,7 +1326,7 @@ P(|Z|\le1)=.6827,\quad P(|Z|\le2)=.9545,\quad P(|Z|\le3)=.9973.
 \]</span></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-standard-normal" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Three identical standard Normal curves shade the areas between minus and plus one, two, and three. Their central probabilities are .6827, .9545 and .9973.">
+<div id="fig-standard-normal" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three identical standard Normal curves shade the areas between minus and plus one, two, and three. Their central probabilities are .6827, .9545 and .9973." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-standard-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-standard-normal-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Three identical standard Normal curves shade the areas between minus and plus one, two, and three. Their central probabilities are .6827, .9545 and .9973.">
@@ -1350,7 +1350,7 @@ x_{.95}=50+10\Phi^{-1}(.95)=66.4485.
 <p>How can we judge whether a Normal model suits recorded scores? Compare what the model predicts with what was observed. For the 395 grades, take the Normal model with the observed mean 10.4152 and SD 4.5814. <a href="#fig-ch02-normal-check" class="quarto-xref">Figure&nbsp;9</a> draws that model’s density over a histogram of the grades, scaled so that bar areas are proportions, and <a href="#tbl-ch02-within-k-sd" class="quarto-xref">Table&nbsp;13</a> compares the shares the model predicts within one, two and three SDs of the mean with the shares observed. Its last row compares the zero grades with the model’s whole lower tail at or below 0.5, which also contains negative values that no grade can take.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-normal-check" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="A histogram of the grades, scaled to proportions, with a Normal curve centered near 10.4. Across the middle grades the bars and the curve broadly agree. At zero a bar of 38 students stands far above the curve, which expects between two and three students in that bar, and no student has a grade of one, two or three although the curve is above zero there. The curve also extends below zero, where no grade can occur.">
+<div id="fig-ch02-normal-check" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A histogram of the grades, scaled to proportions, with a Normal curve centered near 10.4. Across the middle grades the bars and the curve broadly agree. At zero a bar of 38 students stands far above the curve, which expects between two and three students in that bar, and no student has a grade of one, two or three although the curve is above zero there. The curve also extends below zero, where no grade can occur." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-normal-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-normal-check-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="A histogram of the grades, scaled to proportions, with a Normal curve centered near 10.4. Across the middle grades the bars and the curve broadly agree. At zero a bar of 38 students stands far above the curve, which expects between two and three students in that bar, and no student has a grade of one, two or three although the curve is above zero there. The curve also extends below zero, where no grade can occur.">
@@ -1500,7 +1500,7 @@ Table&nbsp;14: Higher-education intention and mathematics pass status for the 39
 <p>Thus the passing proportion is higher among the students reporting a higher-education intention. Percentage points express the subtraction of two percentages; the calculation above is not a relative percentage increase. The left panel of <a href="#fig-ch02-conditional-bars" class="quarto-xref">Figure&nbsp;10</a> draws the two conditional proportions.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-conditional-bars" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Two bar charts. On the left, 35.0 percent of the 20 students without the intention passed, against 68.8 percent of the 375 with it. On the right, 97.3585 percent of the 265 students who passed reported the intention, against 90.0000 percent of the 130 who did not pass.">
+<div id="fig-ch02-conditional-bars" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two bar charts. On the left, 35.0 percent of the 20 students without the intention passed, against 68.8 percent of the 375 with it. On the right, 97.3585 percent of the 265 students who passed reported the intention, against 90.0000 percent of the 130 who did not pass." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-conditional-bars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-conditional-bars-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Two bar charts. On the left, 35.0 percent of the 20 students without the intention passed, against 68.8 percent of the 375 with it. On the right, 97.3585 percent of the 265 students who passed reported the intention, against 90.0000 percent of the 130 who did not pass.">
@@ -1519,7 +1519,7 @@ Figure&nbsp;10: The same 395 students read in two directions. Left: percent pass
 <p>For two quantitative variables, a scatterplot shows one point for each paired observation. The four invented examples in <a href="#fig-relationship-forms" class="quarto-xref">Figure&nbsp;11</a> show how different relationships can look before we summarize them with a coefficient.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-relationship-forms" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Four panels show a positive line, a negative line, a U-shaped curve, and no clear pattern.">
+<div id="fig-relationship-forms" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four panels show a positive line, a negative line, a U-shaped curve, and no clear pattern." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-relationship-forms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-relationship-forms-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Four panels show a positive line, a negative line, a U-shaped curve, and no clear pattern.">
@@ -1752,7 +1752,7 @@ Table&nbsp;17: Different correlations summarize different patterns.
 <p>We use <span class="math inline">\(\tau_K\)</span> for Kendall’s coefficient to distinguish it from a later mean-difference estimand. Point-biserial correlation is the ordinary Pearson correlation when one variable is coded zero/one; reversing the group coding reverses its sign. A non-Normal histogram by itself does not determine which coefficient answers the relationship question. Inspect the paired pattern, variable meaning and unusual observations before choosing a summary.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-r-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation.">
+<div id="fig-ch02-r-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-r-gallery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-r-gallery-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Six panels use common horizontal and vertical scales and equal sample sizes. They range from strongly negative through weak association to strongly positive. Each label gives its computed Pearson correlation.">
@@ -1771,7 +1771,7 @@ Figure&nbsp;12: Six simulated scatterplots show different directions and strengt
 <p><a href="#fig-absence-grade" class="quarto-xref">Figure&nbsp;13</a> preserves all 395 paired observations. Jitter makes overlapping integer-valued points visible; it does not change the values used for the coefficient.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-absence-grade" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. The smooth rises from zero absences to low positive counts, then declines, with fewer students in the high-absence tail.">
+<div id="fig-absence-grade" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. The smooth rises from zero absences to low positive counts, then declines, with fewer students in the high-absence tail." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-absence-grade-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-absence-grade-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="A jittered scatterplot shows most students below twenty absences, a concentrated set at zero absences and zero final grade, a few much larger absence counts up to seventy-five, and little overall linear pattern. The smooth rises from zero absences to low positive counts, then declines, with fewer students in the high-absence tail.">
@@ -1833,7 +1833,7 @@ r_{xy\cdot z}=\frac{r_{xy}-r_{xz}r_{yz}}
 <p>There are now two different sets of numbers to keep in view. Within the first sample, the 100 individual grades have a distribution. Across repetitions, the sample means 10.6, 11.2, 10.9, and so on have another distribution. A dot in the first distribution represents a student’s grade; a dot in the second represents the mean from an entire sample of 100 students.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-sampling-process" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="The same population of twenty thousand students supplies three repeated samples of one hundred. Their sample means are ten point six, eleven point two, and ten point nine. The individual grades within a sample and the sample means across repetitions form different distributions.">
+<div id="fig-ch02-sampling-process" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The same population of twenty thousand students supplies three repeated samples of one hundred. Their sample means are ten point six, eleven point two, and ten point nine. The individual grades within a sample and the sample means across repetitions form different distributions." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-sampling-process-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-sampling-process-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="The same population of twenty thousand students supplies three repeated samples of one hundred. Their sample means are ten point six, eleven point two, and ten point nine. The individual grades within a sample and the sample means across repetitions form different distributions.">
@@ -1855,7 +1855,7 @@ Figure&nbsp;14: Repeating the same sampling process produces a distribution of s
 <p>The procedure is straightforward. First generate five waiting times, then calculate their mean. Start afresh and do this 5,000 times, saving one mean from each repetition. Next repeat the procedure with 30 waiting times per sample, and finally with 100. The first panel of <a href="#fig-ch02-sampling-means" class="quarto-xref">Figure&nbsp;15</a> shows the model for individual waits; each of the other three summarizes <strong>5,000 sample means</strong>, not 5,000 individual waiting times.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-sampling-means" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Four panels share an axis from zero to thirty-five minutes. The model for individual waits falls steadily from zero with a long right tail and SD 10. Means of five waits are broad and right-skewed, with SE 4.5395. Means of thirty are narrower and more symmetric, with SE 1.7878. Means of one hundred are tightly concentrated around ten and approximately bell-shaped, with SE 1.0076.">
+<div id="fig-ch02-sampling-means" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four panels share an axis from zero to thirty-five minutes. The model for individual waits falls steadily from zero with a long right tail and SD 10. Means of five waits are broad and right-skewed, with SE 4.5395. Means of thirty are narrower and more symmetric, with SE 1.7878. Means of one hundred are tightly concentrated around ten and approximately bell-shaped, with SE 1.0076." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-sampling-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-sampling-means-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Four panels share an axis from zero to thirty-five minutes. The model for individual waits falls steadily from zero with a long right tail and SD 10. Means of five waits are broad and right-skewed, with SE 4.5395. Means of thirty are narrower and more symmetric, with SE 1.7878. Means of one hundred are tightly concentrated around ten and approximately bell-shaped, with SE 1.0076.">
@@ -1936,7 +1936,7 @@ Table&nbsp;18: Center and spread of the simulated sample means, in minutes
 <p>These comparisons hold the model and the sampling process constant. Sample size is not, however, the only feature of a design that sets the spread of sample means. Suppose the invented school system’s 20,000 students attend 100 schools of 200 students each, and students in the same school tend to have similar grades. We compare two ways of selecting 100 students: a simple random sample from the whole register, and a multistage sample that randomly selects 4 schools and then 25 students within each selected school. <a href="#fig-ch02-design-effect" class="quarto-xref">Figure&nbsp;16</a> repeats each design 5,000 times from the same invented population.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ch02-design-effect" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="!ht" data-fig-align="center" alt="Two histograms on a shared axis from seven to fourteen. Means from simple random samples of 100 students cluster tightly around 10.4, with SD 0.4397. Means from samples of 4 schools with 25 students each spread about twice as widely, with SD 0.8730, and many fall more than one grade point from the population mean.">
+<div id="fig-ch02-design-effect" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two histograms on a shared axis from seven to fourteen. Means from simple random samples of 100 students cluster tightly around 10.4, with SD 0.4397. Means from samples of 4 schools with 25 students each spread about twice as widely, with SD 0.8730, and many fall more than one grade point from the population mean." data-fig-align="center" data-fig-pos="!ht">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ch02-design-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="chapter_02_files/figure-html/fig-ch02-design-effect-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%" data-fig-pos="!ht" alt="Two histograms on a shared axis from seven to fourteen. Means from simple random samples of 100 students cluster tightly around 10.4, with SD 0.4397. Means from samples of 4 schools with 25 students each spread about twice as widely, with SD 0.8730, and many fall more than one grade point from the population mean.">
